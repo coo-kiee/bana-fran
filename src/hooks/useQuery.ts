@@ -59,7 +59,7 @@ const fetchLogin = async (params: RequestParams<Object>) => {
         `${process.env.REACT_APP_SERVER_DOMAIN}/login`,
         JSON.stringify(params),
         null,
-        RES_DATA_TYPE.OBJECT,
+        RES_DATA_TYPE.LIST,
         true,
     )
     return data

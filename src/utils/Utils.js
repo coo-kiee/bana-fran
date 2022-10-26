@@ -179,20 +179,22 @@ export default class Utils {
     }
 
     static setToken = (sToken) => {
-        localStorage.setItem("login_token",sToken);
+        sessionStorage.setItem("login_token",sToken);
     }
      
     static getToken = () => {
-        return localStorage.getItem("login_token");
+        return sessionStorage.getItem("login_token");
     }
      
     static removeToken = () => {
-        localStorage.removeItem("login_token");
+        sessionStorage.removeItem("login_token");
         localStorage.removeItem("userID");
         localStorage.removeItem("userNm");
+        localStorage.removeItem("userNo");
     }
+    
     static chkToken = () => {
-        if(localStorage.getItem("login_token") === null || localStorage.getItem("login_token") === "null" || localStorage.getItem("login_token") === "") {
+        if(sessionStorage.getItem("login_token") === null || sessionStorage.getItem("login_token") === "null" || sessionStorage.getItem("login_token") === "") {
             return false;	    			
         } else {
             return true;

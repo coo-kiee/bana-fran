@@ -1,19 +1,22 @@
-import React, { useEffect, useState, useCallback, Fragment } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { sideMenus, SIDE_MENU_TYPE } from "./data/SideMenu";
-import { useNavigate } from "react-router-dom";
-import Utils from 'utils/Utils';
+import { Link } from "react-router-dom";
+import { useRecoilValue } from 'recoil'
+import { useLogin } from 'hooks/useLogin';
+import { loginState } from 'state';
 
-import LOGIN_SERVICE from 'service/loginService';
+import img_logo from 'assets/images/common/logo.svg';
 
 type SideMenuBarType = {
     index : number,
-    subIndex : number
+    subIndex : number,
+    show : boolean
 }
 
 const SideMenu:React.FC<{activeMenu:SideMenuBarType, sideMenus:Array<SIDE_MENU_TYPE>, setActiveMenu:React.Dispatch<React.SetStateAction<SideMenuBarType>>}> = ({activeMenu, sideMenus, setActiveMenu}) => {
     
     const handleMenuClick = (index:number) => {
-        setActiveMenu({ index : index,  subIndex : -1})
+        setActiveMenu({ index : index,  subIndex : -1, show : !activeMenu.show})
     }
 
     const handleSubMenuClick = (subIndex:number) => {
@@ -21,49 +24,44 @@ const SideMenu:React.FC<{activeMenu:SideMenuBarType, sideMenus:Array<SIDE_MENU_T
     }
 
     return (
-        <Fragment>
+        <ul className="menu-list">
             {
-            sideMenus.map((data:SIDE_MENU_TYPE, key) => {
-                const childMenu = data.child?.map((subData, ckey) => 
-                    <div key={`link_${ckey}`}  className="menu-sub-item" onClick={() => handleSubMenuClick(subData.id)}>- {subData.name}  {activeMenu.subIndex === subData.id ? '[선택]' : ''}</div>
-                );
+                sideMenus.map((data:SIDE_MENU_TYPE, key) => {
+                    const childMenu = data.child?.map((subData, ckey) => 
+                        <li key={`sublink_${ckey}`} className={`${activeMenu.subIndex === subData.id ? 'active' : ''}`}>
+                            <Link to={data.path + subData.path} className="menu" onClick={() => handleSubMenuClick(subData.id)}>{subData.name}</Link>
+                        </li>
+                    );
 
-                const childLen = data.child?.length || 0
-                return (childLen > 0 ? 
-                        <div  className="menu-item" key={`menu_${key}`}>
-                            <div onClick={() => handleMenuClick(data.id) } className="menu-title">
-                                {data.name}  {activeMenu.index === data.id ? '[SHOW]' : '[HIDE]'}
-                                {/* <Icon name={data.icon}/> {prdataop.name}   { data.child.length > 0 ? <Icon name='dropdown' /> : null } */}
-                            </div>
-                            {childMenu}
-                        </div> 
-                    :
-                    <div key={`link_${key}`}  className="menu-sub-item" onClick={() => handleMenuClick(data.id)}> {data.name}  {activeMenu.index === data.id ? '[선택]' : ''}</div>
-                )
-            })}
-        </Fragment>
+                    const childLen = data.child?.length || 0
+                    return (childLen > 0 ? 
+                        <li key={`link_${key}`} className={`list-item depth ${activeMenu.index === data.id && activeMenu.show ? 'active' : ''}`}>
+                            <span className="menu" onClick={() => handleMenuClick(data.id) } >{data.name}</span>
+                            <ul className="depth-list">
+                                {childMenu}
+                            </ul>
+                        </li>
+                        :
+                        <li key={`link_${key}`} className={`list-item ${activeMenu.index === data.id ? 'active' : ''}`}>
+                            <Link to={data.path} className="menu" onClick={() => handleMenuClick(data.id)}>{data.name}</Link>
+                        </li>
+                    )
+                })
+            }
+        </ul>
     )
 }
 
 const SideMenubar:React.FC = () => {
-    const navigate = useNavigate()
+    const {logout} = useLogin()
+    const loginInfo = useRecoilValue(loginState);
 
     const [activeMenu, setActiveMenu] = useState<SideMenuBarType>({
         index: -1 ,
-        subIndex : -1
+        subIndex : -1,
+        show : false
     })
-
-    // 로그아웃 Mutation
-    const logoutMutation = LOGIN_SERVICE.useLogout(
-        (error: any) => {
-            console.log("로그아웃 오류", error)
-        },
-        (result: any, variables : any) => {
-            Utils.removeToken();
-            navigate("/");
-        }
-    );
-
+ 
     // 메뉴활성화 처리.
     useEffect(() => {
         // URL로 바로 접속 시 side menu 처리.
@@ -73,11 +71,11 @@ const SideMenubar:React.FC = () => {
                 if(data.path === window.location.pathname) menuData = {...data, pId : data.id }
                 else {
                     data.child?.forEach(cdata => {
-                        if(cdata.path === window.location.pathname) menuData = {...cdata, pId : data.id }
+                        if( (data.path + cdata.path) === window.location.pathname) menuData = {...cdata, pId : data.id, id : cdata.id } 
                     });
                 }
             })
-            setActiveMenu({index: menuData.pId, subIndex:menuData.id})
+            setActiveMenu({index: menuData.pId, subIndex:menuData.id, show: menuData.id > 0 ? true : false})
         }
     }, [])
 
@@ -91,23 +89,34 @@ const SideMenubar:React.FC = () => {
             'sCToken' : login_token,       
             'sIP' : '@ip'
         }
-        logoutMutation.mutate(params);
-    }, [logoutMutation])
+        logout(params);
+    }, [logout])
 
-    console.log("SIDE MENU BAR RENDER!!")
-
+    console.log("SIDE MENU BAR RENDER!!", loginInfo)
     return(
-        <>
-            <div className="sub-side-top">
-                {/* <img src='/img/common/logo.png' /> */}
-                <p>가맹점 사이트</p>
-                <p><b>{localStorage.getItem("userNm")}</b>님 안녕하세요.</p>
+        <nav>
+            <img className="logo" src={img_logo} alt="banapresso" />
+            <div className="user">
+                <p><span className="name">{localStorage.getItem("userNm")}</span>님</p>
+                <p>안녕하세요.</p>
+            </div>
+            <div className="select-spot">
+                <select name="spot">
+                    { 
+                        loginInfo.userInfo.f_list.map((data:any, key:number) => 
+                            <option key={key} value={data.f_code}>{data.f_code_name}</option>
+                        )
+                    }
+                </select>
             </div>
             <SideMenu activeMenu={activeMenu} sideMenus={sideMenus} setActiveMenu={setActiveMenu}/>
 
             {/* 로그아웃 */}
-            <button onClick={handleLogOut} >로그아웃</button>
-        </>
+            <div className="user-function">
+                <p><Link to={'#'} onClick={handleLogOut}>로그아웃</Link></p>
+                <p><Link to={'#'}>비밀번호 변경</Link></p>
+            </div>
+        </nav>
     )
 } 
 

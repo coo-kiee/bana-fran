@@ -1,11 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 import { useMutation } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
-// import { Modal } from 'common/modal'
-// import { CAR_TYPE, TruckOptionInfo, TRUCK_TYPE_LIST } from 'types/orderType'
-// import { CarChargeSearchParams } from 'types/common'
-// import Utils from 'utils/Utils';
-
 
 // 로그인
 const useLogin = (onError: any, onSuccess: any) => {

@@ -1,55 +1,36 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'
-
-import LOGIN_SERVICE from 'service/loginService';
 import Utils from 'utils/Utils';
+
+import { useLogin } from 'hooks/useLogin';
 
 type LoginInfoType = {
     loginID : string,
     loginPW : string,
     authNumber : string,
     btoken : boolean,
-    sCToken : string
+    sCToken : string,
+    chkSaveID : boolean
 }
 
-const Login = () => {
-    const navigate = useNavigate()
-    
+const Login:React.FC = () => {
+    const {login} = useLogin()
+
     const [loginInfo, setLoginInfo] = useState<LoginInfoType>({
         loginID : "",
         loginPW : "",
         authNumber : "",
-        btoken : false,
-        sCToken : ""
+        btoken : true,
+        sCToken : "",
+        chkSaveID : false
     })
-    
-    // 로그인 Mutation
-    const loginMutation = LOGIN_SERVICE.useLogin(
-        (error: any) => {
-            console.log("로그인 오류", error)
-        },
-        (result: any, variables : any) => {
-            if (result?.out?.sError === '' && result?.out?.nFCode !== -1){
-                const scale = typeof(Utils.getQueryVariable("scale")) !== "undefined" ? Utils.getQueryVariable("scale") : 1;
-                let now = new Date();
-                let time = now.getTime();
-                let expireTime = time + 1000*36000*2;
-                now.setTime(expireTime);
 
-                if(result?.out?.sToken !== null) Utils.setToken(result?.out?.sToken);
-                localStorage.setItem("userID", result?.out?.sLoginID);
-                localStorage.setItem("userNm", result?.out?.sName);
-                document.cookie = 'scale=' + scale + ';expires=' + now.toString() + ';';
-                navigate("/home");
-            }else{
-                Utils.removeToken();
-                alert(result?.out?.sError);
-            }
-        }
-    );
-
-    // 자동로그인.
+    // 아이디 저장표시.
     useEffect(() => {
+        const saveID = localStorage.getItem("sUserID")||"";
+        console.log(saveID)
+        if(saveID !== ""){
+            setLoginInfo({...loginInfo, loginID : saveID, chkSaveID : true})
+        }
         //토큰값이 있는경우 자동로그인 시도
         if(Utils.chkToken() === true) {	 
             // const params = {
@@ -59,18 +40,22 @@ const Login = () => {
             //     sCToken : Utils.getToken(),
             //     sIP : "@ip",
             // }
-            // loginMutation.mutate(params);
+            // login(params)
         }
     },[])
 
     // 데이터 변경.
     const handleChangeData = (e:ChangeEvent<HTMLInputElement>) => {
-        setLoginInfo({...loginInfo, [e.target.name] : e.target.value})
+        if(e.target.name === "chkSaveID"){
+            setLoginInfo({...loginInfo, [e.target.name] : e.target.checked})
+        }else{
+            setLoginInfo({...loginInfo, [e.target.name] : e.target.value})
+        }
     }
 
-     // 로그인 처리.
-     const handleLogin = useCallback(() => {
-        const { loginID, loginPW } = loginInfo
+    // 로그인 처리.
+    const handleLogin = useCallback(() => {
+        const { loginID, loginPW, chkSaveID } = loginInfo
         if(loginID === ''){
             alert("아이디를 입력해 주세요.")
             return false
@@ -78,15 +63,20 @@ const Login = () => {
             alert("비밀번호를 입력해 주세요.")
             return false
         }
+
+        // 아이디 저장.
+        if(chkSaveID) localStorage.setItem("sUserID", loginID)
+        else localStorage.removeItem("sUserID")
+        
         const params = {
             'sID' : loginInfo.loginID,
             'sPW' : loginInfo.loginPW,
-            'btoken' : 0,	       // 1이면 토큰값 생성 및 저장 (자동로그인)
-            'sCToken' : '',        // 브라우저에 저장된 토큰값
+            'btoken' : loginInfo.btoken, // 1이면 토큰값 생성 및 저장 (자동로그인)
+            'sCToken' : '',              // 브라우저에 저장된 토큰값
             'sIP' : '@ip'
         }
-        loginMutation.mutate(params);
-    }, [loginMutation, loginInfo])
+        login(params)
+    }, [login, loginInfo])
 
     return (
         <article>
@@ -100,7 +90,7 @@ const Login = () => {
                         <input className="input password" type="password" placeholder="비밀번호" name="loginPW" value={loginInfo.loginPW} onChange={handleChangeData}/>
                         <div className="sub-wrap">
                             <div className="id-storage">
-                                <input className="check" type="checkbox" id="id" />
+                                <input className="check" type="checkbox" name="chkSaveID" id="id" onChange={handleChangeData} checked={loginInfo.chkSaveID}/>
                                 <label htmlFor="id">아이디 저장</label>
                             </div>
                             <button className="password-modify">비밀번호 재설정</button>
