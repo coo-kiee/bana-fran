@@ -1,0 +1,29 @@
+.claim-wrap { 
+    .contents { position: relative; width: 100%; padding-top: 40px; 
+        .info-wrap { line-height: 26px; font-size: 16px; font-weight: 300; color: #888; }
+        .board-wrap {  margin-top: 15px;  border-radius: 20px; box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08); overflow: hidden;
+            &.board-top {
+                td { height: 52px; }
+            }
+            td { height: 73px; }
+        }
+        .search-wrap { margin-top: 30px; align-items: center;
+            .title { margin: 0px 6px 0px 0px; font-size: 16px; }
+            .input-wrap {  display: flex; align-content: center; align-items: center; }
+        }
+        .board-wrap {
+            .price-area { height: 45px; background: #585872; border: 0px!important; text-align: center; font-size: 14px; color: #fff; }
+        }
+        .tab-wrap { margin-top: 40px; }
+        .result-function-wrap { 
+            display: flex; 
+            margin-top: 15px;
+            align-content: center; 
+            justify-content: space-between; 
+            align-items: center; 
+            .paging-wrap { margin-top: 0px; }
+            .filter-number { position: static; }
+        }
+        .btn-search { border-radius: 4px; }
+    }
+}

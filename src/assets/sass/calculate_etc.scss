@@ -1,0 +1,15 @@
+.cal-etc-wrap { 
+    .contents { position: relative; width: 100%; padding-top: 40px; 
+        .result-function-wrap {
+            display: flex;
+            margin-top: 15px;
+            align-content: center;
+            justify-content: space-between;
+            align-items: center;
+            .paging-wrap {
+                margin-top: 0px;
+            }
+            .filter-number { position: static; }
+        }
+    }
+}

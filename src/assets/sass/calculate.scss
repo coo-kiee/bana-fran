@@ -1,0 +1,37 @@
+.calculate-wrap { 
+    .contents { position: relative; width: 100%; padding-top: 40px; 
+        .function-wrap { display: flex; margin-top: 30px; align-items: flex-end;
+            .select-wrap { display: flex; gap: 4px;
+                select { 
+                    width: 140px; 
+                    height: 46px; 
+                    font-size: 16px;
+                    border: 1px solid #ddd; 
+                    border-radius: 4px; 
+                    cursor: pointer;
+                    @include select-style;
+                    text-indent: 10px;
+                }
+            }
+            .text-info { padding-left: 10px; font-size: 12px; color: #888; }
+            .btn-wrap { display: flex; margin-left: auto; gap: 4px;
+                button { padding: 12px 10px; color: #fff; border-radius: 4px;}
+                .btn-check { background: #f1658a; 
+                    &.inactive { background: #ddd; }
+                }
+                .btn-modify-request { background: #3a3a4d;
+                    &.inactive { background: #ddd; }
+                }
+                .btn-modify-history { background: #585872; }
+            }
+        }
+        .no-data {
+            width: 100%;
+            padding-top: 171px;
+            padding-bottom: 103px;
+            font-size: 25px;
+            color: #555;
+            background: #fff url('../../assets/images/icon/i_inprogress.png') center 102px no-repeat;
+        }
+    }
+}

@@ -1,26 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+
+import 'assets/sass/common.scss';
+
+import Login from 'pages/login';
+import Layout from 'pages/Layout'
+import { sideMenus as menuRoute, SIDE_MENU_TYPE } from "pages/common/sideMenubar/data/SideMenu";
+// import { Modal } from 'common/components/modal'
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <Router>
+            <Routes>
+                <Route path="/index" element={<Login />} />;
+                <Route path="/" element={<Layout />}>
+                    <Route path="/" element={<Navigate replace to="/index" />} />
+                    {menuRoute.map((data:SIDE_MENU_TYPE, key:number) => {
+                        if(data?.child.length > 0){
+                            const sideRoute = data.child?.map((subData:Omit<SIDE_MENU_TYPE, 'child'>, subKey:number) => {
+                                return subData.component ? <Route path={data.path+subData.path} element={<subData.component/>} key={'sub_'+subKey} /> : null
+                            })
+                            return sideRoute
+                        }else{
+                            return data.component ? <Route path={data.path} element={<data.component/>} key={key} /> : null
+                        }
+                    })}
+                </Route>
+            </Routes>
+        </Router>
+    )
 }
 
 export default App;
