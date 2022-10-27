@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { ChangeEvent, useEffect, useState, useCallback } from 'react';
 import { sideMenus, SIDE_MENU_TYPE } from "./data/SideMenu";
 import { Link } from "react-router-dom";
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { useLogin } from 'hooks/useLogin';
-import { loginState } from 'state';
+import { franState, loginState } from 'state';
 
 import img_logo from 'assets/images/common/logo.svg';
 
@@ -54,7 +54,9 @@ const SideMenu:React.FC<{activeMenu:SideMenuBarType, sideMenus:Array<SIDE_MENU_T
 
 const SideMenubar:React.FC = () => {
     const {logout} = useLogin()
-    const loginInfo = useRecoilValue(loginState);
+    const loginInfo = useRecoilValue(loginState)
+    const franCode = useRecoilValue(franState)
+    const setFranCode = useSetRecoilState(franState)
 
     const [activeMenu, setActiveMenu] = useState<SideMenuBarType>({
         index: -1 ,
@@ -92,7 +94,17 @@ const SideMenubar:React.FC = () => {
         logout(params);
     }, [logout])
 
-    console.log("SIDE MENU BAR RENDER!!", loginInfo)
+    // 매장 변경.
+    const handleChargeFranCode = useCallback((e:ChangeEvent<HTMLSelectElement>) => {
+        const selectfranCode = e.target.value
+        let franCodeNum:number = 0
+        if(!isNaN(Number(selectfranCode))){
+            franCodeNum = Number(selectfranCode)
+        }
+        setFranCode(franCodeNum)
+    }, [setFranCode])
+
+    console.log("SIDE MENU BAR RENDER!!", loginInfo, ' 선택매장 : ', franCode)
     return(
         <nav>
             <img className="logo" src={img_logo} alt="banapresso" />
@@ -101,7 +113,7 @@ const SideMenubar:React.FC = () => {
                 <p>안녕하세요.</p>
             </div>
             <div className="select-spot">
-                <select name="spot">
+                <select name="spot" onChange={handleChargeFranCode}>
                     { 
                         loginInfo.userInfo.f_list.map((data:any, key:number) => 
                             <option key={key} value={data.f_code}>{data.f_code_name}</option>

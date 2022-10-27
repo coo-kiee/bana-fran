@@ -25,5 +25,10 @@ const loginState = atom<LoginAuthType>({
     },
 })
 
-export { loginState }
+const franState = atom<number>({
+    key: 'franCode',
+    default : 0
+})
+
+export { loginState, franState }
 export type { LoginAuthType }

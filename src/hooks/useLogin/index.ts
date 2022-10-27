@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import LOGIN_SERVICE from 'service/loginService';
 
 // Global State
-import { loginState } from 'state'
+import { loginState, franState } from 'state'
 
 // 로그인 hooks
 export const useLogin = () => {
     const navigate = useNavigate()
     const setLoginAuth = useSetRecoilState(loginState)
+    const setFranCode = useSetRecoilState(franState)
    
     // 로그인 Mutation
     const loginMutation = LOGIN_SERVICE.useLogin(
@@ -31,9 +32,12 @@ export const useLogin = () => {
                         f_list : result?.list
                     }
                 })
+
+                if(result?.list.length > 0) setFranCode(result?.list[0].f_code|0)
                 navigate("/home");
             }else{
-                removeToken();
+                removeToken()
+                setFranCode(0)
                 localStorage.removeItem("sUserID")
                 alert(result?.out?.sError);
             }
@@ -46,7 +50,7 @@ export const useLogin = () => {
             console.log("로그아웃 오류", error)
         },
         (result: any) => {
-            removeToken();
+            removeToken()
             setLoginAuth({
                 isLogin : false,
                 userInfo : {
@@ -56,6 +60,7 @@ export const useLogin = () => {
                     f_list : result?.list
                 }
             })
+            setFranCode(0)
             navigate("/");
         }
     );
