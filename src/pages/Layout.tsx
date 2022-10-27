@@ -42,9 +42,7 @@ const Layout:React.FC = () => {
     return (
         <article>
             <SideMenubar />
-            <main>
-                <Outlet />
-            </main>
+            <Outlet />
         </article>
     )
 }
