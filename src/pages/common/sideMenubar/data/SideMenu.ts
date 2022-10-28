@@ -1,6 +1,8 @@
 import loadable, { LoadableComponent } from '@loadable/component'
 
 const Home = loadable(() => import('pages/home'));
+const Notice = loadable(() => import('pages/notice'));
+const Board = loadable(() => import('pages/board'));
 
 // 사이드 메뉴
 type SIDE_MENU_TYPE = {
@@ -26,7 +28,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         name: "공지사항",
         icon: "vcard",
         id : 200,
-        component: Home,
+        component: Notice,
         child: []
     },
     {
@@ -34,7 +36,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         name: "자료실",
         icon: "vcard",
         id : 300,
-        component: Home,
+        component: Board,
         child: []
     },
     {
