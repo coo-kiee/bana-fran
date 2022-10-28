@@ -34,7 +34,7 @@ export const useLogin = () => {
                 })
 
                 if(result?.list.length > 0) setFranCode(result?.list[0].f_code|0)
-                if(window.location.href === '/') navigate("/home");
+                if(window.location.pathname === '/index') navigate("/home");
             }else{
                 removeToken()
                 setFranCode(0)
