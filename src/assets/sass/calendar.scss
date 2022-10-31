@@ -1,0 +1,21 @@
+.calendar {
+    width: 100%;
+    // background: yellowgreen;
+    &-header {
+        width: 100%;
+        height: 80px;
+        background-color: yellowgreen;
+        display: flex;
+        flex-direction: column;
+        .month-title {
+            display: flex;
+        }
+        .days {
+            display: flex;
+            background: tomato;
+            justify-content: space-evenly;
+        }
+    }
+    &-body {display: none;}
+
+}

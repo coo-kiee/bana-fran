@@ -68,6 +68,11 @@ export default class Utils {
         }
     }
 
+    // 숫자를 10000단위로 표시
+    static roundingDown10000 = (number) => {
+        return Math.floor(number/10000);
+    }
+
     static createFileName = function (preName, fileName) {
         function s4() {
             return '_' + (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)

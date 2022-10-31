@@ -325,7 +325,7 @@ select { @include select-style; }
         &.content { padding-left: 30px; text-align: left; }
         &.left-radius { border-bottom-left-radius: 20px; }
         &.right-radius { border-bottom-right-radius: 20px; }
-        &.point { color: #f1658a; }
+        &.point { background: #fff7f9; color: #f1658a; }
         &.negative-value { color: #ff3a3a; }
         &.align-left { padding-left: 20px;text-align: left!important; }
         &.align-center { text-align: center!important; }

@@ -192,6 +192,7 @@ article { display: flex; position: relative;
                         background: #fff;
                         box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
                         overflow: hidden;
+                        &.chart { height: 350px; }
                         .list-item { display: flex; margin-top: 20px; align-items: center;
                             &:first-child { margin-top: 0px; }
                             .state {     
@@ -207,8 +208,9 @@ article { display: flex; position: relative;
                                 &.recipe { color: #f1658a; border: 1px solid #f1658a; }
                                 &.menual { color: #a05bd4; border: 1px solid #a05bd4; }
                                 &.guide { color: #777; border: 1px solid #777; }
+                                &.default { color: #777; border: 1px solid #777; } // 임시 기본값
                             }
-                            .cotnents { font-size: 16px; color: #000; }
+                            .contents { font-size: 16px; color: #000; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 390px; }
                             .date { margin-left: auto; font-size: 14px; color: #999; }
                         }
                     }
@@ -233,6 +235,7 @@ article { display: flex; position: relative;
                                 &:last-child { border-right: 0px; }
                                 &.sales { height: 45px; color: #fff; border: 0px; background: #585872; }
                                 &.service { height: 45px; color: #fff; border: 0px; background: #3a3a4d; }
+                                .percentage { display: block; }
                             }
                         }
                         .description { line-height: 24px; padding: 15px 0px 0px 10px; font-size: 14px; color: #888; }
