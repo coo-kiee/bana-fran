@@ -5,14 +5,10 @@ import { franState, loginState } from 'state';
 // API
 import HOME_SERVICE from 'service/homeService';
 // Components
-import Board from 'pages/home/components//Board';
-import BoardItem from 'pages/home/components/BoardItem';
+import Board from 'pages/home/components/board/Board';
+import BoardItem from 'pages/home/components/board/BoardItem';
 // Utils
 import Utils from 'utils/Utils';
-
-interface NoticeProps {
-	// fCode: number
-};
 
 const Notice = () => {
 	const fCode = useRecoilValue(franState);

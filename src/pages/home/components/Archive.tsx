@@ -6,14 +6,13 @@ import { franState, loginState } from 'state';
 import HOME_SERVICE from 'service/homeService';
 
 // Components
-import Board from 'pages/home/components/Board';
-import BoardItem from 'pages/home/components/BoardItem';
+import Board from 'pages/home/components/board/Board';
+import BoardItem from 'pages/home/components/board/BoardItem';
 // Utils
 import Utils from 'utils/Utils';
 
-type Props = {};
 
-const Archive = (props: Props) => {
+const Archive = () => {
 	const fCode = useRecoilValue(franState);
 	const {
 		userInfo: { staff_no },
@@ -21,7 +20,8 @@ const Archive = (props: Props) => {
 
 	// search_type 1 - 공지 / 2 - 자료실
 	const { data } = HOME_SERVICE.useBoardList({ f_code: fCode, staff_no, search_type: 2 });
-	// console.log(data);
+	console.log(fCode);
+	console.log(data);
 
 	return (
 		<Board title='자료실' boardClass='data'>

@@ -1,4 +1,4 @@
-import Board from 'pages/home/components/Board';
+import Board from 'pages/home/components/board/Board';
 import React from 'react';
 
 type Props = {};

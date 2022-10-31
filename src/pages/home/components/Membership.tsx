@@ -4,7 +4,7 @@ import { franState } from 'state';
 // API
 import HOME_SERVICE from 'service/homeService';
 // Components
-import Board from './Board';
+import Board from './board/Board';
 // Utils
 import Utils from 'utils/Utils';
 

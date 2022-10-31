@@ -1,5 +1,5 @@
 import React from 'react';
-import Board from 'pages/home/components/Board';
+import Board from 'pages/home/components/board/Board';
 
 type Props = {};
 

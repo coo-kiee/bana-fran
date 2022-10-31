@@ -1,21 +1,131 @@
 .calendar {
     width: 100%;
-    // background: yellowgreen;
-    &-header {
+    display: flex;
+    flex-direction: column;
+    &-header.header {
         width: 100%;
-        height: 80px;
-        background-color: yellowgreen;
+        height: 72px;
+        padding: 10px 0 0 0 ;
+        line-height: 14px;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        .month-title {
+        .month {
             display: flex;
+            justify-content: center;
+            align-items: center;
+            .title {
+                margin: 0 10px;
+            }
+            &-button {
+                display: block;
+                border: 1px solid #808080;
+                width: 28px;
+                height: 28px;
+                background-color: #fff;
+                border-radius: 30px;
+                position: relative;
+                &::after {
+                    display: block;
+                    content: '';
+                    border-left: 1px solid #555;
+                    border-bottom: 1px solid #555;
+                    width: 6px;
+                    height: 6px;
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                }
+                &.prev::after {
+                    transform: translate(-50%, -50%) rotate(45deg);
+                }
+                &.next::after {
+                    transform: translate(-50%, -50%) rotate(-135deg);
+                }
+                &.disabled {
+                    border: 2px solid #808080;
+                }
+            }
         }
         .days {
+            width: 100%;
+            height: 30px;
+            font-size: 14px;
+            line-height: 30px;
+            margin-top: auto;
+            padding: 0 30px;
+            box-sizing: border-box;
             display: flex;
-            background: tomato;
-            justify-content: space-evenly;
+            justify-content: space-between;
+            .day {
+                width: calc((100%-60px)/7);
+                text-align: center;
+                // background: violet;
+                // &:nth-child(even) {
+                //     background: olive;
+                // }
+                &.sat {
+                    color: #0000ff;
+                }
+                &.sun {
+                    color: #ff0000;
+                }
+            }
         }
     }
-    &-body {display: none;}
+    &-body {
+        flex: auto;
+        display: flex;
+        flex-direction: column;
+        font-size: 11px;
+        &-row {
+            padding: 0 30px;
+            display: flex;
+            flex: auto;
+            border-bottom: 1px solid #e8e8e8;
+            .cell {
+                width: calc(100% / 7);
+                display: flex;
+                flex-direction: column;
+                flex: auto;
+                padding: 2px 0 0 0px;
+                cursor: pointer;
+                &.sat { color: #0000ff; }
+                &.sun { color: #ff0000; }
+                // background: yellow;
+                // &:nth-child(even) {
+                //     background: gray;
+                // }
+                .date-num { 
+                    display: block; 
+                    width: 16px; 
+                    height: 16px; 
+                    margin: 0 auto; 
+                    text-align: center;
+                    line-height: 16px; 
+                    border-radius: 20px; 
+                }
+                .date-sales {
+                    display: block;
+                    margin: auto auto 5px auto;
+                    text-align: center;
+                    padding-left: 5px;
+                    box-sizing: border-box;
+                    color: #888;
+                    // font-weight: bold;
+                    // background-color: #f1658a;
+                }
+                &.disabled { color: #c8c8c8; }
+                &.selected { 
+                    color: #fff; 
+                    font-weight: bold;
+                    background-color: #fff7f9;
+                    .date-num { background-color: #f1658a; }
+                    .date-sales { color: #f1658a; }
+                }
+            }
+
+        }
+    }
 
 }

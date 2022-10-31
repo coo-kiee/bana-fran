@@ -5,17 +5,17 @@ const CalendarHeader = ({ currentMonth, prevMonth, nextMonth }: any) => {
     const days = ['일', '월', '화', '수', '목', '금', '토'];
 
     return (
-        <header className="calendar-header">
-            <div className="month-title">
-                <div onClick={prevMonth}></div>
+        <header className="calendar-header header">
+            <div className="month">
+                <button className='prev month-button' onClick={prevMonth}></button>
                 <span className="title">
                     {format(currentMonth, 'MM')}월
                 </span>
-                <div onClick={nextMonth}></div>
+                <button className={`next month-button`} onClick={nextMonth}></button>
             </div>
             <ul className='days'>
                 {days.map((day, idx) => {
-                    return (<li className='day' key={idx}>{day}</li>)
+                    return (<li className={`day${day === '일' ? ' sun' : ''}${day === '토' ? ' sat' : ''}`} key={idx}>{day}</li>)
                 })}
             </ul>
         </header>

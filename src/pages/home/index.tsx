@@ -1,20 +1,20 @@
 import { useRecoilValue } from 'recoil';
 
-import Archive from './components/Archive';
+// global state
+import { franState, loginState } from 'state';
+// Components
 import Notice from './components/Notice';
+import Archive from './components/Archive';
 import Membership from './components/Membership';
 import Today from './components/Today';
-import WeeklyChart from './components/Weekly';
+import Weekly from './components/Weekly';
 import Monthly from './components/Monthly';
-import { franState, loginState } from 'state';
 import Ordering from './components/Ordering';
 import Settlement from './components/Settlement';
 
 const HomeContainer: React.FC = () => {
 	const fCode = useRecoilValue(franState);
-	const {
-		userInfo: { f_list },
-	} = useRecoilValue(loginState);
+	const { userInfo: { f_list }, } = useRecoilValue(loginState);
 
 	// 선택된 가맹점 정보
 	const fSelected = f_list?.filter((fran: any) => {
@@ -45,7 +45,7 @@ const HomeContainer: React.FC = () => {
 				</div>
 				{/* <!-- Week, Month, 월별 발주 금액, 최근 정산 현황--> */}
 				<div className='board-wrap'>
-					<WeeklyChart />
+					<Weekly />
 					<Monthly />
 					<Ordering />
 					<Settlement />

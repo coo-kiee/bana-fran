@@ -5,11 +5,9 @@ import { franState } from 'state';
 // API
 import HOME_SERVICE from 'service/homeService';
 // Components
-import Board from 'pages/home/components/Board';
+import Board from 'pages/home/components/board/Board';
 // Utils
 import Utils from 'utils/Utils';
-
-
 
 const Today = () => {
 	const fCode = useRecoilValue(franState);
