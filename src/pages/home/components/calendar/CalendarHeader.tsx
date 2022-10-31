@@ -15,7 +15,7 @@ const CalendarHeader = ({ currentMonth, prevMonth, nextMonth }: any) => {
             </div>
             <ul className='days'>
                 {days.map((day, idx) => {
-                    return (<li className={`day${day === '일' ? ' sun' : ''}${day === '토' ? ' sat' : ''}`} key={idx}>{day}</li>)
+                    return (<li className={`day${day === '일' ? ' sunday' : ''}${day === '토' ? ' saturday' : ''}`} key={idx}>{day}</li>)
                 })}
             </ul>
         </header>

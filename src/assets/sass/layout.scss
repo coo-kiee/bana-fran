@@ -211,7 +211,7 @@ article { display: flex; position: relative;
                                 &.default { color: #777; border: 1px solid #777; } // 임시 기본값
                             }
                             // 말줄임표 처리
-                            .contents { font-size: 16px; color: #000; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; width: 390px; }
+                            .contents { width: 380px; font-size: 16px; color: #000; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
                             .date { margin-left: auto; font-size: 14px; color: #999; }
                         }
                     }

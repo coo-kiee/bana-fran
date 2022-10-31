@@ -14,9 +14,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            .title {
-                margin: 0 10px;
-            }
+            .title { margin: 0 10px; }
             &-button {
                 display: block;
                 border: 1px solid #808080;
@@ -36,15 +34,9 @@
                     top: 50%;
                     left: 50%;
                 }
-                &.prev::after {
-                    transform: translate(-50%, -50%) rotate(45deg);
-                }
-                &.next::after {
-                    transform: translate(-50%, -50%) rotate(-135deg);
-                }
-                &.disabled {
-                    border: 2px solid #808080;
-                }
+                &.prev::after { transform: translate(-50%, -50%) rotate(45deg); }
+                &.next::after { transform: translate(-50%, -50%) rotate(-135deg); }
+                &.disabled { border: 2px solid #808080; }
             }
         }
         .days {
@@ -58,18 +50,10 @@
             display: flex;
             justify-content: space-between;
             .day {
-                width: calc((100%-60px)/7);
+                width: calc((100% - 60px) / 7);
                 text-align: center;
-                // background: violet;
-                // &:nth-child(even) {
-                //     background: olive;
-                // }
-                &.sat {
-                    color: #0000ff;
-                }
-                &.sun {
-                    color: #ff0000;
-                }
+                &.saturday { color: #0000ff; }
+                &.sunday { color: #ff0000; }
             }
         }
     }
@@ -89,13 +73,9 @@
                 flex-direction: column;
                 flex: auto;
                 padding: 2px 0 0 0px;
-                cursor: pointer;
                 &.sat { color: #0000ff; }
                 &.sun { color: #ff0000; }
-                // background: yellow;
-                // &:nth-child(even) {
-                //     background: gray;
-                // }
+
                 .date-num { 
                     display: block; 
                     width: 16px; 
@@ -112,8 +92,6 @@
                     padding-left: 5px;
                     box-sizing: border-box;
                     color: #888;
-                    // font-weight: bold;
-                    // background-color: #f1658a;
                 }
                 &.disabled { color: #c8c8c8; }
                 &.selected { 
@@ -124,8 +102,6 @@
                     .date-sales { color: #f1658a; }
                 }
             }
-
         }
     }
-
 }
