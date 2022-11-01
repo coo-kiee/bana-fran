@@ -1,3 +1,4 @@
+/* eslint-disable */
 export default class Utils {
     static converDateFormat = (str, exp) => {
         let timestamp = Date.parse(str)

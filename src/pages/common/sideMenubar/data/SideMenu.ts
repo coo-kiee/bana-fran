@@ -12,6 +12,7 @@ type SIDE_MENU_TYPE = {
     id : number,
     component: LoadableComponent<any> | null,
     child: Array<Omit<SIDE_MENU_TYPE, 'child'>>
+    addParameter: string[],
 }
 
 const sideMenus: Array<SIDE_MENU_TYPE> = [
@@ -21,7 +22,8 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         icon: "vcard",
         id : 100,
         component: Home,
-        child: []
+        child: [],
+        addParameter: []
     },
     {
         path: "/notice",
@@ -29,7 +31,8 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         icon: "vcard",
         id : 200,
         component: Notice,
-        child: []
+        child: [],
+        addParameter: []
     },
     {
         path: "/board",
@@ -37,7 +40,8 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         icon: "vcard",
         id : 300,
         component: Board,
-        child: []
+        child: [],
+        addParameter: [':boardId']
     },
     {
         path: "/caculate",
@@ -51,37 +55,43 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "정산내역 확인",
                 icon: "",
                 id : 410,
-                component: Home
+                component: Home,
+                addParameter: []
             },
             {
                 path: "/point",
                 name: "유상포인트 결제내역",
                 icon: "",
                 id : 420,
-                component: Home
+                component: Home,
+                addParameter: []
             },
             {
                 path: "/coupon",
                 name: "본사 쿠폰 결제내역",
                 icon: "",
                 id : 430,
-                component: Home
+                component: Home,
+                addParameter: []
             },
             {
                 path: "/claim",
                 name: "고객 클레임 보상내역",
                 icon: "",
                 id : 440,
-                component: Home
+                component: Home,
+                addParameter: []
             },
             {
                 path: "/etc",
                 name: "기타 정산 내역",
                 icon: "",
                 id : 450,
-                component: Home
+                component: Home,
+                addParameter: []
             }
-        ]
+        ],
+        addParameter: []
     },
     {
         path: "/recruitQnaMgmt",
@@ -89,7 +99,8 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         icon: "question circle outline",
         id : 500,
         component: Home,
-        child: []
+        child: [],
+        addParameter: []
     },
     {
         path: "/interviewMgmt",
@@ -97,7 +108,8 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         icon: "clipboard outline",
         id : 600,
         component: Home,
-        child: []
+        child: [],
+        addParameter: []
     },
     {
         path: "/interviewMgmt",
@@ -105,7 +117,8 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         icon: "clipboard outline",
         id : 700,
         component: Home,
-        child: []
+        child: [],
+        addParameter: []
     }
 ];
 

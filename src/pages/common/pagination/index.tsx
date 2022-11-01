@@ -56,7 +56,7 @@ const Pagination = (props: props) => {
     };
 
     // 리스트 개수 선택
-    const rows = [3, 10, 20, 50];
+    const rows = [3, 50, 100, 150, 200];
     const handleListRow:ChangeEventHandler<HTMLSelectElement> = (e) => {
         const row = parseInt(e.currentTarget.value);
         handlePageRow(row);

@@ -1,22 +1,21 @@
 // Service
 import { useEventKeyCode } from "hooks/useEventKeyCode";
-import { ChangeEventHandler, FC, MouseEventHandler, useState } from "react";
+import { ChangeEventHandler, FC, useState } from "react";
 import BOARD_SERVICE from "service/board";
 
 // Type
-import { BoardType, ListSearchCondition } from "types/board/boardType";
+import { BoardInfo, ListSearchCondition } from "types/board/boardType";
 
 interface BoardSelectConditionProps {
-    boardType: BoardType['type'],
-    // searchText: string,
+    boardType: BoardInfo['type'],
+    staffNo: number,
+    fCode: number,
     searchCategory: number,
     setListSearchCondition: React.Dispatch<React.SetStateAction<ListSearchCondition>>
 }
-const BoardSelectCondition: FC<BoardSelectConditionProps> = ({ boardType, searchCategory, setListSearchCondition }) => {
+const BoardSelectCondition: FC<BoardSelectConditionProps> = ({ boardType, staffNo, fCode, searchCategory, setListSearchCondition }) => {
 
-    const { data: categoryList, isFetching } = BOARD_SERVICE.getCategoryList(['boardCategory', boardType + ''], boardType);
-
-    const [searchText, setSearchText] = useState('');
+    const { data: categoryList } = BOARD_SERVICE.getCategoryList(['boardCategory', JSON.stringify({ boardType, staffNo })], boardType, fCode, staffNo);
 
     // 카테고리 변경
     const handleSearchData: ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
@@ -26,16 +25,16 @@ const BoardSelectCondition: FC<BoardSelectConditionProps> = ({ boardType, search
     };
 
     // 카테고리 제목 검색
+    const [searchText, setSearchText] = useState('');
     const handleSearchBtn = () => {
         setListSearchCondition(prev => ({ ...prev, search_text: searchText }));
     };
-    // Enter 입력 시 검색실행
-    useEventKeyCode(handleSearchBtn, 'Enter');
+    useEventKeyCode(handleSearchBtn, 'Enter');  // Enter 입력 시 검색실행
 
     return (
         <div className="sort-wrap">
             <select name="search_category" id="" value={searchCategory} onChange={handleSearchData}>
-            <option value={0}>전체</option>
+                <option value={0}>전체</option>
                 {
                     categoryList && categoryList.length > 0 &&
                     categoryList.map(category => <option key={category.code} value={category.code}>{category.code_name}</option>)

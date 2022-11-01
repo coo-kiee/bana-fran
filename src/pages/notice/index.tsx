@@ -7,6 +7,7 @@ import { MENU_TYPE } from 'types/board/boardType';
 import BoardContainer from 'pages/board';
 
 const NoticeContainer = () => {
+    
     return (
         <BoardContainer menuType={MENU_TYPE.NOTICE} />
     );
