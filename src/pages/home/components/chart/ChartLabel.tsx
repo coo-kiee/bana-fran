@@ -1,20 +1,14 @@
 // Utils
 import Utils from 'utils/Utils';
 
-// custom label (매출)
+// custom label (매출액)
 const ChartLabel = ({ bars }: any) => {
 	const maxValue: number = Math.max(...bars.map((bar: any) => {
 		return bar.data.value
 	}), 0)
 	
 	return bars.map((bar: any) => {
-		const {
-			key,
-			width,
-			x,
-			y,
-			data: { value },
-		} = bar;
+		const { key, width,	x, y, data: { value } } = bar;
 		
 		return (
 			<g key={key} transform={`translate(${x}, ${y})`}>

@@ -64,7 +64,7 @@ const useSalesTerms = (params: Params) => {
         query: 'OMG6XENQJIW8SLYTIROV',
         params: params,
     }; // web_fran_s_home_board_list
-    return useQuery(['sales_terms', params.f_code, params.search_type], () => queryFn.getDataList(reqData), {
+    return useQuery(['sales_terms', params.f_code, params.search_type, params.search_month], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,

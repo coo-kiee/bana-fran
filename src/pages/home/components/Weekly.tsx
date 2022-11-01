@@ -12,18 +12,15 @@ import Board from 'pages/home/components/board/Board';
 import ChartLabel from './chart/ChartLabel';
 import ChartBar from './chart/ChartBar';
 import ChartDays from './chart/ChartDays';
+import { useTooltip } from '@nivo/tooltip';
+import ChartTooltip from './chart/ChartTooltip';
 
 
 const Weekly = () => {
 	const fCode = useRecoilValue(franState);
 	const { data } = HOME_SERVICE.useSalesTerms({ f_code: fCode, search_type: 'W', search_month: '2022-10-01' });
+	const { hideTooltip, showTooltipAt } = useTooltip();
 	
-	// mouse hover tooltip
-	// const Tooltip = (props: any) => {
-	// 	return (
-	// 		<BasicTooltip id={props.data.날짜} value={Utils.numberComma(props.value)} color={props.color} enableChip />
-	// 	);
-	// };
 
 	return (
 		<Board title='Week' boardClass='week-sales' suffix='총 매출'>
@@ -38,6 +35,7 @@ const Weekly = () => {
 					valueScale={{ type: 'linear' }}
 					indexScale={{ type: 'band', round: true }}
 					colors={{ scheme: 'nivo' }}
+					onMouseLeave={(e) => {hideTooltip()}}
 					// defs={[
 						// linearGradientDef('gradientDefault', [
 						// 	{ offset: 0, color: '#f6af8a' },
@@ -69,9 +67,9 @@ const Weekly = () => {
 					// 		id: 'gradientDefault',
 					// 	},
 					// ]}
-					tooltip={({id, value, color}) => {
-						return <div>{id}, {value}, {color}</div>
-					}}
+					// tooltip={({id, value, color}) => {
+					// 	return <ChartTooltip id={id} value={value} color={color} />
+					// }}
 					// onMouseEnter={(v) => {console.log(v)}}
 					// borderColor={{
 					// 	from: 'color',

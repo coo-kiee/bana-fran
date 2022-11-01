@@ -20,8 +20,8 @@ const Archive = () => {
 
 	// search_type 1 - 공지 / 2 - 자료실
 	const { data } = HOME_SERVICE.useBoardList({ f_code: fCode, staff_no, search_type: 2 });
-	console.log(fCode);
-	console.log(data);
+	// console.log(fCode);
+	// console.log(data);
 
 	return (
 		<Board title='자료실' boardClass='data'>
