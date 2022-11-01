@@ -79,7 +79,7 @@ const TableList: FC<TableListProps> = ({ boardList, boardType, setDetailInfo }) 
                             <td className={isImportant ? "point" : isEndBoard ? 'left-radius' : ""}>{isImportant ? "중요" : rowNumInt}</td>
                             <td>{category_name}</td>
                             <td className="content">{title}</td>
-                            <td className="point">{attach_cnt}개</td>
+                            <td className={isImportant ? "point" : ""}>{attach_cnt}개</td>
                             <td className={isEndBoard ? 'right-radius' : ""}>{insert_date.substring(0, 10)}</td>
                         </tr>
 
