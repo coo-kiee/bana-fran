@@ -22,7 +22,7 @@ const ChartBar = ({ bars }: any) => {
 				value={Utils.numberComma(sales_charge || 0) + '원'} 
 				color={color} 
 				/>,
-				[(x > 320 ? clientX - 350 : clientX - 170), (y > 100 ? clientY - 640 : clientY - 580)],
+				[(x > 320 ? clientX - 350 : clientX - 170), (y > 100 ? clientY - 700 : clientY - 680)],
 				'center'
 				
   		)
