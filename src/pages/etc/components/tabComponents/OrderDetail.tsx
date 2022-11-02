@@ -6,7 +6,7 @@ import EtcTable from "../EtcTable";
 import EtcSearch from "../EtcSearch";
 import EtcSearchDetail from "../EtcSearchDetail";
 import EtcDetailTable from "../EtcDetailTable";
-import EtcDetailFooter from "../EtcDetailFooter.tsx";
+import EtcDetailFooter from "../EtcDetailFooter";
 
 const OrderDetail = () => {
     return (
