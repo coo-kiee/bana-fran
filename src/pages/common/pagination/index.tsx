@@ -1,7 +1,6 @@
-import { ChangeEventHandler, MouseEventHandler } from "react";
+import { ChangeEventHandler, FC, MouseEventHandler } from "react";
 
-interface props {
-    [key: string]: any
+interface PaginationProps {
     dataCnt: number,
     pageInfo: {
         row?: number, // 한 페이지에 나오는 리스트 개수
@@ -12,10 +11,9 @@ interface props {
     handlePageRow: (row: number) => void // 상위 컴포넌트 페이지 List 목록 개수 변경 함수
 };
 
-const Pagination = (props: props) => {
+const Pagination:FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, handlePageRow }) => {
 
-    const { dataCnt, handlePageChange, handlePageRow } = props;
-    const { row = 50, currentPage, boundaryRange = 10 } = props.pageInfo;
+    const { row = 50, currentPage, boundaryRange = 10 } = pageInfo;
     
     // 페이지 계산
     const paginate = (dataCnt: number) => {

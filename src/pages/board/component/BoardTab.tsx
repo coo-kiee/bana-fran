@@ -1,21 +1,23 @@
 import { FC, MouseEventHandler } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Type
-import { BoardInfo, BOARD_GROUP, ListSearchCondition, MenuType } from "types/board/boardType";
+import { BoardInfo, BOARD_GROUP, MenuType } from "types/board/boardType";
+import { DetailInfo } from "..";
 
 interface BoardTabProps {
     menuType: MenuType,
     boardType: BoardInfo['type'],
-    setListSearchCondition: React.Dispatch<React.SetStateAction<ListSearchCondition>>,
+    detailInfo: DetailInfo,
 };
-const BoardTab: FC<BoardTabProps> = ({ menuType, boardType, setListSearchCondition }) => {
+const BoardTab: FC<BoardTabProps> = ({ menuType, boardType, detailInfo }) => {
 
+    const navigation = useNavigate();
+    
     // Tab(BoardInfo) 변경
     const handleBoardInfo: MouseEventHandler<HTMLDivElement> = (e) => {
-        const value = e.currentTarget.dataset.tab as string;
-        const board_type = parseInt(value) as unknown as BoardInfo['type'];
-        // 바꿀때 현재페이지, 카테고리, 카테고리 제목 검색 초기화
-        setListSearchCondition(prev => ({ ...prev, board_type, page_idx: 1, search_category: 0, search_text: "" }));
+        const bType = parseInt(e.currentTarget.dataset.type as string) as BoardInfo['type'];
+        navigation(`/${menuType}/${bType}${detailInfo[bType] > 0 ? '/' + detailInfo[bType] : ''}`); // 이동하려는 게시판(탭)에 boardId 있으면 URL 파리미터 추가
     };
 
     return (
@@ -24,7 +26,7 @@ const BoardTab: FC<BoardTabProps> = ({ menuType, boardType, setListSearchConditi
                 Object.values(BOARD_GROUP[menuType]).map((boardObj, index) => {
                     const { title, type } = boardObj;
                     return (
-                        <div key={index} className={type === boardType ? "tab active" : "tab"} data-tab={type} onClick={handleBoardInfo}>{title}</div>
+                        <div key={index} className={type === boardType ? "tab active" : "tab"} data-type={type} onClick={handleBoardInfo}>{title}</div>
                     )
                 })
             }

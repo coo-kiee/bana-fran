@@ -1,21 +1,21 @@
 import React, { FC } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Service
 import BOARD_SERVICE from "service/board";
 
 // Type
-import { BoardListResult, ListSearchCondition } from "types/board/boardType";
-import { DetailInfo } from "..";
+import { BoardListResult, ListSearchCondition, MenuType } from "types/board/boardType";
 
 // Component
 import Pagination from "pages/common/pagination";
 
 interface BoardTableProps {
+    menuType: MenuType,
     listSearchCondition: ListSearchCondition,
     setListSearchCondition: React.Dispatch<React.SetStateAction<ListSearchCondition>>,
-    setDetailInfo: React.Dispatch<React.SetStateAction<DetailInfo>>,
 };
-const BoardTable: FC<BoardTableProps> = ({ listSearchCondition, setListSearchCondition, setDetailInfo }) => {
+const BoardTable: FC<BoardTableProps> = ({ menuType, listSearchCondition, setListSearchCondition }) => {
 
     const { data: boardList } = BOARD_SERVICE.getBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
     const { out: pageInfo } = boardList as BoardListResult || {};
@@ -29,9 +29,9 @@ const BoardTable: FC<BoardTableProps> = ({ listSearchCondition, setListSearchCon
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
                 <tbody>
                     {/* Table Header  */}
-                    <tr>{headerText.map((text, index) => <th key={text}>{text}</th>)}</tr>
+                    <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
                     {/* List */}
-                    {boardList && <TableList boardList={boardList} boardType={listSearchCondition.board_type} setDetailInfo={setDetailInfo} />}
+                    {boardList && <TableList menuType={menuType} boardList={boardList} boardType={listSearchCondition.board_type} />}
                 </tbody>
             </table>
             <TableBottom dataCnt={pageInfo?.total_cnt || 0} row={listSearchCondition.page_size || 50} currentPage={listSearchCondition.page_idx || 1} setListSearchCondition={setListSearchCondition} />
@@ -49,18 +49,19 @@ const TABLE_COLUMN_INFO = {
 } as const;
 
 interface TableListProps {
+    menuType: MenuType,
     boardList: BoardListResult,
     boardType: number,
-    setDetailInfo: React.Dispatch<React.SetStateAction<DetailInfo>>,
 };
-const TableList: FC<TableListProps> = ({ boardList, boardType, setDetailInfo }) => {
+const TableList: FC<TableListProps> = ({ menuType, boardList, boardType }) => {
 
     const { list, out: pageInfo } = boardList;
     const { total_cnt } = pageInfo;
 
+    const navigation = useNavigate();
     // 게시글 상세보기로 이동
     const moveToDetail = (boardId: number) => {
-        setDetailInfo(prev => ({ ...prev, [boardType]: boardId, isDetail: true }));
+        navigation(`/${menuType}/${boardType}/${boardId}`);
     };
 
     return (
@@ -74,7 +75,6 @@ const TableList: FC<TableListProps> = ({ boardList, boardType, setDetailInfo }) 
                     const isImportant = important === "1";
 
                     return (
-
                         <tr className={isImportant ? "important" : ""} key={rowNumInt} onClick={() => moveToDetail(board_id)}>
                             <td className={isImportant ? "point" : isEndBoard ? 'left-radius' : ""}>{isImportant ? "중요" : rowNumInt}</td>
                             <td>{category_name}</td>
@@ -82,7 +82,6 @@ const TableList: FC<TableListProps> = ({ boardList, boardType, setDetailInfo }) 
                             <td className={isImportant ? "point" : ""}>{attach_cnt}개</td>
                             <td className={isEndBoard ? 'right-radius' : ""}>{insert_date.substring(0, 10)}</td>
                         </tr>
-
                     )
                 })
             }

@@ -33,7 +33,7 @@ type BoardDetailType = {
     board_type: number,
     category: number,
     category_name: string,
-    contents: string,
+    contents: string, // 내용 text 파일 저장 경로 Url
     contents_type: number,
     delete_flag: number,
     important: string,
@@ -53,16 +53,16 @@ type FileType = {
     attach_id: number,
     board_id: number,
     file_size: string,
-    file_url: string,
+    file_url: string, // 첨부파일 저장 경로 Url
     insert_date: string,
     insert_user_name: string,
     origin_file_name: string,
-    sFileSize: string,
+    sFileSize: string, // file_size를 Byte 단위로 변경한 것 (ex. 60.86KB)
 };
 
 const MENU_TYPE = {
     NOTICE: 'notice', // 공지사항
-    ARCHAIVE: 'archaive', // 자료실
+    BOARD: 'board', // 자료실
 } as const;
 type MenuType = typeof MENU_TYPE[keyof typeof MENU_TYPE];
 
@@ -78,7 +78,7 @@ type BoardInfo = typeof BOARD_INFO[keyof typeof BOARD_INFO];
 
 const BOARD_GROUP = {
     [MENU_TYPE.NOTICE]: [BOARD_INFO.CALCULATION, BOARD_INFO.NOTICE],
-    [MENU_TYPE.ARCHAIVE]: [BOARD_INFO.MANAGEMENT, BOARD_INFO.EDUCATION, BOARD_INFO.RECIPE, BOARD_INFO.RULE],
+    [MENU_TYPE.BOARD]: [BOARD_INFO.MANAGEMENT, BOARD_INFO.EDUCATION, BOARD_INFO.RECIPE, BOARD_INFO.RULE],
 } as const;
 
 interface ListSearchCondition {

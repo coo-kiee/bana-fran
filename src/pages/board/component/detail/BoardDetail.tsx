@@ -1,5 +1,9 @@
-import { FC } from "react";
+import { FC, useEffect, } from "react";
 import { saveAs } from 'file-saver';
+import { useNavigate } from "react-router-dom";
+
+// Hook
+import { queryFn } from "hooks/useQuery";
 
 // Css
 import 'assets/sass/notice_view.scss'
@@ -8,17 +12,15 @@ import 'assets/sass/notice_view.scss'
 import BOARD_SERVICE from "service/board";
 
 // Type
-import { BoardDetailType } from "types/board/boardType";
-import axios from "axios";
-import { DetailInfo } from "pages/board";
+import { BoardDetailType, MenuType } from "types/board/boardType";
 
 interface BoardDetailProps {
+    menuType: MenuType,
     boardId: number,
     staffNo: number,
     fCode: number,
-    setDetailInfo: React.Dispatch<React.SetStateAction<DetailInfo>>,
 };
-const BoardDetail: FC<BoardDetailProps> = ({ boardId, staffNo, fCode, setDetailInfo }) => {
+const BoardDetail: FC<BoardDetailProps> = ({ menuType, boardId, staffNo, fCode }) => {
 
     const detailKey = ['board', JSON.stringify({ boardId, staffNo, fCode })];
     const { data: boardDetail } = BOARD_SERVICE.getBoard(detailKey, boardId, staffNo, fCode);
@@ -26,8 +28,13 @@ const BoardDetail: FC<BoardDetailProps> = ({ boardId, staffNo, fCode, setDetailI
 
     // 목록 버튼 클릭시 List로 이동
     const goToList = () => {
-        setDetailInfo(prev => ({ ...prev, isDetail: false, [board_type]: 0 }));
+        navigation(`/${menuType}/${board_type}`);
     };
+    
+    const navigation = useNavigate();
+    useEffect(() => { // 상세 데이터 없으면 이전 페이지로 이동
+        if(!boardDetail) navigation(-1);
+    }, [])
 
     return (
         <>
@@ -46,9 +53,7 @@ const BoardDetail: FC<BoardDetailProps> = ({ boardId, staffNo, fCode, setDetailI
                             <p className="title">{title}</p>
                         </div>
                         {/* <!-- 내용 --> */}
-                        <div className="content-wrap">
-                            {contents}
-                        </div>
+                        <Content contentsUrl={contents} />
                         {/* <!-- 파일첨부 --> */}
                         {<FileList boardId={boardId} />}
                     </div>
@@ -65,6 +70,16 @@ export default BoardDetail;
 
 
 
+const Content: FC<{ contentsUrl: string }> = ({ contentsUrl }) => {
+
+    // Suspense 적용을 위해 React Query 적용
+    const {data:content} = BOARD_SERVICE.getContent([contentsUrl], contentsUrl);
+
+    return (
+        <div className="content-wrap" dangerouslySetInnerHTML={{__html: content as string}} />
+    )
+};
+
 const FileList: FC<{ boardId: number }> = ({ boardId }) => {
 
     const fileKey = ['board', boardId.toString()];
@@ -72,11 +87,11 @@ const FileList: FC<{ boardId: number }> = ({ boardId }) => {
 
     const downloadFile = async (url: string, fileName: string) => {
         try {
-            const res: any = await axios.get(url, { responseType: `blob` });
-            saveAs(res.data, fileName);
+            const res = await queryFn.axiosGet(url, {}, { responseType: `blob` });
+            saveAs(res, fileName);
         }
         catch (error) {
-            console.log(error);
+            console.log('첨부파일 다운로드에 실패했습니다.', error);
         };
     };
 
@@ -84,9 +99,9 @@ const FileList: FC<{ boardId: number }> = ({ boardId }) => {
         <div className="file-wrap">
             {
                 fileInfo?.map((file, index) => {
-                    const { file_url, origin_file_name } = file;
+                    const { file_url, origin_file_name, sFileSize } = file;
                     return (
-                        <p className="file" key={index} onClick={() => downloadFile(file_url, origin_file_name)}><span>{origin_file_name}</span></p>
+                        <p className="file" key={index} onClick={() => downloadFile(file_url, origin_file_name)}><span>{`${origin_file_name} (${sFileSize})`}</span></p>
                     )
                 })
             }

@@ -20,7 +20,7 @@ const getCategoryList = (queryKey: string | Array<string>, boardType: BoardInfo[
         },
     };
 
-    return useQuery<any, unknown, Category[], string | Array<string>>(queryKey, () => queryFn.getDataList(data), {
+    return useQuery<Category[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -38,7 +38,7 @@ const getBoardList = (queryKey: string | Array<string>, params: ListSearchCondit
         params,
     };
 
-    return useQuery<any, unknown, BoardListResult, string | Array<string>>(queryKey, () => queryFn.getDataOutputList(data), {
+    return useQuery<BoardListResult>(queryKey, () => queryFn.getDataOutputList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -60,13 +60,24 @@ const getBoard = (queryKey: string | Array<string>, boardId: number, staffNo: nu
         },
     };
 
-    return useQuery<any, unknown, BoardDetailType, string | Array<string>>(queryKey, () => queryFn.getData(data), {
+    return useQuery<BoardDetailType>(queryKey, () => queryFn.getData(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
         suspense: option.suspense ? option.suspense : true,
         enabled: staffNo > 0,
     });
+};
+
+// 게시판 상세 내용 가져오기
+const getContent = (queryKey: string | Array<string>, url: string) => {
+    
+    return useQuery<string>(queryKey, () => queryFn.axiosGet(url), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        suspense: true,
+    })
 };
 
 // 게시판 상세 파일첨부
@@ -80,7 +91,7 @@ const getBoardAttachList = (queryKey: string | Array<string>, boardId: number, o
         },
     };
 
-    return useQuery<any, unknown, FileType[], string | Array<string>>(queryKey, () => queryFn.getDataList(data), {
+    return useQuery<FileType[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -92,6 +103,7 @@ const BOARD_SERVICE = {
     getCategoryList,
     getBoardList,
     getBoard,
+    getContent,
     getBoardAttachList,
 };
 

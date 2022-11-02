@@ -15,7 +15,7 @@ type SIDE_MENU_TYPE = {
     id: number,
     component: LoadableComponent<any> | null,
     child: Array<Omit<SIDE_MENU_TYPE, 'child'>>
-    addParameter: string[],
+    addPath: string[],
 }
 
 const sideMenus: Array<SIDE_MENU_TYPE> = [
@@ -26,7 +26,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         id: 100,
         component: Home,
         child: [],
-        addParameter: []
+        addPath: []
     },
     {
         path: "/notice",
@@ -35,7 +35,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         id: 200,
         component: Notice,
         child: [],
-        addParameter: []
+        addPath: [':bType', ':bType/:bId']
     },
     {
         path: "/board",
@@ -44,7 +44,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         id: 300,
         component: Board,
         child: [],
-        addParameter: [':boardId']
+        addPath: [':bType', ':bType/:bId']
     },
     {
         path: "/caculate",
@@ -59,7 +59,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 icon: "",
                 id: 410,
                 component: Home,
-                addParameter: []
+                addPath: []
             },
             {
                 path: "/point",
@@ -67,7 +67,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 icon: "",
                 id: 420,
                 component: Home,
-                addParameter: []
+                addPath: []
             },
             {
                 path: "/coupon",
@@ -75,7 +75,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 icon: "",
                 id: 430,
                 component: Home,
-                addParameter: []
+                addPath: []
             },
             {
                 path: "/claim",
@@ -83,7 +83,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 icon: "",
                 id: 440,
                 component: Home,
-                addParameter: []
+                addPath: []
             },
             {
                 path: "/etc",
@@ -91,10 +91,10 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 icon: "",
                 id: 450,
                 component: Home,
-                addParameter: []
+                addPath: []
             }
         ],
-        addParameter: []
+        addPath: []
     },
     {
         path: "/recruitQnaMgmt",
@@ -103,7 +103,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         id: 500,
         component: Etc,
         child: [],
-        addParameter: []
+        addPath: []
     },
     {
         path: "/interviewMgmt",
@@ -112,7 +112,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         id: 600,
         component: Home,
         child: [],
-        addParameter: []
+        addPath: []
     },
     {
         path: "/membership",
@@ -120,7 +120,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         icon: "clipboard outline",
         id: 700,
         component: null,
-        addParameter: [],
+        addPath: [],
         child: [
             {
                 path: "/extra",
@@ -128,7 +128,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 icon: "",
                 id: 710,
                 component: Extra,
-                addParameter: []
+                addPath: []
             },
             {
                 path: "/monthRank",
@@ -136,7 +136,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 icon: "",
                 id: 720,
                 component: MonthRank,
-                addParameter: []
+                addPath: []
             },
         ]
     }

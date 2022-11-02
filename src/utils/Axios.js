@@ -10,9 +10,10 @@ export default class Axios {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     Accept: 'application/json; charset=UTF-8',
                 },
+                params,
             }
         }
-        return axios.get(url, params, axiosConfig).then(function (json) {
+        return axios.get(url, axiosConfig).then(function (json) {
             return json.data
         })
     }
