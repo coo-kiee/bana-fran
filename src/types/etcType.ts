@@ -3,7 +3,25 @@ interface SearchDateType {
     from: string,
     to: string,
 }
+interface PageInfoType {
+    currentPage: number,
+    row: number,
+}
+
 // param
+
+// props
+interface TabComponentsProps {
+    pageInfo: PageInfoType,
+    searchDate: SearchDateType,
+    setPageInfo: React.Dispatch<React.SetStateAction<PageInfoType>>,
+    setSearchDate: React.Dispatch<React.SetStateAction<SearchDateType>>,
+    handleExcelPrint: () => void;
+}
+
+interface TabItemProps extends Omit<TabComponentsProps, 'setPageInfo'> {
+    handlePageInfo: (target: { [key in keyof PageInfoType]?: PageInfoType[key] }) => void;
+}
 
 // etc페이지 탭 관련 
 const ETC_TAB_TYPE = {
@@ -24,5 +42,5 @@ const ETC_TAB_LIST = [
     ETC_TAB_TYPE.ACCOUNT,
 ] as const;
 
-export type { SearchDateType };
+export type { SearchDateType, PageInfoType, TabComponentsProps, TabItemProps };
 export { ETC_TAB_TYPE, ETC_TAB_LIST };

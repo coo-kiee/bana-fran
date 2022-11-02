@@ -1,22 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // type
-import { SearchDateType } from "types/etcType";
+import { TabItemProps } from "types/etcType";
 
 // component
-import EtcTable from "./etcTable";
-import EtcSearch from "./etcSearch";
-import EtcSearchDetail from "./etcSearchDetail";
-import EtcDetailTable from "./etcDetailTable";
+import EtcTable from "../EtcTable";
+import EtcSearch from "../EtcSearch";
+import EtcSearchDetail from "../EtcSearchDetail";
+import EtcDetailTable from "../EtcDetailTable";
+import EtcDetailFooter from "../EtcDetailFooter.tsx";
 
-const DeliveryCharge = () => {
-    // TODO: 상태 관련
-    const [searchDate, setSearchDate] = useState<SearchDateType>({
-        from: '2022-03-01',
-        to: '2022-03-01',
-    }); // etcSearch 내부 검색 날짜
-
-    // TODO: 프로시저 
+const DeliveryCharge: React.FC<TabItemProps> = ({ pageInfo, searchDate, handlePageInfo, setSearchDate, handleExcelPrint }) => {
+    // TODO: 프로시저
+    // isSuccess로 확인 뒤 아래 관련 데이터 업데이트
+    // dataCnt 갯수로 EtcDetailFooter 노출 여부 추가 필요
 
     // TODO: EtcTable 관련 데이터
     // ?프로시저 데이터 확인 후 tbody 타입 지정 + 수정 (isSuccess 이후?)
@@ -45,9 +42,18 @@ const DeliveryCharge = () => {
         [{ itemName: '수수료 공급가 (2%)', className: "price-area" }, { itemName: '부가세 (0.2%)', className: "price-area" }, { itemName: '수수료 합계 (2.2%)', className: "price-area" },]
     ];
     const detailTableBody = [
+        ['22/06/01~22/06/30', '아메리카노 외 1건', '1,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
+        ['22/06/01~22/06/30', '아메리카노 외 1건', '2,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
+        ['22/06/01~22/06/30', '아메리카노 외 1건', '3,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
+        ['22/06/01~22/06/30', '아메리카노 외 1건', '4,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
         ['22/06/01~22/06/30', '아메리카노 외 1건', '5,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
-        ['22/06/01~22/06/30', '아메리카노 외 1건', '5,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
-        ['22/06/01~22/06/30', '아메리카노 외 1건', '5,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
+        ['22/06/01~22/06/30', '아메리카노 외 1건', '6,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
+        ['22/06/01~22/06/30', '아메리카노 외 1건', '7,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
+        ['22/06/01~22/06/30', '아메리카노 외 1건', '8,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
+        ['22/06/01~22/06/30', '아메리카노 외 1건', '9,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
+        ['22/06/01~22/06/30', '아메리카노 외 1건', '10,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
+        ['22/06/01~22/06/30', '아메리카노 외 1건', '11,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
+        ['22/06/01~22/06/30', '아메리카노 외 1건', '12,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
     ];
 
     return (
@@ -128,7 +134,7 @@ const DeliveryCharge = () => {
                 {/* <!-- 조회 기간 --> */}
 
                 {/* <!-- 게시판 (EtcDetailTable)--> */}
-                <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={detailTableBody} />
+                <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={detailTableBody} pageInfo={pageInfo} />
                 {/* <table className="board-wrap" cellPadding="0" cellSpacing="0">
                     <colgroup>
                         <col width="188" />
@@ -201,7 +207,8 @@ const DeliveryCharge = () => {
                 {/* <!-- // 게시판 --> */}
 
                 {/* <!-- 엑셀다운, 페이징, 정렬 (EtcResult)--> */}
-                <div className="result-function-wrap">
+                <EtcDetailFooter excelFn={handleExcelPrint} pageFn={handlePageInfo} filterOption={[5, 10, 15, 20, 50]} dataCnt={detailTableBody.length || 0} pageInfo={pageInfo} />
+                {/* <div className="result-function-wrap">
                     <div className="function">
                         <button className="goast-btn">엑셀다운</button>
                     </div>
@@ -219,7 +226,7 @@ const DeliveryCharge = () => {
                     <select className="filter-number" name="" id="">
                         <option value="">50개</option>
                     </select>
-                </div>
+                </div> */}
                 {/* <!-- // 엑셀다운, 페이징, 정렬 --> */}
             </div>
         </div>
