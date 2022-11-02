@@ -19,9 +19,9 @@ interface TabComponentsProps {
     handleExcelPrint: () => void;
 }
 
-interface TabItemProps extends Omit<TabComponentsProps, 'setPageInfo'> {
-    handlePageInfo: (target: { [key in keyof PageInfoType]?: PageInfoType[key] }) => void;
-}
+// interface TabItemProps extends Omit<TabComponentsProps, 'setPageInfo'> {
+//     handlePageInfo: (target: { [key in keyof PageInfoType]?: PageInfoType[key] }) => void;
+// }
 
 // etc페이지 탭 관련 
 const ETC_TAB_TYPE = {
@@ -42,5 +42,5 @@ const ETC_TAB_LIST = [
     ETC_TAB_TYPE.ACCOUNT,
 ] as const;
 
-export type { SearchDateType, PageInfoType, TabComponentsProps, TabItemProps };
+export type { SearchDateType, PageInfoType, TabComponentsProps };
 export { ETC_TAB_TYPE, ETC_TAB_LIST };

@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
-
 // type
-import { TabItemProps } from "types/etcType";
+import { TabComponentsProps } from "types/etcType";
 
 // component
 import EtcTable from "../EtcTable";
@@ -10,7 +8,7 @@ import EtcSearchDetail from "../EtcSearchDetail";
 import EtcDetailTable from "../EtcDetailTable";
 import EtcDetailFooter from "../EtcDetailFooter";
 
-const DeliveryCharge: React.FC<TabItemProps> = ({ pageInfo, searchDate, handlePageInfo, setSearchDate, handleExcelPrint }) => {
+const DeliveryCharge: React.FC<TabComponentsProps> = ({ pageInfo, searchDate, setPageInfo, setSearchDate, handleExcelPrint }) => {
     // TODO: 프로시저
     // isSuccess로 확인 뒤 아래 관련 데이터 업데이트
     // dataCnt 갯수로 EtcDetailFooter 노출 여부 추가 필요
@@ -207,7 +205,7 @@ const DeliveryCharge: React.FC<TabItemProps> = ({ pageInfo, searchDate, handlePa
                 {/* <!-- // 게시판 --> */}
 
                 {/* <!-- 엑셀다운, 페이징, 정렬 (EtcResult)--> */}
-                <EtcDetailFooter excelFn={handleExcelPrint} pageFn={handlePageInfo} filterOption={[5, 10, 15, 20, 50]} dataCnt={detailTableBody.length || 0} pageInfo={pageInfo} />
+                <EtcDetailFooter excelFn={handleExcelPrint} pageFn={setPageInfo} dataCnt={detailTableBody.length || 0} pageInfo={pageInfo} />
                 {/* <div className="result-function-wrap">
                     <div className="function">
                         <button className="goast-btn">엑셀다운</button>

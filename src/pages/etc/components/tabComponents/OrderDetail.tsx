@@ -1,14 +1,45 @@
 // type
-import { TabItemProps } from "types/etcType";
+import { TabComponentsProps } from "types/etcType";
 
 // component
 import EtcTable from "../EtcTable";
 import EtcSearch from "../EtcSearch";
 import EtcSearchDetail from "../EtcSearchDetail";
 import EtcDetailTable from "../EtcDetailTable";
-import EtcDetailFooter from "../EtcDetailFooter";
+// import EtcDetailFooter from "../EtcDetailFooter";
 
-const OrderDetail = () => {
+const OrderDetail: React.FC<TabComponentsProps> = ({ pageInfo, searchDate, setPageInfo, setSearchDate, handleExcelPrint }) => {
+    // TODO: 프로시저
+    // isSuccess로 확인 뒤 아래 관련 데이터 업데이트
+
+    // TODO: EtcTable 관련 데이터 (프로시저 데이터 확인 후 수정하기)
+    const colGroup = ['147', '147', '147', '147', '147', '147', '147', '147', '147', '147',];
+    const thead = ['2022-02', '2022-03', '2022-04', '2022-05', '2022-06', '2022-07', '2022-08', '2022-09', '2022-10', '2022-11', '2022-12'];
+    const tbody = [
+        ['100,000', '100,000', '100,000', '100,000', '100,000', '100,000', '100,000', '100,000', '100,000', '100,000', '100,000'],
+    ];
+
+    // TODO: EtcSearchDetail 관련 데이터
+    // ? 프로시저 데이터 확인 후 detailSearchResult 수정 (isSuccess 이후?)
+    const detailSearchResult = [
+        ['음악 사용료 합계', '10,000'],
+        ['공연권료 합계', '10,000'],
+    ];
+    const detailPriceInfo = [['음악사용료/공연권료는 일할 계산되지 않습니다. (월 단위 요금 청구)']];
+
+    // TODO: EtcDetailTable 관련 데이터  
+    const detailTableColGroup = ['170', '170', '170', '84', '104', '84', '98', '98', '*', '150'];
+    const detailTableHead = [
+        [{ itemName: '일시' }, { itemName: '최종수정일', }, { itemName: '취소일' }, { itemName: '접수자' }, { itemName: '최종수정자' }, { itemName: '취소자' }, { itemName: '상태' }, { itemName: '발주 건 수' }, { itemName: '발주 건 수' }, { itemName: '발주 건 수' }]
+    ];
+    const detailTableBody = [
+        ['2022/12/31 12:30', '2022/12/31 12:30', '2022/12/31 12:30', '홍길동', '홍길동', '홍길동', '배송완료', '10', '디카페인 원두 (콜롬비아/500G) 외 9건', '10,000'],
+        ['2022/12/31 12:30', '2022/12/31 12:30', '2022/12/31 12:30', '홍길동', '홍길동', '홍길동', '배송완료', '10', '디카페인 원두 (콜롬비아/500G) 외 9건', '10,000'],
+        ['2022/12/31 12:30', '2022/12/31 12:30', '2022/12/31 12:30', '홍길동', '홍길동', '홍길동', '배송완료', '10', '디카페인 원두 (콜롬비아/500G) 외 9건', '10,000'],
+        ['2022/12/31 12:30', '2022/12/31 12:30', '2022/12/31 12:30', '홍길동', '홍길동', '홍길동', '배송완료', '10', '디카페인 원두 (콜롬비아/500G) 외 9건', '10,000'],
+        ['2022/12/31 12:30', '2022/12/31 12:30', '2022/12/31 12:30', '홍길동', '홍길동', '홍길동', '배송완료', '10', '디카페인 원두 (콜롬비아/500G) 외 9건', '10,000'],
+    ];
+
     return (
         <div id="tab4" className="tab-content active">
             <div className="info-wrap">
@@ -17,78 +48,21 @@ const OrderDetail = () => {
             <div className="board-date-wrap">
                 {/* <!-- 월별 발주내역 --> */}
                 <p className="title bullet">월별 발주금액 통계</p>
-                <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
-                    <colgroup>
-                        <col width="147" />
-                        <col width="147" />
-                        <col width="147" />
-                        <col width="147" />
-                        <col width="147" />
-                        <col width="147" />
-                        <col width="147" />
-                        <col width="147" />
-                        <col width="147" />
-                        <col width="147" />
-                        <col width="147" />
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>2022-02</th>
-                            <th>2022-03</th>
-                            <th>2022-04</th>
-                            <th>2022-05</th>
-                            <th>2022-06</th>
-                            <th>2022-07</th>
-                            <th>2022-08</th>
-                            <th>2022-09</th>
-                            <th>2022-10</th>
-                            <th>2022-11</th>
-                            <th>2022-12</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td className="align-right">100,000</td>
-                            <td className="align-right">100,000</td>
-                            <td className="align-right">100,000</td>
-                            <td className="align-right">100,000</td>
-                            <td className="align-right">100,000</td>
-                            <td className="align-right">100,000</td>
-                            <td className="align-right">100,000</td>
-                            <td className="align-right">100,000</td>
-                            <td className="align-right">100,000</td>
-                            <td className="align-right">100,000</td>
-                            <td className="align-right">100,000</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <EtcTable colGroup={colGroup} thead={thead} tbody={tbody} />
                 {/* <!-- // 월별 발주내역 --> */}
 
                 <p className="title bullet">일별 발주 상세 내역</p>
                 {/* <!-- 검색 --> */}
-                <div className="search-wrap">
-                    <div className="input-wrap">
-                        <input type="text" placeholder="2022-03-01" />
-                        <i>~</i>
-                        <input type="text" placeholder="2022-03-30" />
-                    </div>
-                    <button className="btn-search">조회</button>
-                </div>
+                <EtcSearch from={searchDate.from} to={searchDate.to} updateDate={setSearchDate} option={['구분 전체', 'test1', 'test2']} />
                 {/* <!-- // 검색 --> */}
 
                 {/* <!-- 조회 기간 --> */}
-                <div className="search-result-wrap">
-                    <div className="search-date">
-                        <p>조회기간: 2022-12-31 ~ 2022-12-31</p>
-                    </div>
-                    <ul className="search-result">
-                        <li className="hyphen">발주금액 합계<span className="colon"></span><span className="value">10,000원</span></li>
-                    </ul>
-                </div>
+                <EtcSearchDetail searchDate={`${searchDate.from} ~ ${searchDate.to}`} searchResult={detailSearchResult} priceInfo={detailPriceInfo} />
                 {/* <!-- // 조회 기간 --> */}
 
                 {/* <!-- 게시판 --> */}
-                <table className="board-wrap" cellPadding="0" cellSpacing="0">
+                <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={detailTableBody} pageInfo={pageInfo} />
+                {/* <table className="board-wrap" cellPadding="0" cellSpacing="0">
                     <colgroup>
                         <col width="170" />
                         <col width="170" />
@@ -167,7 +141,7 @@ const OrderDetail = () => {
                             <td className="align-right">10,000</td>
                         </tr>
                     </tbody>
-                </table>
+                </table> */}
                 {/* <!-- // 게시판 --> */}
 
                 {/* <!-- 엑셀다운, 페이징, 정렬 --> */}

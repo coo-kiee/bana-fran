@@ -1,5 +1,5 @@
 // type
-import { TabItemProps } from "types/etcType";
+import { TabComponentsProps } from "types/etcType";
 
 // component
 import EtcTable from "../EtcTable";
@@ -8,7 +8,7 @@ import EtcSearchDetail from "../EtcSearchDetail";
 import EtcDetailTable from "../EtcDetailTable";
 import EtcDetailFooter from "../EtcDetailFooter";
 
-const MusicCharge: React.FC<TabItemProps> = ({ pageInfo, searchDate, handlePageInfo, setSearchDate, handleExcelPrint }) => {
+const MusicCharge: React.FC<TabComponentsProps> = ({ pageInfo, searchDate, setPageInfo, setSearchDate, handleExcelPrint }) => {
     // TODO: 프로시저
     // isSuccess로 확인 뒤 아래 관련 데이터 업데이트
 
@@ -70,7 +70,7 @@ const MusicCharge: React.FC<TabItemProps> = ({ pageInfo, searchDate, handlePageI
                 {/* <!-- // 게시판 --> */}
 
                 {/* <!-- 엑셀다운, 페이징, 정렬 --> */}
-                <EtcDetailFooter excelFn={handleExcelPrint} pageFn={handlePageInfo} filterOption={[5, 10, 15, 20, 50]} dataCnt={detailTableBody.length || 0} pageInfo={pageInfo} />
+                <EtcDetailFooter excelFn={handleExcelPrint} pageFn={setPageInfo} dataCnt={detailTableBody.length || 0} pageInfo={pageInfo} />
                 {/* <!-- // 엑셀다운, 페이징, 정렬 --> */}
             </div>
         </div>
