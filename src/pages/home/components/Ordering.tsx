@@ -1,11 +1,10 @@
-import React from 'react';
 import Board from 'pages/home/components/board/Board';
 
 type Props = {};
 
 const Ordering = (props: Props) => {
 	return (
-		<Board boardClass='ordering' title='월별 발주 금액'>
+		<Board boardClass='ordering' title='월별 발주 금액' url=''>
 			<table className='contents-list' cellPadding='0' cellSpacing='0'>
 				<colgroup>
 					<col width='104' />

@@ -82,6 +82,7 @@
             border-bottom: 1px solid #e8e8e8;
             .day {
                 width: calc(100% / 7);
+                min-height: 44px;
                 display: flex;
                 flex-direction: column;
                 flex: auto;

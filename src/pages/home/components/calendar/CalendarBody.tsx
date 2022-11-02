@@ -1,4 +1,4 @@
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, isSaturday, isSunday, addDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, isSaturday, isSunday, addDays, isFuture } from 'date-fns';
 
 // Utils
 import Utils from 'utils/Utils';
@@ -36,9 +36,9 @@ const CalendarBody = ({ currentDate, onDateClick, salesData }: any) => {
 				>
 					<span className={'date-num'}>{formattedDate}</span>
 					{
-                        format(currentDate, 'M') === format(day, 'M') ? 
+                        format(currentDate, 'M') === format(day, 'M') && !isFuture(day) ? 
                         <span className='date-sales'>
-							{targetData ? `${Utils.roundingDown10000(targetData[0]?.sales_charge)}만` : ''}
+							{targetData && targetData[0].sales_charge !== 0 ? `${Utils.roundingDown10000(targetData[0]?.sales_charge)}만` : ''}
 						</span> : null
                     }
 				</div>

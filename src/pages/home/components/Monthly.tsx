@@ -9,11 +9,8 @@ import { franState } from 'state';
 import HOME_SERVICE from 'service/homeService';
 // Components
 import Board from 'pages/home/components/board/Board';
-import CalendarHeader from './calendar/CalendarHeader';
-import CalendarBody from './calendar/CalendarBody';
-// Utils
-// import Utils from 'utils/Utils';
-
+import CalendarHeader from 'pages/home/components/calendar/CalendarHeader';
+import CalendarBody from 'pages/home/components/calendar/CalendarBody';
 
 const Monthly = () => {
 
@@ -36,7 +33,7 @@ const Monthly = () => {
     };
 
 	return (
-		<Board boardClass='month-sales' title='Month' suffix='총 매출'>
+		<Board boardClass='month-sales' title='Month' url='' suffix='총 매출'>
 			<div className='contents-list calendar'>
                 <CalendarHeader
                     currentDate={currentDate}

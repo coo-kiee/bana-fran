@@ -3,10 +3,10 @@ import { useRecoilValue } from 'recoil';
 import { franState } from 'state';
 // API
 import HOME_SERVICE from 'service/homeService';
-// Components
-import Board from './board/Board';
 // Utils
 import Utils from 'utils/Utils';
+// Components
+import Board from 'pages/home/components/board/Board';
 
 const Membership = () => {
 	const fCode = useRecoilValue(franState);
@@ -15,7 +15,7 @@ const Membership = () => {
 	// console.log(data);
 
 	return (
-		<Board boardClass='membership' title='멤버십 적립 현황' suffix='누적'>
+		<Board boardClass='membership' title='멤버십 적립 현황' url='' suffix='누적'>
 			<table className='contents-list' cellPadding='0' cellSpacing='0'>
 				<colgroup>
 					<col width='258' />

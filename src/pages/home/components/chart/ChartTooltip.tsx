@@ -1,8 +1,7 @@
-import { BasicTooltip, useTooltip } from "@nivo/tooltip";
+import { BasicTooltip } from "@nivo/tooltip";
 
 const ChartTooltip = (props: any) => {
-	const { id, value, color } = props;
-    const { hideTooltip } = useTooltip()
+	const { id, value, color} = props;
 
 	return (
 		<BasicTooltip
@@ -11,7 +10,7 @@ const ChartTooltip = (props: any) => {
             color={color}
 			renderContent={() => {
 				return (
-					<div style={{position: 'relative'}}>
+					<div>
 						<div>
 							<svg width={13} height={10}>
 								<rect width={8} height={8} fill={color}></rect>

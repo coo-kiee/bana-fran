@@ -4,11 +4,11 @@ import { franState, loginState } from 'state';
 
 // API
 import HOME_SERVICE from 'service/homeService';
+// Utils
+import Utils from 'utils/Utils';
 // Components
 import Board from 'pages/home/components/board/Board';
 import BoardItem from 'pages/home/components/board/BoardItem';
-// Utils
-import Utils from 'utils/Utils';
 
 const Notice = () => {
 	const fCode = useRecoilValue(franState);
@@ -20,13 +20,15 @@ const Notice = () => {
 	// console.log('noticeCode: '+fCode)
 
 	return (
-		<Board title='공지사항' boardClass='notice'>
+		<Board title='공지사항' boardClass='notice' url='/notice'>
 			<ul className='contents-list' style={{ minHeight: '210px' }}>
 				{data?.map((board: any, idx: number) => {
-					const { board_type, category_name, important, title, insert_date } = board;
+					const { board_id, board_type, category_name, important, title, insert_date } = board;
 					return (
 						<BoardItem
-							nType={board_type}
+							url='/notice'
+							boardType={board_type}
+							boardId={board_id}
 							important={important}
 							name={category_name}
 							title={title}

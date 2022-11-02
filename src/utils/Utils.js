@@ -69,9 +69,11 @@ export default class Utils {
         }
     }
 
-    // 숫자를 10000단위로 표시
+    // 숫자를 10000단위로 표시, 10000 이하는 소수점 첫째자리까지표시
     static roundingDown10000 = (number) => {
-        return Math.floor(number/10000);
+        if (number >= 10000) return Math.floor(number/10000);
+        else if (number > 0) return (number/10000).toFixed(1);
+        else return number;
     }
 
     static createFileName = function (preName, fileName) {

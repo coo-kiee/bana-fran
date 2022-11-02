@@ -4,10 +4,10 @@ import { franState } from 'state';
 
 // API
 import HOME_SERVICE from 'service/homeService';
-// Components
-import Board from 'pages/home/components/board/Board';
 // Utils
 import Utils from 'utils/Utils';
+// Components
+import Board from 'pages/home/components/board/Board';
 
 const Today = () => {
 	const fCode = useRecoilValue(franState);
@@ -28,7 +28,7 @@ const Today = () => {
 	}
 
 	return (
-			<Board boardClass='today' title='Today' suffix='총 매출'>
+			<Board boardClass='today' title='Today' url='' suffix='총 매출'>
 				<table className='contents-list' cellPadding='0' cellSpacing='0'>
 					<colgroup>
 						<col width='163' />
