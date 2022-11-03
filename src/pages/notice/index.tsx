@@ -1,5 +1,3 @@
-import 'assets/sass/notice.scss';
-
 // Type
 import { MENU_TYPE } from 'types/board/boardType';
 

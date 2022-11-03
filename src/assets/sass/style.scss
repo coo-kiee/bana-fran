@@ -322,7 +322,8 @@ select { @include select-style; }
     }
     td { height: 52px; text-align: center; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; background: #fff;
         &:first-child { border-left: 1px solid #ddd; }
-        &.content { padding-left: 30px; text-align: left; }
+        &.content { padding-left: 30px; text-align: left; cursor: pointer; }
+        &.content:hover { text-decoration:underline; }
         &.left-radius { border-bottom-left-radius: 20px; }
         &.right-radius { border-bottom-right-radius: 20px; }
         &.point { background: #fff7f9; color: #f1658a; }
@@ -332,6 +333,7 @@ select { @include select-style; }
         &.align-right { padding-right: 20px; text-align: right!important; }
         &.total { font-weight: bold; background : #fff7f9; }
     }
+    tr { cursor: default; }
 }   
 
 .sort-wrap { display: flex; margin-top: 30px;
