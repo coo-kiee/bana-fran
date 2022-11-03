@@ -3,7 +3,11 @@ import loadable, { LoadableComponent } from '@loadable/component'
 const Home = loadable(() => import('pages/home'));
 const Notice = loadable(() => import('pages/notice'));
 const Board = loadable(() => import('pages/board'));
-const Caculate = loadable(() => import('pages/caculate'));
+const CaculateList = loadable(() => import('pages/caculate/list'));
+const CaculatePoint = loadable(() => import('pages/caculate/point'));
+const CaculateCoupon = loadable(() => import('pages/caculate/coupon'));
+const CaculateClaim = loadable(() => import('pages/caculate/claim'));
+const CaculateEtc = loadable(() => import('pages/caculate/etc'));
 const Etc = loadable(() => import('pages/etc'));
 const Extra = loadable(() => import('pages/membership/extra'));
 const MonthRank = loadable(() => import('pages/membership/monthRank'));
@@ -59,7 +63,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "정산내역 확인",
                 icon: "",
                 id: 410,
-                component: Caculate,
+                component: CaculateList,
                 addPath: []
             },
             {
@@ -67,7 +71,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "유상포인트 결제내역",
                 icon: "",
                 id: 420,
-                component: Home,
+                component: CaculatePoint,
                 addPath: []
             },
             {
@@ -75,7 +79,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "본사 쿠폰 결제내역",
                 icon: "",
                 id: 430,
-                component: Home,
+                component: CaculateCoupon,
                 addPath: []
             },
             {
@@ -83,7 +87,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "고객 클레임 보상내역",
                 icon: "",
                 id: 440,
-                component: Home,
+                component: CaculateClaim,
                 addPath: []
             },
             {
@@ -91,7 +95,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "기타 정산 내역",
                 icon: "",
                 id: 450,
-                component: Home,
+                component: CaculateEtc,
                 addPath: []
             }
         ],

@@ -1,13 +1,16 @@
 // Type
+import { FC } from "react";
 import { CaculateType, CACULATE_TYPE } from "types/caculate/caculateType";
 
-const CaculatePrecautions = () => {
+interface CaculatePrecautionsProps {
+    caculateType: CaculateType,
+};
+const CaculatePrecautions: FC<CaculatePrecautionsProps> = ({ caculateType }) => {
     
-    const temp: CaculateType = CACULATE_TYPE.LIST;
     return (
         <div className="info-wrap">
             {
-                PRECAUTIONS_INFO[temp].map((text, index) => <p key={index}>{text}</p>)
+                PRECAUTIONS_INFO[caculateType].map((text, index) => <p key={index}>{text}</p>)
             }
         </div>
     );

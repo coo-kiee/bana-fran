@@ -1,13 +1,18 @@
+import { FC } from "react";
+
+// Type
 import { CaculateType, CACULATE_TYPE } from "types/caculate/caculateType";
 
-const CaculateHeader = () => {
+interface CaculateHeaderProps {
+    caculateType: CaculateType,
+};
+const CaculateHeader: FC<CaculateHeaderProps> = ({ caculateType }) => {
 
-    const temp: CaculateType = CACULATE_TYPE.LIST;
     return (
         <header>
             <div className="page-title calculate">
                 <p className="present">정산관리</p>
-                <p className="spot">{HEADER_SUBTITLE[temp]}</p>
+                <p className="spot">{HEADER_SUBTITLE[caculateType]}</p>
             </div>
         </header>
     );

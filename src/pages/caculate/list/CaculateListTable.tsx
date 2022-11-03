@@ -1,7 +1,5 @@
-
-// Component
-import Pagination from "pages/common/pagination";
-import { ChangeEventHandler, FC } from "react";
+/* eslint-disable */
+import { FC } from "react";
 
 interface CaculateListTableProps {
     handlePopup: (key: string, value: boolean) => void

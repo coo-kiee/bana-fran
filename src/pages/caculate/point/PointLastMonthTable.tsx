@@ -1,49 +1,45 @@
+/* eslint-disable */
 import { FC } from "react";
 
-interface ChangeHistoryProps {
-    handlePopup: (key: string, value: boolean) => void
+interface PointLastMonthTableProps {
 };
-const ChangeHistory: FC<ChangeHistoryProps> = ({ handlePopup }) => {
+const PointLastMonthTable: FC<PointLastMonthTableProps> = ({ }) => {
 
-    return (
-        <div className="alert-layer history-layer active">
-            <div className="msg-wrap">
-                <p className="title">수정요청/변경이력</p>
-                <HistoryTable />
-                <button className="btn-close history-close" onClick={() => handlePopup('changeHistory', false)} ></button>
-                <button className="cta-btn">등록하기</button>
-            </div>
-        </div>
-    );
-}
+    const now = new Date();
+    const year = now.getFullYear();
+    const lastMonth = now.getMonth() - 1;
 
-export default ChangeHistory;
-
-
-
-const TABLE_COLUMN_INFO = {
-    width: ['130', '90', '90', '372', '250', '250'],
-    headerText: ['일시', '구분', '등록자', '수정요청/답변내용', '변경 전', '변경 후'],
-} as const;
-
-const HistoryTable: FC = () => {
+    // const { data: boardList } = BOARD_SERVICE.getBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
+    // const { out: pageInfo } = boardList as BoardListResult || {};
 
     const { width, headerText } = TABLE_COLUMN_INFO;
 
     return (
-        <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
-            {/* Column Width */}
-            <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
-            <tbody>
-                {/* Table Header  */}
-                <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
-                {/* List */}
-                <TableList />
-            </tbody>
-        </table>
+        <>
+            <p className="title bullet">{year}년 {lastMonth}월 유상포인트 결제 내역</p>
+            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
+                {/* Column Width */}
+                <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
+                <tbody>
+                    {/* Table Header  */}
+                    <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
+                    {/* List */}
+                    <TableList />
+                </tbody>
+            </table>
+        </>
+    );
+}
 
-    )
-};
+export default PointLastMonthTable;
+
+
+
+
+const TABLE_COLUMN_INFO = {
+    width: ['218', '*', '130', '130', '130'],
+    headerText: ['정산기간', '품목', '공급가액', '부가세', '합계'],
+} as const;
 
 interface TableListProps {
 };
@@ -74,7 +70,7 @@ const TableList: FC<TableListProps> = ({ }) => {
                 // })
             }
             {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
-            <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>
+            {/* <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >해당 월 정산내역 처리중입니다</td></tr> */}
         </>
     )
 };

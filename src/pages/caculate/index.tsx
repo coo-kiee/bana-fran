@@ -2,7 +2,11 @@ import loadable from "@loadable/component";
 import { CaculateType, CACULATE_TYPE } from "types/caculate/caculateType";
 
 // Component
-const CaculateList = loadable(() => import('pages/caculate/component/list'));
+const CaculateList = loadable(() => import('pages/caculate/list'));
+const CaculatePoint = loadable(() => import('pages/caculate/point'));
+const CaculateCoupon = loadable(() => import('pages/caculate/coupon'));
+const CaculateClaim = loadable(() => import('pages/caculate/claim'));
+const CaculateEtc = loadable(() => import('pages/caculate/etc'));
 
 const Calculate = () => {
 
@@ -14,15 +18,15 @@ const Calculate = () => {
     const renderComponent = (caculateType: CaculateType) => {
         switch (caculateType) {
             case CACULATE_TYPE.LIST:
-                return <CaculateList />;
+                return <CaculateList caculateType={caculateType} />;
             case CACULATE_TYPE.POINT:
-                return <CaculateList />;
+                return <CaculatePoint caculateType={caculateType} />;
             case CACULATE_TYPE.COUPON:
-                return <CaculateList />;
+                return <CaculateCoupon caculateType={caculateType} />;
             case CACULATE_TYPE.CLAIM:
-                return <CaculateList />;
+                return <CaculateClaim caculateType={caculateType} />;
             case CACULATE_TYPE.ETC:
-                return <CaculateList />;
+                return <CaculateEtc caculateType={caculateType} />;
         };
     };
 

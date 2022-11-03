@@ -1,15 +1,21 @@
 import loadable from "@loadable/component";
-import { useState } from "react";
+import { FC, useState } from "react";
+
+// Type
+import { CaculateType } from "types/caculate/caculateType";
 
 // Component
-import CaculateHeader from "../CaculateHeader";
-import CaculatePrecautions from "../CaculatePrecautions";
+import CaculateHeader from "pages/caculate/component/CaculateHeader";
+import CaculatePrecautions from "pages/caculate/component/CaculatePrecautions";
 import CaculateListTable from "./CaculateListTable";
 
-const ChangeHistory = loadable(() => import('pages/caculate/component/list/ChangeHistory'));
-const RequestModify = loadable(() => import('pages/caculate/component/list/RequestModify'));
+const ChangeHistory = loadable(() => import('pages/caculate/list/ChangeHistory'));
+const RequestModify = loadable(() => import('pages/caculate/list/RequestModify'));
 
-const CaculateList = () => {
+interface CaculateListProps {
+    caculateType: CaculateType,
+};
+const CaculateList: FC<CaculateListProps> = ({ caculateType }) => {
 
     const [popupInfo, setPopupInfo] = useState({ requestModify: false, changeHistory: false });
     const {requestModify, changeHistory} = popupInfo;
@@ -20,10 +26,10 @@ const CaculateList = () => {
     return (
         <>
             <section className="container">
-                <CaculateHeader />
+                <CaculateHeader caculateType={caculateType} />
                 <section className="contents-wrap calculate-wrap">
                     <div className="contents">
-                        <CaculatePrecautions />
+                        <CaculatePrecautions caculateType={caculateType} />
                         <CaculateListTable handlePopup={handlePopup} />
                     </div>
                 </section>
