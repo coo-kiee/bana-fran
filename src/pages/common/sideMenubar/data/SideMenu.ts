@@ -3,6 +3,7 @@ import loadable, { LoadableComponent } from '@loadable/component'
 const Home = loadable(() => import('pages/home'));
 const Notice = loadable(() => import('pages/notice'));
 const Board = loadable(() => import('pages/board'));
+const Caculate = loadable(() => import('pages/caculate'));
 const Etc = loadable(() => import('pages/etc'));
 const Extra = loadable(() => import('pages/membership/extra'));
 const MonthRank = loadable(() => import('pages/membership/monthRank'));
@@ -58,7 +59,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "정산내역 확인",
                 icon: "",
                 id: 410,
-                component: Home,
+                component: Caculate,
                 addPath: []
             },
             {
