@@ -11,5 +11,12 @@
             }
             .filter-number { position: static; }
         }
+        .no-data {
+            padding-top: 103px;
+            padding-bottom: 103px;
+            font-size: 25px;
+            color: #555;
+            background: #fff  center 102px no-repeat;
+        }
     }
 }

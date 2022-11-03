@@ -25,5 +25,12 @@
             .filter-number { position: static; }
         }
         .btn-search { border-radius: 4px; }
+        .no-data {
+            padding-top: 103px;
+            padding-bottom: 103px;
+            font-size: 25px;
+            color: #555;
+            background: #fff  center 102px no-repeat;
+        }
     }
 }
