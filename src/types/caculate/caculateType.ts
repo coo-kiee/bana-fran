@@ -5,7 +5,7 @@ const CACULATE_TYPE = {
     CLAIM: 'claim',
     ETC: 'etc',
 } as const;
-type CaculateType = typeof CACULATE_TYPE;
+type CaculateType = typeof CACULATE_TYPE[keyof typeof CACULATE_TYPE];
 
 export {
     CACULATE_TYPE,

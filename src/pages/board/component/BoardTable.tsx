@@ -75,17 +75,18 @@ const TableList: FC<TableListProps> = ({ menuType, boardList, boardType }) => {
                     const isImportant = important === "1";
 
                     return (
-                        <tr className={isImportant ? "important" : ""} key={rowNumInt} onClick={() => moveToDetail(board_id)}>
+                        <tr className={isImportant ? "important" : ""} key={rowNumInt} >
                             <td className={isImportant ? "point" : isEndBoard ? 'left-radius' : ""}>{isImportant ? "중요" : rowNumInt}</td>
                             <td>{category_name}</td>
-                            <td className="content">{title}</td>
+                            <td className="content" onClick={() => moveToDetail(board_id)} >{title}</td>
                             <td className={isImportant ? "point" : ""}>{attach_cnt}개</td>
                             <td className={isEndBoard ? 'right-radius' : ""}>{insert_date.substring(0, 10)}</td>
                         </tr>
                     )
                 })
             }
-            {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>}
+            {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
+            {!!!total_cnt && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>}
         </>
     )
 };

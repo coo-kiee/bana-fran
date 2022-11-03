@@ -13,5 +13,13 @@
         .result-function-wrap { margin-top: 0px; justify-content: center; 
             .filter-number { bottom: -11px; }
         }
+        .no-data {
+            width: 100%;
+            padding-top: 103px;
+            padding-bottom: 103px;
+            font-size: 25px;
+            color: #555;
+            background: #fff  center 102px no-repeat;
+        }
     }
 }

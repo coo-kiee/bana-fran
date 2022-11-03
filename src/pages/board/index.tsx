@@ -3,9 +3,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate, useParams } from "react-router-dom";
 import loadable from "@loadable/component";
 
-// Css
-import 'assets/sass/notice.scss';
-
 // Type
 import { BoardInfo, BOARD_GROUP, ListSearchCondition, MenuType, MENU_TYPE } from "types/board/boardType";
 
@@ -32,15 +29,20 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
     const boardType = parseInt(bType);
     const isBoardType = !Utils.strNumberCheck(bType) && boardType > 0 && Object.values(BOARD_GROUP[menuType]).filter((boardInfo) => boardInfo.type === boardType).length > 0;
     const navigation = useNavigate();
+
     useEffect(() => { // 게시판 타입이 아닐 시 이전페이지로 이동
         if (boardType > 0 && !isBoardType) navigation(-1);
-    }, [bType]);
+    }, [boardType, isBoardType, navigation]);
 
     useLayoutEffect(() => { // 게시판 탭 변경 & 게시판 상세 이동
         const boardId = parseInt(bId);
         const isBoardId = !Utils.strNumberCheck(bId) && boardId > 0;
 
-        if (isBoardType && isBoardId) { // 게시판 상세이동
+        if(boardType === 0) { // 페이지 처음 로딩 시
+            setListSearchCondition(prev => ({ ...prev, board_type: BOARD_GROUP[menuType][0].type }));
+            setDetailInfo(prev => ({ ...prev, isDetail: false }));
+        }
+        else if (isBoardType && isBoardId) { // 게시판 상세이동
             setListSearchCondition(prev => ({ ...prev, board_type: boardType as BoardInfo['type'] }));
             setDetailInfo(prev => ({ ...prev, [boardType]: boardId, isDetail: true }));
         }
@@ -48,7 +50,7 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
             setListSearchCondition(prev => ({ ...prev, board_type: boardType as BoardInfo['type'] }));
             setDetailInfo(prev => ({ ...prev, isDetail: false }));
         }
-    }, [bType, bId]);
+    }, [menuType, boardType, bId, isBoardType]);
 
     const { userInfo } = useRecoilValue(loginState);
 
@@ -89,7 +91,7 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
                                         // 게시판 상세
                                         <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('detailError', e)}>
                                             <Suspense fallback={<Loading marginTop={100} />}>
-                                                <BoardDetail menuType={menuType} boardId={boardId} staffNo={staff_no} fCode={f_code} />
+                                                <BoardDetail menuType={menuType} boardId={boardId} staffNo={staff_no} fCode={f_code} setDetailInfo={setDetailInfo}/>
                                             </Suspense>
                                         </ErrorBoundary>
                                         :

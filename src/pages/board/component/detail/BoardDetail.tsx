@@ -13,28 +13,31 @@ import BOARD_SERVICE from "service/board";
 
 // Type
 import { BoardDetailType, MenuType } from "types/board/boardType";
+import { DetailInfo } from "pages/board";
 
 interface BoardDetailProps {
     menuType: MenuType,
     boardId: number,
     staffNo: number,
     fCode: number,
+    setDetailInfo: React.Dispatch<React.SetStateAction<DetailInfo>>,
 };
-const BoardDetail: FC<BoardDetailProps> = ({ menuType, boardId, staffNo, fCode }) => {
+const BoardDetail: FC<BoardDetailProps> = ({ menuType, boardId, staffNo, fCode, setDetailInfo }) => {
 
     const detailKey = ['board', JSON.stringify({ boardId, staffNo, fCode })];
     const { data: boardDetail } = BOARD_SERVICE.getBoard(detailKey, boardId, staffNo, fCode);
     const { category_name, title, insert_date, important, contents, board_type } = boardDetail as BoardDetailType || {};
 
+    const navigation = useNavigate();
     // 목록 버튼 클릭시 List로 이동
     const goToList = () => {
+        setDetailInfo(prev => ({ ...prev, [board_type]: 0, isDetail: false }));
         navigation(`/${menuType}/${board_type}`);
     };
     
-    const navigation = useNavigate();
     useEffect(() => { // 상세 데이터 없으면 이전 페이지로 이동
         if(!boardDetail) navigation(-1);
-    }, [])
+    }, [boardDetail, navigation]);
 
     return (
         <>
@@ -70,6 +73,7 @@ export default BoardDetail;
 
 
 
+// 내용
 const Content: FC<{ contentsUrl: string }> = ({ contentsUrl }) => {
 
     // Suspense 적용을 위해 React Query 적용
@@ -80,6 +84,7 @@ const Content: FC<{ contentsUrl: string }> = ({ contentsUrl }) => {
     )
 };
 
+// 파일첨부
 const FileList: FC<{ boardId: number }> = ({ boardId }) => {
 
     const fileKey = ['board', boardId.toString()];
