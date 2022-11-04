@@ -58,6 +58,7 @@ const Pagination:FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, h
     const handleListRow:ChangeEventHandler<HTMLSelectElement> = (e) => {
         const row = parseInt(e.currentTarget.value);
         handlePageRow(row);
+        handlePageChange(1);
     };
 
     return (

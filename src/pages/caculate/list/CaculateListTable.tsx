@@ -56,8 +56,8 @@ const TableTop: FC<TableTopProps> = ({ handlePopup }) => {
             <p className="text-info">※ ‘보전’은 본사로부터 보전받을 금액이며, '청구'는 본사가 가맹점에 청구하는 금액을 의미합니다.</p>
             <div className="btn-wrap">
                 {/* <!-- class명 inactive 추가시 비활성화 --> */}
-                <button className="btn-check">정산확인</button>
-                <button className="btn-modify-request modify-view" onClick={() => handlePopup('requestModify', true)} >수정요청</button>
+                {/* 데이터 없으면 버튼 비활성화 */} <button className="btn-check">정산확인</button>
+                {/* 데이터 없으면 버튼 비활성화 */} <button className="btn-modify-request modify-view" onClick={() => handlePopup('requestModify', true)} >수정요청</button>
                 <button className="btn-modify-history history-view" onClick={() => handlePopup('changeHistory', true)} >수정요청/변경이력</button>
             </div>
         </div>

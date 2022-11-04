@@ -79,7 +79,7 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
     return (
         <>
             {
-                (boardType === 0 || isBoardType) &&
+                (board_type || isBoardType) &&
                 <section className="container">
                     <BoardHeader menuType={menuType} />
                     <section className={`contents-wrap ${isDetail ? 'notice-view-wrap' : 'notice-wrap'}`}>

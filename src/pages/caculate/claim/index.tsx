@@ -1,7 +1,7 @@
 
 // Type
 import { FC } from "react";
-import { CaculateType } from "types/caculate/caculateType";
+import { CaculateType, CACULATE_TYPE } from "types/caculate/caculateType";
 
 // Component
 import CaculateHeader from "pages/caculate/component/CaculateHeader";
@@ -9,10 +9,12 @@ import CaculatePrecautions from "pages/caculate/component/CaculatePrecautions";
 import ClaimDetailTable from "./ClaimDetailTable";
 import ClaimLastMonthTable from "./ClaimLastMonthTable";
 
-interface CaculateClaimProps {
-    caculateType: CaculateType,
-};
-const CaculateClaim: FC<CaculateClaimProps> = ({ caculateType }) => {
+// interface CaculateClaimProps {
+//     caculateType: CaculateType,
+// };
+const CaculateClaim: FC = ({  }) => {
+
+    const caculateType = CACULATE_TYPE.CLAIM;
 
     return (
         <>

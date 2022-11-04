@@ -1,7 +1,7 @@
 
 // Type
 import { FC } from "react";
-import { CaculateType } from "types/caculate/caculateType";
+import { CaculateType, CACULATE_TYPE } from "types/caculate/caculateType";
 
 // Component
 import CaculateHeader from "pages/caculate/component/CaculateHeader";
@@ -9,10 +9,12 @@ import CaculatePrecautions from "pages/caculate/component/CaculatePrecautions";
 import EtcDetailTable from "./EtcDetailTable";
 import EtcLastMonthTable from "./EtcLastMonthTable";
 
-interface CaculateEtcProps {
-    caculateType: CaculateType,
-};
-const CaculateEtc: FC<CaculateEtcProps> = ({ caculateType }) => {
+// interface CaculateEtcProps {
+//     caculateType: CaculateType,
+// };
+const CaculateEtc: FC = ({ }) => {
+
+    const caculateType = CACULATE_TYPE.ETC;
 
     return (
         <>
