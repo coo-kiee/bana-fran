@@ -21,45 +21,48 @@ const Weekly = () => {
 	return (
 		<Board title='Week' boardClass='week-sales' suffix='총 매출' url=''>
 			<div className='contents-list chart'>
-				<ResponsiveBar
-					data={data || []}
-					keys={['sales_charge']}
-					indexBy='std_date'
-					margin={{ top: 70, right: 0, bottom: 50, left: 0 }}
-					padding={0.84}
-					groupMode='grouped'
-					valueScale={{ type: 'linear' }}
-					indexScale={{ type: 'band', round: true }}
-					colors={{ scheme: 'nivo' }}
-					animate={true}
-					enableGridY={false}
-					axisTop={null}
-					axisRight={null}
-					axisBottom={null}
-					axisLeft={null}
-					theme={{
-						axis: {
-							ticks: {
-								text: { // axis label font properties
-									fontSize: 12,
-									fontWeight: 'bold',
+				{
+					data && 
+					<ResponsiveBar
+						data={data}
+						keys={['sales_charge']}
+						indexBy='std_date'
+						margin={{ top: 70, right: 0, bottom: 50, left: 0 }}
+						padding={0.84}
+						groupMode='grouped'
+						valueScale={{ type: 'linear' }}
+						indexScale={{ type: 'band', round: true }}
+						colors={{ scheme: 'nivo' }}
+						animate={true}
+						enableGridY={false}
+						axisTop={null}
+						axisRight={null}
+						axisBottom={null}
+						axisLeft={null}
+						theme={{
+							axis: {
+								ticks: {
+									text: { // axis label font properties
+										fontSize: 12,
+										fontWeight: 'bold',
+									}
 								}
 							}
-						}
-					}}
-					enableLabel={false}
-					role='application'
-					ariaLabel='Weekly Sales'
-					layers={[
-						'grid', 
-						'axes', 
-						(props) => <ChartLabel {...props} />, 
-						(props) => <ChartBar {...props} onMouseLeave={hideTooltip} />, 
-						'markers', 
-						'legends', 
-						(props) => <ChartDays {...props} />
-					]}
-				/>
+						}}
+						enableLabel={false}
+						role='application'
+						ariaLabel='Weekly Sales'
+						layers={[
+							'grid',
+							'axes',
+							(props) => <ChartLabel {...props} />,
+							(props) => <ChartBar {...props} onMouseLeave={hideTooltip} />,
+							'markers',
+							'legends',
+							(props) => <ChartDays {...props} />
+						]}
+					/>
+				}
 			</div>
 			<p className='noti'>* 부가세 포함</p>
 		</Board>

@@ -11,6 +11,7 @@ import HOME_SERVICE from 'service/homeService';
 import Board from 'pages/home/components/board/Board';
 import CalendarHeader from 'pages/home/components/calendar/CalendarHeader';
 import CalendarBody from 'pages/home/components/calendar/CalendarBody';
+import Loading from 'pages/common/loading';
 
 const Monthly = () => {
 
@@ -33,20 +34,23 @@ const Monthly = () => {
     };
 
 	return (
-		<Board boardClass='month-sales' title='Month' url='' suffix='총 매출'>
-			<div className='contents-list calendar'>
+        <Board boardClass='month-sales' title='Month' url='' suffix='총 매출'>
+            <div className='contents-list calendar'>
                 <CalendarHeader
                     currentDate={currentDate}
                     prevMonth={prevMonth}
                     nextMonth={nextMonth}
                 />
-                <CalendarBody
-                    currentDate={currentDate}
-                    salesData={data}
-                />
-			</div>
-			<p className='noti'>* 부가세 포함</p>
-		</Board>
+                {   data ? 
+                    <CalendarBody
+                        currentDate={currentDate}
+                        salesData={data}
+                    /> : 
+                    <Loading width={50} height={50} marginTop={100} />
+                }
+            </div>
+            <p className='noti'>* 부가세 포함</p>
+        </Board>
 	);
 };
 

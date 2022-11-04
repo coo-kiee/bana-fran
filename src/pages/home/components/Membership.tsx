@@ -15,7 +15,7 @@ const Membership = () => {
 	// console.log(data);
 
 	return (
-		<Board boardClass='membership' title='멤버십 적립 현황' url='' suffix='누적'>
+		<Board boardClass='membership' title='멤버십 적립 현황' url='/membership/extra' suffix='누적'>
 			<table className='contents-list' cellPadding='0' cellSpacing='0'>
 				<colgroup>
 					<col width='258' />

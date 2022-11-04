@@ -193,7 +193,7 @@ article { display: flex; position: relative;
                         box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08);
                         overflow: hidden;
                         &.chart { height: 350px; }
-                        .list-item { display: flex; margin-top: 20px; align-items: center; cursor: pointer;
+                        .list-item { display: flex; margin-top: 20px; align-items: center;
                             &:first-child { margin-top: 0px; }
                             .state {     
                                 padding: 3.5px 9px;
@@ -208,10 +208,10 @@ article { display: flex; position: relative;
                                 &.recipe { color: #f1658a; border: 1px solid #f1658a; }
                                 &.menual { color: #a05bd4; border: 1px solid #a05bd4; }
                                 &.guide { color: #777; border: 1px solid #777; }
-                                &.default { color: #777; border: 1px solid #777; } // 임시 기본값
+                                &.default { color: #5c9bec; border: 1px solid #5c9bec; } // 임시 기본값
                             }
                             // 말줄임표 처리
-                            .contents { max-width: 375px; font-size: 16px; color: #000; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+                            .contents { width: 375px; font-size: 16px; color: #000; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
                             .date { margin-left: auto; font-size: 14px; color: #999; }
                         }
                     }

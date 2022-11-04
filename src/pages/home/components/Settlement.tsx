@@ -1,8 +1,6 @@
 import Board from 'pages/home/components/board/Board';
 
-type Props = {};
-
-const Settlement = (props: Props) => {
+const Settlement = () => {
 	return (
 		<Board boardClass='status' title='최근 정산 현황' url=''>
 			<table className='contents-list' cellPadding='0' cellSpacing='0'>

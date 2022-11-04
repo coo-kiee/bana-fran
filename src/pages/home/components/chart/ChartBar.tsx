@@ -15,28 +15,24 @@ const ChartBar = ({ bars }: any) => {
 	}), 0)
 
 	const handleTooltip = (point: any) => {
-		const { x, y, color, clientX, clientY, data: {std_date, sales_charge} } = point;
+		const { color, pageX, pageY, data: {std_date, sales_charge} } = point;
+
 		showTooltipAt(
 			<ChartTooltip 
 				id={format(new Date(std_date), 'MM/dd')} 
 				value={Utils.numberComma(sales_charge || 0) + '원'} 
 				color={color} 
 				/>,
-				[(x > 320 ? clientX - 350 : clientX - 170), (y > 100 ? clientY - 700 : clientY - 680)],
+				[
+					pageX < 600 ? pageX - 180 : pageX - 340,
+					pageY > 1000 ? pageY - 870 : pageY - 840
+				],
 				'center'
-				
   		)
 	}
 	
 	return bars.map((bar: any) => {
-		const {
-			key,
-			width,
-			height,
-			x,
-			y,
-			data: { value },
-		} = bar;
+		const { key, width, height, x, y, data: { value } } = bar;
 		
 		return (
 			<g 
@@ -44,31 +40,21 @@ const ChartBar = ({ bars }: any) => {
 				transform={`translate(${x}, ${y})`}
 				onMouseOver={(e: any) => {
 					handleTooltip({
-						x: x,
-						y: y,
-						clientX: e.clientX,
-						clientY: e.clientY,
-						// width: width,
-						// height: height,
+						pageX: e.pageX,
+						pageY: e.pageY,
 						color: value === maxValue ? '#f1658a' : '#fddce5',
 						data: { ...bar?.data?.data,	},
-						// formattedValue: Number(bar?.data?.data?.sales_charge),
 					})
 				}}
 				onMouseMove={(e: any) => {
 					handleTooltip({
-						x: x,
-						y: y,
-						clientX: e.clientX,
-						clientY: e.clientY,
-						// width: width,
-						// height: height,
+						pageX: e.pageX,
+						pageY: e.pageY,
 						color: value === maxValue ? '#f1658a' : '#fddce5',
 						data: { ...bar?.data?.data,	},
-						// formattedValue: Number(bar?.data?.data?.sales_charge),
 					})
 				}}
-				onMouseLeave={(e: any) => {hideTooltip();}}
+				onMouseLeave={() => {hideTooltip();}}
 			>
 				<circle
 					transform={`translate(${width/2}, ${0})`}

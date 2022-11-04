@@ -28,29 +28,24 @@ const HomeContainer: React.FC = () => {
 			<header>
 				<div className='page-title home'>
 					<p className='present'>HOME</p>
-					<p className='spot'>{f_code_name}</p>
+					<p className='spot'>{f_code_name || ''}</p>
 				</div>
 			</header>
 			<section className='dashboard'>
-				{/* <!-- 공지사항, 자료실, 멤버십 적립현황 --> */}
 				<div className='board-wrap border-top'>
 					<Notice />
 					<Archive />
 					<Membership />
 				</div>
-				{/* <!-- // 공지사항, 자료실, 멤버십 적립현황 --> */}
-
 				<div className='board-wrap'>
 					<Today />
 				</div>
-				{/* <!-- Week, Month, 월별 발주 금액, 최근 정산 현황--> */}
 				<div className='board-wrap'>
 					<Weekly />
 					<Monthly />
 					<Ordering />
 					<Settlement />
 				</div>
-				{/* <!-- // Week, Month, 월별 발주 금액, 최근 정산 현황--> */}
 			</section>
 		</section>
 	);

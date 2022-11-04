@@ -14,7 +14,7 @@ const CalendarBody = ({ currentDate, onDateClick, salesData }: any) => {
 	let days = [];
 	let day = startWeek;
 	let formattedDate = '';
-
+	
 	while (day <= endWeek) {
 		for (let i = 0; i < 7; i++) {
 			formattedDate = format(day, 'd');

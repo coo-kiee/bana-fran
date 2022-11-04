@@ -22,7 +22,7 @@ const Archive = () => {
 	// console.log(data);
 
 	return (
-		<Board title='자료실' boardClass='data' url='/board'>
+		<Board title='자료실' boardClass='dataroom' url='/board'>
 			<ul className='contents-list' style={{ minHeight: '210px' }}>
 				{data?.map((board: any, idx: number) => {
 					const { board_id, board_type, important, category_name, title, insert_date } = board;

@@ -1,8 +1,6 @@
 import Board from 'pages/home/components/board/Board';
 
-type Props = {};
-
-const Ordering = (props: Props) => {
+const Ordering = () => {
 	return (
 		<Board boardClass='ordering' title='월별 발주 금액' url=''>
 			<table className='contents-list' cellPadding='0' cellSpacing='0'>
