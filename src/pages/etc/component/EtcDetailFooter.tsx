@@ -2,7 +2,7 @@
 import Pagination from 'pages/common/pagination';
 
 // type
-import { PageInfoType } from "types/etcType";
+import { PageInfoType } from "types/etc/etcType";
 
 interface EtcDetailFooterProps {
     excelFn: () => void, // 엑셀 다운로드 함수  

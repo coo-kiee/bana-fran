@@ -1,0 +1,32 @@
+.sales_order {
+    .contents { position: relative; width: 100%; padding-top: 40px; 
+        .detail-info-wrap { display: flex; justify-content: space-between;
+            .board-filter { display: flex; gap: 20px;
+                .check-box { display: flex;
+                    label { 
+                        display: flex; 
+                        line-height: 20px;
+                        font-size: 14px;
+                        color: #555; 
+                        align-items: flex-end; 
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+        .board-wrap { 
+            td { padding-top: 15px; padding-bottom: 15px; 
+                &.price-area { padding: 0px; }
+            }
+        }
+        .result-function-wrap { 
+            display: flex; 
+            margin-top: 15px;
+            align-content: center; 
+            justify-content: space-between; 
+            align-items: center; 
+            .paging-wrap { margin-top: 0px; }
+            .filter-number { position: static; }
+        }
+    }
+}

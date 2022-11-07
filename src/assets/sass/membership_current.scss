@@ -1,0 +1,18 @@
+.membership_current {
+    .contents { position: relative; width: 100%; padding-top: 40px; 
+        .board-wrap {
+            td { height: 73px; }
+            .point { font-weight: bold; background: #fff; }
+            .total { color: #000; }
+        }
+        .result-function-wrap { 
+            display: flex; 
+            margin-top: 15px;
+            align-content: center; 
+            justify-content: space-between; 
+            align-items: center; 
+            .paging-wrap { margin-top: 0px; }
+            .filter-number { position: static; }
+        }
+    }
+}

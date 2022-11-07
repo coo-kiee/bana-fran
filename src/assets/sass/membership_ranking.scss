@@ -1,0 +1,38 @@
+.membership_ranking {
+    .contents { position: relative; width: 100%; padding-top: 40px; 
+        .board-wrap {
+            td { height: 72px; }
+        }
+        .result-function-wrap { 
+            display: flex; 
+            margin-top: 15px;
+            align-content: center; 
+            justify-content: space-between; 
+            align-items: center; 
+            .paging-wrap { margin-top: 0px; }
+            .filter-number { position: static; }
+        }
+        .setting-view { color: #3d3d9f; font-size: 16px; text-decoration: underline; cursor: pointer; }
+    }
+}
+.setting-layer {
+    .board-wrap { border-top: 2px solid #000; border-radius: 0px!important; box-shadow: none!important; 
+        .rank { font-size: 14px!important; font-weight: bold; color: #000!important; background: #f8f8f8; }
+        .contents { display: flex; align-content: center; justify-content: center; align-items: center; 
+            input { 
+                width: 120px; 
+                height: 40px;
+                margin-left: 12px;
+                border: 1px solid #ddd; 
+                border-radius: 4px; 
+                padding: 0px 10px;
+                text-align: right;
+                box-sizing: border-box;
+            }
+            span { margin-left: 4px; }
+            &.coupon {
+                input { width: 50px; } 
+            }
+        }
+    }
+}

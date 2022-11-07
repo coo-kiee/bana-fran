@@ -1,7 +1,22 @@
-const OrderDetailModal = () => {
+// type
+import { EtcOrderDetailProps } from 'types/etc/etcType';
+
+const EtcOrderDetail: React.FC<EtcOrderDetailProps> = ({ popupOrderDetail, setPopupOrderDetail }) => {
+    // TODO: EtcTable 내부 데이터 관련 
+    const colGroup = ['226', '100', '100', '100', '100', '100', '191'];
+    const thead = ['품목', '단가', '수량', '공급가', '부가세', '합계(발주금액)', '특이사항'];
+    const tbody = [
+        // 프로시저 데이터 확인 뒤 변경하기
+    ];
+
+    const handleEtcOrderDetail = () => {
+        setPopupOrderDetail((prev) => ({ ...prev, show: false })); // 끄기
+    }
+
     return (
-        <div className="alert-layer order-layer">
+        <div className="alert-layer order-layer active">
             <div className="msg-wrap">
+                {/* <EtcTable title={`발주 품목 상세`} colGroup={colGroup} thead={thead} tbody={tbody} /> */}
                 <p className="title">발주 품목 상세</p>
                 <table className="board-wrap" cellPadding="0" cellSpacing="0">
                     <colgroup>
@@ -100,11 +115,11 @@ const OrderDetailModal = () => {
                         </tr>
                     </tbody>
                 </table>
-                <button className="btn-close order-close"></button>
+                <button className="btn-close order-close" onClick={handleEtcOrderDetail}></button>
                 <button className="cta-btn">확인</button>
             </div>
         </div>
     )
 }
 
-export default OrderDetailModal
+export default EtcOrderDetail

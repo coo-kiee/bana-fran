@@ -1,0 +1,51 @@
+.sales_statistic {
+    .contents { position: relative; width: 100%; padding-top: 40px; 
+        .result-function-wrap { 
+            display: flex; 
+            margin-top: 15px;
+            align-content: center; 
+            justify-content: space-between; 
+            align-items: center; 
+            .paging-wrap { margin-top: 0px; }
+            .filter-number { position: static; }
+        }
+    }
+    .chart-filter-wrap { display: flex; justify-content: space-between; color: #555;
+        .chart-filter { display: flex; align-items: flex-end; gap: 20px;
+            .checkbox-wrap { 
+                label { display: flex; align-content: center; align-items: center; cursor: pointer;
+                    &:after { 
+                        content: '';
+                        display: inline-block;
+                        width: 10px;
+                        height: 3px;
+                        margin-left: 4px;
+                        border-radius: 4px;
+                        background: #000;
+                        vertical-align: middle;
+                    }
+                    &[for^="total-sales"] { 
+                        &:after { background: #f1658a; }                        
+                    }
+                    &[for^="paid-sales"] { 
+                        &:after { background: #ae88ff; }                        
+                    }
+                    &[for^="delivery-sales"] { 
+                        &:after { background: #6ecfbc; }                        
+                    }
+                    &[for^="free-sales"] { 
+                        &:after { background: #ff9177; }                        
+                    }
+                }
+            }
+        }
+    }
+    .chart-wrap { border-radius: 20px; box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08); }
+    .board-wrap {
+        .bg-e-right { border-right: 1px solid #666; }
+        .bg-e-bottom { border-bottom: 1px solid #666; }
+        .bg-right { border-right: 1px solid #5d5d75; }
+        .bg-bottom { border-bottom: 1px solid #5d5d75; }
+        .total { height: 73px; color: #000; }
+    }
+}

@@ -20,47 +20,6 @@
 }
 select { @include select-style; }
 .goast-btn { @include goast-btn-padding; }
-.alert-layer { 
-    display: flex;
-    position: absolute; 
-    top: 0px; 
-    left: 0px; 
-    z-index: 10;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.7);
-    justify-content: center;
-    align-items: center;
-    .msg-wrap {
-        position: relative;
-        width: 570px;
-        height: 244px;
-        padding: 50px;
-        text-align: center;
-        box-sizing: border-box;
-        border-radius: 20px;
-        background: #fff;
-        .title { font-size: 28px; font-weight: bold; color: #000; }  
-        .btn-cta { 
-            width: 150px; 
-            height: 60px; 
-            margin-top: 50px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #fff;
-            border-radius: 6px; 
-            background: #f1658a; 
-        }
-        .btn-close { 
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 30px;
-            height: 30px;
-            background: url('../../assets/images/icon/i_layer_close.svg') 0 0 no-repeat;
-        }
-    }
-}
 .input { 
     display: block; 
     width: 100%; 
@@ -93,6 +52,27 @@ select { @include select-style; }
         }
     }
 }
+.radio { display: none;
+    &+label { cursor: pointer;
+        &:before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-top: -3px;
+            margin-right: 4px;
+            vertical-align: middle;
+            background: url('../../assets/images/icon/i_radio_default.svg') 0 0 no-repeat;
+        }
+    }
+    &:checked {
+        &+label {
+            &:before {
+                background: url('../../assets/images/icon/i_radio_active.svg') 0 0 no-repeat;
+            }
+        }
+    }
+}
 
 .contents-wrap {
     display: flex;
@@ -102,7 +82,7 @@ select { @include select-style; }
     flex-direction: column;
     align-items: center;
     .contents { width: 450px; padding-top: 180px;
-        .description { margin-bottom: 20px; font-size: 16px; color: #000; text-align: center; }
+        .description { margin-bottom: 20px; font-size: 16px; font-weight: bold; color: #000; text-align: center; }
         .input-wrap { position: relative;
             .input { padding-right: 70px; }
             .resend { 
@@ -130,7 +110,7 @@ select { @include select-style; }
             a { display: block; }
         }
         .time-valid { padding: 10px 0px 0px 15px; font-size: 14px; color: #999; 
-            .point { color: #f1658a; }
+            .point { font-weight: bold; color: #f1658a; }
         }
     }
 }
@@ -144,22 +124,22 @@ select { @include select-style; }
         font-size: 20px;
         font-weight: bold;
         color: #fff;
-        border-radius: 8px;
+        border-radius: 10px;
         background: #808097;
     }
     .btn-check { @extend .btn-close; background: #f1658a; }
 }
 
-.bullet { position: relative; padding-left: 7px;
+.bullet { position: relative;
     &:before {
         content: '';
-        position: absolute;
-        top: 50%;
-        left: 0px;
         width: 3px;
         height: 3px;
         background: #000;
         transform: translate(0%, -50%);
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 4px;
     }
 }
 
@@ -168,8 +148,7 @@ select { @include select-style; }
     height: 46px;
     font-size: 16px;
     border: 1px solid #3a3a4d;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
+    border-radius: 4px;
     background: #fff;
     &:before {
         content: '';
@@ -214,6 +193,8 @@ select { @include select-style; }
     height: 46px;
     font-size: 16px;
     text-indent: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 .tab-content { display: none; 
@@ -242,13 +223,51 @@ select { @include select-style; }
 }
 
 .colon { 
-    &:before { content: ':'; padding: 0px 2px; }
+    &:before { content: ':'; padding: 0px 4px; font-weight: 400; color: #555; }
 }
 .hyphen {
     &:before { content: '-'; padding-right: 5px; }
 }
-
 .alert-layer {
+    display: flex;
+    position: absolute; 
+    top: 0px; 
+    left: 0px; 
+    z-index: 10;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+    .msg-wrap {
+        position: relative;
+        width: 570px;
+        height: 244px;
+        padding: 50px;
+        text-align: center;
+        box-sizing: border-box;
+        border-radius: 20px;
+        background: #fff;
+        .title { margin-top: 0px; font-size: 28px; font-weight: bold; color: #000; }  
+        .btn-cta { 
+            width: 150px; 
+            height: 60px; 
+            margin-top: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            border-radius: 6px; 
+            background: #f1658a; 
+        }
+        .btn-close { 
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 30px;
+            height: 30px;
+            background: url('../../assets/images/icon/i_layer_close.svg') 0 0 no-repeat;
+        }
+    }
     &.modify-layer { 
         display: none;
         position: absolute;
@@ -269,8 +288,8 @@ select { @include select-style; }
                 border: 1px solid #ddd;
                 box-sizing: border-box;
             }
-            .board-wrap {  margin-top: 15px;  border-radius: 20px; box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08); overflow: hidden;
-                th {  height: 45px;  color: #fff; font-size: 14px; background: #3a3a4d; }
+            .board-wrap { border-radius: 20px; box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08); overflow: hidden;
+                th { height: 45px;  color: #fff; font-size: 14px; background: #3a3a4d; }
                 td { 
                     height: 70px;
                     line-height: 22px;
@@ -291,13 +310,17 @@ select { @include select-style; }
             }
         }
         .cta-btn {
-            padding: 19px 42px;
+            padding: 19px 58px;
             margin-top: 30px;
             font-size: 18px;
             font-weight: bold;
             color: #fff;
             border-radius: 8px;
             background: #f1658a;
+        }
+        .close-btn {
+            @extend .cta-btn;
+            background: #3a3a4d;
         }
     }
     &.history-layer {
@@ -308,22 +331,41 @@ select { @include select-style; }
         @extend .modify-layer;
         .msg-wrap { width: auto; }
     }
+    &.setting-layer {
+        @extend .modify-layer;
+        .msg-wrap { width: auto; }
+    }
     &.active { display: flex; }
+    
 }
 
 .board-wrap { margin-top: 30px;  border-radius: 20px; box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08); overflow: hidden; 
     &.board-top { margin-top: 15px; }
     .price-area { background: #585872; border: 0px!important; text-align: center; font-size: 14px; color: #fff; }
+    .block { display: block; }
+    .bg-a { background: #585872; }
+    .bg-b { background: #5a4b71; }
+    .bg-c { background: #443161; }
+    .bg-d { background: #333; }
+    .bg-e { background: #555;}
     th { 
         height: 45px; 
         color: #fff;
         font-size: 14px;
         background: #3a3a4d;
+        &.boder-th-a { border-bottom: 1px solid #5d5d75!important; }
+        &.boder-th-b { border-bottom: 1px solid #6c6c97!important; }
+        &.height-63 { height: 63px; }
     }
-    td { height: 52px; text-align: center; border-right: 1px solid #ddd; border-bottom: 1px solid #ddd; background: #fff;
+    td { 
+        height: 52px; 
+        text-align: center; 
+        color: #555;
+        border-right: 1px solid #ddd; 
+        border-bottom: 1px solid #ddd; 
+        background: #fff;
         &:first-child { border-left: 1px solid #ddd; }
-        &.content { padding-left: 30px; text-align: left; cursor: pointer; }
-        &.content:hover { text-decoration:underline; }
+        &.content { padding-left: 30px; text-align: left; }
         &.left-radius { border-bottom-left-radius: 20px; }
         &.right-radius { border-bottom-right-radius: 20px; }
         &.point { background: #fff7f9; color: #f1658a; }
@@ -333,7 +375,6 @@ select { @include select-style; }
         &.align-right { padding-right: 20px; text-align: right!important; }
         &.total { font-weight: bold; background : #fff7f9; }
     }
-    tr { cursor: default; }
 }   
 
 .sort-wrap { display: flex; margin-top: 30px;
@@ -377,12 +418,14 @@ select { @include select-style; }
         input { 
             width: 160px; 
             height: 46px; 
+            line-height: 46px;
             border-radius: 4px; 
             border: 1px solid #ddd;
-            color: #999;
+            box-sizing: border-box;
             font-size: 16px;
             font-weight: 300;
             text-indent: 10px;
+            color: #999;
             cursor: pointer;
         }
         i { padding: 0px 4px; color: #999; }
@@ -397,6 +440,12 @@ select { @include select-style; }
             border-radius: 4px;
             text-indent: 10px;
         }
+    }
+    .radio-wrap {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin: 0px 11px;
     }
 }
 
@@ -413,17 +462,35 @@ select { @include select-style; }
         }
     }
     .search-result {
-         margin-top: 15px;
-        line-height: 28px;
+        display: flex;
+        margin-top: 15px;
+        line-height: 30px;
+        max-height: 180px;
         font-size: 16px;
         color: #555; 
+        flex-wrap: wrap;
+        flex-direction: column;
+        align-content: flex-start;
+        gap: 0px 60px;
         li { 
             &:before { content: '-'; padding-right: 5px; }
             span { color: #f1658a; font-weight: bold; }
         }
     }
+    .price-info { line-height: 20px; margin-top: 30px; font-size: 12px; font-weight: 300; color: #888; 
+        span { color: #000; font-weight: bold; }
+    }
 }
 
 .title { margin-top: 30px; font-size: 20px; font-weight: bold; 
-    .sub-title { padding-left: 10px; font-size: 12px; font-weight: 300; color: #888; }
+    .sub-title { 
+        display: block;
+        font-size: 12px; 
+        font-weight: 300; 
+        color: #888; 
+        &:first-child { margin-top: 10px; }
+        &.point { color: #f52323; }
+    }
 }
+
+.chart-wrap { padding: 20px; margin-top: 15px; background: #fff; }

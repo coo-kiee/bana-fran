@@ -1,28 +1,28 @@
 // type
-interface SearchDateType {
+interface SearchInfoType {
     from: string,
     to: string,
+    searchOption?: string[],
 }
 interface PageInfoType {
     currentPage: number,
     row: number,
 }
-
+interface PopupOrderDetailType {
+    show: boolean,
+    data: any[],
+}
 // param
 
-// props
-interface TabComponentsProps {
-    pageInfo: PageInfoType,
-    searchDate: SearchDateType,
-    setPageInfo: React.Dispatch<React.SetStateAction<PageInfoType>>,
-    setSearchDate: React.Dispatch<React.SetStateAction<SearchDateType>>,
-    handleExcelPrint: () => void;
+// props 
+interface OrderDetailProps {
+    setPopupOrderDetail: React.Dispatch<React.SetStateAction<PopupOrderDetailType>>
 }
 
-// interface TabItemProps extends Omit<TabComponentsProps, 'setPageInfo'> {
-//     handlePageInfo: (target: { [key in keyof PageInfoType]?: PageInfoType[key] }) => void;
-// }
-
+interface EtcOrderDetailProps {
+    popupOrderDetail: PopupOrderDetailType,
+    setPopupOrderDetail: React.Dispatch<React.SetStateAction<PopupOrderDetailType>>
+}
 // etc페이지 탭 관련 
 const ETC_TAB_TYPE = {
     DELIVERY: 0, // 바나 딜리버리 수수료
@@ -42,5 +42,5 @@ const ETC_TAB_LIST = [
     ETC_TAB_TYPE.ACCOUNT,
 ] as const;
 
-export type { SearchDateType, PageInfoType, TabComponentsProps };
+export type { SearchInfoType, PageInfoType, PopupOrderDetailType, OrderDetailProps, EtcOrderDetailProps };
 export { ETC_TAB_TYPE, ETC_TAB_LIST };

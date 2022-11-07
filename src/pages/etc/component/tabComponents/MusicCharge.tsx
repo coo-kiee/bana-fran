@@ -1,14 +1,27 @@
+import { useState } from 'react';
+import { format, subMonths, lastDayOfMonth } from 'date-fns';
+
 // type
-import { TabComponentsProps } from "types/etcType";
+import { SearchInfoType, PageInfoType } from "types/etc/etcType";
 
 // component
 import EtcTable from "../EtcTable";
-import EtcSearch from "../EtcSearch";
+import CalanderSearch from 'pages/common/calanderSearch';
 import EtcSearchDetail from "../EtcSearchDetail";
 import EtcDetailTable from "../EtcDetailTable";
 import EtcDetailFooter from "../EtcDetailFooter";
 
-const MusicCharge: React.FC<TabComponentsProps> = ({ pageInfo, searchDate, setPageInfo, setSearchDate, handleExcelPrint }) => {
+const MusicCharge = () => {
+    // TODO: 상태 관련
+    const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
+        from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
+        to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
+    }); // etcSearch 내부 검색 날짜
+    const [pageInfo, setPageInfo] = useState<PageInfoType>({
+        currentPage: 1, // 현재 페이지
+        row: 3, // 한 페이지에 나오는 리스트 개수 
+    }) // etcDetailFooter 관련 내용 
+
     // TODO: 프로시저
     // isSuccess로 확인 뒤 아래 관련 데이터 업데이트
 
@@ -45,33 +58,31 @@ const MusicCharge: React.FC<TabComponentsProps> = ({ pageInfo, searchDate, setPa
         ['22/06/01~22/06/30', '음악사용료8', '130,000', '130,000', '130,000'],
     ];
 
+    // TODO: 엑셀 프린트 관련 함수
+    const handleExcelPrint = () => {
+        console.log(`엑셀 다운 버튼 클릭`);
+    }; // 엑셀 다운로드 관련 
+
     return (
         <div id="tab2" className="tab-content active">
             <div className="info-wrap">
                 <p>※ 매월 매장 음악 서비스 이용료를 조회할 수 있습니다. <strong>(가상계좌 자동 차감되므로 정산내역에는 반영되지 않습니다.)</strong></p>
             </div>
             <div className="board-date-wrap">
-                {/* <!-- 수수료 내역 --> */}
-                <p className="title bullet">2022년 3월 바나 딜리버리 수수료 내역</p>
-                <EtcTable colGroup={colGroup} thead={thead} tbody={tbody} />
-                {/* <!-- // 수수료 내역 --> */}
+                {/* 수수료 내역 */}
+                <EtcTable title={`${format(subMonths(new Date(), 1), 'yyyy년 MM월')} 음악 서비스 이용료 내역`} colGroup={colGroup} thead={thead} tbody={tbody} />
 
-                <p className="title bullet">상세내역</p>
-                {/* <!-- 검색 --> */}
-                <EtcSearch from={searchDate.from} to={searchDate.to} updateDate={setSearchDate} option={['구분 전체', 'test1', 'test2']} />
-                {/* <!-- // 검색 --> */}
+                {/* 검색 */}
+                <CalanderSearch title={`상세내역`} searchInfo={searchInfo} updateSearchInfo={setSearchInfo} handleSearch={() => console.log('검색')} dateType={'yyyy-MM-dd'} />
 
-                {/* <!-- 조회 기간 --> */}
-                <EtcSearchDetail searchDate={`${searchDate.from} ~ ${searchDate.to}`} searchResult={detailSearchResult} priceInfo={detailPriceInfo} />
-                {/* <!-- // 조회 기간 --> */}
+                {/* 조회 기간 */}
+                <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={detailSearchResult} priceInfo={detailPriceInfo} />
 
-                {/* <!-- 게시판 --> */}
+                {/* 게시판 */}
                 <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={detailTableBody} pageInfo={pageInfo} />
-                {/* <!-- // 게시판 --> */}
 
-                {/* <!-- 엑셀다운, 페이징, 정렬 --> */}
+                {/* 엑셀다운, 페이징, 정렬 */}
                 <EtcDetailFooter excelFn={handleExcelPrint} pageFn={setPageInfo} dataCnt={detailTableBody.length || 0} pageInfo={pageInfo} />
-                {/* <!-- // 엑셀다운, 페이징, 정렬 --> */}
             </div>
         </div>
     )

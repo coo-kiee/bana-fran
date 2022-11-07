@@ -1,10 +1,11 @@
 // type
-import { PageInfoType } from "types/etcType";
+import { PageInfoType } from "types/etc/etcType";
 interface EtcDetailTableProps {
     colGroup: Array<string>, // colgroup width 관련 ... ["195", "195", ...]
     theadData: TableHeadItemType[][], // 테이블 header th 관련 ...[ [{itemName: '기간', rowSpan: 2},{itemName: 'BGM 서비스 이용료' colSpan: 3,className:'price-area'},...], [{itemName: '공급가', className: 'price-area'}] ]
     tbodyData: any, // ? 프로시저 데이터 확인하기
     pageInfo: PageInfoType, // 페이지네이션 관련 정보
+    handlePopupOrderDetail?: () => void, // 발주내역에서 EtcOrderDetail 여는 함수
 }
 interface TableHeadItemType {
     itemName: string, // th 이름 ... '기간'
@@ -14,7 +15,7 @@ interface TableHeadItemType {
 }
 
 // TODO: 상세 내역 테이블 관련 (.board-wrap 부분)
-const EtcDetailTable: React.FC<EtcDetailTableProps> = ({ colGroup, theadData, tbodyData, pageInfo: { currentPage, row } }) => {
+const EtcDetailTable: React.FC<EtcDetailTableProps> = ({ colGroup, theadData, tbodyData, pageInfo: { currentPage, row }, handlePopupOrderDetail }) => {
     return (
         <table className="board-wrap" cellPadding="0" cellSpacing="0">
             <colgroup>
@@ -37,14 +38,17 @@ const EtcDetailTable: React.FC<EtcDetailTableProps> = ({ colGroup, theadData, tb
                     if (
                         (idx < (currentPage - 1) * row) || // 현재 페이지 이전에 있는 데이터
                         (idx >= (currentPage * row)) // 현재 페이지 이후에 있는 데이터
-                    ) return null;
-                    return (
-                        <tr key={`etc_Detail_table_body_row_${idx}`}>
-                            {tbodyRow.map((bodyItem: any, idx: number) => {  // ? 프로시저 데이터 확인 후 수정
-                                return <td key={`etc_detail_table_tbody_${idx}`} className="align-center">{bodyItem}</td>
-                            })}
-                        </tr>
-                    )
+                    ) {
+                        return null;
+                    } else {
+                        return (
+                            <tr key={`etc_Detail_table_body_row_${idx}`}>
+                                {tbodyRow.map((bodyItem: any, idx: number) => {  // ? 프로시저 데이터 확인 후 수정
+                                    return <td key={`etc_detail_table_tbody_${idx}`} className="align-center" onClick={handlePopupOrderDetail && handlePopupOrderDetail}>{bodyItem}</td>
+                                })}
+                            </tr>
+                        )
+                    }
                 })}
             </tbody>
         </table>
