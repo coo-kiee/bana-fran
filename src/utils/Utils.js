@@ -1,3 +1,5 @@
+import * as xlsx from 'xlsx-js-style'
+
 /* eslint-disable */
 export default class Utils {
     static converDateFormat = (str, exp) => {
@@ -207,5 +209,96 @@ export default class Utils {
         } else {
             return true;
         } 
+    }
+
+    static calculateVat = (charge) => {
+        
+        const vatRate = 0.09;
+        const vat = charge * vatRate;
+        return [charge - vat, vat, charge];
+    }
+
+    static excelDownload = (downloadDatas, options, fileName) => {
+
+        // 엑셀 워크북 생성
+        const book = xlsx.utils.book_new();
+        
+        // 엑셀 워크시트 추가함수
+        const addSheet = (index) => {
+            let workSheet; // any
+
+            let [downloadData, type, sheetOption = {}, colspan, workSheetName = '', header = {}, addRowColor = {}] = [downloadDatas, options.type, options.sheetOption, options.colspan, options.sheetName, options.header, options.addRowColor];
+            // 워크시트 여러개인 경우
+            if (index) [downloadData, type, sheetOption = {}, colspan, workSheetName = '', header = {}, addRowColor = {}] = [downloadDatas[index], options[index].type, options[index].sheetOption, options[index].colspan, options[index].sheetName, options[index].header, options[index].addRowColor];
+            
+            switch (type.toLowerCase()) {
+                case 'table':
+                    workSheet = xlsx.utils.table_to_sheet(downloadData, sheetOption);
+                    // console.log('여기1', workSheet);
+                    break;
+                case 'array': // const file1 = [ ["이름", "나이"], ["장민우", "31"], ]
+                    workSheet = xlsx.utils.aoa_to_sheet(downloadData, sheetOption);
+                    break;
+                case 'object': // const file2 = [ { A: "학과", B: "직급", C: "이름", D: "나이" }, { A: "흉부외과", B: "의사", C: "장민우", D: "31" }, ]
+                    workSheet = xlsx.utils.json_to_sheet(downloadData, sheetOption);
+                    break;
+                default:
+                    return;
+            }
+
+            // 병합할 셀 영역 설정
+            if (options.merges) workSheet['!merges'] = { ...workSheet['!merges'], ...options.merges };
+
+            const { origin = 'A1' } = sheetOption;
+            const { c: originCol, r: originRow } = xlsx.utils.decode_cell(origin);
+            // 셀 너비 설정
+            if (!(origin === 'A1')) { // A1 셀에서 시작하지 않을 때 빈 셀 너비 설정 추가
+                for (let index = 0; index < originCol; index++) {
+                    workSheet['!cols'].push({ wpx: 40 });
+                };
+            };
+            workSheet['!cols'] = [ ...workSheet['!cols'], ...colspan ];
+
+            // 엑셀 테두리 설정 + addRowColor 행의 셀 이름 수집
+            const defaultBorderStyle = { style: "thin", color: { rgb: "#000000" } };
+            const border = { top: defaultBorderStyle, bottom: defaultBorderStyle, left: defaultBorderStyle, right: defaultBorderStyle };
+            const cellRange = xlsx.utils.decode_range(workSheet["!ref"]);
+            let addRowColorCell = [];
+            const { rowNum, rowColor } = addRowColor;
+            for (let col = originCol; col <= cellRange.e.c; col++) {
+                for (let row = originRow; row <= cellRange.e.r; row++) {
+                    const cellName = xlsx.utils.encode_cell({ c: col, r: row });
+                    // console.log(cellName);
+                    workSheet[cellName] = { ...workSheet[cellName], s: { border }, v:workSheet[cellName]?.v || ''  }; // 테두리 설정
+                    if(rowNum && originCol <= col && (originRow + rowNum - 1) === row) addRowColorCell.push(cellName); // addRowColorCell 수집
+                };
+            };
+            
+            // 엑셀 정렬 스타일 추가 - 문자열: 가운데 정렬, 숫자: 오른쪽 정렬 + 3자리마다 ,표시
+            const isSellAddress  = /[A-Z]{1,3}\d{1,5}/;
+            const { checkHeader, color } = header;
+            Object.entries(workSheet).reduce((res, cur) => {
+                const key = cur[0];
+                const value = cur[1];
+                if (value.t && isSellAddress.test(key)) res[key] = value.t === 's' ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center" } } } : { ...value, z: "#,##0", s: { ...value.s, alignment: { vertical: "center", horizontal: "right" } } };
+                if (checkHeader && checkHeader.length > 0 && checkHeader.includes(value.v) > 0) res[key].s = { ...res[key].s, fill: { fgColor: { rgb: color || 'd3d3d3' } }}; // 헤더 색상 추가
+                if (addRowColorCell.length > 0 && addRowColorCell.includes(key) > 0) res[key].s = { ...res[key].s, fill: { fgColor: { rgb: rowColor || 'd3d3d3' } }}; // ddRowColor 행의 색상 추가
+                return workSheet;
+            }, workSheet);
+            // console.log('addRowColorCell', addRowColorCell);
+            
+            // console.log('final', workSheet);
+            xlsx.utils.book_append_sheet(book, workSheet, workSheetName);
+        }
+
+        // 워크시트 여러개 추가
+        if (typeof types === Array && types.length > 1) {
+            downloadDatas.forEach((downloadData, index) => {
+                addSheet(index);
+            })
+        } else {
+            addSheet();
+        }
+        xlsx.writeFile(book, fileName + '.xlsx');
     }
 }

@@ -1,22 +1,45 @@
 /* eslint-disable */
-import { FC } from "react";
+import { FC, useRef } from "react";
 
 // Component
 import Pagination from "pages/common/pagination";
+import Utils from "utils/Utils";
 
 interface EtcDetailTableProps {
 };
 const EtcDetailTable: FC<EtcDetailTableProps> = ({ }) => {
 
-    // const { data: boardList } = BOARD_SERVICE.getBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
+    // const { data: boardList } = BOARD_SERVICE.useBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
     // const { out: pageInfo } = boardList as BoardListResult || {};
 
     const { width, thInfo, tdInfo } = TABLE_COLUMN_INFO;
 
+    const test = useRef<null | HTMLTableElement>(null);
+    const testExcel = () => {
+        if (test.current) {
+            // Excel - sheet options: 셀 시작 위치, 셀 크기
+            const options = {
+                type: 'table', // 필수 O
+                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                colspan: TABLE_COLUMN_INFO.width.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
+                header: { checkHeader: [...TABLE_COLUMN_INFO.tdInfo, ...TABLE_COLUMN_INFO.thInfo.map(item => item.text)], color: 'd3d3d3' }, // 헤더 색상 넣을 때 필요(rgb #빼고 입력), 필수 X
+                addRowColor: { rowNum: 3, rowColor: 'd3d3d3' }, // 추가적으로 색상 넣을 행(rgb #빼고 입력), 필수 X
+                sheetName: 'test', // 시트이름, 필수 X
+            };
+            
+            try {
+                Utils.excelDownload(test.current, options, 'test');
+            }
+            catch (error) {
+                console.log(error);
+            }
+        };
+    };
+
     return (
         <>
             <TableTop />
-            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
+            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={test}>
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
                 <tbody>
@@ -27,7 +50,7 @@ const EtcDetailTable: FC<EtcDetailTableProps> = ({ }) => {
                     <TableList />
                 </tbody>
             </table>
-            < TableBottom />
+            < TableBottom testExcel={testExcel}/>
             {/* <TableBottom dataCnt={pageInfo?.total_cnt || 0} row={listSearchCondition.page_size || 50} currentPage={listSearchCondition.page_idx || 1} setListSearchCondition={setListSearchCondition} /> */}
         </>
     );
@@ -119,18 +142,34 @@ const TableList: FC<TableListProps> = ({ }) => {
                 // })
             }
             {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
-            <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>
+            {/* <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr> */}
+            <tr>
+                <td className="align-center">22/06/01~22/06/30</td>
+                <td className="align-center">청구</td>
+                <td className="align-left">유상포인트(충전/잔돈포인트)의 고객 사용비용 보전</td>
+                <td className="align-right">117,000</td>
+                <td className="align-right">13,000</td>
+                <td className="align-right">130,000</td>
+            </tr>
+            <tr>
+                <td className="align-center total">22/06/01~22/06/30</td>
+                <td className="align-center total" colSpan={2}>총 합계</td>
+                <td className="align-right total">117,000</td>
+                <td className="align-right total">13,000</td>
+                <td className="align-right total">130,000</td>
+            </tr>
         </>
     )
 };
 
 interface TableBottomProps {
-    dataCnt: number,
-    currentPage: number,
-    row: number,
+    // dataCnt: number,
+    // currentPage: number,
+    // row: number,
+    testExcel: () => void,
 };
 // const TableBottom: FC<TableBottomProps> = ({ dataCnt, currentPage, row }) => {
-const TableBottom = () => {
+const TableBottom:FC<TableBottomProps> = ({testExcel}) => {
 
     const { dataCnt = 1, currentPage = 1, row = 50 } = {};
     const handlePageChange = (changePage: number) => {
@@ -148,7 +187,7 @@ const TableBottom = () => {
                 <>
                     <div className="result-function-wrap" >
                         <div className="function">
-                            <button className="goast-btn">엑셀다운</button>&nbsp;
+                            <button className="goast-btn" onClick={testExcel}>엑셀다운</button>&nbsp;
                         </div>
                         <Pagination dataCnt={dataCnt} handlePageChange={handlePageChange} handlePageRow={handlePageRow} pageInfo={{ currentPage, row }} />
                     </div>
