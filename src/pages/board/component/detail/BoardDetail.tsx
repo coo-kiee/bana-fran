@@ -9,7 +9,7 @@ import { queryFn } from "hooks/useQuery";
 import 'assets/sass/notice_view.scss'
 
 // Service
-import BOARD_SERVICE from "service/board";
+import BOARD_SERVICE from "service/boardService";
 
 // Type
 import { BoardDetailType, MenuType } from "types/board/boardType";
@@ -25,7 +25,7 @@ interface BoardDetailProps {
 const BoardDetail: FC<BoardDetailProps> = ({ menuType, boardId, staffNo, fCode, setDetailInfo }) => {
 
     const detailKey = ['board', JSON.stringify({ boardId, staffNo, fCode })];
-    const { data: boardDetail } = BOARD_SERVICE.getBoard(detailKey, boardId, staffNo, fCode);
+    const { data: boardDetail } = BOARD_SERVICE.useBoard(detailKey, boardId, staffNo, fCode);
     const { category_name, title, insert_date, important, contents, board_type } = boardDetail as BoardDetailType || {};
 
     const navigation = useNavigate();
@@ -77,7 +77,7 @@ export default BoardDetail;
 const Content: FC<{ contentsUrl: string }> = ({ contentsUrl }) => {
 
     // Suspense 적용을 위해 React Query 적용
-    const {data:content} = BOARD_SERVICE.getContent([contentsUrl], contentsUrl);
+    const {data:content} = BOARD_SERVICE.useBoardContent([contentsUrl], contentsUrl);
 
     return (
         <div className="content-wrap" dangerouslySetInnerHTML={{__html: content as string}} />
@@ -88,7 +88,7 @@ const Content: FC<{ contentsUrl: string }> = ({ contentsUrl }) => {
 const FileList: FC<{ boardId: number }> = ({ boardId }) => {
 
     const fileKey = ['board', boardId.toString()];
-    const { data: fileInfo } = BOARD_SERVICE.getBoardAttachList(fileKey, boardId);
+    const { data: fileInfo } = BOARD_SERVICE.useBoardAttachList(fileKey, boardId);
 
     const downloadFile = async (url: string, fileName: string) => {
         try {

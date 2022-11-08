@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Service
-import BOARD_SERVICE from "service/board";
+import BOARD_SERVICE from "service/boardService";
 
 // Type
 import { BoardListResult, ListSearchCondition, MenuType } from "types/board/boardType";
@@ -17,7 +17,7 @@ interface BoardTableProps {
 };
 const BoardTable: FC<BoardTableProps> = ({ menuType, listSearchCondition, setListSearchCondition }) => {
 
-    const { data: boardList } = BOARD_SERVICE.getBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
+    const { data: boardList } = BOARD_SERVICE.useBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
     const { out: pageInfo } = boardList as BoardListResult || {};
 
     const { width, headerText } = TABLE_COLUMN_INFO;

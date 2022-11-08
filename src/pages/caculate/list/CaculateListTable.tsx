@@ -1,12 +1,24 @@
 /* eslint-disable */
 import { FC } from "react";
 
+// State
+import { useRecoilValue } from "recoil";
+import { loginState } from "state";
+
+// Service
+import CACULATE_SERVICE from 'service/caculateService';
+
 interface CaculateListTableProps {
     handlePopup: (key: string, value: boolean) => void
 };
 const CaculateListTable: FC<CaculateListTableProps> = ({ handlePopup }) => {
 
-    // const { data: boardList } = BOARD_SERVICE.getBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
+    const { userInfo } = useRecoilValue(loginState);
+    const f_code = userInfo?.f_list[0]?.f_code || 0;
+    const staff_no = userInfo?.staff_no || 0;
+    const { data: caculateDetailList } = CACULATE_SERVICE.useCaculateDetailList(['caculateDetailList', JSON.stringify({f_code, staff_no})], f_code, staff_no, 10);
+    console.log(caculateDetailList);
+    // const { data: boardList } = BOARD_SERVICE.useBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
     // const { out: pageInfo } = boardList as BoardListResult || {};
 
     const { width, headerText } = TABLE_COLUMN_INFO;

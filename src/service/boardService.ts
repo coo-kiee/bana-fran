@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable import/no-anonymous-default-export */
 
 import { useQuery } from 'react-query';
 
@@ -9,7 +9,7 @@ import { queryFn } from 'hooks/useQuery';
 import { BoardListResult, BoardInfo, Category, ListSearchCondition, BoardDetailType, FileType } from 'types/board/boardType';
 
 // 게시판 카테고리 가져오기
-const getCategoryList = (queryKey: string | Array<string>, boardType: BoardInfo['type'], fCode:number, staffNo: number, option: { [key: string]: any } = {}) => {
+const useCategoryList = (queryKey: string | Array<string>, boardType: BoardInfo['type'], fCode:number, staffNo: number, option: { [key: string]: any } = {}) => {
 
     const data = {
         ws: "fprocess",
@@ -30,7 +30,7 @@ const getCategoryList = (queryKey: string | Array<string>, boardType: BoardInfo[
 };
 
 // 게시판 목록 가져오기
-const getBoardList = (queryKey: string | Array<string>, params: ListSearchCondition, option: { [key: string]: any } = {}) => {
+const useBoardList = (queryKey: string | Array<string>, params: ListSearchCondition, option: { [key: string]: any } = {}) => {
 
     const data = {
         ws: "fprocess",
@@ -48,7 +48,7 @@ const getBoardList = (queryKey: string | Array<string>, params: ListSearchCondit
 };
 
 // 게시판 상세보기
-const getBoard = (queryKey: string | Array<string>, boardId: number, staffNo: number, fCode: number, option: { [key: string]: any } = {}) => {
+const useBoard = (queryKey: string | Array<string>, boardId: number, staffNo: number, fCode: number, option: { [key: string]: any } = {}) => {
 
     const data = {
         ws: "fprocess",
@@ -70,7 +70,7 @@ const getBoard = (queryKey: string | Array<string>, boardId: number, staffNo: nu
 };
 
 // 게시판 상세 내용 가져오기
-const getContent = (queryKey: string | Array<string>, url: string) => {
+const useBoardContent = (queryKey: string | Array<string>, url: string) => {
     
     return useQuery<string>(queryKey, () => queryFn.axiosGet(url), {
         keepPreviousData: false,
@@ -81,7 +81,7 @@ const getContent = (queryKey: string | Array<string>, url: string) => {
 };
 
 // 게시판 상세 파일첨부
-const getBoardAttachList = (queryKey: string | Array<string>, boardId: number, option: { [key: string]: any } = {}) => {
+const useBoardAttachList = (queryKey: string | Array<string>, boardId: number, option: { [key: string]: any } = {}) => {
 
     const data = {
         ws: "fprocess",
@@ -99,12 +99,10 @@ const getBoardAttachList = (queryKey: string | Array<string>, boardId: number, o
     });
 };
 
-const BOARD_SERVICE = {
-    getCategoryList,
-    getBoardList,
-    getBoard,
-    getContent,
-    getBoardAttachList,
+export default {
+    useCategoryList,
+    useBoardList,
+    useBoard,
+    useBoardContent,
+    useBoardAttachList,
 };
-
-export default BOARD_SERVICE;

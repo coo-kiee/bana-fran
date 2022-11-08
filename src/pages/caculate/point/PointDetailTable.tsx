@@ -8,7 +8,7 @@ interface PointDetailTableProps {
 };
 const PointDetailTable: FC<PointDetailTableProps> = ({ }) => {
 
-    // const { data: boardList } = BOARD_SERVICE.getBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
+    // const { data: boardList } = BOARD_SERVICE.useBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
     // const { out: pageInfo } = boardList as BoardListResult || {};
 
     const { width, thInfo, tdInfo } = TABLE_COLUMN_INFO;

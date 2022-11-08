@@ -1,7 +1,7 @@
 // Service
 import { useEventKeyCode } from "hooks/useEventKeyCode";
 import { ChangeEventHandler, FC, useState } from "react";
-import BOARD_SERVICE from "service/board";
+import BOARD_SERVICE from "service/boardService";
 
 // Type
 import { BoardInfo, ListSearchCondition } from "types/board/boardType";
@@ -15,7 +15,7 @@ interface BoardSelectConditionProps {
 }
 const BoardSelectCondition: FC<BoardSelectConditionProps> = ({ boardType, staffNo, fCode, searchCategory, setListSearchCondition }) => {
 
-    const { data: categoryList } = BOARD_SERVICE.getCategoryList(['boardCategory', JSON.stringify({ boardType, staffNo })], boardType, fCode, staffNo);
+    const { data: categoryList } = BOARD_SERVICE.useCategoryList(['boardCategory', JSON.stringify({ boardType, staffNo })], boardType, fCode, staffNo);
 
     // 카테고리 변경
     const handleSearchData: ChangeEventHandler<HTMLSelectElement | HTMLInputElement> = (e) => {
