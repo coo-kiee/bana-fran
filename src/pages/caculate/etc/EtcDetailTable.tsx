@@ -22,11 +22,11 @@ const EtcDetailTable: FC<EtcDetailTableProps> = ({ }) => {
                 type: 'table', // 필수 O
                 sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: TABLE_COLUMN_INFO.width.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
-                header: { checkHeader: [...TABLE_COLUMN_INFO.tdInfo, ...TABLE_COLUMN_INFO.thInfo.map(item => item.text)], color: 'd3d3d3' }, // 헤더 색상 넣을 때 필요(rgb #빼고 입력), 필수 X
-                addRowColor: { rowNum: 3, rowColor: 'd3d3d3' }, // 추가적으로 색상 넣을 행(rgb #빼고 입력), 필수 X
+                // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: 'test', // 시트이름, 필수 X
+                addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','d3d3d3'] }, // 추가적으로 색상 넣을 행(rgb #빼고 입력), 필수 X
             };
-            
+
             try {
                 Utils.excelDownload(test.current, options, 'test');
             }
@@ -39,18 +39,19 @@ const EtcDetailTable: FC<EtcDetailTableProps> = ({ }) => {
     return (
         <>
             <TableTop />
-            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={test}>
+            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={test} >
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
                 <tbody>
                     {/* Table Header  */}
-                    <tr>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr>
-                    <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
+                    <tr >{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}<th rowSpan={2}>TT<br/>TEST</th></tr>
+                    {/* <tr >{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr> */}
+                    <tr >{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
                     {/* List */}
                     <TableList />
                 </tbody>
             </table>
-            < TableBottom testExcel={testExcel}/>
+            < TableBottom testExcel={testExcel} />
             {/* <TableBottom dataCnt={pageInfo?.total_cnt || 0} row={listSearchCondition.page_size || 50} currentPage={listSearchCondition.page_idx || 1} setListSearchCondition={setListSearchCondition} /> */}
         </>
     );
@@ -67,7 +68,7 @@ const TABLE_COLUMN_INFO = {
         { text: '발행일시', rowSpan: 2, colSpan: 1, className: '' },
         { text: '구분', rowSpan: 2, colSpan: 1, className: '' },
         { text: '내용', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '기타 정산 금액', rowSpan: 1, colSpan: 3, className: 'price-area' },
+        { text: '기타 정산 금액', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
     ],
     tdInfo: ['공급가', '부가세', '합계']
 } as const;
@@ -101,12 +102,8 @@ const TableTop: FC<TableTopProps> = ({ }) => {
                     <p>조회기간: 2022-12-31 ~ 2022-12-31</p>
                 </div>
                 <ul className="search-result">
-                    <li>출석 이벤트 쿠폰&nbsp;:&nbsp;<span className="value">10,000원</span></li>
-                    <li>밀크티 트립 스탬프 이벤트 쿠폰&nbsp;:&nbsp;<span className="value">10,000원</span></li>
-                    <li>어플 설치 1500원 할인 쿠폰:<span className="value">10,000원</span></li>
-                    <li>고객 클레임 서비스 쿠폰:<span className="value">10,000원</span></li>
-                    <li>기타 본사 서비스 쿠폰:<span className="value">10,000원</span></li>
-                    <li>본사 쿠폰 사용금액 합계:<span className="value">10,000원</span></li>
+                    <li>청구 금액 합계<span className="colon"></span><span className="value">10,000원</span></li>
+                    <li>보전 금액 합계<span className="colon"></span><span className="value">10,000원</span></li>
                 </ul>
             </div>
         </>
@@ -144,19 +141,28 @@ const TableList: FC<TableListProps> = ({ }) => {
             {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
             {/* <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr> */}
             <tr>
-                <td className="align-center">22/06/01~22/06/30</td>
+                <td className="align-center">2022/03/01</td>
                 <td className="align-center">청구</td>
-                <td className="align-left">유상포인트(충전/잔돈포인트)의 고객 사용비용 보전</td>
-                <td className="align-right">117,000</td>
-                <td className="align-right">13,000</td>
+                <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
                 <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
             </tr>
             <tr>
-                <td className="align-center total">22/06/01~22/06/30</td>
-                <td className="align-center total" colSpan={2}>총 합계</td>
-                <td className="align-right total">117,000</td>
-                <td className="align-right total">13,000</td>
-                <td className="align-right total">130,000</td>
+                <td className="align-center">2022/03/01</td>
+                <td className="align-center">청구</td>
+                <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
+            </tr>
+            <tr>
+                <td className="align-center">2022/03/01</td>
+                <td className="align-center">청구</td>
+                <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
             </tr>
         </>
     )
@@ -169,7 +175,7 @@ interface TableBottomProps {
     testExcel: () => void,
 };
 // const TableBottom: FC<TableBottomProps> = ({ dataCnt, currentPage, row }) => {
-const TableBottom:FC<TableBottomProps> = ({testExcel}) => {
+const TableBottom: FC<TableBottomProps> = ({ testExcel }) => {
 
     const { dataCnt = 1, currentPage = 1, row = 50 } = {};
     const handlePageChange = (changePage: number) => {

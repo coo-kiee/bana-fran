@@ -227,13 +227,13 @@ export default class Utils {
         const addSheet = (index) => {
             let workSheet; // any
 
-            let [downloadData, type, sheetOption = {}, colspan, workSheetName = '', header = {}, addRowColor = {}] = [downloadDatas, options.type, options.sheetOption, options.colspan, options.sheetName, options.header, options.addRowColor];
+            let [downloadData, type, sheetOption = {}, colspan = [], rowspan = [], workSheetName = '', addRowColor = { row: [], color: [] }] = [downloadDatas, options.type, options.sheetOption, options.colspan, options.rowspan, options.sheetName, options.addRowColor];
             // 워크시트 여러개인 경우
-            if (index) [downloadData, type, sheetOption = {}, colspan, workSheetName = '', header = {}, addRowColor = {}] = [downloadDatas[index], options[index].type, options[index].sheetOption, options[index].colspan, options[index].sheetName, options[index].header, options[index].addRowColor];
+            if (index) [downloadData, type, sheetOption = {}, colspan = [], rowspan = [], workSheetName = '', addRowColor = { row: [], color: [] }] = [downloadDatas[index], options[index].type, options[index].sheetOption, options[index].colspan, options[index].rowspan, options[index].sheetName, options[index].addRowColor];
             
             switch (type.toLowerCase()) {
                 case 'table':
-                    workSheet = xlsx.utils.table_to_sheet(downloadData, sheetOption);
+                    workSheet = xlsx.utils.table_to_sheet(downloadData, { ...sheetOption, raw: true });
                     // console.log('여기1', workSheet);
                     break;
                 case 'array': // const file1 = [ ["이름", "나이"], ["장민우", "31"], ]
@@ -249,7 +249,7 @@ export default class Utils {
             // 병합할 셀 영역 설정
             if (options.merges) workSheet['!merges'] = { ...workSheet['!merges'], ...options.merges };
 
-            const { origin = 'A1' } = sheetOption;
+            const { origin = 'A1', outline } = sheetOption;
             const { c: originCol, r: originRow } = xlsx.utils.decode_cell(origin);
             // 셀 너비 설정
             if (!(origin === 'A1')) { // A1 셀에서 시작하지 않을 때 빈 셀 너비 설정 추가
@@ -259,33 +259,46 @@ export default class Utils {
             };
             workSheet['!cols'] = [ ...workSheet['!cols'], ...colspan ];
 
-            // 엑셀 테두리 설정 + addRowColor 행의 셀 이름 수집
+            // 셀 높이 설정
+            workSheet['!rows'] = [ ...workSheet['!rows'], ...rowspan ];
+
+            // 세부사항 아래 통계행 추가
+            if(outline) workSheet['!outline'] = outline;
+
+            // 엑셀 테두리 설정 + addRowColorCellGroup 행의 셀 이름 수집
             const defaultBorderStyle = { style: "thin", color: { rgb: "#000000" } };
             const border = { top: defaultBorderStyle, bottom: defaultBorderStyle, left: defaultBorderStyle, right: defaultBorderStyle };
             const cellRange = xlsx.utils.decode_range(workSheet["!ref"]);
-            let addRowColorCell = [];
-            const { rowNum, rowColor } = addRowColor;
-            for (let col = originCol; col <= cellRange.e.c; col++) {
-                for (let row = originRow; row <= cellRange.e.r; row++) {
+
+            const { row:rowNums, color:rowColors } = addRowColor;
+            let addRowColorCellGroup = {};
+            rowNums?.forEach(row => addRowColorCellGroup[row] = []);
+            for (let row = originRow; row <= cellRange.e.r; row++) {
+                for (let col = originCol; col <= cellRange.e.c; col++) {
                     const cellName = xlsx.utils.encode_cell({ c: col, r: row });
                     // console.log(cellName);
                     workSheet[cellName] = { ...workSheet[cellName], s: { border }, v:workSheet[cellName]?.v || ''  }; // 테두리 설정
-                    if(rowNum && originCol <= col && (originRow + rowNum - 1) === row) addRowColorCell.push(cellName); // addRowColorCell 수집
+                    if(rowNums.length > 0 && rowNums.includes((row + 1 - originRow)) && originCol <= col) addRowColorCellGroup[(row + 1 - originRow)].push(cellName); // addRowColorCellGroup 수집
                 };
             };
+            // console.log(addRowColorCellGroup);
             
-            // 엑셀 정렬 스타일 추가 - 문자열: 가운데 정렬, 숫자: 오른쪽 정렬 + 3자리마다 ,표시
+            // 엑셀 정렬 스타일 추가 - 문자열: 가운데 정렬, 자동줄바꿈 / 숫자: 오른쪽 정렬, 3자리마다 ',' 표시
             const isSellAddress  = /[A-Z]{1,3}\d{1,5}/;
-            const { checkHeader, color } = header;
+            const isAmount = /^(\d{1,3}(,\d{3})*[ㄱ-ㅎ가-힣]?)(\d{1,3}(,\d{3})*[ㄱ-ㅎ가-힣]?)$/;
             Object.entries(workSheet).reduce((res, cur) => {
                 const key = cur[0];
                 const value = cur[1];
-                if (value.t && isSellAddress.test(key)) res[key] = value.t === 's' ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center" } } } : { ...value, z: "#,##0", s: { ...value.s, alignment: { vertical: "center", horizontal: "right" } } };
-                if (checkHeader && checkHeader.length > 0 && checkHeader.includes(value.v) > 0) res[key].s = { ...res[key].s, fill: { fgColor: { rgb: color || 'd3d3d3' } }}; // 헤더 색상 추가
-                if (addRowColorCell.length > 0 && addRowColorCell.includes(key) > 0) res[key].s = { ...res[key].s, fill: { fgColor: { rgb: rowColor || 'd3d3d3' } }}; // ddRowColor 행의 색상 추가
-                return workSheet;
+                // if(isSellAddress.test(key) && isAmount.test(value.v)) res[key].t = 'n'; // 금액 타입 숫자로 변경 - 저장 후 파일 열면 에러 메세지 발생(내용에만 문제 없음)
+                // if (value.t && isSellAddress.test(key)) res[key] = value.t !== 'n' ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } } : { ...value, z: "#,##0", s: { ...value.s, alignment: { vertical: "center", horizontal: "right" } } };
+                if (value.t && isSellAddress.test(key)) res[key] = isAmount.test(value.v) ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "right", wrapText: true } } } : { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } };
+                // addRowColor 행의 색상 추가
+                rowNums?.forEach((rowNum, index) => {
+                    if (addRowColorCellGroup[rowNum].includes(key)) res[key].s = { ...res[key].s, fill: { fgColor: { rgb: rowColors[index] || 'd3d3d3' } }};
+                });
+                // if (!value.v && value.t && value.t === 'z') res[key].t = 's'; // 빈 데이터(공백) 타입 문자열로 변경
+                return res;
             }, workSheet);
-            // console.log('addRowColorCell', addRowColorCell);
             
             // console.log('final', workSheet);
             xlsx.utils.book_append_sheet(book, workSheet, workSheetName);
