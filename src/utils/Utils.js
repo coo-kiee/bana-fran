@@ -222,7 +222,7 @@ export default class Utils {
 
         // 엑셀 워크북 생성
         const book = xlsx.utils.book_new();
-        
+
         // 엑셀 워크시트 추가함수
         const addSheet = (index) => {
             let workSheet; // any
@@ -285,10 +285,11 @@ export default class Utils {
             
             // 엑셀 정렬 스타일 추가 - 문자열: 가운데 정렬, 자동줄바꿈 / 숫자: 오른쪽 정렬, 3자리마다 ',' 표시
             const isSellAddress  = /[A-Z]{1,3}\d{1,5}/;
-            const isAmount = /^(\d{1,3}(,\d{3})*[ㄱ-ㅎ가-힣]?)(\d{1,3}(,\d{3})*[ㄱ-ㅎ가-힣]?)$/;
+            const isAmount = /^([0-9]{1,3}(,[0-9]{3})*)$|%|\d개|\d원$|\dP$|\d장|^\+|^\-/;
             Object.entries(workSheet).reduce((res, cur) => {
                 const key = cur[0];
-                const value = cur[1]; console.log(value); console.log(isAmount.test(value.v));
+                const value = cur[1];
+                if (isSellAddress.test(key) && (isAmount.test(value.v))) console.log(key, value);
                 // if(isSellAddress.test(key) && isAmount.test(value.v)) res[key].t = 'n'; // 금액 타입 숫자로 변경 - 저장 후 파일 열면 에러 메세지 발생(내용에만 문제 없음)
                 // if (value.t && isSellAddress.test(key)) res[key] = value.t !== 'n' ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } } : { ...value, z: "#,##0", s: { ...value.s, alignment: { vertical: "center", horizontal: "right" } } };
                 if (value.t && isSellAddress.test(key)) res[key] = isAmount.test(value.v) ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "right", wrapText: true } } } : { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } };
@@ -296,7 +297,7 @@ export default class Utils {
                 rowNums?.forEach((rowNum, index) => {
                     if (addRowColorCellGroup[rowNum].includes(key)) res[key].s = { ...res[key].s, fill: { fgColor: { rgb: rowColors[index] || 'd3d3d3' } }};
                 });
-                // if (!value.v && value.t && value.t === 'z') res[key].t = 's'; // 빈 데이터(공백) 타입 문자열로 변경
+                if (!value.v && value.t && value.t === 'z') res[key].t = 's'; // 빈 데이터(공백) 타입 문자열로 변경
                 return res;
             }, workSheet);
             
@@ -304,15 +305,23 @@ export default class Utils {
             xlsx.utils.book_append_sheet(book, workSheet, workSheetName);
         }
 
-        // 워크시트 여러개 추가
-        if (typeof types === Array && types.length > 1) {
-            downloadDatas.forEach((downloadData, index) => {
-                addSheet(index);
-            })
-        } else {
-            addSheet();
+        try {
+            // 워크시트 여러개 추가
+            if (typeof types === Array && types.length > 1) {
+                downloadDatas.forEach((downloadData, index) => {
+                    addSheet(index);
+                })
+            }
+            else {
+                addSheet();
+            };
+
+            xlsx.writeFile(book, fileName + '.xlsx');
         }
-        xlsx.writeFile(book, fileName + '.xlsx');
+        catch (error) {
+            // console.log(error);
+            alert('엑셀 다운로드에 실패했습니다.\n관리자에게 문의해주세요');
+        };
     }
 
     // 휴대폰 번호 뒷 4자리 *표 처리
