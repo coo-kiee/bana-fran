@@ -17,8 +17,8 @@ const BoardItem = ({ url, boardType, boardId, important, name, title, date }: Bo
 	// 게시판 정보. (board_type : -- 1 : 공지사항, 2 : 운영 매뉴얼, 3 : 교육자료실, 4 : 레시피자료실, 5 : 규정 및 가이드, 6 : 정산관련 공지 )
 	// board_type 1 / 6 이면 공지. 공지는 이름으로 매핑 자료실은 board_type으로 매핑
 	if (important === '1') {
-		// 중요가 1이면 urgent처리
-		typeText = 'urgent';
+		// 중요가 1이면 important처리
+		typeText = 'important';
 	} else if (boardType === 1 || boardType === 6) {
 		// boardType이 1 || 6이면 공지사항용
 		switch (name) {

@@ -10,6 +10,7 @@ const CalendarBody = ({ currentDate, onDateClick, salesData }: any) => {
 	const endWeek = endOfWeek(endMonth); // 주의
 	const today = new Date();
 
+	// 초기값 설정
 	const rows = [];
 	let days = [];
 	let day = startWeek;
@@ -17,10 +18,10 @@ const CalendarBody = ({ currentDate, onDateClick, salesData }: any) => {
 	
 	while (day <= endWeek) {
 		for (let i = 0; i < 7; i++) {
-			formattedDate = format(day, 'd');
-			const cloneDay = day;
+			formattedDate = format(day, 'd'); // 날짜 표시 형식 변환
+			const dayCopy = day;
 			const targetData = salesData?.filter((franData: any) => {
-				return new Date(franData.std_date).getDate() === Number(format(cloneDay, 'd'));
+				return new Date(franData.std_date).getDate() === Number(format(dayCopy, 'd'));
 			});
 
 			days.push(
@@ -31,26 +32,25 @@ const CalendarBody = ({ currentDate, onDateClick, salesData }: any) => {
                         ${!isSameMonth(day, startMonth) ? 'disabled' : ''}
                         ${isSameDay(day, today) ? 'today' : ''}
                     `}
-					key={Number(day)}
-					// onClick={() => onDateClick(parse('yyyy-MM-dd', 'dd/MM/yyyy', cloneDay))}
+					key={Number(day)+'day'}
 				>
 					<span className={'date-num'}>{formattedDate}</span>
 					{
-                        format(currentDate, 'M') === format(day, 'M') && !isFuture(day) ? 
+                        format(currentDate, 'M') === format(day, 'M') && !isFuture(day) ? // 같은 월이면서 미래가 아닐 때
                         <span className='date-sales'>
 							{targetData && targetData[0].sales_charge !== 0 ? `${Utils.roundingDown10000(targetData[0]?.sales_charge)}만` : ''}
-						</span> : null
+						</span> : null // 매출이 0원인 날은 표시 x
                     }
 				</div>
 			);
 			day = addDays(day, 1);
 		}
 		rows.push(
-			<div className='calendar-body-row week' key={Number(day)}>
+			<div className='calendar-body-row week' key={Number(day)+'week'}>
 				{days}
 			</div>
 		);
-		days = [];
+		days = []; // 1주 다 채우면 days 초기화
 	}
 	return <div className='calendar-body'>{rows}</div>;
 };

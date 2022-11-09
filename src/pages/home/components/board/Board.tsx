@@ -4,8 +4,7 @@ interface BoardProps {
 	boardClass: string;     // className
 	title: string;		    // 제목
 	url: string;			// 게시판 url
-    suffix?: string;        // 총 매출, 누적
-    
+    suffix?: string;        // 부제: (총 매출/누적)
 	children: React.ReactNode;
 }
 

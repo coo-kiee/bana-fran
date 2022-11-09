@@ -9,8 +9,8 @@ import Membership from './components/Membership';
 import Today from './components/Today';
 import Weekly from './components/Weekly';
 import Monthly from './components/Monthly';
-import Ordering from './components/Ordering';
-import Settlement from './components/Settlement';
+import MonthlyOrder from './components/MonthlyOrder';
+import CalculateList from './components/CalculateList';
 
 const HomeContainer: React.FC = () => {
 	const fCode = useRecoilValue(franState);
@@ -43,8 +43,8 @@ const HomeContainer: React.FC = () => {
 				<div className='board-wrap'>
 					<Weekly />
 					<Monthly />
-					<Ordering />
-					<Settlement />
+					<MonthlyOrder />
+					<CalculateList />
 				</div>
 			</section>
 		</section>

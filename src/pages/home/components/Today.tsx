@@ -28,7 +28,7 @@ const Today = () => {
 	}
 
 	return (
-			<Board boardClass='today' title='Today' url='' suffix='총 매출'>
+			<Board boardClass='today' title='Today' url='/sales/statistic' suffix='총 매출'>
 				<table className='contents-list' cellPadding='0' cellSpacing='0'>
 					<colgroup>
 						<col width='163' />

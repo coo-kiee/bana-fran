@@ -1,0 +1,14 @@
+.bar-chart {
+    height: 350px;
+}
+
+.line-chart {
+    height: 380px;
+    position: relative;
+    .chart-loading-wrap {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}

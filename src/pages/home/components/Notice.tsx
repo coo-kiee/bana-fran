@@ -16,8 +16,6 @@ const Notice = () => {
 
 	// search_type 1 - 공지 / 2 - 자료실
 	const { data } = HOME_SERVICE.useBoardList({ f_code: fCode, staff_no, search_type: 1 });
-	// console.log(data);
-	// console.log('noticeCode: '+fCode)
 
 	return (
 		<Board title='공지사항' boardClass='notice' url='/notice'>

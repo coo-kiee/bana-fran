@@ -29,7 +29,7 @@ const useMembershipInfo = (params: Params) => {
         ws: 'fprocess',
         query: '1VK2GY5MTPAMXZB4TJFP',
         params: params,
-    }; // web_fran_s_home_board_list
+    }; // web_fran_s_home_membership_info
     return useQuery(['membership', params.f_code], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
@@ -46,7 +46,7 @@ const useSalesToday = (params: Params) => {
         ws: 'fprocess',
         query: 'ONDK5LDEKOVLAVRJKBKS',
         params: params,
-    }; // web_fran_s_home_board_list
+    }; // web_fran_s_sales_today
     return useQuery(['sales_today', params.f_code], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
@@ -63,7 +63,7 @@ const useSalesTerms = (params: Params) => {
         ws: 'fprocess',
         query: 'OMG6XENQJIW8SLYTIROV',
         params: params,
-    }; // web_fran_s_home_board_list
+    }; // web_fran_s_sales_term_info
     return useQuery(['sales_terms', params.f_code, params.search_type, params.search_month], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
@@ -73,9 +73,46 @@ const useSalesTerms = (params: Params) => {
         }
     });
 };
+
+// 월별 발주금액
+const useMonthlyOrderList = (params: Params) => {
+    const reqData = {
+        ws: 'fprocess',
+        query: 'KSJX8NCX45QKXPKOYE9U',
+        params: params,
+    }; // web_fran_s_order_menu_month_list 
+    return useQuery(['monthly_order_list', params.f_code], () => queryFn.getDataList(reqData), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        onError : (err:any) => {
+            queryFn.axiosError(err);
+        }
+    });
+};
+
+// 최근 정산 현황
+const useHomeCalculateList = (params: Params) => {
+    const reqData = {
+        ws: 'fprocess',
+        query: 'AU5I5YJNORRJDSYHCRXW',
+        params: params,
+    }; // web_fran_s_home_calculate_list
+    return useQuery(['home_calculate_list', params.f_code], () => queryFn.getDataList(reqData), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        onError : (err:any) => {
+            queryFn.axiosError(err);
+        }
+    });
+};
+
 export default {
     useBoardList,
     useMembershipInfo,
     useSalesToday,
     useSalesTerms,
+    useMonthlyOrderList,
+    useHomeCalculateList,
 }

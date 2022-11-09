@@ -14,6 +14,7 @@ const ChartBar = ({ bars }: any) => {
 		return bar.data.value
 	}), 0)
 
+	// 툴팁 생성
 	const handleTooltip = (point: any) => {
 		const { color, pageX, pageY, data: {std_date, sales_charge} } = point;
 
@@ -22,13 +23,13 @@ const ChartBar = ({ bars }: any) => {
 				id={format(new Date(std_date), 'MM/dd')} 
 				value={Utils.numberComma(sales_charge || 0) + '원'} 
 				color={color} 
-				/>,
-				[
-					pageX < 600 ? pageX - 180 : pageX - 340,
-					pageY > 1000 ? pageY - 870 : pageY - 840
-				],
-				'center'
-  		)
+			/>,
+			[	// chart bar에서 마우스의 위치에 따라 툴팁 표시 위치 변경
+				pageX < 600 ? pageX - 180 : pageX - 340,
+				pageY > 1000 ? pageY - 870 : pageY - 840
+			],
+			'center'
+		)
 	}
 	
 	return bars.map((bar: any) => {
@@ -38,7 +39,7 @@ const ChartBar = ({ bars }: any) => {
 			<g 
 				key={key} 
 				transform={`translate(${x}, ${y})`}
-				onMouseOver={(e: any) => {
+				onMouseOver={(e: React.MouseEvent<SVGGElement, MouseEvent>) => {
 					handleTooltip({
 						pageX: e.pageX,
 						pageY: e.pageY,
@@ -46,7 +47,7 @@ const ChartBar = ({ bars }: any) => {
 						data: { ...bar?.data?.data,	},
 					})
 				}}
-				onMouseMove={(e: any) => {
+				onMouseMove={(e: React.MouseEvent<SVGGElement, MouseEvent>) => {
 					handleTooltip({
 						pageX: e.pageX,
 						pageY: e.pageY,
@@ -54,7 +55,7 @@ const ChartBar = ({ bars }: any) => {
 						data: { ...bar?.data?.data,	},
 					})
 				}}
-				onMouseLeave={() => {hideTooltip();}}
+				onMouseLeave={hideTooltip}
 			>
 				<circle
 					transform={`translate(${width/2}, ${0})`}
@@ -71,7 +72,7 @@ const ChartBar = ({ bars }: any) => {
 					height={height}
 					fill={value === maxValue ? '#f1658a' : '#fddce5'}
 					cursor={'pointer'}
-					>
+				>
 				</rect>
 			</g>
 		);

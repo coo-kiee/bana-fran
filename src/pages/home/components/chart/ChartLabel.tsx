@@ -3,6 +3,7 @@ import Utils from 'utils/Utils';
 
 // custom label (매출액)
 const ChartLabel = ({ bars }: any) => {
+	// 최대 매출액 산출
 	const maxValue: number = Math.max(...bars.map((bar: any) => {
 		return bar.data.value
 	}), 0)

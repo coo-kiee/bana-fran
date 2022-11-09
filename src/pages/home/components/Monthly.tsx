@@ -34,14 +34,15 @@ const Monthly = () => {
     };
 
 	return (
-        <Board boardClass='month-sales' title='Month' url='' suffix='총 매출'>
+        <Board boardClass='month-sales' title='Month' url='/sales/statistic' suffix='총 매출'>
             <div className='contents-list calendar'>
                 <CalendarHeader
                     currentDate={currentDate}
                     prevMonth={prevMonth}
                     nextMonth={nextMonth}
                 />
-                {   data ? 
+                {   
+                    data ? 
                     <CalendarBody
                         currentDate={currentDate}
                         salesData={data}

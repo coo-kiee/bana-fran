@@ -1,6 +1,6 @@
 import { useRecoilValue } from 'recoil';
 // import { linearGradientDef } from '@nivo/core';
-import { ResponsiveBar, BarDatum, BarItemProps } from '@nivo/bar';
+import { ResponsiveBar } from '@nivo/bar';
 import { useTooltip } from '@nivo/tooltip';
 
 // global state
@@ -15,12 +15,13 @@ import ChartDays from 'pages/home/components/chart/ChartDays';
 
 const Weekly = () => {
 	const fCode = useRecoilValue(franState);
-	const { data } = HOME_SERVICE.useSalesTerms({ f_code: fCode, search_type: 'W', search_month: '2022-10-01' });
 	const { hideTooltip } = useTooltip();
+	const { data } = HOME_SERVICE.useSalesTerms({ f_code: fCode, search_type: 'W', search_month: '2022-10-01' });
+	
 
 	return (
-		<Board title='Week' boardClass='week-sales' suffix='총 매출' url=''>
-			<div className='contents-list chart'>
+		<Board title='Week' boardClass='week-sales' url='/sales/statistic' suffix='총 매출'>
+			<div className='contents-list bar-chart chart'>
 				{
 					data && 
 					<ResponsiveBar

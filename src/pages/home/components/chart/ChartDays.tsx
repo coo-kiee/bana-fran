@@ -21,7 +21,7 @@ const ChartDays = ({bars}: any) => {
 			default: dayText = '토'; break;
 		}
 
-		// 주말 css hexcode
+		// 주말 css color hexcode
 		const dayColor = (dayText: string) => {
 			if (dayText === '토') return '#0000ff'; 
 			else if (dayText === '일') return '#ff0000';

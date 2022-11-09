@@ -288,7 +288,7 @@ export default class Utils {
             const isAmount = /^(\d{1,3}(,\d{3})*[ㄱ-ㅎ가-힣]?)(\d{1,3}(,\d{3})*[ㄱ-ㅎ가-힣]?)$/;
             Object.entries(workSheet).reduce((res, cur) => {
                 const key = cur[0];
-                const value = cur[1];
+                const value = cur[1]; console.log(value); console.log(isAmount.test(value.v));
                 // if(isSellAddress.test(key) && isAmount.test(value.v)) res[key].t = 'n'; // 금액 타입 숫자로 변경 - 저장 후 파일 열면 에러 메세지 발생(내용에만 문제 없음)
                 // if (value.t && isSellAddress.test(key)) res[key] = value.t !== 'n' ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } } : { ...value, z: "#,##0", s: { ...value.s, alignment: { vertical: "center", horizontal: "right" } } };
                 if (value.t && isSellAddress.test(key)) res[key] = isAmount.test(value.v) ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "right", wrapText: true } } } : { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } };
@@ -313,5 +313,17 @@ export default class Utils {
             addSheet();
         }
         xlsx.writeFile(book, fileName + '.xlsx');
+    }
+
+    // 휴대폰 번호 뒷 4자리 *표 처리
+    static phoneNumberEncryption = (phone) => {
+        let result = '';
+        for(let i=0;i<=phone.length-1;i++) {
+            let currentNumber = '';
+            if (i >= phone.length-4) currentNumber = '*'; // 4자리 *표
+            else currentNumber = phone[i];
+            result += currentNumber;
+        }
+        return result;
     }
 }

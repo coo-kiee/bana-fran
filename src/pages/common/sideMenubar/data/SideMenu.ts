@@ -1,4 +1,4 @@
-import loadable, { LoadableComponent } from '@loadable/component'
+import loadable, { LoadableComponent } from '@loadable/component';
 
 const Home = loadable(() => import('pages/home'));
 const Notice = loadable(() => import('pages/notice'));
@@ -11,6 +11,9 @@ const CaculateEtc = loadable(() => import('pages/caculate/etc'));
 const Etc = loadable(() => import('pages/etc'));
 const Extra = loadable(() => import('pages/membership/extra'));
 const MonthRank = loadable(() => import('pages/membership/monthRank'));
+const SalesContainer = loadable(() => import('pages/sales'));
+const SalesHistory = loadable(() => import('pages/sales/history'));
+const SalesStatistic = loadable(() => import('pages/sales/statistic'));
 
 // 사이드 메뉴
 type SIDE_MENU_TYPE = {
@@ -111,12 +114,29 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         addPath: []
     },
     {
-        path: "/interviewMgmt",
+        path: "/sales",
         name: "매출관리",
         icon: "clipboard outline",
         id: 600,
-        component: Home,
-        child: [],
+        component: null,
+        child: [
+            {
+                path: "/history",
+                name: "주문내역",
+                icon: "",
+                id: 610,
+                component: SalesContainer,
+                addPath: []
+            },
+            {
+                path: "/statistic",
+                name: "매출통계",
+                icon: "",
+                id: 620,
+                component: SalesContainer,
+                addPath: []
+            }
+        ],
         addPath: []
     },
     {
