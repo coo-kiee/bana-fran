@@ -1,4 +1,6 @@
 import * as xlsx from 'xlsx-js-style'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 
 /* eslint-disable */
 export default class Utils {
@@ -218,6 +220,17 @@ export default class Utils {
         return [charge - vat, vat, charge];
     }
 
+    // 엑셀 다운로드
+    /* Parameter
+    const options = {
+        type: 'table', // 필수 O
+        sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+        colspan: TABLE_COLUMN_INFO.width.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
+        // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
+        sheetName: 'test', // 시트이름, 필수 X
+        addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','d3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X
+    };
+    */
     static excelDownload = (downloadDatas, options, fileName) => {
 
         // 엑셀 워크북 생성
@@ -335,4 +348,108 @@ export default class Utils {
         }
         return result;
     }
+
+    // PDF 다운로드 - CaculateListTable.tsx
+    /* Parameter
+    interface pdfInfo {
+        orientation?: "portrait" | "p" | "l" | "landscape" | undefined, // 'landscape - 가로, 'portrait - 세로
+        pdfUnit?: "mm" | "pt" | "px" | "in" | "cm" | "ex" | "em" | "pc" | undefined,
+        pdfFormat?: string | number[] | undefined,
+        imgFormat?: 'png', 'jpeg', ...
+        xPadding?: number, // 프린트 좌우 들여쓰기
+        yPadding?: number, // 프린트 위아래 들여쓰기
+    };
+    interface imgInfo {
+        pageWidth?: number, // 이미지 가로 길이(mm) A4 기준 210
+        pageHeight?: number, // 출력 페이지 세로 길이 A4 기준 297
+        canvasHeight?: number, // 한 페이지에 담을 캔버스 이미지 높이
+    };
+    */
+    static downloadPdf = async ({ element, fileName = 'donwloadPDF', pdfInfo = {}, imgInfo = {}, canvasOption = { useCORS: true } }) => {
+        let { orientation = 'portrait', pdfUnit = 'mm', pdfFormat = 'a4', imgFormat = 'jpeg', xPadding = 10, yPadding = 10 } = { ...pdfInfo };
+        let { pageWidth = 210, canvasHeight = 0, pageHeight = 297 } = { ...imgInfo };
+
+        let pdf = new jsPDF(orientation, pdfUnit, pdfFormat, true);
+
+        let innerPageWidth = pageWidth - xPadding * 2;
+        let innerPageHeight = pageHeight - yPadding * 2;
+
+        try {
+            if (Array.isArray(element) && element.length > 1) { // Element n개로 n페이지 생성
+                const standardHeight = element.reduce((acc, cur, index, arr) => { // 마지막 페이지 캔버스 높이 계산에 필요한 평균 캔버스 높이 계산
+                    if (index < arr.length - 1) return acc += cur.scrollHeight; // 마지막 페이지 제외하고 높이 더하기
+                    else return acc / (arr.length - 1); // 마지막 페이지 제외하고 평균 캔버스 높이 계산
+                }, 0);
+
+                const makePDF = async (element, makePage = false, isFinal = true) => {
+                    const canvasArr = await Promise.all(element.map(el => html2canvas(el, canvasOption))); // 캔버스 배열 생성
+
+                    canvasArr.forEach((canvas, page) => { // pdf 페이지 추가
+                        const imgData = canvas.toDataURL('image/' + imgFormat);
+
+                        if (page > 0 || makePage) pdf.addPage();
+                        if (isFinal && page === canvasArr.length - 1) innerPageHeight = Math.floor(innerPageHeight * (canvasArr[canvasArr.length - 1].height / standardHeight)); // 마지막 페이지의 높이 계산 
+                        pdf.addImage(imgData, imgFormat, xPadding, yPadding, innerPageWidth, innerPageHeight, '', 'FAST');
+                    });
+                };
+
+                const chunkCnt = 10;
+                if (element.length > chunkCnt) { // Element 크기가 chunkCnt 보다 클 때
+                    const elementChunks = this.splitToChunks(element, Math.ceil(element.length / chunkCnt)); // Element 균등 분할
+                    let index = 0;
+                    // console.log('start', new Date());
+                    for (const chunk of elementChunks) {
+                        const makePage = index > 0;
+                        const isFinal = index === elementChunks.length - 1; // 마지막 chunk 여부
+                        await makePDF(chunk, makePage, isFinal);
+                        index++;
+                    };
+                    // console.log('finish', new Date());
+                } else {
+                    await makePDF(element);
+                };
+
+            }
+            else { // Element 1개로 n페이지 생성
+                if (Array.isArray(element)) element = element[0];
+                const canvas = await html2canvas(element, canvasOption); // useCORS: true -> element 내부에 있는 img Tag 같이 저장
+
+                let totalHeight = canvas.height; // 전체 이미지 높이
+                canvasHeight = !!canvasHeight ? canvasHeight : Math.floor(canvas.width * (pageHeight / pageWidth));  // 한 페이지에 담을 캔버스 이미지 높이
+                let nPages = Math.ceil(totalHeight / canvasHeight); // 페이지 개수 계산
+
+                // 한 페이지용 캔버스 생성
+                const pageCanvas = document.createElement('canvas');
+                const pageCtx = pageCanvas.getContext('2d');
+                pageCanvas.width = canvas.width; // 기존 이미지 너비
+                pageCanvas.height = canvasHeight; // 계산한 한 페이지 높이
+
+                for (let page = 0; page < nPages; page++) {
+                    // 여러 페이지의 경우 마지막 페이지 캔버스 크기 수정
+                    if (page === nPages - 1 && totalHeight % canvasHeight !== 0) {
+                        pageCanvas.height = totalHeight % canvasHeight;
+                        innerPageHeight = innerPageWidth * (pageCanvas.height / pageCanvas.width);
+                    };
+
+                    // 한 페이지 크기만 페이지용 캔버스에 그리기
+                    const w = pageCanvas.width;
+                    const h = pageCanvas.height;
+                    pageCtx.fillStyle = 'white';
+                    pageCtx.fillRect(0, 0, w, h);
+                    pageCtx.drawImage(canvas, 0, page * canvasHeight, w, h, 0, 0, w, h);
+                    const imgData = pageCanvas.toDataURL('image/' + imgFormat);
+
+                    // PDF에 페이지 추가
+                    if (page > 0) pdf.addPage();
+                    pdf.addImage(imgData, imgFormat, xPadding, yPadding, innerPageWidth, innerPageHeight);
+                }
+            };
+
+            pdf.save(fileName);
+        }
+        catch (error) {
+            console.log(error);
+            alert('PDF 다운로드에 실패했습니다.')
+        };
+    };
 }

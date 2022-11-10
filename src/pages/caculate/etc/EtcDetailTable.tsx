@@ -24,15 +24,10 @@ const EtcDetailTable: FC<EtcDetailTableProps> = ({ }) => {
                 colspan: TABLE_COLUMN_INFO.width.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: 'test', // 시트이름, 필수 X
-                addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','d3d3d3'] }, // 추가적으로 색상 넣을 행(rgb #빼고 입력), 필수 X
+                addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','d3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X
             };
 
-            try {
-                Utils.excelDownload(test.current, options, 'test');
-            }
-            catch (error) {
-                console.log(error);
-            }
+            Utils.excelDownload(test.current, options, 'test');
         };
     };
 
@@ -160,9 +155,9 @@ const TableList: FC<TableListProps> = ({ }) => {
                 <td className="align-center">2022/03/01</td>
                 <td className="align-center">청구</td>
                 <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right"><strong>130,000</strong></td>
+                <td className="align-right">1장 130,000</td>
+                <td className="align-right">+130,000</td>
+                <td className="align-right"><strong>-130,000</strong></td>
             </tr>
         </>
     )

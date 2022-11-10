@@ -1,19 +1,53 @@
-import { FC } from "react";
+import { FC, Suspense, useEffect, useState } from "react";
+
+// Component
+import Loading from "pages/common/loading";
+
+// Service
+import CACULATE_SERVICE from 'service/caculateService';
+import { ErrorBoundary } from "react-error-boundary";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import { useEventKeyCode } from "hooks/useEventKeyCode";
 
 interface ChangeHistoryProps {
+    fCode: number,
+    staffNo: number,
+    calculateId: number,
     handlePopup: (key: string, value: boolean) => void
 };
-const ChangeHistory: FC<ChangeHistoryProps> = ({ handlePopup }) => {
+const ChangeHistory: FC<ChangeHistoryProps> = ({ fCode, staffNo, calculateId, handlePopup }) => {
+
+    const [dataCnt, setDataCnt] = useState(0);
+    const { width, headerText } = TABLE_COLUMN_INFO;
+
+    const closePopup = () => {
+        handlePopup('changeHistory', false);
+    };
+    
+    useEventKeyCode(closePopup, 'Escape');
 
     return (
-        <div className="alert-layer history-layer active">
+        <div className="alert-layer history-layer active" style={dataCnt >= 10 ? { paddingTop: '100px', paddingBottom: '100px' } : undefined}>
             <div className="msg-wrap">
                 <p className="title">수정요청/변경이력</p>
-                <HistoryTable />
-                <button className="btn-close history-close" onClick={() => handlePopup('changeHistory', false)} ></button>
-                <button className="cta-btn">등록하기</button>
+                <table className="board-wrap" cellPadding="0" cellSpacing="0">
+                    {/* Column Width */}
+                    <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
+                    <tbody>
+                        {/* Table Header  */}
+                        <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
+                        {/* List */}
+                        <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <tr><td rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ paddingTop: '40px' }}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} /></td></tr>} onError={(e) => console.log('changeHistory', e)}>
+                            <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={20} /></td></tr>}>
+                                <TableList staffNo={staffNo} fCode={fCode} calculateId={calculateId} setDataCnt={setDataCnt} />
+                            </Suspense>
+                        </ErrorBoundary>
+                    </tbody>
+                </table>
+                <button className="btn-close history-close" onClick={closePopup} ></button>
+                <button className="cta-btn" onClick={closePopup}>확인</button>
             </div>
-        </div>
+        </div >
     );
 }
 
@@ -22,59 +56,46 @@ export default ChangeHistory;
 
 
 const TABLE_COLUMN_INFO = {
-    width: ['130', '90', '90', '372', '250', '250'],
+    width: ['130', '98', '98', '372', '250', '250'],
     headerText: ['일시', '구분', '등록자', '수정요청/답변내용', '변경 전', '변경 후'],
 } as const;
 
-const HistoryTable: FC = () => {
-
-    const { width, headerText } = TABLE_COLUMN_INFO;
-
-    return (
-        <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
-            {/* Column Width */}
-            <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
-            <tbody>
-                {/* Table Header  */}
-                <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
-                {/* List */}
-                <TableList />
-            </tbody>
-        </table>
-
-    )
-};
-
 interface TableListProps {
+    fCode: number,
+    staffNo: number,
+    calculateId: number,
+    setDataCnt: React.Dispatch<React.SetStateAction<number>>,
 };
-const TableList: FC<TableListProps> = () => {
+const TableList: FC<TableListProps> = ({ fCode, staffNo, calculateId, setDataCnt }) => {
 
-    // const { list, out: pageInfo } = boardList;
-    // const { total_cnt } = pageInfo;
+    const { data: fixList } = CACULATE_SERVICE.useCaculateFixList(['caculateFixList', JSON.stringify({ fCode, staffNo, calculateId })], fCode, staffNo, calculateId);
+
+    // 리스트 개수에 따라 팝업 Padding Style 조정
+    useEffect(() => {
+        if (fixList) setDataCnt(prev => fixList.length);
+    }, [fixList, setDataCnt])
 
     return (
         <>
             {
-                // list.map((board, index) => {
+                fixList && fixList.map((fixData, index) => {
+                    const { log_date, log_type, insert_staff_name, comment, pre_data, change_data } = fixData;
+                    const [date, time] = log_date.split(' ');
+                    const [staffName, storeName] = insert_staff_name.split('(');
 
-                //     const { category_name, title, attach_cnt, insert_date, rownum, important, board_id } = board;
-                //     const rowNumInt = total_cnt - parseInt(rownum) + 1;
-                //     const isEndBoard = index === (total_cnt - 1);
-                //     const isImportant = important === "1";
-
-                //     return (
-                //         <tr className={isImportant ? "important" : ""} key={rowNumInt} >
-                //             <td className={isImportant ? "point" : isEndBoard ? 'left-radius' : ""}>{isImportant ? "중요" : rowNumInt}</td>
-                //             <td>{category_name}</td>
-                //             <td className="content">{title}</td>
-                //             <td className={isImportant ? "point" : ""}>{attach_cnt}개</td>
-                //             <td className={isEndBoard ? 'right-radius' : ""}>{insert_date.substring(0, 10)}</td>
-                //         </tr>
-                //     )
-                // })
+                    return (
+                        <tr key={index}>
+                            <td>{date}<br />{time}</td>{/* 일시 */}
+                            <td>{log_type}</td>{/* 구분 */}
+                            <td>{staffName}{storeName && <br />}{storeName}</td>{/* 등록자 */}
+                            <td>{comment}</td>{/* 수정요청/답변내용 */}
+                            <td className="content" style={{ whiteSpace: 'pre' }}>{pre_data}</td>{/* 변경 전 */}
+                            <td className="content" style={{ whiteSpace: 'pre' }}>{change_data}</td>{/* 변경 후 */}
+                        </tr>
+                    )
+                })
             }
-            {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
-            <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>
+            {fixList && fixList.length === 0 && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>}
         </>
     )
 };
