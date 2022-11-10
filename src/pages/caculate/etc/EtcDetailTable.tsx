@@ -25,6 +25,7 @@ const EtcDetailTable: FC<EtcDetailTableProps> = ({ }) => {
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: 'test', // 시트이름, 필수 X
                 addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','d3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X
+                addLineHeader: ['발행일시\nTT'], // 줄바꿈 원하는곳에 \n 넣기!! - br Tag 외 \n, p, span 등 줄바꿈 안되는 헤더명 입력, 필수 X
             };
 
             Utils.excelDownload(test.current, options, 'test');
@@ -39,7 +40,7 @@ const EtcDetailTable: FC<EtcDetailTableProps> = ({ }) => {
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
                 <tbody>
                     {/* Table Header  */}
-                    <tr >{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}<th rowSpan={2}>TT<br/>TEST</th></tr>
+                    <tr style={{ whiteSpace: 'pre' }}>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}<th rowSpan={2}>TT<br />TEST</th></tr>
                     {/* <tr >{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr> */}
                     <tr >{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
                     {/* List */}
@@ -60,7 +61,7 @@ export default EtcDetailTable;
 const TABLE_COLUMN_INFO = {
     width: ['128', '68', '*', '130', '130', '130'],
     thInfo: [
-        { text: '발행일시', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '발행일시\nTT', rowSpan: 2, colSpan: 1, className: '' },
         { text: '구분', rowSpan: 2, colSpan: 1, className: '' },
         { text: '내용', rowSpan: 2, colSpan: 1, className: '' },
         { text: '기타 정산 금액', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
