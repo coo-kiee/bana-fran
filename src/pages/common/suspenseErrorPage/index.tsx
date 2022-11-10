@@ -6,8 +6,8 @@ interface Props {
 
 // Component
 const SuspenseErrorPage: React.FC<Props> = () => {
-    const origin = window.location.origin;
-    const moveTo = window.location.href.substring(origin.length);
+    
+    const moveTo = window.location.pathname;
     
     return (
         <div style= {{"width": "100%",  "height": "100%", "textAlign": "center"}}>

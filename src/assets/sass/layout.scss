@@ -101,7 +101,7 @@ article { display: flex; position: relative;
                         background: #292936;
 
                         li {
-                            &.active a { color: #fff; }
+                            &.active a { color: #fff; text-decoration: underline; }
                             a { display: block; padding-left: 20px; font-weight: normal; text-decoration: none; color: #bbb;
                                 &:hover { color: #fff; }
                             }
