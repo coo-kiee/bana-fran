@@ -1,7 +1,7 @@
 .claim-wrap { 
     .contents { position: relative; width: 100%; padding-top: 40px; 
         .info-wrap { line-height: 26px; font-size: 16px; font-weight: 300; color: #888; }
-        .board-wrap {  margin-top: 15px;  border-radius: 20px; box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08); overflow: hidden;
+        .board-wrap { border-radius: 20px; box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08); overflow: hidden;
             &.board-top {
                 td { height: 52px; }
             }
@@ -12,7 +12,7 @@
             .input-wrap {  display: flex; align-content: center; align-items: center; }
         }
         .board-wrap {
-            .price-area { height: 45px; background: #585872; border: 0px!important; text-align: center; font-size: 14px; color: #fff; }
+            .price-area { height: 45px; background: #585872; border: 0px; text-align: center; font-size: 14px; color: #fff; }
         }
         .tab-wrap { margin-top: 40px; }
         .result-function-wrap { 
@@ -25,6 +25,8 @@
             .filter-number { position: static; }
         }
         .btn-search { border-radius: 4px; }
+
+        // Custom
         .no-data {
             padding-top: 103px;
             padding-bottom: 103px;

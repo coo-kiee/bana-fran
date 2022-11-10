@@ -7,7 +7,7 @@ const BoardHeader: FC<{ menuType: MenuType }> = ({ menuType }) => {
 
     return (
         <header>
-            <div className={`page-title ${menuType === MENU_TYPE.NOTICE ? 'notice' : 'dataroom'}`}>
+            <div className={`page-title notice`}>
                 <p className="present">{menuType === MENU_TYPE.NOTICE ? '공지사항' : '자료실'}</p>
             </div>
         </header>

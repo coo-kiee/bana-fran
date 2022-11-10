@@ -1,7 +1,7 @@
 .paid-point-wrap {
     .contents { position: relative; width: 100%; padding-top: 40px; 
         .board-wrap {
-            .price-area { background: #585872; border: 0px!important; text-align: center; font-size: 14px; color: #fff; }
+            .price-area { background: #585872; border: 0px; text-align: center; font-size: 14px; color: #fff; }
         }
         .result-function-wrap { 
             display: flex; 
@@ -13,6 +13,8 @@
             .filter-number { position: static; }
         }
         .btn-search { border-radius: 4px; }
+
+        // Custom
         .no-data {
             padding-top: 103px;
             padding-bottom: 103px;

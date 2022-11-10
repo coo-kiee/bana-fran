@@ -38,7 +38,7 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
         const boardId = parseInt(bId);
         const isBoardId = !Utils.strNumberCheck(bId) && boardId > 0;
 
-        if(boardType === 0) { // 페이지 처음 로딩 시
+        if (boardType === 0) { // 페이지 처음 로딩 시
             setListSearchCondition(prev => ({ ...prev, board_type: BOARD_GROUP[menuType][0].type }));
             setDetailInfo(prev => ({ ...prev, isDetail: false }));
         }
@@ -91,12 +91,12 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
                                         // 게시판 상세
                                         <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('detailError', e)}>
                                             <Suspense fallback={<Loading marginTop={100} />}>
-                                                <BoardDetail menuType={menuType} boardId={boardId} staffNo={staff_no} fCode={f_code} setDetailInfo={setDetailInfo}/>
+                                                <BoardDetail menuType={menuType} boardId={boardId} staffNo={staff_no} fCode={f_code} setDetailInfo={setDetailInfo} />
                                             </Suspense>
                                         </ErrorBoundary>
                                         :
                                         // 게시판 리스트
-                                        <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('listError', e)}>
+                                        <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <div style={{ paddingTop: '50px' }}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} /></div>} onError={(e) => console.log('listError', e)}>
                                             <Suspense fallback={<Loading marginTop={150} />}>
                                                 <BoardSelectCondition boardType={board_type} staffNo={staff_no} fCode={f_code} searchCategory={search_category} setListSearchCondition={setListSearchCondition} />
                                                 <BoardTable menuType={menuType} listSearchCondition={listSearchCondition} setListSearchCondition={setListSearchCondition} />
