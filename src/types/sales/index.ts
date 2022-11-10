@@ -1,5 +1,5 @@
 
-interface PeriodOption {
+interface SalesStatisticPeriod {
     searchType: 'D' | 'M';
     from: string;
     to: string;
@@ -18,4 +18,10 @@ interface SalesLineChartProps {
     to: string;
     data: any;
 }
-export type { PeriodOption, FilterSales, SalesLineChartProps };
+
+interface SalesTable {
+	data: any;
+	rowPerPage: number;
+	currentPage: number;
+}
+export type { SalesStatisticPeriod, FilterSales, SalesLineChartProps, SalesTable };

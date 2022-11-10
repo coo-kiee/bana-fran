@@ -12,7 +12,7 @@ import { franState } from "state";
 // API
 import SALES_SERVICE from 'service/salesService'
 // Types
-import { PeriodOption, FilterSales } from "types/sales";
+import { SalesStatisticPeriod, FilterSales } from "types/sales";
 // Utils
 import Utils from "utils/Utils";
 // Components
@@ -20,8 +20,6 @@ import LineChart from "pages/sales/statistic/chart";
 import Loading from "pages/common/loading";
 import SalesStatisticTable from "pages/sales/statistic/table";
 import Pagination from "pages/common/pagination";
-
-type RowPerPage = 3 | 50 | 100 | 150 | 200;
 
 const SalesStatistic = () => {
 	// global states
@@ -31,7 +29,7 @@ const SalesStatistic = () => {
 	const today = new Date();
 
 	// filter options
-    const [periodOptions, setPeriodOptions] = useState<PeriodOption>({ searchType: 'D', from: '2022-09-29', to: '2022-11-01' })
+    const [statisticPeriod, setStatisticPeriod] = useState<SalesStatisticPeriod>({ searchType: 'D', from: format(new Date(today.getFullYear(), today.getMonth()-1, today.getDate()), 'yyyy-MM-dd'), to: format(new Date(today), 'yyyy-MM-dd') });
     const [filterSales, setFilterSales] = useState<FilterSales>({ total: 1, paid: 1, app: 1, free: 1 });
 
 	// pagination
@@ -39,7 +37,7 @@ const SalesStatistic = () => {
 	const [rowPerPage, setRowPerPage] = useState<number>(3);
     
 	// query
-	const { data, isLoading, isFetching, refetch } = SALES_SERVICE.useSalesStatistic({ f_code: fCode, search_type: periodOptions.searchType, from_date: periodOptions.from, to_date: periodOptions.to })
+	const { data, isLoading, isFetching, refetch } = SALES_SERVICE.useSalesStatistic({ f_code: fCode, search_type: statisticPeriod.searchType, from_date: statisticPeriod.from, to_date: statisticPeriod.to })
 
     console.log(data)
 
@@ -48,28 +46,25 @@ const SalesStatistic = () => {
 	// 날짜 범위 설정 (from/to)
 	const handlePeriodRange = (date: Date, key: string) => {
 		console.log(date)
-		setPeriodOptions({...periodOptions, [key]: format(date, 'yyyy-MM-dd')})
+		setStatisticPeriod({...statisticPeriod, [key]: format(date, 'yyyy-MM-dd')})
 	}
 
 	// 일별/월별 설정 (searchType: 'D'|'M')
 	const handlePeriodType = (type: 'D'|'M') => {
 		type === 'M' ? // 월별 검색이면 선택 기간을 각 월의 1일로 변환
-		setPeriodOptions({
-			from: format(new Date(periodOptions.from), 'yyyy-MM-01'), 
-			to: format(new Date(periodOptions.to), 'yyyy-MM-01'),
+		setStatisticPeriod({
+			from: format(new Date(statisticPeriod.from), 'yyyy-MM-01'), 
+			to: format(new Date(statisticPeriod.to), 'yyyy-MM-01'),
 			searchType: type 
 		}) :
-		setPeriodOptions({ ...periodOptions, 
-			from: format(new Date(periodOptions.from), 'yyyy-MM-dd'),
-			to: format(new Date(periodOptions.to), 'yyyy-MM-dd'),
+		setStatisticPeriod({ ...statisticPeriod, 
+			from: format(new Date(statisticPeriod.from), 'yyyy-MM-dd'),
+			to: format(new Date(statisticPeriod.to), 'yyyy-MM-dd'),
 			searchType: type 
 		});
 
 	}
 	
-	// 조회 버튼 클릭시 refetch
-    const handleReFetch = () => { refetch(); }
-
     /* excel download */
     const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 대상 table
   
@@ -91,29 +86,32 @@ const SalesStatistic = () => {
 
 	return (
 		<>
+			<div className='info-wrap'>
+				<p>※ 매출통계를 조회할 수 있습니다. (최대 {statisticPeriod.searchType === 'M' ? '12개월' : '90일'} 이내)</p>
+			</div>
 			<div className='fixed-paid-point-wrap'>
 				<div className='chart-filter-wrap'>
 					{/* <!-- 검색 --> */}
 					<div className='search-wrap'>
 						<div className='input-wrap'>
-							{/* <input type='text' placeholder={periodOptions.from} onClick={() => {}} /> */}
+							{/* <input type='text' placeholder={statisticPeriod.from} onClick={() => {}} /> */}
 							<DatePicker 
 								selected={new Date(today.getFullYear(), today.getMonth()-1, 1)} 
-								value={periodOptions.from}
+								value={statisticPeriod.from}
 								locale={ko}
 								dateFormat={'yy-MM-dd'}
-								showMonthYearPicker={periodOptions.searchType === 'M' ? true : false}
-								showFullMonthYearPicker={periodOptions.searchType === 'M' ? true : false}
+								showMonthYearPicker={statisticPeriod.searchType === 'M' ? true : false}
+								showFullMonthYearPicker={statisticPeriod.searchType === 'M' ? true : false}
 								onChange={(date: Date) => handlePeriodRange(date, 'from')}
 							/>
 							<i>~</i>
 							<DatePicker 
 								selected={new Date(today.getFullYear(), today.getMonth(), 1)} 
-								value={periodOptions.to}
+								value={statisticPeriod.to}
 								locale={ko}
 								dateFormat={'yy-MM-dd'}
-								showMonthYearPicker={periodOptions.searchType === 'M' ? true : false}
-								showFullMonthYearPicker={periodOptions.searchType === 'M' ? true : false}
+								showMonthYearPicker={statisticPeriod.searchType === 'M' ? true : false}
+								showFullMonthYearPicker={statisticPeriod.searchType === 'M' ? true : false}
 								onChange={(date: Date) => handlePeriodRange(date, 'to')}
 							/>
 						</div>
@@ -125,7 +123,7 @@ const SalesStatistic = () => {
 									name='date'
 									id='day'
 									value={'D'}
-									checked={periodOptions.searchType === 'D' ? true : false}
+									checked={statisticPeriod.searchType === 'D' ? true : false}
 									onChange={(e: any) => { handlePeriodType(e.target.value) }}
 								/>
 								<label htmlFor='day'>일별</label>
@@ -137,14 +135,14 @@ const SalesStatistic = () => {
 									name='date'
 									value={'M'}
 									id='month'
-									checked={periodOptions.searchType === 'M' ? true : false}
+									checked={statisticPeriod.searchType === 'M' ? true : false}
 									onChange={(e: any) => { handlePeriodType(e.target.value) }}
 								/>
 								<label htmlFor='month'>월별</label>
 							</div>
 						</div>
 						
-						<button className='btn-search' onClick={handleReFetch}>조회</button>
+						<button className='btn-search' onClick={() => refetch()}>조회</button>
 					</div>
 					{/* <!-- // 검색 --> */}
 					<div className='chart-filter'>
@@ -215,7 +213,7 @@ const SalesStatistic = () => {
 					{/* <canvas id='myChart' style={{ width: '100%', height: '380px' }}></canvas> */}
 					<div id='statistic-chart' className='line-chart chart'>
 						{!(isLoading || isFetching) && data ? (
-							<LineChart filterSales={filterSales} from={periodOptions.from} to={periodOptions.to} data={data && data} />
+							<LineChart filterSales={filterSales} from={statisticPeriod.from} to={statisticPeriod.to} data={data && data} />
 						) : (
 							<div className='chart-loading-wrap'>
 								<Loading width={100} height={100} marginTop={0} />
@@ -235,22 +233,6 @@ const SalesStatistic = () => {
 				{/* <!-- // 조회기간 --> */}
 				{/* <!-- 게시판 --> */}
 				<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
-					<colgroup>
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-						<col width='122' />
-					</colgroup>
 					<SalesStatisticTable data={data} rowPerPage={rowPerPage} currentPage={currentPage} />
 				</table>
 				{/* <!-- 게시판 --> */}

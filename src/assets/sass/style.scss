@@ -355,6 +355,8 @@ select { @include select-style; }
         background: #3a3a4d;
         &.boder-th-a { border-bottom: 1px solid #5d5d75!important; }
         &.boder-th-b { border-bottom: 1px solid #6c6c97!important; }
+        &.boder-th-r { border-right: 1px solid #6c6c97!important; }
+        &.boder-th-l { border-left: 1px solid #6c6c97!important; }
         &.height-63 { height: 63px; }
     }
     td { 
@@ -374,6 +376,7 @@ select { @include select-style; }
         &.align-center { text-align: center!important; }
         &.align-right { padding-right: 20px; text-align: right!important; }
         &.total { font-weight: bold; background : #fff7f9; }
+        &.boder-th-l { border-left: 1px solid #6c6c97!important; }
     }
 }   
 

@@ -86,7 +86,7 @@ const LineChart = ({ filterSales, from, to, data }: SalesLineChartProps) => {
                 tickPadding: 15,
                 format: (x) => {return format(new Date(x), 'MM.dd')}
             }}
-            lineWidth={3}
+            lineWidth={4}
             curve='linear'
             colors={(props: any) => {return props.color}}
             enableGridX={false}
@@ -94,9 +94,9 @@ const LineChart = ({ filterSales, from, to, data }: SalesLineChartProps) => {
             useMesh={true}
             enablePoints={true}
             // enablePointLabel={true}
-            pointSize={5}
-            pointColor={(props: any) => {return props.color}}
-            pointBorderWidth={2}
+            pointSize={10}
+            pointColor='#ffffff'
+            pointBorderWidth={4}
             pointBorderColor={(props: any) => {return props.serieColor}}
             // pointLabelYOffset={-12}
             // sliceTooltip={({ slice }) => {
@@ -127,10 +127,10 @@ const LineChart = ({ filterSales, from, to, data }: SalesLineChartProps) => {
                 'grid', 
                 'markers', 
                 'axes', 
-                'points', 
                 'crosshair', 
                 'mesh', 
                 'lines', 
+                'points', 
                 'slices', 
                 // (props) => (<SalesChartTooltip {...props} />),
             ]}

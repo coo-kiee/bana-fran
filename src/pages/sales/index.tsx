@@ -5,8 +5,8 @@ import SalesHistory from './history/index';
 
 const SalesContainer = () => {
     const { pathname } = useLocation();
-    // console.log(pathname)
-    const path = pathname.replace('/sales/','');
+    const path = pathname.replace('/sales/',''); // URL path 
+
 	return (
 		<section className='container'>
 			<header>
@@ -17,9 +17,6 @@ const SalesContainer = () => {
 			</header>
 			<section className={`contents-wrap sales_${path === 'history' ? 'order' : 'statistic'}`}>
 				<div className='contents'>
-					<div className='info-wrap'>
-						<p>※ {path === 'history' ? '주문내역을' : '매출통계를'} 조회할 수 있습니다. (최대 12개월 이내)</p>
-					</div>
                     {
                         path === 'history' ? 
                         <SalesHistory /> :

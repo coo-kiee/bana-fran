@@ -14,11 +14,11 @@ const useSalesOrderList = (params: Params) => {
         query: 'KTBKHHVNSBCJHXUADDII',
         params: params,
     }; // web_fran_s_sales_order_list
-    return useQuery(['sales_order_list', params.f_code, params.from_date, params.to_date], () => queryFn.getDataList(reqData), {
+    return useQuery(['sales_order_list', params.f_code], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        
+        suspense: true,
         onError : (err:any) => {
             queryFn.axiosError(err);
         }
@@ -32,7 +32,7 @@ const useSalesStatistic = (params: Params) => {
         query: 'M2AWHBEO7CTAJMF2B1AW',
         params: params,
     }; // web_fran_s_sales_stat_list
-    return useQuery(['sales_statistic_list'], () => queryFn.getDataList(reqData), {
+    return useQuery(['sales_statistic_list', params.f_code], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
