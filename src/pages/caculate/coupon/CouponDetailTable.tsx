@@ -47,7 +47,7 @@ const TABLE_COLUMN_INFO = {
         { text: '쿠폰 사용금액', rowSpan: 2, colSpan: 1, className: '' },
         { text: '거래기기', rowSpan: 2, colSpan: 1, className: '' },
         { text: '주문자', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '본사발행 쿠폰 결제내역', rowSpan: 1, colSpan: 3, className: 'price-area' },
+        { text: '본사발행 쿠폰 결제내역', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
     ],
     tdInfo: ['공급가', '부가세', '합계']
 } as const;
@@ -102,27 +102,40 @@ const TableList: FC<TableListProps> = ({ }) => {
 
     return (
         <>
-            {
-                // list.map((board, index) => {
-
-                //     const { category_name, title, attach_cnt, insert_date, rownum, important, board_id } = board;
-                //     const rowNumInt = total_cnt - parseInt(rownum) + 1;
-                //     const isEndBoard = index === (total_cnt - 1);
-                //     const isImportant = important === "1";
-
-                //     return (
-                //         <tr className={isImportant ? "important" : ""} key={rowNumInt} >
-                //             <td className={isImportant ? "point" : isEndBoard ? 'left-radius' : ""}>{isImportant ? "중요" : rowNumInt}</td>
-                //             <td>{category_name}</td>
-                //             <td className="content">{title}</td>
-                //             <td className={isImportant ? "point" : ""}>{attach_cnt}개</td>
-                //             <td className={isEndBoard ? 'right-radius' : ""}>{insert_date.substring(0, 10)}</td>
-                //         </tr>
-                //     )
-                // })
-            }
-            {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
-            <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>
+            <tr>
+                <td className="align-center">22/06/01~22/06/30</td>
+                <td className="align-left">출석 이벤트 쿠폰</td>
+                <td className="align-left">아메리카노</td>
+                <td className="align-right">13,000</td>
+                <td className="align-center">어플</td>
+                <td className="align-center">0101234****</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
+            </tr>
+            <tr>
+                <td className="align-center">22/06/01~22/06/30</td>
+                <td className="align-left">밀크티 트립 스탬프 이벤트 쿠폰</td>
+                <td className="align-left">아메리카노</td>
+                <td className="align-right">13,000</td>
+                <td className="align-center">어플</td>
+                <td className="align-center">0101234****</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
+            </tr>
+            <tr>
+                <td className="align-center">22/06/01~22/06/30</td>
+                <td className="align-left">어플 설치 1500원 할인 쿠폰</td>
+                <td className="align-left">아메리카노</td>
+                <td className="align-right">13,000</td>
+                <td className="align-center">키오스크</td>
+                <td className="align-center">0101234****</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
+            </tr>
+            {/* <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr> */}
         </>
     )
 };

@@ -16,7 +16,7 @@ const ClaimLastMonthTable: FC<ClaimLastMonthTableProps> = ({ }) => {
 
     return (
         <>
-            <p className="title bullet">{year}년 {lastMonth}월 클레임 보상 내역</p>
+            <p className="title bullet">{year}년 {lastMonth}월 클레임 보상 내역<span className="sub-title hyphen">발행된 쿠폰이 실제 사용된 건에 대해서만 청구합니다.</span></p>
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
@@ -50,25 +50,13 @@ const TableList: FC<TableListProps> = ({ }) => {
 
     return (
         <>
-            {
-                // list.map((board, index) => {
-
-                //     const { category_name, title, attach_cnt, insert_date, rownum, important, board_id } = board;
-                //     const rowNumInt = total_cnt - parseInt(rownum) + 1;
-                //     const isEndBoard = index === (total_cnt - 1);
-                //     const isImportant = important === "1";
-
-                //     return (
-                //         <tr className={isImportant ? "important" : ""} key={rowNumInt} >
-                //             <td className={isImportant ? "point" : isEndBoard ? 'left-radius' : ""}>{isImportant ? "중요" : rowNumInt}</td>
-                //             <td>{category_name}</td>
-                //             <td className="content">{title}</td>
-                //             <td className={isImportant ? "point" : ""}>{attach_cnt}개</td>
-                //             <td className={isEndBoard ? 'right-radius' : ""}>{insert_date.substring(0, 10)}</td>
-                //         </tr>
-                //     )
-                // })
-            }
+            <tr>
+                <td className="align-center">22/06/01~22/06/30</td>
+                <td className="align-left">고객 클레임 보상 서비스 쿠폰 사용비용 청구</td>
+                <td className="align-right">100,000</td>
+                <td className="align-right">10,00</td>
+                <td className="align-right">110,000</td>
+            </tr>
             {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
             {/* <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >해당 월 정산내역 처리중입니다</td></tr> */}
         </>

@@ -50,25 +50,13 @@ const TableList: FC<TableListProps> = ({ }) => {
 
     return (
         <>
-            {
-                // list.map((board, index) => {
-
-                //     const { category_name, title, attach_cnt, insert_date, rownum, important, board_id } = board;
-                //     const rowNumInt = total_cnt - parseInt(rownum) + 1;
-                //     const isEndBoard = index === (total_cnt - 1);
-                //     const isImportant = important === "1";
-
-                //     return (
-                //         <tr className={isImportant ? "important" : ""} key={rowNumInt} >
-                //             <td className={isImportant ? "point" : isEndBoard ? 'left-radius' : ""}>{isImportant ? "중요" : rowNumInt}</td>
-                //             <td>{category_name}</td>
-                //             <td className="content">{title}</td>
-                //             <td className={isImportant ? "point" : ""}>{attach_cnt}개</td>
-                //             <td className={isEndBoard ? 'right-radius' : ""}>{insert_date.substring(0, 10)}</td>
-                //         </tr>
-                //     )
-                // })
-            }
+            <tr>
+                <td className="align-center">22/06/01~22/06/30</td>
+                <td className="align-left">22/06/01~22/06/30</td>
+                <td className="align-right">117,000</td>
+                <td className="align-right">117,000</td>
+                <td className="align-right">130,000</td>
+            </tr>
             {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
             {/* <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >해당 월 정산내역 처리중입니다</td></tr> */}
         </>

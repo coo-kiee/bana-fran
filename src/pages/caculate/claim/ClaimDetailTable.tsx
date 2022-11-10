@@ -51,7 +51,7 @@ const TABLE_COLUMN_INFO = {
         { text: '발급고객', rowSpan: 2, colSpan: 1, className: '' },
         { text: '클레임 내용', rowSpan: 2, colSpan: 1, className: '' },
         { text: '사용매장', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '본사발행 쿠폰 결제내역', rowSpan: 1, colSpan: 3, className: 'price-area' },
+        { text: '본사발행 쿠폰 결제내역', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
     ],
     tdInfo: ['공급가', '부가세', '합계']
 } as const;
@@ -109,27 +109,50 @@ const TableList: FC<TableListProps> = ({ }) => {
 
     return (
         <>
-            {
-                // list.map((board, index) => {
-
-                //     const { category_name, title, attach_cnt, insert_date, rownum, important, board_id } = board;
-                //     const rowNumInt = total_cnt - parseInt(rownum) + 1;
-                //     const isEndBoard = index === (total_cnt - 1);
-                //     const isImportant = important === "1";
-
-                //     return (
-                //         <tr className={isImportant ? "important" : ""} key={rowNumInt} >
-                //             <td className={isImportant ? "point" : isEndBoard ? 'left-radius' : ""}>{isImportant ? "중요" : rowNumInt}</td>
-                //             <td>{category_name}</td>
-                //             <td className="content">{title}</td>
-                //             <td className={isImportant ? "point" : ""}>{attach_cnt}개</td>
-                //             <td className={isEndBoard ? 'right-radius' : ""}>{insert_date.substring(0, 10)}</td>
-                //         </tr>
-                //     )
-                // })
-            }
+            <tr>
+                <td className="align-center">2022-09-20 14:46:00</td>
+                <td className="align-center">2022-09-2014:46:00</td>
+                <td className="align-center">미사용</td>
+                <td className="align-center">고객 서비스 쿠폰</td>
+                <td className="align-right">5,000</td>
+                <td className="align-center">2021-11-30</td>
+                <td className="align-center">0101234****</td>
+                <td className="align-left">알바 직원이 음료를 쏟음</td>
+                <td className="align-center">삼성점</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
+            </tr>
+            <tr>
+                <td className="align-center">2022-09-20 14:46:00</td>
+                <td className="align-center">2022-09-2014:46:00</td>
+                <td className="align-center">미사용</td>
+                <td className="align-center">고객 서비스 쿠폰</td>
+                <td className="align-right">5,000</td>
+                <td className="align-center">2021-11-30</td>
+                <td className="align-center">0101234****</td>
+                <td className="align-left">알바 직원이 음료를 쏟음</td>
+                <td className="align-center">삼성점</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
+            </tr>
+            <tr>
+                <td className="align-center">2022-09-20 14:46:00</td>
+                <td className="align-center">2022-09-2014:46:00</td>
+                <td className="align-center">미사용</td>
+                <td className="align-center">고객 서비스 쿠폰</td>
+                <td className="align-right">5,000</td>
+                <td className="align-center">2021-11-30</td>
+                <td className="align-center">0101234****</td>
+                <td className="align-left">알바 직원이 음료를 쏟음</td>
+                <td className="align-center">삼성점</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
+            </tr>
             {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
-            <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>
+            {/* <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr> */}
         </>
     )
 };
