@@ -22,7 +22,6 @@ const SideMenu:React.FC<{activeMenu:SideMenuBarType, sideMenus:Array<SIDE_MENU_T
     const handleSubMenuClick = (subIndex:number) => {
         setActiveMenu({...activeMenu, subIndex : subIndex})
     }
-    console.log('activeMenu', activeMenu);
     return (
         <ul className="menu-list">
             {
@@ -36,7 +35,7 @@ const SideMenu:React.FC<{activeMenu:SideMenuBarType, sideMenus:Array<SIDE_MENU_T
                     const childLen = data.child?.length || 0
                     return (childLen > 0 ? 
                         <li key={`link_${key}`} className={`list-item depth ${activeMenu.index === data.id && activeMenu.show ? 'active' : ''}`}>
-                            <span className="menu" onClick={() => handleMenuClick(data.id, true) } >{data.name}</span>
+                            <span className="menu" onClick={() => handleMenuClick(data.id, data.id !== activeMenu.index) } >{data.name}</span>
                             <ul className="depth-list">
                                 {childMenu}
                             </ul>
@@ -77,7 +76,6 @@ const SideMenubar:React.FC = () => {
                     });
                 }
             })
-            console.log('menuData', menuData);
             setActiveMenu({index: menuData.pId, subIndex:menuData.id, show: menuData.id > 0 ? true : false})
         }
     }, [window.location.pathname])
