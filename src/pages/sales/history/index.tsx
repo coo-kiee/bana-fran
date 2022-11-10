@@ -28,7 +28,9 @@ const SalesHistory = (props: Props) => {
 							<option value=''>결제방식 전체</option>
 						</select>
 						<select name='' id=''>
+							<option value=''>전체</option>
 							<option value=''>일반제품</option>
+							<option value=''>실물상품권</option>
 						</select>
 					</div>
 					<button className='btn-search'>조회</button>
@@ -101,14 +103,14 @@ const SalesHistory = (props: Props) => {
 							</p>
 						</div>
 						<div className='board-filter'>
-							<div className='check-box'>
+							{/* <div className='check-box'>
 								<input className='check' type='checkbox' id='order' />
-								<label htmlFor='order'>최소주문표시</label>
-							</div>
-							<div className='check-box'>
+								<label htmlFor='order'>취소주문표시</label>
+							</div> */}
+							{/* <div className='check-box'>
 								<input className='check' type='checkbox' id='gift' />
 								<label htmlFor='gift'>실물상품권 주문 제외</label>
-							</div>
+							</div> */}
 							<div className='check-box'>
 								<input className='check' type='checkbox' id='delivery' />
 								<label htmlFor='delivery'>쿠팡/배민 주문 제외</label>

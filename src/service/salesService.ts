@@ -18,6 +18,7 @@ const useSalesOrderList = (params: Params) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
+        
         onError : (err:any) => {
             queryFn.axiosError(err);
         }
@@ -31,7 +32,7 @@ const useSalesStatistic = (params: Params) => {
         query: 'M2AWHBEO7CTAJMF2B1AW',
         params: params,
     }; // web_fran_s_sales_stat_list
-    return useQuery(['sales_statistic_list', params.f_code, params.search_type, params.from_date, params.to_date], () => queryFn.getDataList(reqData), {
+    return useQuery(['sales_statistic_list'], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
