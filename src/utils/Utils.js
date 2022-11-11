@@ -458,4 +458,26 @@ export default class Utils {
             alert('PDF 다운로드에 실패했습니다.')
         };
     };
+
+    // 날짜가 어떤 요일인지 알려주기
+    static getDayName = (date) => {
+        // validation: string | Date
+        let dateValue;
+        if (typeof date === 'string') dateValue = new Date(date);
+        else if (typeof date !== Date) return '';
+
+        let dayNum = dateValue.getDay(); // 요일 숫자
+        let dayText = '';                // 요일명
+
+		switch (dayNum) {
+			case 0: dayText = '일';	break;
+			case 1: dayText = '월';	break;
+			case 2: dayText = '화';	break;
+			case 3: dayText = '수';	break;
+			case 4: dayText = '목';	break;
+			case 5: dayText = '금';	break;
+			default: dayText = '토'; break;
+		}
+        return dayText;
+    }
 }

@@ -18,7 +18,7 @@ const useSalesOrderList = (params: Params) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: true,
+        // suspense: true,
         onError : (err:any) => {
             queryFn.axiosError(err);
         }
@@ -36,6 +36,7 @@ const useSalesStatistic = (params: Params) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
+        // suspense: true,
         onError : (err:any) => {
             queryFn.axiosError(err);
         }

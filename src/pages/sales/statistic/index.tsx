@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { format } from "date-fns";
 import { ko } from 'date-fns/locale';
@@ -30,15 +30,25 @@ const SalesStatistic = () => {
 
 	// filter options
     const [statisticPeriod, setStatisticPeriod] = useState<SalesStatisticPeriod>({ searchType: 'D', from: format(new Date(today.getFullYear(), today.getMonth()-1, today.getDate()), 'yyyy-MM-dd'), to: format(new Date(today), 'yyyy-MM-dd') });
-    const [filterSales, setFilterSales] = useState<FilterSales>({ total: 1, paid: 1, app: 1, free: 1 });
+    const [filterSales, setFilterSales] = useState<FilterSales>({ total: 1, paid: 0, app: 0, free: 0 });
 
 	// pagination
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [rowPerPage, setRowPerPage] = useState<number>(3);
     
-	// query
-	const { data, isLoading, isFetching, refetch } = SALES_SERVICE.useSalesStatistic({ f_code: fCode, search_type: statisticPeriod.searchType, from_date: statisticPeriod.from, to_date: statisticPeriod.to })
+	
 
+	// query
+	// 월별 검색(M)이면 from/to에 -01 string 추가
+	const { data, isLoading, isFetching, refetch } = SALES_SERVICE.useSalesStatistic({ 
+		f_code: fCode, search_type: statisticPeriod.searchType, 
+		from_date: statisticPeriod.searchType === 'M' ? (statisticPeriod.from + '-01') : statisticPeriod.from, 
+		to_date: statisticPeriod.searchType === 'M' ? (statisticPeriod.to + '-01') : statisticPeriod.to 
+	})
+
+	// searchTypeMemo for Line Chart
+	const searchTypeMemo = useMemo(() => {return statisticPeriod.searchType}, [data]);
+	
     console.log(data)
 
 	/* 검색 기간 필터링 (onChange) */
@@ -53,8 +63,8 @@ const SalesStatistic = () => {
 	const handlePeriodType = (type: 'D'|'M') => {
 		type === 'M' ? // 월별 검색이면 선택 기간을 각 월의 1일로 변환
 		setStatisticPeriod({
-			from: format(new Date(statisticPeriod.from), 'yyyy-MM-01'), 
-			to: format(new Date(statisticPeriod.to), 'yyyy-MM-01'),
+			from: format(new Date(statisticPeriod.from), 'yyyy-MM'), 
+			to: format(new Date(statisticPeriod.to), 'yyyy-MM'),
 			searchType: type 
 		}) :
 		setStatisticPeriod({ ...statisticPeriod, 
@@ -65,11 +75,12 @@ const SalesStatistic = () => {
 
 	}
 	
+	
     /* excel download */
     const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 대상 table
   
     const excelDownload = () => {
-		console.log(tableRef.current)
+		const {searchType, from, to} = statisticPeriod;
         if (tableRef.current) {
             // Excel - sheet options: 셀 시작 위치, 셀 크기
             const options = {
@@ -79,7 +90,7 @@ const SalesStatistic = () => {
                 addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','ffc89f'] },
                 sheetName: '매출 통계', // 시트이름, 필수 X
             };
-            try { Utils.excelDownload(tableRef.current, options, 'sales_statistic'); }
+            try { Utils.excelDownload(tableRef.current, options, `바나프레소 ${searchType === 'D' ? '일별' : '월별'} 매출통계(${from}~${to})`); }
             catch (error) { console.log(error); }
         }
     }
@@ -96,20 +107,18 @@ const SalesStatistic = () => {
 						<div className='input-wrap'>
 							{/* <input type='text' placeholder={statisticPeriod.from} onClick={() => {}} /> */}
 							<DatePicker 
-								selected={new Date(today.getFullYear(), today.getMonth()-1, 1)} 
 								value={statisticPeriod.from}
 								locale={ko}
-								dateFormat={'yy-MM-dd'}
+								dateFormat={statisticPeriod.searchType === 'M' ? 'yy-MM' : 'yy-MM-dd'}
 								showMonthYearPicker={statisticPeriod.searchType === 'M' ? true : false}
 								showFullMonthYearPicker={statisticPeriod.searchType === 'M' ? true : false}
 								onChange={(date: Date) => handlePeriodRange(date, 'from')}
 							/>
 							<i>~</i>
 							<DatePicker 
-								selected={new Date(today.getFullYear(), today.getMonth(), 1)} 
 								value={statisticPeriod.to}
 								locale={ko}
-								dateFormat={'yy-MM-dd'}
+								dateFormat={statisticPeriod.searchType === 'M' ? 'yy-MM' : 'yy-MM-dd'}
 								showMonthYearPicker={statisticPeriod.searchType === 'M' ? true : false}
 								showFullMonthYearPicker={statisticPeriod.searchType === 'M' ? true : false}
 								onChange={(date: Date) => handlePeriodRange(date, 'to')}
@@ -159,7 +168,7 @@ const SalesStatistic = () => {
 										: setFilterSales({ ...filterSales, total: 0 });
 								}}
 							/>
-							<label htmlFor='total-sales'>총매출</label>
+							<label htmlFor='total-sales'>총 매출</label>
 						</div>
 						<div className='checkbox-wrap'>
 							<input
@@ -213,7 +222,7 @@ const SalesStatistic = () => {
 					{/* <canvas id='myChart' style={{ width: '100%', height: '380px' }}></canvas> */}
 					<div id='statistic-chart' className='line-chart chart'>
 						{!(isLoading || isFetching) && data ? (
-							<LineChart filterSales={filterSales} from={statisticPeriod.from} to={statisticPeriod.to} data={data && data} />
+							<LineChart filterSales={filterSales} data={data} searchType={searchTypeMemo} />
 						) : (
 							<div className='chart-loading-wrap'>
 								<Loading width={100} height={100} marginTop={0} />
@@ -233,7 +242,7 @@ const SalesStatistic = () => {
 				{/* <!-- // 조회기간 --> */}
 				{/* <!-- 게시판 --> */}
 				<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
-					<SalesStatisticTable data={data} rowPerPage={rowPerPage} currentPage={currentPage} />
+					<SalesStatisticTable data={data} isLoading={isLoading} rowPerPage={rowPerPage} currentPage={currentPage} />
 				</table>
 				{/* <!-- 게시판 --> */}
 			</div>

@@ -1,15 +1,16 @@
 import { SalesTable } from "types/sales";
 import Utils from "utils/Utils";
+import LoadingTable from "../../../common/loading/LoadingTable";
 
-const SalesHistoryTable = ({ data, rowPerPage, currentPage }: SalesTable) => {
+const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTable) => {
 	// 표시 날짜 줄바꿈 추가
 	const convertDateLineBreak = (str: string) => {
 		const findSpace = /\s/;
 		const strArr = str.split(findSpace);
 		return (
 			<>
-				{strArr[0]}
-				<span className='block'>{strArr[1]}</span>
+				{strArr[0]}<br />
+				{strArr[1]}
 			</>
 		);
 	};
@@ -65,7 +66,7 @@ const SalesHistoryTable = ({ data, rowPerPage, currentPage }: SalesTable) => {
 						주문<span className='block'>메뉴</span>
 					</th>
 					<th rowSpan={2}>
-						총<span className='block'>건수</span>
+						총<br />건수
 					</th>
 					<th rowSpan={2}>
 						접수<span className='block'>타입</span>
@@ -74,10 +75,10 @@ const SalesHistoryTable = ({ data, rowPerPage, currentPage }: SalesTable) => {
 						결제<span className='block'>방식</span>
 					</th>
 					<th rowSpan={2}>
-						주문금액<span className='block'>(메뉴)</span>
+						주문금액<br />(메뉴)
 					</th>
 					<th rowSpan={2}>
-						배달비<span className='block'>(앱주문)</span>
+						배달비<br />(앱주문)
 					</th>
 					<th colSpan={8} className='price-area boder-th-b'>
 						결제상세(앱주문 배달비 포함)
@@ -99,7 +100,7 @@ const SalesHistoryTable = ({ data, rowPerPage, currentPage }: SalesTable) => {
 					<td className='price-area boder-th-l'>스탬프(개)</td>
 					<td className='price-area'>바나포인트(P)</td>
 				</tr>
-				{data.map((history: any, idx: number) => {
+				{!isLoading ? data.map((history: any, idx: number) => {
 					const {
 						dtRcp, // 결제일시(?)
 						rcp_date, // 결제일시
@@ -151,22 +152,21 @@ const SalesHistoryTable = ({ data, rowPerPage, currentPage }: SalesTable) => {
 								<td className='align-right'>{rcp_type}</td>
 								<td className='align-center'>{pay_type}</td>
 								<td className='align-center'>{Utils.numberComma(nChargeTotal)}</td>
-								<td className='align-center'>{nDeliveryCharge !== 0 ? Utils.numberComma(nDeliveryCharge) : '-'}</td>
+								<td className='align-center'>{nDeliveryCharge !== 0 ? Utils.numberComma(nDeliveryCharge) : ''}</td>
 								<td className='align-center'>{Utils.numberComma(nChargeTotal)}</td>
-								<td className='align-center'>{card_charge !== 0 ? Utils.numberComma(card_charge) : '-'}</td>
-								<td className='align-center'>{cash_charge !== 0 ? Utils.numberComma(cash_charge) : '-'}</td>
-								<td className='align-center'>{bana_point !== 0 ? Utils.numberComma(bana_point) : '-'}</td>
-								<td className='align-center'>{paid_point !== 0 ? Utils.numberComma(paid_point) : '-'}</td>
-								<td className='align-center'>{small_point !== 0 ? Utils.numberComma(small_point) : '-'}</td>
-								<td className='align-center'>{fran_coupon_charge !== 0 ? Utils.numberComma(fran_coupon_charge) : '-'}</td>
-								<td className='align-center'>{hd_coupon_charge !== 0 ? Utils.numberComma(hd_coupon_charge) : '-'}</td>
-								<td className='align-center'>{nStampCount !== 0 ? nStampCount : '-'}</td>
+								<td className='align-center'>{card_charge !== 0 ? Utils.numberComma(card_charge) : ''}</td>
+								<td className='align-center'>{cash_charge !== 0 ? Utils.numberComma(cash_charge) : ''}</td>
+								<td className='align-center'>{bana_point !== 0 ? Utils.numberComma(bana_point) : ''}</td>
+								<td className='align-center'>{paid_point !== 0 ? Utils.numberComma(paid_point) : ''}</td>
+								<td className='align-center'>{small_point !== 0 ? Utils.numberComma(small_point) : ''}</td>
+								<td className='align-center'>{fran_coupon_charge !== 0 ? Utils.numberComma(fran_coupon_charge) : ''}</td>
+								<td className='align-center'>{hd_coupon_charge !== 0 ? Utils.numberComma(hd_coupon_charge) : ''}</td>
+								<td className='align-center'>{nStampCount !== 0 ? nStampCount : ''}</td>
 								<td className='align-right'>{nSavingPoint}</td>
 								<td className='align-center'></td>
 							</tr>
-						)
-					);
-				})}
+						))
+				}) : <LoadingTable width={100} height={100} marginTop={15} />}
 			</tbody>
 		</>
 	);

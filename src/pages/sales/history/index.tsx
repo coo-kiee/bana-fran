@@ -14,8 +14,6 @@ import SALES_SERVICE from 'service/salesService'
 import Pagination from "pages/common/pagination";
 import SalesHistoryTable from "pages/sales/history/table";
 import Utils from "utils/Utils";
-import Loading from "pages/common/loading";
-import { ErrorBoundary } from "react-error-boundary";
 
 
 interface SalesHistoryPeriod {
@@ -53,27 +51,28 @@ const SalesHistory = () => {
     const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 대상 table
   
     const excelDownload = () => {
-		console.log(tableRef.current)
+		const {from, to} = historyPeriod;
         if (tableRef.current) {
             // Excel - sheet options: 셀 시작 위치, 셀 크기
             const options = {
                 type: 'table', // 필수 O
                 sheetOption: { origin: "A1" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: [{wch: 15}, {wch: 18}, {wch: 18}, {wch: 16}, {wch: 16}, {wch: 22}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 20}, {wch: 18}, {wch: 18}, ], // 셀 너비 설정, 필수 X
-                addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','ffc89f'] },
+                colspan: [{wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 28}, {wch: 6}, {wch: 15}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 14}, {wch: 14}, {wch: 14}, ], // 셀 너비 설정, 필수 X
+                addRowColor: { row: [1,2], color: ['d3d3d3','d3d3d3'] },
                 sheetName: '매출 통계', // 시트이름, 필수 X
             };
-            try { Utils.excelDownload(tableRef.current, options, 'sales_statistic'); }
+            try { Utils.excelDownload(tableRef.current, options, `바나프레소 주문내역(${from}~${to})`); }
             catch (error) { console.log(error); }
         }
     }
 
-
+	console.log(isLoading)
 
 
 	return (
-		<Suspense fallback={<div style={{width: '800px', height: '1000px', backgroundColor: '#0000ff', position: 'fixed', zIndex: '10'}}>loading</div>}>
-			<ErrorBoundary fallback={<div style={{width: '100vw', height: '100vh', backgroundColor: '#ffffff'}}>failed T.T</div>}>
+		// <Suspense fallback={<div style={{width: '800px', height: '1000px', backgroundColor: '#0000ff', position: 'fixed', zIndex: '10'}}>loading</div>}>
+			<>
+				<div className="loading-container"></div>
 				<div className='info-wrap'>
 					<p>※ 주문내역을 조회할 수 있습니다. (최대 12개월 이내)</p>
 				</div>
@@ -123,7 +122,7 @@ const SalesHistory = () => {
 					{/* <!-- 조회기간 --> */}
 					<div className='search-result-wrap'>
 						<div className='search-date'>
-							<p>조회기간: 2022-12-31 ~ 2022-12-31</p>
+							<p>조회기간: {historyPeriod.from} ~ {historyPeriod.to}</p>
 						</div>
 						<ul className='search-result'>
 							<li>
@@ -205,7 +204,7 @@ const SalesHistory = () => {
 					{/* <!-- // 조회기간 --> */}
 					{/* <!-- 게시판 --> */}
 					<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
-							<SalesHistoryTable data={data} rowPerPage={rowPerPage} currentPage={currentPage} />
+							{<SalesHistoryTable data={data || []} isLoading={isLoading} rowPerPage={rowPerPage} currentPage={currentPage} />}
 					</table>
 					{/* <!-- 게시판 --> */}
 				</div>
@@ -221,8 +220,9 @@ const SalesHistory = () => {
 						handlePageRow={setRowPerPage}
 					/>
 				</div>
-			</ErrorBoundary>
-		</Suspense>
+				{/* {!isLoading ? <div className="loading-container"></div> : null} */}
+			</>
+		// </Suspense>
 	);
 };
 

@@ -14,13 +14,13 @@ interface FilterSales {
 
 interface SalesLineChartProps {
     filterSales: FilterSales;
-    from: string;
-    to: string;
     data: any;
+    searchType: 'D' | 'M';
 }
 
 interface SalesTable {
 	data: any;
+    isLoading: boolean;
 	rowPerPage: number;
 	currentPage: number;
 }

@@ -20,7 +20,7 @@ const Weekly = () => {
 	
 
 	return (
-		<Board title='Week' boardClass='week-sales' url='/sales/statistic' suffix='총 매출'>
+		<Board title='Week' boardClass='week-sales' url='/sales/history' suffix='총 매출'>
 			<div className='contents-list bar-chart chart'>
 				{
 					data && 

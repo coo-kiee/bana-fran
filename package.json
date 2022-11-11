@@ -33,7 +33,6 @@
     "styled-components": "^5.3.6",
     "typescript": "^4.8.4",
     "web-vitals": "^2.1.4",
-    "xlsx": "^0.18.5",
     "xlsx-js-style": "^1.2.0"
   },
   "scripts": {
@@ -63,7 +62,7 @@
   "proxy": "http://localhost:8080",
   "devDependencies": {
     "@types/loadable__component": "^5.13.4",
-    "@types/react-datepicker": "^4.8.0",
+    "@types/react-datepicker": "^4.4.2",
     "@types/styled-components": "^5.1.26",
     "gzipper": "^7.1.0"
   }
