@@ -2,21 +2,21 @@ import { useState } from 'react';
 import { format, subMonths, lastDayOfMonth } from 'date-fns';
 
 // type
-import { SearchInfoType, PageInfoType } from "types/etc/etcType";
+import { SearchInfoType, SearchInfoSelectType, PageInfoType } from "types/etc/etcType";
 
 // component
-import EtcTable from "../EtcTable";
+import EtcTable from "../component/EtcTable";
 import CalanderSearch from 'pages/common/calanderSearch';
-import EtcSearchDetail from "../EtcSearchDetail";
-import EtcDetailTable from "../EtcDetailTable";
-import EtcDetailFooter from "../EtcDetailFooter";
+import EtcSearchDetail from "../component/EtcSearchDetail";
+import EtcDetailTable from "../component/EtcDetailTable";
+import EtcDetailFooter from "../component/EtcDetailFooter";
 
 const GiftCard = () => {
     // TODO: 상태 관련
-    const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
+    const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
         to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
-        searchOption: [''], // '판매기기 전체', '판매', '판매취소(폐기)' 중 하나
+        searchOption: [{ value: 'test', title: '판매기기 전체' }], // '판매기기 전체', '판매', '판매취소(폐기)' 중 하나
     }); // etcSearch 내부 검색 날짜
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
@@ -77,7 +77,7 @@ const GiftCard = () => {
                 <EtcTable title={`실물 상품권 재고 현황`} colGroup={colGroup} thead={thead} tbody={tbody} />
 
                 {/* 상세 내역 */}
-                <CalanderSearch title={`상세내역`} searchInfo={searchInfo} updateSearchInfo={setSearchInfo} handleSearch={() => console.log('검색')} dateType={'yyyy-MM-dd'} option={[['판매기기 전체', '판매', '판매취소(폐기)']]} />
+                <CalanderSearch title={`상세내역`} searchInfo={searchInfo} setSearchInfo={setSearchInfo} handleSearch={() => console.log('검색')} dateType={'yyyy-MM-dd'} /* option={[['판매기기 전체', '판매', '판매취소(폐기)']]}*/ />
 
                 {/* 조회 기간 */}
                 <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={detailSearchResult} priceInfo={detailPriceInfo} />

@@ -5,11 +5,11 @@ import { format, subMonths, lastDayOfMonth } from 'date-fns';
 import { SearchInfoType, PageInfoType } from "types/etc/etcType";
 
 // component
-import EtcTable from "../EtcTable";
+import EtcTable from "../component/EtcTable";
 import CalanderSearch from 'pages/common/calanderSearch';
-import EtcSearchDetail from "../EtcSearchDetail";
-import EtcDetailTable from "../EtcDetailTable";
-import EtcDetailFooter from "../EtcDetailFooter";
+import EtcSearchDetail from "../component/EtcSearchDetail";
+import EtcDetailTable from "../component/EtcDetailTable";
+import EtcDetailFooter from "../component/EtcDetailFooter";
 
 const Royalty = () => {
     // TODO: 상태 관련
@@ -61,26 +61,27 @@ const Royalty = () => {
     }; // 엑셀 다운로드 관련 
 
     return (
-        <div id="tab5" className="tab-content active">
-            <div className="info-wrap">
-                <p>※ 매우러 매장 로열티를 조회할 수 있습니다.<strong>(가상계좌 자동 차감되므로 정산내역에는 반영되지 않습니다.)</strong></p>
+        <div id="tab5" className="tab-content active" >
+            <div className="info-wrap" >
+                <p>※ 매우러 매장 로열티를 조회할 수 있습니다.<strong>(가상계좌 자동 차감되므로 정산내역에는 반영되지 않습니다.) </strong></p >
             </div>
-            <div className="board-date-wrap">
+            <div className="board-date-wrap" >
                 {/* 로열티 내역 */}
-                <EtcTable title={`${format(subMonths(new Date(), 1), 'yyyy년 MM월')} 로열티 내역`} colGroup={colGroup} thead={thead} tbody={tbody} />
+                < EtcTable title={`${format(subMonths(new Date(), 1), 'yyyy년 MM월')} 로열티 내역`
+                } colGroup={colGroup} thead={thead} tbody={tbody} />
 
                 {/* 로열티 내역 */}
-                <CalanderSearch title={`상세내역`} searchInfo={searchInfo} updateSearchInfo={setSearchInfo} handleSearch={() => console.log('검색')} dateType={'yyyy-MM-dd'} />
+                < CalanderSearch title={`상세내역`} searchInfo={searchInfo} setSearchInfo={setSearchInfo} handleSearch={() => console.log('검색')} dateType={'yyyy-MM-dd'} />
 
                 {/* 조회 기간> */}
-                <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={detailSearchResult} priceInfo={detailPriceInfo} />
+                < EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={detailSearchResult} priceInfo={detailPriceInfo} />
             </div>
 
             {/* 게시판 */}
             <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={detailTableBody} pageInfo={pageInfo} />
 
             {/* 엑셀다운, 페이징, 정렬 */}
-            <EtcDetailFooter excelFn={handleExcelPrint} pageFn={setPageInfo} dataCnt={detailTableBody.length || 0} pageInfo={pageInfo} />
+            < EtcDetailFooter excelFn={handleExcelPrint} pageFn={setPageInfo} dataCnt={detailTableBody.length || 0} pageInfo={pageInfo} />
         </div>
 
     )

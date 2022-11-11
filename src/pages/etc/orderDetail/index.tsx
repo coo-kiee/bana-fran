@@ -5,11 +5,11 @@ import { format, subMonths } from 'date-fns';
 import { SearchInfoType, PageInfoType, OrderDetailProps } from "types/etc/etcType";
 
 // component
-import EtcTable from "../EtcTable";
+import EtcTable from "../component/EtcTable";
 import CalanderSearch from 'pages/common/calanderSearch';
-import EtcSearchDetail from "../EtcSearchDetail";
-import EtcDetailTable from "../EtcDetailTable";
-import EtcDetailFooter from "../EtcDetailFooter";
+import EtcSearchDetail from "../component/EtcSearchDetail";
+import EtcDetailTable from "../component/EtcDetailTable";
+import EtcDetailFooter from "../component/EtcDetailFooter";
 
 const OrderDetail: React.FC<OrderDetailProps> = ({ setPopupOrderDetail }) => {
     // TODO: 상태 관련
@@ -75,7 +75,7 @@ const OrderDetail: React.FC<OrderDetailProps> = ({ setPopupOrderDetail }) => {
                 <EtcTable title={`월별 발주금액 통계`} colGroup={colGroup} thead={thead} tbody={tbody} />
 
                 {/* 검색 */}
-                <CalanderSearch title={`상세내역`} searchInfo={searchInfo} updateSearchInfo={setSearchInfo} handleSearch={() => console.log('검색')} dateType={'yyyy-MM-dd'} />
+                <CalanderSearch title={`상세내역`} searchInfo={searchInfo} setSearchInfo={setSearchInfo} handleSearch={() => console.log('검색')} dateType={'yyyy-MM-dd'} />
 
                 {/* 조회 기간 */}
                 <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={detailSearchResult} />

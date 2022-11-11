@@ -1,26 +1,106 @@
 import DatePicker from 'react-datepicker';
-import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 // style
 import 'react-datepicker/dist/react-datepicker.css';
 
 // Type
-import { SearchInfoType } from 'types/etc/etcType';
-interface CalanderSearchItemProps {
-    date: string,
-    dateType: string,
-    updateDate: (date: any) => void, // 조회할 날짜 변경하는 함수
-}
+import { SearchInfoType, SearchInfoSelectType, SearchInfoRadioType, isSelect, isRadio } from 'types/etc/etcType';
+
 interface CalanderSearchProps {
-    title: string, // 제목
-    searchInfo: SearchInfoType, // 검색 관련 옵션, 날짜 state
-    updateSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>>, // setState
-    dateType: string, // 날짜 형식 ... ex) yyyy-MM-dd
-    option?: string[][], // select로 나타날 옵션
-    handleSearch: () => void, // 쿼리 검색 기능
+    title?: string, // 제목
+    dateType: string, // 날짜 형식 ... ex) yyyy-MM-dd  
+    searchInfo: SearchInfoType | SearchInfoSelectType | SearchInfoRadioType, // 검색 날짜, 옵션 관련 상태
+    setSearchInfo: any, // searchInfo setState
+    optionType?: 'SELECT' | 'RADIO', // 사용하는 옵션 타입
+    selectOption?: Array<{ [x: string]: { title: string, value: string } }>, // select로 나타날 옵션 정보
+    radioOption?: Array<{ [x: string]: { title: string, id: string, value: string } }>,  // radio로 나타날 옵션 정보
+    optionList?: Array<any>, // option 맵핑할 때 사용  
+    handleSearch: any, // 실제 검색하는 함수 (ex. refetch)
 }
 
+const CalanderSearch: React.FC<CalanderSearchProps> = ({ title, dateType, searchInfo, setSearchInfo, optionType = 'SELECT', selectOption, radioOption, optionList, handleSearch }) => {
+    // TODO: Select onChange 변경
+    const handleSearchSelect = (e: React.ChangeEvent<HTMLSelectElement>, idx1: number) => {
+        let target = { type: e.target.value, title: selectOption?.[idx1][e.target.value].title || '' };
+
+        return setSearchInfo((prev: SearchInfoSelectType) => {
+            const newSearchOption = [...prev.searchOption.map((el, idx) => idx === idx1 ? target : el)]
+            return { ...prev, searchOption: newSearchOption }
+        }) as React.Dispatch<React.SetStateAction<SearchInfoSelectType>>
+    };
+
+    // TODO: Radio onChange 변경
+    const handleSearchRadio = (searchType: string) => {
+        return setSearchInfo((prev: SearchInfoRadioType) => {
+            return { ...prev, searchType }
+        }) as React.Dispatch<React.SetStateAction<SearchInfoRadioType>>;
+    };
+
+    return (
+        <>
+            {title && <p className="title bullet">{title}</p>}
+            <div className="search-wrap">
+                <div className="input-wrap">
+                    <SearchCalanderItem date={searchInfo.from} dateType={dateType} updateDate={(date) => setSearchInfo((prev: any) => ({ ...prev, from: format(date!, dateType) }))} />
+                    <i>~</i>
+                    <SearchCalanderItem date={searchInfo.to} dateType={dateType} updateDate={(date) => setSearchInfo((prev: any) => ({ ...prev, to: format(date!, dateType) }))} />
+                </div>
+
+                {selectOption && optionList && isSelect(searchInfo) && optionType === 'SELECT' &&
+                    <div className="select-wrap">
+                        {selectOption.map((selectData, selectIdx) => { // #1: select 만들기 ... selectData = {POINT_ALL: {…}, POINT_1: {…}, POINT_2: {…}, POINT_3: {…}}
+                            return (
+                                <select key={`select_${selectIdx}`} name="" id="" value={searchInfo.searchOption[selectIdx].value} onChange={(e) => handleSearchSelect(e, selectIdx)}>
+                                    {optionList[selectIdx].map((option: any, optionIdx: number) => {
+                                        // console.log(optionList[idx1]) //  ['POINT_ALL', 'POINT_1', 'POINT_2', 'POINT_3']
+                                        // console.log(option) // 'POINT_ALL'
+                                        // console.log(selectData[option].value) // 'POINT_ALL'
+                                        return <option key={`option_${optionIdx}`} value={option}>{selectData[option].title}</option>
+                                    })}
+                                </select>
+                            )
+                        })}
+                    </div>
+                }
+
+                {radioOption && optionList && isRadio(searchInfo) && optionType === 'RADIO' &&
+                    <div className='radio-wrap'>
+                        {radioOption.map((selectData) => {
+                            {/* #1: div 만들기 */ }
+                            return optionList.map((option, optionListIdx) => {
+                                return (
+                                    <div key={`radio_wrapper_${optionListIdx}`} >
+                                        <input
+                                            className='radio'
+                                            type='radio'
+                                            name='date'
+                                            id={`${selectData[option].id}`}
+                                            value={selectData[option].value}
+                                            defaultChecked={searchInfo.searchType === selectData[option].value}
+                                            onChange={(e) => { searchInfo.searchType !== selectData[option].value && handleSearchRadio(selectData[option].value) }}
+                                        />
+                                        <label htmlFor={`${selectData[option].id}`}>{selectData[option].title}</label>
+                                    </div>
+                                )
+                            })
+                        })}
+                    </div>
+                }
+                <button className="btn-search" onClick={handleSearch}>조회</button>
+            </div>
+        </>
+    )
+}
+
+export default CalanderSearch
+
+interface CalanderSearchItemProps {
+    date: string, // 날짜 ex)2022-11-10
+    dateType: string, // 날짜 형식
+    updateDate: (date: any) => void, // 조회할 날짜 변경하는 함수
+}
 const SearchCalanderItem: React.FC<CalanderSearchItemProps> = ({ date, dateType, updateDate }) => {
     return (
         <DatePicker
@@ -32,47 +112,3 @@ const SearchCalanderItem: React.FC<CalanderSearchItemProps> = ({ date, dateType,
         />
     )
 }
-
-const CalanderSearch: React.FC<CalanderSearchProps> = ({ title, searchInfo, updateSearchInfo, dateType, option, handleSearch }) => {
-    const { from, to, searchOption } = searchInfo;
-
-    // TODO: searchInfo.searchOption 변경
-    const handleSearchOption = (e: React.ChangeEvent<HTMLSelectElement>, idx: number) => {
-        const tempOption = [...searchOption as string[]];
-        tempOption[idx] = e.target.value;
-        return updateSearchInfo((prev) => {
-            return { ...prev, searchOption: tempOption }
-        })
-    };
-
-    return (
-        <>
-            <p className="title bullet">{title}</p>
-            <div className="search-wrap">
-                <div className="input-wrap">
-                    <SearchCalanderItem date={from} dateType={dateType} updateDate={(date) => updateSearchInfo(prev => ({ ...prev, from: format(date!, dateType) }))} />
-                    <i>~</i>
-                    <SearchCalanderItem date={to} dateType={dateType} updateDate={(date) => updateSearchInfo(prev => ({ ...prev, to: format(date!, dateType) }))} />
-                </div>
-                {searchOption && option && <div className="select-wrap"> {/* select 옵션값과 관련된 state가 있고, option이 들어온 경우에만 나타남 */}
-                    {option.map((selectData, idx1) => {
-                        {/* #1: select 만들기 */ }
-                        return (
-                            <select key={`select_${idx1}`} name="" id="" value={searchOption[idx1]} onChange={(e) => handleSearchOption(e, idx1)}>
-                                {selectData.map((optionData, idx2) => {
-                                    {/* #2: option 만들기 */ }
-                                    return (
-                                        <option key={`option_${idx1}_${idx2}`} value={optionData}>{optionData}</option>
-                                    )
-                                })}
-                            </select>
-                        )
-                    })}
-                </div>}
-                <button className="btn-search" onClick={handleSearch}>조회</button>
-            </div>
-        </>
-    )
-}
-
-export default CalanderSearch

@@ -5,11 +5,11 @@ import { format, subMonths, lastDayOfMonth } from 'date-fns';
 import { SearchInfoType, PageInfoType } from "types/etc/etcType";
 
 // component
-import EtcTable from "../EtcTable";
+import EtcTable from "../component/EtcTable";
 import CalanderSearch from 'pages/common/calanderSearch';
-import EtcSearchDetail from "../EtcSearchDetail";
-import EtcDetailTable from "../EtcDetailTable";
-import EtcDetailFooter from "../EtcDetailFooter";
+import EtcSearchDetail from "../component/EtcSearchDetail";
+import EtcDetailTable from "../component/EtcDetailTable";
+import EtcDetailFooter from "../component/EtcDetailFooter";
 
 const VirtualAccount = () => {
     // TODO: 상태 관련
@@ -68,7 +68,7 @@ const VirtualAccount = () => {
                 <EtcTable title={`가상 계좌 잔액`} colGroup={colGroup} thead={thead} tbody={tbody} />
 
                 {/* 검색 */}
-                <CalanderSearch title={`상세내역`} searchInfo={searchInfo} updateSearchInfo={setSearchInfo} handleSearch={() => console.log('검색')} dateType={'yyyy-MM-dd'} />
+                <CalanderSearch title={`상세내역`} searchInfo={searchInfo} setSearchInfo={setSearchInfo} handleSearch={() => console.log('검색')} dateType={'yyyy-MM-dd'} />
 
                 {/* 조회기간 */}
                 <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={detailSearchResult} />
