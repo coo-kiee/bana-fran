@@ -9,7 +9,7 @@ import { ko } from "date-fns/esm/locale";
 import { CalculateDetail, CalculateDetailOut, CalculateStatusType, CALCULATE_STATUS } from "types/calculate/calculateType";
 
 // Service
-import CALCULATE_SERVICE from 'service/caculateService';
+import CALCULATE_SERVICE from 'service/calculateService';
 
 // Utils
 import Utils from "utils/Utils";
@@ -50,6 +50,7 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
     initialDate.setMonth(initialDate.getMonth() - 1);
     const [searchDate, setSearchDate] = useState(new Date(initialDate));
     const stdMonth = (Utils.converDateFormat(searchDate, '-') as string).substring(0, 7);
+    const listQuerykey = ['caculateDetailList', JSON.stringify({ f_code, staff_no, stdMonth })];
 
     // Table
     const tableRef = useRef<null | HTMLTableElement>(null);
@@ -82,7 +83,7 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
     return (
         <div ref={pdfRef}>
             {isPDF && <div style={{ textAlign: 'center', fontSize: '30px', marginBottom: '30px' }}><span style={{ fontWeight: 'bold', color: '#f1658a' }}>{stdMonth.replace('-', '년 ')}월</span> {f_code_name} 정산내역 확인</div>}
-            {!isPDF && <TableTop handlePopup={handlePopup} caculateStatus={calculateStatus} calculateId={calculateId} staffNo={staff_no} initialDate={initialDate} searchDate={searchDate} setSearchDate={setSearchDate} />}
+            {!isPDF && <TableTop listQuerykey={listQuerykey} caculateStatus={calculateStatus} calculateId={calculateId} staffNo={staff_no} initialDate={initialDate} searchDate={searchDate} handlePopup={handlePopup} setSearchDate={setSearchDate} />}
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
@@ -92,7 +93,7 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <CustomErrorComponent resetErrorBoundary={resetErrorBoundary} colsPan={TABLE_COLUMN_INFO.width.length} />} onError={(e) => setOutput(prev => ({ ...prev, calculateStatus: -1, sumAll: 0 }))}>
                         <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={-50} /></td></tr>}>
-                            <TableList fCode={f_code} staffNo={staff_no} stdMonth={stdMonth} setOutput={setOutput} />
+                            <TableList listQuerykey={listQuerykey} fCode={f_code} staffNo={staff_no} stdMonth={stdMonth} setOutput={setOutput} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
@@ -115,21 +116,20 @@ const TABLE_COLUMN_INFO = {
 
 
 interface TableTopProps {
-    handlePopup: (key: string, value: boolean) => void,
+    listQuerykey: string[],
     calculateId: number
     caculateStatus: CalculateStatusType,
     staffNo: number
     initialDate: Date,
     searchDate: Date,
+    handlePopup: (key: string, value: boolean) => void,
     setSearchDate: React.Dispatch<React.SetStateAction<Date>>,
 };
-const TableTop: FC<TableTopProps> = ({ handlePopup, calculateId, caculateStatus, staffNo, initialDate, searchDate, setSearchDate }) => {
+const TableTop: FC<TableTopProps> = ({ listQuerykey, calculateId, caculateStatus, staffNo, initialDate, searchDate, handlePopup, setSearchDate }) => {
 
-    const isOverDate = new Date().getDate() > 5;
     const isError = caculateStatus === CALCULATE_STATUS.ERROR;
-    // 이미 정산확인 전송되었거나 정산기간(당월 5일까지)이 경과된 경우 버튼 비활성
-    const isInactive = !caculateStatus || caculateStatus === CALCULATE_STATUS.CONFIRM || isOverDate || isError;
-    const confirmList = CALCULATE_SERVICE.useCalculateConfirmList(staffNo, calculateId);
+    const isInactive = !caculateStatus || caculateStatus === CALCULATE_STATUS.CONFIRM || isError;
+    const confirmList = CALCULATE_SERVICE.useCalculateConfirmList(staffNo, calculateId, listQuerykey);
 
     return (
         <>
@@ -153,7 +153,7 @@ const TableTop: FC<TableTopProps> = ({ handlePopup, calculateId, caculateStatus,
                     <div className="btn-wrap">
                         <button className={`btn-check ${isInactive ? 'inactive' : ''}`} onClick={isInactive ? undefined : confirmList} >정산확인</button>
                         <button className={`btn-modify-request modify-view ${isInactive ? 'inactive' : ''}`} onClick={isInactive ? undefined : () => handlePopup('requestModify', true)} >수정요청</button>
-                        <button className="btn-modify-history history-view" onClick={isError ? undefined : () => handlePopup('changeHistory', true)} >수정요청/변경이력</button>
+                        <button className={`btn-modify-history history-view ${isError ? 'inactive' : ''}`} onClick={isError ? undefined : () => handlePopup('changeHistory', true)} >수정요청/변경이력</button>
                     </div>
                     <p className="title">
                         <span className="sub-title hyphen">'보전'은 본사로부터 보전받을 금액이며, '청구'는 본사가 가맹점에 청구하는 금액을 의미합니다.</span>
@@ -165,6 +165,7 @@ const TableTop: FC<TableTopProps> = ({ handlePopup, calculateId, caculateStatus,
 };
 
 interface TableListProps {
+    listQuerykey: string[],
     fCode: number,
     staffNo: number,
     stdMonth: string,
@@ -174,16 +175,17 @@ interface TableListProps {
         calculateId: number;
     }>>,
 };
-const TableList: FC<TableListProps> = ({ fCode, staffNo, stdMonth, setOutput }) => {
+const TableList: FC<TableListProps> = ({ listQuerykey, fCode, staffNo, stdMonth, setOutput }) => {
 
-    const { data } = CALCULATE_SERVICE.useCalculateDetailList(['caculateDetailList', JSON.stringify({ fCode, staffNo, stdMonth })], fCode, staffNo, stdMonth);
+    const { data } = CALCULATE_SERVICE.useCalculateDetailList(listQuerykey, fCode, staffNo, stdMonth);
 
     const caculateList = data?.list as CalculateDetail[];
     const { calculate_status, calculate_id, error_msg } = data?.out as CalculateDetailOut;
     const sumAll = data?.sumAll as number;
 
     useEffect(() => {
-        setOutput(prev => ({ ...prev, sumAll, calculateStatus: calculate_status, calculateId: calculate_id }));
+        if (calculate_id && calculate_status && sumAll) setOutput(prev => ({ ...prev, sumAll, calculateStatus: calculate_status, calculateId: calculate_id }));
+        else setOutput(prev => ({ ...prev, sumAll: 0, calculateStatus: CALCULATE_STATUS.ERROR, calculateId: 0 }));
     }, [sumAll, calculate_status, calculate_id, setOutput]);
 
     return (

@@ -1,7 +1,7 @@
 import { ChangeEventHandler, FC, useState } from "react";
 
 // Service
-import CALCULATE_SERVICE from 'service/caculateService';
+import CALCULATE_SERVICE from 'service/calculateService';
 
 interface RequestModifyProps {
     staffNo:number,

@@ -1,6 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 
 // Hook
 import { queryFn } from 'hooks/useQuery';
@@ -40,7 +40,9 @@ const useCalculateDetailList = (queryKey: string | Array<string>, f_code: number
 };
 
 // 정산내역 확인 - 정산 확인
-const useCalculateConfirmList = (staffNo: number, calculate_id: number) => {
+const useCalculateConfirmList = (staffNo: number, calculate_id: number, listQuerykey: string[]) => {
+
+    const queryClient = useQueryClient();
 
     const data = {
         ws: "fprocess",
@@ -54,6 +56,7 @@ const useCalculateConfirmList = (staffNo: number, calculate_id: number) => {
     const confirmList = () => {
         try {
             queryFn.axiosPost('/query', data);
+            queryClient.refetchQueries(listQuerykey);
             alert('정산확인을 했습니다.');
         }
         catch (error) {
@@ -116,9 +119,33 @@ const useCalculateFixList = (queryKey: string | Array<string>, nFCode: number, s
     });
 };
 
+// 가맹점 정산관리 상세내역 합계
+const useCalculateDetailSum = (queryKey: string | Array<string>, nFCode: number, staffNo: number, search_item_type: number, option: { [key: string]: any } = {}) => {
+
+    const data = {
+        ws: "fprocess",
+        query: "3ABXWMJURCDQJPLVBJJW", // web_fran_s_calculate_detail_item
+        params: {
+            nFCode,
+            search_item_type,
+        },
+    };
+
+    return useQuery<CalculateFixDetail[]>(queryKey, () => queryFn.getDataList(data), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        suspense: option.suspense ? option.suspense : true,
+        enabled: staffNo > 0,
+    });
+};
+
+//
+
 export default {
     useCalculateDetailList,
     useCalculateConfirmList,
     useCalculateRequestFix,
     useCalculateFixList,
+    useCalculateDetailSum,
 };

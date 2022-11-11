@@ -4,7 +4,7 @@ import { FC, Suspense, useEffect, useState } from "react";
 import Loading from "pages/common/loading";
 
 // Service
-import CALCULATE_SERVICE from 'service/caculateService';
+import CALCULATE_SERVICE from 'service/calculateService';
 import { ErrorBoundary } from "react-error-boundary";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import { useEventKeyCode } from "hooks/useEventKeyCode";
@@ -68,6 +68,7 @@ interface TableListProps {
 };
 const TableList: FC<TableListProps> = ({ fCode, staffNo, calculateId, setDataCnt }) => {
 
+    console.log(calculateId);
     const { data: fixList } = CALCULATE_SERVICE.useCalculateFixList(['caculateFixList', JSON.stringify({ fCode, staffNo, calculateId })], fCode, staffNo, calculateId);
 
     // 리스트 개수에 따라 팝업 Padding Style 조정

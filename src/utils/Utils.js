@@ -9,11 +9,11 @@ export default class Utils {
         if (isNaN(timestamp) === true) return str
 
         const strDate = new Date(str)
-        const localDate = new Date(strDate.getTime() + strDate.getTimezoneOffset() * 60 * 1000)
+        // const localDate = new Date(strDate.getTime() + strDate.getTimezoneOffset() * 60 * 1000)
 
-        const year = localDate.getFullYear()
-        const month = localDate.getMonth() + 1 < 10 ? '0' + (localDate.getMonth() + 1) : '' + (localDate.getMonth() + 1)
-        const date = localDate.getDate() < 10 ? '0' + localDate.getDate() : '' + localDate.getDate()
+        const year = strDate.getFullYear()
+        const month = strDate.getMonth() + 1 < 10 ? '0' + (strDate.getMonth() + 1) : '' + (strDate.getMonth() + 1)
+        const date = strDate.getDate() < 10 ? '0' + strDate.getDate() : '' + strDate.getDate()
         return year + exp + month + exp + date
     }
 
