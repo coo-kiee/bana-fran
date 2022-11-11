@@ -13,7 +13,7 @@ const CalculateList = () => {
 	const { data } = HOME_SERVICE.useHomeCalculateList({ f_code: fCode });
 
 	return (
-		<Board boardClass='status' title='최근 정산 현황' url='/caculate/list'>
+		<Board boardClass='status' title='최근 정산 현황' url='/calculate/list'>
 			<table className='contents-list' cellPadding='0' cellSpacing='0'>
 				<colgroup>
 					<col width='105' />

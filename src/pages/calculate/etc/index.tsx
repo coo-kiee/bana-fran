@@ -1,28 +1,25 @@
 
 // Type
 import { FC } from "react";
-import { CaculateType, CACULATE_TYPE } from "types/caculate/caculateType";
+import { CALCULATE_TYPE } from "types/calculate/calculateType";
 
 // Component
-import CaculateHeader from "pages/caculate/component/CaculateHeader";
-import CaculatePrecautions from "pages/caculate/component/CaculatePrecautions";
+import CalculateHeader from "pages/calculate/component/CalculateHeader";
+import CalculatePrecautions from "pages/calculate/component/CalculatePrecautions";
 import EtcDetailTable from "./EtcDetailTable";
 import EtcLastMonthTable from "./EtcLastMonthTable";
 
-// interface CaculateEtcProps {
-//     caculateType: CaculateType,
-// };
-const CaculateEtc: FC = ({ }) => {
+const CalculateEtc: FC = ( ) => {
 
-    const caculateType = CACULATE_TYPE.ETC;
+    const caculateType = CALCULATE_TYPE.ETC;
 
     return (
         <>
             <section className="container">
-                <CaculateHeader caculateType={caculateType} />
+                <CalculateHeader caculateType={caculateType} />
                 <section className="contents-wrap cal-etc-wrap">
                     <div className="contents">
-                        <CaculatePrecautions caculateType={caculateType} />
+                        <CalculatePrecautions caculateType={caculateType} />
                         <div className="board-date-wrap">
                             <EtcLastMonthTable />
                             <EtcDetailTable />
@@ -34,4 +31,4 @@ const CaculateEtc: FC = ({ }) => {
     );
 }
 
-export default CaculateEtc;
+export default CalculateEtc;

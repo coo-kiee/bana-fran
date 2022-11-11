@@ -2,24 +2,24 @@ import loadable from "@loadable/component";
 import { FC, useState } from "react";
 
 // Type
-import { CaculateStatusType, CACULATE_TYPE } from "types/caculate/caculateType";
+import { CalculateStatusType, CALCULATE_TYPE } from "types/calculate/calculateType";
 
 // State
 import { useRecoilValue } from "recoil";
 import { loginState } from "state";
 
 // Component
-import CaculateHeader from "pages/caculate/component/CaculateHeader";
-import CaculateListTable from "./CaculateListTable";
-import CaculatePrecautions from "../component/CaculatePrecautions";
+import CalculateHeader from "pages/calculate/component/CalculateHeader";
+import CalculateListTable from "./CalculateListTable";
+import CalculatePrecautions from "../component/CalculatePrecautions";
 import Loading from "pages/common/loading";
 
-const ChangeHistory = loadable(() => import('pages/caculate/list/ChangeHistory'));
-const RequestModify = loadable(() => import('pages/caculate/list/RequestModify'));
+const ChangeHistory = loadable(() => import('pages/calculate/list/ChangeHistory'));
+const RequestModify = loadable(() => import('pages/calculate/list/RequestModify'));
 
-const CaculateList: FC = () => {
+const CalculateList: FC = () => {
 
-    const caculateType = CACULATE_TYPE.LIST;
+    const caculateType = CALCULATE_TYPE.LIST;
     
     // 사용자 정보
     const { userInfo } = useRecoilValue(loginState);
@@ -35,7 +35,7 @@ const CaculateList: FC = () => {
     };
 
     // list 조회 후 outPut 데이터
-    const [outPut, setOutput] = useState<{ sumAll: number, calculateStatus: CaculateStatusType, calculateId: number }>({ sumAll: 0, calculateStatus: -1, calculateId: 0 });
+    const [outPut, setOutput] = useState<{ sumAll: number, calculateStatus: CalculateStatusType, calculateId: number }>({ sumAll: 0, calculateStatus: -1, calculateId: 0 });
 
     // PDF 다운로드
     const [isPDF, setIsPDF] = useState(false);
@@ -43,13 +43,13 @@ const CaculateList: FC = () => {
     return (
         <>
             <section className="container">
-                <CaculateHeader caculateType={caculateType} />
+                <CalculateHeader caculateType={caculateType} />
                 <section className="contents-wrap calculate-wrap">
                     <div className="contents">
-                        <CaculatePrecautions caculateType={caculateType} />
+                        <CalculatePrecautions caculateType={caculateType} />
                         {isPDF && <div style={{ position: 'absolute', zIndex: 100, width: '100%', height: '100%', display: 'flex', paddingTop:'300px' }}><Loading /></div>}
-                        <CaculateListTable userInfo={{ f_code, f_code_name, staff_no }} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} setIsPDF={setIsPDF} />
-                        {isPDF && <div style={{ opacity: 0, width:'2270px' }}><CaculateListTable userInfo={{ f_code, f_code_name, staff_no }} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} isPDF={true} setIsPDF={setIsPDF} /></div>}
+                        <CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} setIsPDF={setIsPDF} />
+                        {isPDF && <div style={{ opacity: 0, width:'2270px' }}><CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} isPDF={true} setIsPDF={setIsPDF} /></div>}
                     </div>
                 </section>
             </section>
@@ -59,4 +59,4 @@ const CaculateList: FC = () => {
     );
 }
 
-export default CaculateList;
+export default CalculateList;

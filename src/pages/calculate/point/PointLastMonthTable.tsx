@@ -1,9 +1,17 @@
 /* eslint-disable */
 import { FC } from "react";
 
-interface CouponLastMonthTableProps {
+interface PointLastMonthTableProps {
+    userInfo: {
+        f_code: number,
+        f_code_name: string,
+        staff_no: number
+    },
 };
-const CouponLastMonthTable: FC<CouponLastMonthTableProps> = ({ }) => {
+const PointLastMonthTable: FC<PointLastMonthTableProps> = ({ userInfo }) => {
+
+    // 사용자 정보
+    const { f_code, staff_no, f_code_name } = userInfo;
 
     const now = new Date();
     const year = now.getFullYear();
@@ -16,7 +24,7 @@ const CouponLastMonthTable: FC<CouponLastMonthTableProps> = ({ }) => {
 
     return (
         <>
-            <p className="title bullet">{year}년 {lastMonth}월 본사 쿠폰 결제 내역</p>
+            <p className="title bullet">{year}년 {lastMonth}월 유상포인트 결제 내역</p>
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
@@ -31,7 +39,7 @@ const CouponLastMonthTable: FC<CouponLastMonthTableProps> = ({ }) => {
     );
 }
 
-export default CouponLastMonthTable;
+export default PointLastMonthTable;
 
 
 
@@ -52,10 +60,10 @@ const TableList: FC<TableListProps> = ({ }) => {
         <>
             <tr>
                 <td className="align-center">22/06/01~22/06/30</td>
-                <td className="align-left">본사가 발행하는 이벤트/프로모션/서비스 쿠폰 등의 고객 사용비용 보전</td>
-                <td className="align-right">100,000</td>
-                <td className="align-right">10,00</td>
-                <td className="align-right">110,000</td>
+                <td className="align-left">22/06/01~22/06/30</td>
+                <td className="align-right">117,000</td>
+                <td className="align-right">117,000</td>
+                <td className="align-right">130,000</td>
             </tr>
             {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
             {/* <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >해당 월 정산내역 처리중입니다</td></tr> */}

@@ -1,7 +1,7 @@
 import { ChangeEventHandler, FC, useState } from "react";
 
 // Service
-import CACULATE_SERVICE from 'service/caculateService';
+import CALCULATE_SERVICE from 'service/caculateService';
 
 interface RequestModifyProps {
     staffNo:number,
@@ -18,7 +18,7 @@ const RequestModify: FC<RequestModifyProps> = ({ staffNo, calculateId, handlePop
     };
 
     // 수정요청
-    const requestFix = CACULATE_SERVICE.useCaculateRequestFix(staffNo, calculateId, comment);
+    const requestFix = CALCULATE_SERVICE.useCalculateRequestFix(staffNo, calculateId, comment);
     const handleRequest = () => {
         const isSuccess = requestFix();
         if(isSuccess) handlePopup('requestModify', false);

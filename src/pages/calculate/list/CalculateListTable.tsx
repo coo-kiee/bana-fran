@@ -6,10 +6,10 @@ import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/esm/locale";
 
 // Type
-import { CaculateDetail, CaculateDetailOut, CaculateStatusType, CACULATE_STATUS } from "types/caculate/caculateType";
+import { CalculateDetail, CalculateDetailOut, CalculateStatusType, CALCULATE_STATUS } from "types/calculate/calculateType";
 
 // Service
-import CACULATE_SERVICE from 'service/caculateService';
+import CALCULATE_SERVICE from 'service/caculateService';
 
 // Utils
 import Utils from "utils/Utils";
@@ -19,7 +19,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
-interface CaculateListTableProps {
+interface CalculateListTableProps {
     userInfo: {
         f_code: number,
         f_code_name: string,
@@ -27,19 +27,19 @@ interface CaculateListTableProps {
     },
     outPut: {
         sumAll: number;
-        calculateStatus: CaculateStatusType;
+        calculateStatus: CalculateStatusType;
         calculateId: number;
     },
     handlePopup: (key: string, value: boolean) => void,
     setOutput: React.Dispatch<React.SetStateAction<{
         sumAll: number;
-        calculateStatus: CaculateStatusType;
+        calculateStatus: CalculateStatusType;
         calculateId: number;
     }>>,
     setIsPDF: React.Dispatch<React.SetStateAction<boolean>>,
     isPDF?: boolean,
 };
-const CaculateListTable: FC<CaculateListTableProps> = ({ outPut, userInfo, handlePopup, setOutput, isPDF, setIsPDF }) => {
+const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, handlePopup, setOutput, isPDF, setIsPDF }) => {
     // 사용자 정보
     const { f_code, staff_no, f_code_name } = userInfo;
     // Output
@@ -90,7 +90,7 @@ const CaculateListTable: FC<CaculateListTableProps> = ({ outPut, userInfo, handl
                     {/* Table Header  */}
                     <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
                     {/* List */}
-                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <CustomErrorComponent resetErrorBoundary={resetErrorBoundary} />} onError={(e) => setOutput(prev => ({ ...prev, calculateStatus: -1, sumAll: 0 }))}>
+                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <CustomErrorComponent resetErrorBoundary={resetErrorBoundary} colsPan={TABLE_COLUMN_INFO.width.length} />} onError={(e) => setOutput(prev => ({ ...prev, calculateStatus: -1, sumAll: 0 }))}>
                         <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={-50} /></td></tr>}>
                             <TableList fCode={f_code} staffNo={staff_no} stdMonth={stdMonth} setOutput={setOutput} />
                         </Suspense>
@@ -102,7 +102,7 @@ const CaculateListTable: FC<CaculateListTableProps> = ({ outPut, userInfo, handl
     );
 }
 
-export default CaculateListTable;
+export default CalculateListTable;
 
 
 
@@ -117,7 +117,7 @@ const TABLE_COLUMN_INFO = {
 interface TableTopProps {
     handlePopup: (key: string, value: boolean) => void,
     calculateId: number
-    caculateStatus: CaculateStatusType,
+    caculateStatus: CalculateStatusType,
     staffNo: number
     initialDate: Date,
     searchDate: Date,
@@ -126,9 +126,10 @@ interface TableTopProps {
 const TableTop: FC<TableTopProps> = ({ handlePopup, calculateId, caculateStatus, staffNo, initialDate, searchDate, setSearchDate }) => {
 
     const isOverDate = new Date().getDate() > 5;
-    const isError = caculateStatus === CACULATE_STATUS.ERROR;
-    const isInactive = !caculateStatus || caculateStatus === CACULATE_STATUS.CONFIRM || isError;
-    const confirmList = CACULATE_SERVICE.useCaculateConfirmList(staffNo, calculateId);
+    const isError = caculateStatus === CALCULATE_STATUS.ERROR;
+    // 이미 정산확인 전송되었거나 정산기간(당월 5일까지)이 경과된 경우 버튼 비활성
+    const isInactive = !caculateStatus || caculateStatus === CALCULATE_STATUS.CONFIRM || isOverDate || isError;
+    const confirmList = CALCULATE_SERVICE.useCalculateConfirmList(staffNo, calculateId);
 
     return (
         <>
@@ -150,7 +151,7 @@ const TableTop: FC<TableTopProps> = ({ handlePopup, calculateId, caculateStatus,
                         </div>
                     </div>
                     <div className="btn-wrap">
-                        <button className={`btn-check ${(isOverDate || isInactive) ? 'inactive' : ''}`} onClick={(isOverDate || isInactive) ? undefined : confirmList} >정산확인</button>
+                        <button className={`btn-check ${isInactive ? 'inactive' : ''}`} onClick={isInactive ? undefined : confirmList} >정산확인</button>
                         <button className={`btn-modify-request modify-view ${isInactive ? 'inactive' : ''}`} onClick={isInactive ? undefined : () => handlePopup('requestModify', true)} >수정요청</button>
                         <button className="btn-modify-history history-view" onClick={isError ? undefined : () => handlePopup('changeHistory', true)} >수정요청/변경이력</button>
                     </div>
@@ -169,16 +170,16 @@ interface TableListProps {
     stdMonth: string,
     setOutput: React.Dispatch<React.SetStateAction<{
         sumAll: number;
-        calculateStatus: CaculateStatusType;
+        calculateStatus: CalculateStatusType;
         calculateId: number;
     }>>,
 };
 const TableList: FC<TableListProps> = ({ fCode, staffNo, stdMonth, setOutput }) => {
 
-    const { data } = CACULATE_SERVICE.useCaculateDetailList(['caculateDetailList', JSON.stringify({ fCode, staffNo, stdMonth })], fCode, staffNo, stdMonth);
+    const { data } = CALCULATE_SERVICE.useCalculateDetailList(['caculateDetailList', JSON.stringify({ fCode, staffNo, stdMonth })], fCode, staffNo, stdMonth);
 
-    const caculateList = data?.list as CaculateDetail[];
-    const { calculate_status, calculate_id } = data?.out as CaculateDetailOut;
+    const caculateList = data?.list as CalculateDetail[];
+    const { calculate_status, calculate_id, error_msg } = data?.out as CalculateDetailOut;
     const sumAll = data?.sumAll as number;
 
     useEffect(() => {
@@ -188,7 +189,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, stdMonth, setOutput }) 
     return (
         <>
             {
-                calculate_status && calculate_status !== CACULATE_STATUS.DISTRIBUTE &&
+                calculate_status && calculate_status !== CALCULATE_STATUS.DISTRIBUTE &&
                 caculateList.map(caculateData => {
                     const { from_date, to_date, calculate_type, item_type, item_detail, item_cnt, item_price, supply_amt, vat_amt, total_amt, etc, calculate_d_id } = caculateData;
                     return (
@@ -207,8 +208,8 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, stdMonth, setOutput }) 
                     )
                 })
             }
-            {calculate_status && calculate_status === CACULATE_STATUS.DISTRIBUTE && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >해당 월 정산내역 처리중입니다</td></tr>}
-            {(!calculate_status || caculateList.length === 0) && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>}
+            {calculate_status && calculate_status === CALCULATE_STATUS.DISTRIBUTE && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >{error_msg}</td></tr>}
+            {!calculate_status && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>}
         </>
     )
 };
@@ -232,10 +233,11 @@ const TableBottom: FC<TableBottomProps> = ({ sumAll, tableRef, searchDate, fCode
                 sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: TABLE_COLUMN_INFO.width.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1], color: ['d3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X
+                // addLineHeader: ['발행일시\nTT'], // 줄바꿈 원하는곳에 \n 넣기!! - br Tag 외 \n, p, span 등 줄바꿈 안되는 헤더명 입력, 필수 X
                 sheetName: '', // 시트이름, 필수 X
             };
 
-            const fileName = `${(Utils.converDateFormat(searchDate, '-') as string).substring(0, 7)}_${fCodeName}_정산내역 확인`;
+            const fileName = `${(Utils.converDateFormat(searchDate, '-') as string).substring(0, 7)}_${fCodeName}_정산내역_확인`;
 
             Utils.excelDownload(tableRef.current, options, fileName);
         };
@@ -263,11 +265,11 @@ const TableBottom: FC<TableBottomProps> = ({ sumAll, tableRef, searchDate, fCode
     )
 }
 
-const CustomErrorComponent: FC<{ resetErrorBoundary: () => void }> = ({ resetErrorBoundary }) => {
+export const CustomErrorComponent: FC<{ resetErrorBoundary: () => void, colsPan: number }> = ({ resetErrorBoundary, colsPan }) => {
 
     return (
         <tr>
-            <td rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ paddingTop: '30px' }}>
+            <td rowSpan={10} colSpan={colsPan} style={{ paddingTop: '30px' }}>
                 <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />
             </td>
         </tr>

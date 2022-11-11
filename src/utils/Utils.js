@@ -355,7 +355,7 @@ export default class Utils {
         return result;
     }
 
-    // PDF 다운로드 - CaculateListTable.tsx
+    // PDF 다운로드 - CalculateListTable.tsx
     /* Parameter
     interface pdfInfo {
         orientation?: "portrait" | "p" | "l" | "landscape" | undefined, // 'landscape - 가로, 'portrait - 세로

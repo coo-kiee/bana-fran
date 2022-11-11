@@ -1,28 +1,28 @@
 
 // Type
 import { FC } from "react";
-import { CaculateType, CACULATE_TYPE } from "types/caculate/caculateType";
+import { CalculateType, CALCULATE_TYPE } from "types/calculate/calculateType";
 
 // Component
-import CaculateHeader from "pages/caculate/component/CaculateHeader";
-import CaculatePrecautions from "pages/caculate/component/CaculatePrecautions";
+import CalculateHeader from "pages/calculate/component/CalculateHeader";
+import CalculatePrecautions from "pages/calculate/component/CalculatePrecautions";
 import ClaimDetailTable from "./ClaimDetailTable";
 import ClaimLastMonthTable from "./ClaimLastMonthTable";
 
-// interface CaculateClaimProps {
-//     caculateType: CaculateType,
+// interface CalculateClaimProps {
+//     caculateType: CalculateType,
 // };
-const CaculateClaim: FC = ({  }) => {
+const CalculateClaim: FC = ({  }) => {
 
-    const caculateType = CACULATE_TYPE.CLAIM;
+    const caculateType = CALCULATE_TYPE.CLAIM;
 
     return (
         <>
             <section className="container">
-                <CaculateHeader caculateType={caculateType} />
+                <CalculateHeader caculateType={caculateType} />
                 <section className="contents-wrap claim-wrap">
                     <div className="contents">
-                        <CaculatePrecautions caculateType={caculateType} />
+                        <CalculatePrecautions caculateType={caculateType} />
                         <div className="board-date-wrap">
                             <ClaimLastMonthTable />
                             <ClaimDetailTable />
@@ -34,4 +34,4 @@ const CaculateClaim: FC = ({  }) => {
     );
 }
 
-export default CaculateClaim;
+export default CalculateClaim;

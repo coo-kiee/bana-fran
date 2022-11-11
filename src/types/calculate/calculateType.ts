@@ -1,14 +1,14 @@
-const CACULATE_TYPE = {
+const CALCULATE_TYPE = {
     LIST: 'list',
     POINT: 'point',
     COUPON: 'coupon',
     CLAIM: 'claim',
     ETC: 'etc',
 } as const;
-type CaculateType = typeof CACULATE_TYPE[keyof typeof CACULATE_TYPE];
+type CalculateType = typeof CALCULATE_TYPE[keyof typeof CALCULATE_TYPE];
 
 // 정산내역 확인 데이터
-type CaculateDetail = {
+type CalculateDetail = {
     calculate_id: number,
     calculate_d_id: number,
     from_date: string,
@@ -25,20 +25,20 @@ type CaculateDetail = {
 };
 
 // 정산내역 확인 Output
-type CaculateDetailOut = { calculate_id: number, calculate_status: CaculateStatusType, error_msg: string };
+type CalculateDetailOut = { calculate_id: number, calculate_status: CalculateStatusType, error_msg: string };
 
 // 정산내역 확인 정산상태
-const CACULATE_STATUS = {
+const CALCULATE_STATUS = {
     ERROR: -1,
     DISTRIBUTE:5, // 미배포
     NOT_CONFIRM: 10, // 미확인
     FIX_REQUEST: 20, // 수정요청
     CONFIRM: 30 // 확인완료
 } as const;
-type CaculateStatusType = typeof CACULATE_STATUS[keyof typeof CACULATE_STATUS];
+type CalculateStatusType = typeof CALCULATE_STATUS[keyof typeof CALCULATE_STATUS];
 
 // 정산내역 확인 수정요청/변경이력 데이터
-type CaculateFixDetail = {
+type CalculateFixDetail = {
     log_date: string,
     log_type: string,
     comment: string,
@@ -49,9 +49,9 @@ type CaculateFixDetail = {
 };
 
 export {
-    CACULATE_TYPE, CACULATE_STATUS
+    CALCULATE_TYPE, CALCULATE_STATUS
 };
 
 export type {
-    CaculateType, CaculateDetail, CaculateDetailOut, CaculateStatusType, CaculateFixDetail
+    CalculateType, CalculateDetail, CalculateDetailOut, CalculateStatusType, CalculateFixDetail
 };

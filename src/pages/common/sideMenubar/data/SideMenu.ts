@@ -3,11 +3,11 @@ import loadable, { LoadableComponent } from '@loadable/component';
 const Home = loadable(() => import('pages/home'));
 const Notice = loadable(() => import('pages/notice'));
 const Board = loadable(() => import('pages/board'));
-const CaculateList = loadable(() => import('pages/caculate/list'));
-const CaculatePoint = loadable(() => import('pages/caculate/point'));
-const CaculateCoupon = loadable(() => import('pages/caculate/coupon'));
-const CaculateClaim = loadable(() => import('pages/caculate/claim'));
-const CaculateEtc = loadable(() => import('pages/caculate/etc'));
+const CalculateList = loadable(() => import('pages/calculate/list'));
+const CalculatePoint = loadable(() => import('pages/calculate/point'));
+const CalculateCoupon = loadable(() => import('pages/calculate/coupon'));
+const CalculateClaim = loadable(() => import('pages/calculate/claim'));
+const CalculateEtc = loadable(() => import('pages/calculate/etc'));
 const Etc = loadable(() => import('pages/etc'));
 const Extra = loadable(() => import('pages/membership/extra'));
 const MonthRank = loadable(() => import('pages/membership/monthRank'));
@@ -55,7 +55,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         addPath: [':bType', ':bType/:bId']
     },
     {
-        path: "/caculate",
+        path: "/calculate",
         name: "정산관리",
         icon: "group",
         id: 400,
@@ -66,7 +66,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "정산내역 확인",
                 icon: "",
                 id: 410,
-                component: CaculateList,
+                component: CalculateList,
                 addPath: []
             },
             {
@@ -74,7 +74,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "유상포인트 결제내역",
                 icon: "",
                 id: 420,
-                component: CaculatePoint,
+                component: CalculatePoint,
                 addPath: []
             },
             {
@@ -82,7 +82,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "본사 쿠폰 결제내역",
                 icon: "",
                 id: 430,
-                component: CaculateCoupon,
+                component: CalculateCoupon,
                 addPath: []
             },
             {
@@ -90,7 +90,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "고객 클레임 보상내역",
                 icon: "",
                 id: 440,
-                component: CaculateClaim,
+                component: CalculateClaim,
                 addPath: []
             },
             {
@@ -98,7 +98,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 name: "기타 정산 내역",
                 icon: "",
                 id: 450,
-                component: CaculateEtc,
+                component: CalculateEtc,
                 addPath: []
             }
         ],

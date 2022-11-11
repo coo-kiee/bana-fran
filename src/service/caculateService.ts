@@ -6,10 +6,10 @@ import { useQuery } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 
 // Type
-import { CaculateDetail, CaculateDetailOut, CaculateFixDetail } from 'types/caculate/caculateType';
+import { CalculateDetail, CalculateDetailOut, CalculateFixDetail } from 'types/calculate/calculateType';
 
 // 정산내역 확인 - 리스트 가져오기
-const useCaculateDetailList = (queryKey: string | Array<string>, f_code: number, staffNo: number, std_month: string, option: { [key: string]: any } = {}) => {
+const useCalculateDetailList = (queryKey: string | Array<string>, f_code: number, staffNo: number, std_month: string, option: { [key: string]: any } = {}) => {
 
     const data = {
         ws: "fprocess",
@@ -20,7 +20,7 @@ const useCaculateDetailList = (queryKey: string | Array<string>, f_code: number,
         },
     };
 
-    return useQuery<{ list: CaculateDetail[], out: CaculateDetailOut, sumAll: number }>(queryKey, () => queryFn.getDataOutputList(data), {
+    return useQuery<{ list: CalculateDetail[], out: CalculateDetailOut, sumAll: number }>(queryKey, () => queryFn.getDataOutputList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -29,8 +29,8 @@ const useCaculateDetailList = (queryKey: string | Array<string>, f_code: number,
         onSuccess(data) {
             if (data.list.length > 0) {
                 let sum = 0;
-                for (const caculateData of data.list) {
-                    sum += caculateData.total_amt;
+                for (const calculateData of data.list) {
+                    sum += calculateData.total_amt;
                 }
                 data.sumAll = sum;
             };
@@ -40,7 +40,7 @@ const useCaculateDetailList = (queryKey: string | Array<string>, f_code: number,
 };
 
 // 정산내역 확인 - 정산 확인
-const useCaculateConfirmList = (staffNo: number, calculate_id: number) => {
+const useCalculateConfirmList = (staffNo: number, calculate_id: number) => {
 
     const data = {
         ws: "fprocess",
@@ -67,7 +67,7 @@ const useCaculateConfirmList = (staffNo: number, calculate_id: number) => {
 
 
 // 정산내역 확인 - 수정요청
-const useCaculateRequestFix = (staffNo: number, calculate_id: number, comment: string) => {
+const useCalculateRequestFix = (staffNo: number, calculate_id: number, comment: string) => {
 
     const data = {
         ws: "fprocess",
@@ -96,7 +96,7 @@ const useCaculateRequestFix = (staffNo: number, calculate_id: number, comment: s
 };
 
 // 정산내역 확인 - 수정요청/변경이력 조회
-const useCaculateFixList = (queryKey: string | Array<string>, nFCode: number, staffNo: number, calculate_id: number, option: { [key: string]: any } = {}) => {
+const useCalculateFixList = (queryKey: string | Array<string>, nFCode: number, staffNo: number, calculate_id: number, option: { [key: string]: any } = {}) => {
 
     const data = {
         ws: "fprocess",
@@ -107,7 +107,7 @@ const useCaculateFixList = (queryKey: string | Array<string>, nFCode: number, st
         },
     };
 
-    return useQuery<CaculateFixDetail[]>(queryKey, () => queryFn.getDataList(data), {
+    return useQuery<CalculateFixDetail[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -117,8 +117,8 @@ const useCaculateFixList = (queryKey: string | Array<string>, nFCode: number, st
 };
 
 export default {
-    useCaculateDetailList,
-    useCaculateConfirmList,
-    useCaculateRequestFix,
-    useCaculateFixList,
+    useCalculateDetailList,
+    useCalculateConfirmList,
+    useCalculateRequestFix,
+    useCalculateFixList,
 };
