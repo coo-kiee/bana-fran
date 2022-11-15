@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Service
+// API
 import BOARD_SERVICE from "service/boardService";
 
 // Type

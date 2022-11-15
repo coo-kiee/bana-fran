@@ -8,7 +8,7 @@ import { queryFn } from "hooks/useQuery";
 // Css
 import 'assets/sass/notice_view.scss'
 
-// Service
+// API
 import BOARD_SERVICE from "service/boardService";
 
 // Type

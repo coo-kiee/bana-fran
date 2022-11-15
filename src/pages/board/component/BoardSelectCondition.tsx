@@ -1,4 +1,4 @@
-// Service
+// API
 import { useEventKeyCode } from "hooks/useEventKeyCode";
 import { ChangeEventHandler, FC, useState } from "react";
 import BOARD_SERVICE from "service/boardService";

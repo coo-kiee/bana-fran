@@ -1,12 +1,27 @@
 import React from "react";
 
 interface Props {
-    resetErrorBoundary: () => void
+    resetErrorBoundary: () => void,
+    isTable?: boolean;
 }
 
 // Component
-const SuspenseErrorPage: React.FC<Props> = () => {
-    
+const SuspenseErrorPage: React.FC<Props> = ({ isTable }) => {
+
+    return (
+        <>
+            {
+                
+                isTable ? <tr><td rowSpan={10} colSpan={20} style={{ paddingTop: '30px' }}><ErrorPage /></td></tr> : <ErrorPage />
+            }
+        </>
+    )
+}
+
+export default SuspenseErrorPage;
+
+const ErrorPage = () => {
+
     const moveTo = window.location.pathname;
     
     return (
@@ -26,5 +41,3 @@ const SuspenseErrorPage: React.FC<Props> = () => {
         </div>
     )
 }
-
-export default SuspenseErrorPage;

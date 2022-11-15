@@ -3,7 +3,7 @@ import { FC, Suspense, useEffect, useState } from "react";
 // Component
 import Loading from "pages/common/loading";
 
-// Service
+// API
 import CALCULATE_SERVICE from 'service/calculateService';
 import { ErrorBoundary } from "react-error-boundary";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";

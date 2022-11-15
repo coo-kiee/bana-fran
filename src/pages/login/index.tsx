@@ -2,6 +2,7 @@ import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import Utils from 'utils/Utils';
 
 import { useLogin } from 'hooks/useLogin';
+import { useEventKeyCode } from 'hooks/useEventKeyCode';
 
 type LoginInfoType = {
     loginID : string,
@@ -77,6 +78,8 @@ const Login:React.FC = () => {
         }
         login(params)
     }, [login, loginInfo])
+
+    useEventKeyCode(handleLogin, 'Enter');
 
     return (
         <article>

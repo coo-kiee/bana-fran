@@ -78,6 +78,7 @@ const SideMenubar:React.FC = () => {
             })
             setActiveMenu({index: menuData.pId, subIndex:menuData.id, show: menuData.id > 0 ? true : false})
         }
+    // eslint-disable-next-line
     }, [window.location.pathname])
 
     // 로그아웃.
