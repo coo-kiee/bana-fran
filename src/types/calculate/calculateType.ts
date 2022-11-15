@@ -1,10 +1,18 @@
-const CALCULATE_TYPE = {
-    LIST: 'list',
-    POINT: 'point',
-    COUPON: 'coupon',
-    CLAIM: 'claim',
-    ETC: 'etc',
-} as const;
+const enum CALCULATE_TYPE {
+    LIST,
+    POINT,
+    COUPON,
+    CLAIM,
+    ETC,
+};
+
+// const CALCULATE_TYPE = {
+//     LIST: 'list',
+//     POINT: 'point',
+//     COUPON: 'coupon',
+//     CLAIM: 'claim',
+//     ETC: 'etc',
+// } as const;
 type CalculateType = typeof CALCULATE_TYPE[keyof typeof CALCULATE_TYPE];
 
 // 정산내역 확인 데이터
@@ -48,10 +56,35 @@ type CalculateFixDetail = {
     change_data: string,
 };
 
+// 정산관리 - 포인트, 쿠폰 ,클레임, 기타 전월 결제내역
+type CalculateDetailSum = {
+    from_date: string,
+    to_date:string,
+    calculate_type?:string,
+    item_name: string,
+    supply_amt: number,
+    vat_amt: number,
+    total_amt: number,
+};
+
+// 정산관리 - 포인트 상세내역
+type CalculatePointDetail = {
+    rcp_date: string,
+    item_name: string,
+    phone: string,
+    nChargeTotal: number,
+    total_amt: number,
+    use_point_type: string,
+    rcp_type: string,
+    supply_amt: number,
+    vat_amt: number,
+};
+
 export {
     CALCULATE_TYPE, CALCULATE_STATUS
 };
 
 export type {
-    CalculateType, CalculateDetail, CalculateDetailOut, CalculateStatusType, CalculateFixDetail
+    CalculateType, CalculateDetail, CalculateDetailOut, CalculateStatusType, CalculateFixDetail,
+    CalculateDetailSum, CalculatePointDetail, 
 };

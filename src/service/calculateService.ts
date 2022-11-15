@@ -1,12 +1,33 @@
 /* eslint-disable import/no-anonymous-default-export */
 
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient, UseQueryResult } from 'react-query';
 
 // Hook
 import { queryFn } from 'hooks/useQuery';
 
 // Type
-import { CalculateDetail, CalculateDetailOut, CalculateFixDetail } from 'types/calculate/calculateType';
+import { CalculateDetail, CalculateDetailOut, CalculateDetailSum, CalculateFixDetail, CalculatePointDetail } from 'types/calculate/calculateType';
+
+
+// 정산관리 - 검색 월
+const useCalculateMonthList = (queryKey: string | Array<string>, f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
+
+    const data = {
+        ws: "fprocess",
+        query: "YQULRZGJLB30OII4CFCJ", // web_fran_s_calculate_month_list
+        params: {
+            f_code,
+        },
+    };
+
+    return useQuery<{ std_month: string }[]>(queryKey, () => queryFn.getDataList(data), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        suspense: option.suspense ? option.suspense : true,
+        enabled: staffNo > 0,
+    });
+};
 
 // 정산내역 확인 - 리스트 가져오기
 const useCalculateDetailList = (queryKey: string | Array<string>, f_code: number, staffNo: number, std_month: string, option: { [key: string]: any } = {}) => {
@@ -119,19 +140,19 @@ const useCalculateFixList = (queryKey: string | Array<string>, nFCode: number, s
     });
 };
 
-// 가맹점 정산관리 상세내역 합계
-const useCalculateDetailSum = (queryKey: string | Array<string>, nFCode: number, staffNo: number, search_item_type: number, option: { [key: string]: any } = {}) => {
+// 정산관리 - 포인트/쿠폰/클레임/기타 전월 상세내역 합계
+const useCalculateDetailSum = (queryKey: string | Array<string>, f_code: number, staffNo: number, search_item_type: number, option: { [key: string]: any } = {}) => {
 
     const data = {
         ws: "fprocess",
         query: "3ABXWMJURCDQJPLVBJJW", // web_fran_s_calculate_detail_item
         params: {
-            nFCode,
+            f_code,
             search_item_type,
         },
     };
 
-    return useQuery<CalculateFixDetail[]>(queryKey, () => queryFn.getDataList(data), {
+    return useQuery<CalculateDetailSum[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -140,12 +161,44 @@ const useCalculateDetailSum = (queryKey: string | Array<string>, nFCode: number,
     });
 };
 
-//
+// 정산관리 - 포인트 상세내역
+type useCalculatePointDetailParameter = (
+    queryKey: string | Array<string>, 
+    f_code: number, 
+    staffNo: number, 
+    from_date: string, 
+    to_date: string, 
+    option?: { [key: string]: any },
+) => UseQueryResult<CalculatePointDetail[], unknown>;
+const useCalculatePointDetail: useCalculatePointDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
+
+    const data = {
+        ws: "fprocess",
+        query: "6HURAKO83BCYD8ZXBORH", // web_fran_s_calculate_paid_point_list
+        params: {
+            f_code,
+            from_date,
+            to_date,
+        },
+    };
+
+    return useQuery<CalculatePointDetail[]>(queryKey, () => queryFn.getDataList(data), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        suspense: option.suspense ? option.suspense : true,
+        enabled: staffNo > 0,
+    });
+};
+
+//YQULRZGJLB30OII4CFCJ	web_fran_s_calculate_month_list
 
 export default {
+    useCalculateMonthList,
     useCalculateDetailList,
     useCalculateConfirmList,
     useCalculateRequestFix,
     useCalculateFixList,
     useCalculateDetailSum,
+    useCalculatePointDetail,
 };

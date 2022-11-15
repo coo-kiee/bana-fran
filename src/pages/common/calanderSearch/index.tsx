@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import DatePicker from 'react-datepicker';
 import { ko } from 'date-fns/locale';
 import { format } from 'date-fns';
@@ -23,7 +24,7 @@ interface CalanderSearchProps {
 const CalanderSearch: React.FC<CalanderSearchProps> = ({ title, dateType, searchInfo, setSearchInfo, optionType = 'SELECT', selectOption, radioOption, optionList, handleSearch }) => {
     // TODO: Select onChange 변경
     const handleSearchSelect = (e: React.ChangeEvent<HTMLSelectElement>, idx1: number) => {
-        let target = { type: e.target.value, title: selectOption?.[idx1][e.target.value].title || '' };
+        let target = { value: e.target.value, title: e.target.childNodes[e.target.selectedIndex].textContent };
 
         return setSearchInfo((prev: SearchInfoSelectType) => {
             const newSearchOption = [...prev.searchOption.map((el, idx) => idx === idx1 ? target : el)]
@@ -52,14 +53,16 @@ const CalanderSearch: React.FC<CalanderSearchProps> = ({ title, dateType, search
                     <div className="select-wrap">
                         {selectOption.map((selectData, selectIdx) => { // #1: select 만들기 ... selectData = {POINT_ALL: {…}, POINT_1: {…}, POINT_2: {…}, POINT_3: {…}}
                             return (
-                                <select key={`select_${selectIdx}`} name="" id="" value={searchInfo.searchOption[selectIdx].value} onChange={(e) => handleSearchSelect(e, selectIdx)}>
-                                    {optionList[selectIdx].map((option: any, optionIdx: number) => {
-                                        // console.log(optionList[idx1]) //  ['POINT_ALL', 'POINT_1', 'POINT_2', 'POINT_3']
-                                        // console.log(option) // 'POINT_ALL'
-                                        // console.log(selectData[option].value) // 'POINT_ALL'
-                                        return <option key={`option_${optionIdx}`} value={option}>{selectData[option].title}</option>
-                                    })}
-                                </select>
+                                <Fragment key={`select_${selectIdx}`}>
+                                    <select name="" id="" value={searchInfo.searchOption[selectIdx].value} onChange={(e) => handleSearchSelect(e, selectIdx)}>
+                                        {optionList[selectIdx].map((option: any, optionIdx: number) => {
+                                            // console.log(optionList[idx1]) //  ['POINT_ALL', 'POINT_1', 'POINT_2', 'POINT_3']
+                                            // console.log(option) // 'POINT_ALL'
+                                            // console.log(selectData[option].value) // 'POINT_ALL'
+                                            return <option key={`option_${optionIdx}`} value={selectData[option].value}>{selectData[option].title}</option>
+                                        })}
+                                    </select>&nbsp;
+                                </Fragment>
                             )
                         })}
                     </div>

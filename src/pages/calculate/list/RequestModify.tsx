@@ -1,6 +1,6 @@
 import { ChangeEventHandler, FC, useState } from "react";
 
-// Service
+// API
 import CALCULATE_SERVICE from 'service/calculateService';
 
 interface RequestModifyProps {

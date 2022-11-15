@@ -1,18 +1,18 @@
 import { FC, Suspense, useEffect, useRef, useState } from "react";
 
-// DatePicker
-import ReactDatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { ko } from "date-fns/esm/locale";
+import { useQueryClient } from "react-query";
 
 // Type
 import { CalculateDetail, CalculateDetailOut, CalculateStatusType, CALCULATE_STATUS } from "types/calculate/calculateType";
 
-// Service
+// API
 import CALCULATE_SERVICE from 'service/calculateService';
 
 // Utils
 import Utils from "utils/Utils";
+
+// Date
+import { subMonths } from "date-fns";
 
 // Component
 import { ErrorBoundary } from "react-error-boundary";
@@ -46,11 +46,9 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
     const { sumAll, calculateStatus, calculateId } = outPut;
 
     // 정산 데이터
-    const initialDate = new Date();
-    initialDate.setMonth(initialDate.getMonth() - 1);
-    const [searchDate, setSearchDate] = useState(new Date(initialDate));
-    const stdMonth = (Utils.converDateFormat(searchDate, '-') as string).substring(0, 7);
-    const listQuerykey = ['caculateDetailList', JSON.stringify({ f_code, staff_no, stdMonth })];
+    const stdMonth = (Utils.converDateFormat(subMonths(new Date(), 1), '-') as string).substring(0, 7);
+    const [searchDate, setSearchDate] = useState(stdMonth);
+    const listQuerykey = ['caculateDetailList', JSON.stringify({ f_code, staff_no, searchDate })];
 
     // Table
     const tableRef = useRef<null | HTMLTableElement>(null);
@@ -62,7 +60,7 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
         if (isPDF && pdfRef.current) {
 
             const pdfDownload = async () => {
-                const fileName = `${stdMonth.replace('-', '년_')}월_${f_code_name}_정산내역`;
+                const fileName = `${searchDate.replace('-', '년_')}월_${f_code_name}_정산내역`;
                 const element = pdfRef.current as HTMLDivElement;
                 await Utils.downloadPdf({ element, fileName, pdfInfo: { orientation: 'landscape' }, imgInfo: { pageWidth: 297, pageHeight: 210 } });
                 setIsPDF(prev => false);
@@ -77,13 +75,13 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
                 document.body.style.overflowY = prevScroll; // 스크롤 상태 원상복귀
             };
         }
-    // eslint-disable-next-line
+        // eslint-disable-next-line
     }, []);
 
     return (
         <div ref={pdfRef}>
-            {isPDF && <div style={{ textAlign: 'center', fontSize: '30px', marginBottom: '30px' }}><span style={{ fontWeight: 'bold', color: '#f1658a' }}>{stdMonth.replace('-', '년 ')}월</span> {f_code_name} 정산내역 확인</div>}
-            {!isPDF && <TableTop listQuerykey={listQuerykey} caculateStatus={calculateStatus} calculateId={calculateId} staffNo={staff_no} initialDate={initialDate} searchDate={searchDate} handlePopup={handlePopup} setSearchDate={setSearchDate} />}
+            {isPDF && <div style={{ textAlign: 'center', fontSize: '30px', marginBottom: '30px' }}><span style={{ fontWeight: 'bold', color: '#f1658a' }}>{searchDate.replace('-', '년 ')}월</span> {f_code_name} 정산내역 확인</div>}
+            {!isPDF && <TableTop listQuerykey={listQuerykey} caculateStatus={calculateStatus} calculateId={calculateId} fCode={f_code} staffNo={staff_no} searchDate={searchDate} handlePopup={handlePopup} setSearchDate={setSearchDate} />}
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
@@ -91,9 +89,9 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
                     {/* Table Header  */}
                     <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
                     {/* List */}
-                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <CustomErrorComponent resetErrorBoundary={resetErrorBoundary} colsPan={TABLE_COLUMN_INFO.width.length} />} onError={(e) => setOutput(prev => ({ ...prev, calculateStatus: -1, sumAll: 0 }))}>
+                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => setOutput(prev => ({ ...prev, calculateStatus: -1, sumAll: 0 }))}>
                         <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={-50} /></td></tr>}>
-                            <TableList listQuerykey={listQuerykey} fCode={f_code} staffNo={staff_no} stdMonth={stdMonth} setOutput={setOutput} />
+                            <TableList listQuerykey={listQuerykey} fCode={f_code} staffNo={staff_no} searchDate={searchDate} setOutput={setOutput} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
@@ -119,17 +117,21 @@ interface TableTopProps {
     listQuerykey: string[],
     calculateId: number
     caculateStatus: CalculateStatusType,
-    staffNo: number
-    initialDate: Date,
-    searchDate: Date,
+    fCode: number,
+    staffNo: number,
+    searchDate: string,
     handlePopup: (key: string, value: boolean) => void,
-    setSearchDate: React.Dispatch<React.SetStateAction<Date>>,
+    setSearchDate: React.Dispatch<React.SetStateAction<string>>,
 };
-const TableTop: FC<TableTopProps> = ({ listQuerykey, calculateId, caculateStatus, staffNo, initialDate, searchDate, handlePopup, setSearchDate }) => {
+const TableTop: FC<TableTopProps> = ({ listQuerykey, calculateId, caculateStatus, fCode, staffNo, searchDate, handlePopup, setSearchDate }) => {
 
     const isError = caculateStatus === CALCULATE_STATUS.ERROR;
     const isInactive = !caculateStatus || caculateStatus === CALCULATE_STATUS.CONFIRM || isError;
     const confirmList = CALCULATE_SERVICE.useCalculateConfirmList(staffNo, calculateId, listQuerykey);
+
+    const { data: monthList } = CALCULATE_SERVICE.useCalculateMonthList(['calculateMonthList', JSON.stringify({ fCode, staffNo })], fCode, staffNo);
+
+    const queryClient = useQueryClient();
 
     return (
         <>
@@ -137,17 +139,12 @@ const TableTop: FC<TableTopProps> = ({ listQuerykey, calculateId, caculateStatus
                 <div className="function-wrap">
                     <div className="select-wrap">
                         <div className="search-wrap">
-                            <div className="input-wrap">
-                                <ReactDatePicker
-                                    dateFormat={'yyyy-MM'}
-                                    selected={searchDate}
-                                    onChange={(date) => setSearchDate(prev => date as Date)}
-                                    maxDate={initialDate}
-                                    showMonthYearPicker={true}
-                                    locale={ko}
-                                />
-                            </div>
-                            <button className="goast-btn">선택</button>
+                            <select name="" id="" value={searchDate} onChange={(e) => setSearchDate(prev => e.currentTarget.value)}>
+                                {
+                                    monthList?.map((item, index) => <option key={index} value={item.std_month}>{item.std_month}</option>)
+                                }
+                            </select>
+                            <button className="goast-btn" onClick={() => queryClient.refetchQueries(listQuerykey)}>선택</button>
                         </div>
                     </div>
                     <div className="btn-wrap">
@@ -168,16 +165,16 @@ interface TableListProps {
     listQuerykey: string[],
     fCode: number,
     staffNo: number,
-    stdMonth: string,
+    searchDate: string,
     setOutput: React.Dispatch<React.SetStateAction<{
         sumAll: number;
         calculateStatus: CalculateStatusType;
         calculateId: number;
     }>>,
 };
-const TableList: FC<TableListProps> = ({ listQuerykey, fCode, staffNo, stdMonth, setOutput }) => {
+const TableList: FC<TableListProps> = ({ listQuerykey, fCode, staffNo, searchDate, setOutput }) => {
 
-    const { data } = CALCULATE_SERVICE.useCalculateDetailList(listQuerykey, fCode, staffNo, stdMonth);
+    const { data } = CALCULATE_SERVICE.useCalculateDetailList(listQuerykey, fCode, staffNo, searchDate);
 
     const caculateList = data?.list as CalculateDetail[];
     const { calculate_status, calculate_id, error_msg } = data?.out as CalculateDetailOut;
@@ -219,7 +216,7 @@ const TableList: FC<TableListProps> = ({ listQuerykey, fCode, staffNo, stdMonth,
 interface TableBottomProps {
     sumAll: number,
     tableRef: React.MutableRefObject<HTMLTableElement | null>,
-    searchDate: Date,
+    searchDate: string,
     fCodeName: string,
     isPDF?: boolean,
     setIsPDF: React.Dispatch<React.SetStateAction<boolean>>,
@@ -239,7 +236,7 @@ const TableBottom: FC<TableBottomProps> = ({ sumAll, tableRef, searchDate, fCode
                 sheetName: '', // 시트이름, 필수 X
             };
 
-            const fileName = `${(Utils.converDateFormat(searchDate, '-') as string).substring(0, 7)}_${fCodeName}_정산내역_확인`;
+            const fileName = `${searchDate}_${fCodeName}_정산내역_확인`;
 
             Utils.excelDownload(tableRef.current, options, fileName);
         };
@@ -266,14 +263,3 @@ const TableBottom: FC<TableBottomProps> = ({ sumAll, tableRef, searchDate, fCode
         </>
     )
 }
-
-export const CustomErrorComponent: FC<{ resetErrorBoundary: () => void, colsPan: number }> = ({ resetErrorBoundary, colsPan }) => {
-
-    return (
-        <tr>
-            <td rowSpan={10} colSpan={colsPan} style={{ paddingTop: '30px' }}>
-                <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />
-            </td>
-        </tr>
-    );
-};
