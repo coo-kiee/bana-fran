@@ -58,7 +58,7 @@ const ClaimDetailTable: FC<ClaimDetailTableProps> = ({ userInfo }) => {
                         <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
                         {/* List */}
                         <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail')}>
-                            <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={-50} /></td></tr>}>
+                            <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
                                 <TableList fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} searchControll={searchControll} setSearchControll={setSearchControll} />
                             </Suspense>
                         </ErrorBoundary>
@@ -270,7 +270,6 @@ const TableBottom: FC<{ fCodeName: string, searchControll: SearchControll, table
             // Excel - sheet options: 셀 시작 위치, 셀 크기
             const options = {
                 type: 'table', // 필수 O
-                // sheetOption: { origin: "B3", outline: { above: true } }, // 해당 셀부터 데이터 표시, 세부정보 아래 요약행, 필수 X
                 sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: TABLE_COLUMN_INFO.width.map(wpx => ({ wpx: parseInt(wpx) * 1.2 })), // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X

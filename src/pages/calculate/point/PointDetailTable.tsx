@@ -70,7 +70,7 @@ const PointDetailTable: FC<PointDetailTableProps> = ({ userInfo }) => {
                     <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
-                        <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={-50} /></td></tr>}>
+                        <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
                             <TableList fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
                         </Suspense>
                     </ErrorBoundary>
@@ -164,7 +164,7 @@ const TableTop: FC<TableTopProps> = ({ searchCondition, setSearchCondition, tabl
                         <ul className="search-result">
                             <li>충전포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalChargePoint)}원</span></li>
                             <li>잔돈포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalPointChange)}원</span></li>
-                            <li>유상(충전+잔돈)포인트 사용금액 합계:<span className="value">{Utils.numberComma(totalChargePoint + totalPointChange)}원</span></li>
+                            <li>유상(충전+잔돈)포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalChargePoint + totalPointChange)}원</span></li>
                         </ul>
                     </>
                 }
@@ -197,20 +197,21 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
 
     const { data: pointDetailList } = CALCULATE_SERVICE.useCalculatePointDetail(listQueryKey, fCode, staffNo, triggerFromDate, triggertoDate);
 
-    // render Node 필터링, 충전/잔돈 포인트 합계 계산
+    // Table render Node 필터링, 충전/잔돈 포인트 합계 계산
     const [renderTableList, totalChargePoint, totalPointChange] = useMemo(() => {
 
-        let totalChargePoint = 0; // 충전포인트 합계
-        let totalPointChange = 0; // 잔돈포인트 합계
+        let ChargePointSum = 0; // 충전포인트 합계
+        let PointChangeSum = 0; // 잔돈포인트 합계
 
-        const renderTableList = pointDetailList?.reduce((arr, pointDetail, index) => {
+        // 필터링 된 Table List 생성
+        const tableList = pointDetailList?.reduce((arr, pointDetail, index) => {
 
             const { rcp_date, item_name, phone, nChargeTotal, total_amt, use_point_type, rcp_type, supply_amt, vat_amt } = pointDetail;
             const [date] = rcp_date.split(' '); // [date, time]
 
             // 합계 계산
-            if (use_point_type === POINT_TYPE.CHARGE.value) totalChargePoint += total_amt;
-            else if (use_point_type === POINT_TYPE.CHANGE.value) totalPointChange += total_amt;
+            if (use_point_type === POINT_TYPE.CHARGE.value) ChargePointSum += total_amt;
+            else if (use_point_type === POINT_TYPE.CHANGE.value) PointChangeSum += total_amt;
 
             // 필터링 조건
             const isPointType = searchOption[0].value === POINT_TYPE.ALL.value || searchOption[0].value === use_point_type;
@@ -233,9 +234,9 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
                 )
             }
             return arr;
-        }, [] as ReactNode[])
+        }, [] as ReactNode[]);
 
-        return [renderTableList, totalChargePoint, totalPointChange];
+        return [tableList, ChargePointSum, PointChangeSum];
     }, [pointDetailList, searchOption]);
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
@@ -289,7 +290,6 @@ const TableBottom: FC<TableBottomProps> = ({ fCodeName, tableTopInfo, tableRef, 
             // Excel - sheet options: 셀 시작 위치, 셀 크기
             const options = {
                 type: 'table', // 필수 O
-                // sheetOption: { origin: "B3", outline: { above: true } }, // 해당 셀부터 데이터 표시, 세부정보 아래 요약행, 필수 X
                 sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: TABLE_COLUMN_INFO.width.map(wpx => ({ wpx: parseInt(wpx) * 1.2 })), // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X

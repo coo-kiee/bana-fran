@@ -33,11 +33,13 @@ interface LoadingProps {
     width?: number, 
     height?: number,
     marginTop?: number,
+    isTable?: boolean,
 };
-const Loading: FC<LoadingProps> = ({ width = 200, height = 200, marginTop = 50 }) => {
+const Loading: FC<LoadingProps> = ({ width = 200, height = 200, marginTop = 50, isTable = false }) => {
 
     return (
-        <Spinner width={width} height={height} marginTop={marginTop} />
+        isTable ? <tr><td className="no-data" rowSpan={10} colSpan={20} style={{ background: '#fff' }}><Spinner width={width} height={height} marginTop={marginTop} /></td></tr>
+        : <Spinner width={width} height={height} marginTop={marginTop} />
     );
 }
 

@@ -44,7 +44,7 @@ const CalculateLastMonthTable: FC<CalculateLastMonthTableProps> = ({ userInfo, c
                     <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail')}>
-                        <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={-50} /></td></tr>}>
+                        <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
                             <TableList fCode={f_code} staffNo={staff_no} colSpan={width.length} caculateType={caculateType} />
                         </Suspense>
                     </ErrorBoundary>

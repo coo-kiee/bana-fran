@@ -1,7 +1,7 @@
 import React from "react";
 
 interface Props {
-    resetErrorBoundary: () => void,
+    resetErrorBoundary?: () => void,
     isTable?: boolean;
 }
 
@@ -9,12 +9,7 @@ interface Props {
 const SuspenseErrorPage: React.FC<Props> = ({ isTable }) => {
 
     return (
-        <>
-            {
-                
-                isTable ? <tr><td rowSpan={10} colSpan={20} style={{ paddingTop: '30px' }}><ErrorPage /></td></tr> : <ErrorPage />
-            }
-        </>
+        isTable ? <tr><td rowSpan={10} colSpan={20} style={{ paddingTop: '30px' }}><ErrorPage /></td></tr> : <ErrorPage />
     )
 }
 

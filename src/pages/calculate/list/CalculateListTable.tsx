@@ -228,7 +228,6 @@ const TableBottom: FC<TableBottomProps> = ({ sumAll, tableRef, searchDate, fCode
             // Excel - sheet options: 셀 시작 위치, 셀 크기
             const options = {
                 type: 'table', // 필수 O
-                // sheetOption: { origin: "B3", outline: { above: true } }, // 해당 셀부터 데이터 표시, 세부정보 아래 요약행, 필수 X
                 sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: TABLE_COLUMN_INFO.width.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1], color: ['d3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X

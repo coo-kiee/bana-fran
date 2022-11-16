@@ -19,32 +19,34 @@ import Loading from "pages/common/loading";
 import CalanderSearch from "pages/common/calanderSearch";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
-interface PointDetailTableProps {
+interface CouponDetailTableProps {
     userInfo: {
         f_code: number,
         f_code_name: string,
         staff_no: number
     },
 };
-const PointDetailTable: FC<PointDetailTableProps> = ({ userInfo }) => {
+const CouponDetailTable: FC<CouponDetailTableProps> = ({ userInfo }) => {
 
     // 사용자 정보
     const { f_code, staff_no, f_code_name } = userInfo;
 
     // 쿠폰 종류
-    const [couponType, setCouponType] = useState<CouponType>({ 
+    const [couponType, setCouponType] = useState<CouponType>({
         0: { title: '쿠폰 전체', value: 0 },
     });
-    const { data: couponList } = CALCULATE_SERVICE.useCalculateCouponType(['couponList', JSON.stringify({f_code, staff_no})], f_code, staff_no);
+    const { data: couponList } = CALCULATE_SERVICE.useCalculateCouponType(['couponList', JSON.stringify({ f_code, staff_no })], f_code, staff_no);
     useEffect(() => {
         if (couponList) {
-            const couponObj = couponList.reduce((res, cur) => {
+            const [couponObj, tableTopTotalObj] = couponList.reduce((res, cur) => {
                 const title = cur.code_name;
                 const value = cur.code;
-                res[value] = { title, value };
+                res[0][value] = { title, value };
+                res[1][value] = { title, sum: 0 };
                 return res;
-            }, couponType);
-            setCouponType(prev => ({...prev, ...couponObj}));
+            }, [{} as CouponType, {} as sumInfo]);
+            setCouponType(prev => ({ ...prev, ...couponObj }));
+            setTableTopInfo(prev => ({ ...prev, ...tableTopTotalObj }));
         };
     }, [couponList]);
 
@@ -59,13 +61,14 @@ const PointDetailTable: FC<PointDetailTableProps> = ({ userInfo }) => {
         triggertoDate: Utils.converDateFormat(toDate, '-'), // query trigger
     });
 
+    // 테이블 상단 정보
     const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
         titleFrom: Utils.converDateFormat(searchCondition.from, '-'),
         titleTo: Utils.converDateFormat(searchCondition.to, '-'),
-        totalChargePoint: 0,
-        totalPointChange: 0,
+        allCouponSum: 0,
     });
 
+    // 페이지네이션 정보
     const [pageInfo, setPageInfo] = useState({
         dataCnt: 0,
         currentPage: 1,
@@ -76,8 +79,8 @@ const PointDetailTable: FC<PointDetailTableProps> = ({ userInfo }) => {
     const tableRef = useRef<HTMLTableElement | null>(null);
 
     return (
-        <>
-            <TableTop couponType={couponType} searchCondition={searchCondition} setSearchCondition={setSearchCondition} tableTopInfo={tableTopInfo} setTableTopInfo={setTableTopInfo} />
+        <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('CouponDetailTop', e)}>
+            <TableTop couponType={couponType} searchCondition={searchCondition} setSearchCondition={setSearchCondition} tableTopInfo={tableTopInfo} />
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
@@ -87,18 +90,18 @@ const PointDetailTable: FC<PointDetailTableProps> = ({ userInfo }) => {
                     <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
-                        <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={-50} /></td></tr>}>
+                        <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
                             <TableList couponType={couponType} fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
             </table>
             < TableBottom fCodeName={f_code_name} tableRef={tableRef} tableTopInfo={tableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
-        </>
+        </ErrorBoundary>
     );
 }
 
-export default PointDetailTable;
+export default CouponDetailTable;
 
 
 
@@ -132,11 +135,13 @@ interface SearchCondition extends SearchInfoSelectType {
     triggertoDate: string,
 };
 
-type TableTopInfo = {
+type sumInfo = {
+    [key: number]: { title: string, sum: number },
+    allCouponSum: number,
+};
+interface TableTopInfo extends sumInfo {
     titleFrom: string,
     titleTo: string,
-    totalChargePoint: number,
-    totalPointChange: number,
 };
 
 
@@ -145,11 +150,10 @@ interface TableTopProps {
     searchCondition: SearchCondition,
     setSearchCondition: React.Dispatch<React.SetStateAction<SearchCondition>>,
     tableTopInfo: TableTopInfo,
-    setTableTopInfo: React.Dispatch<React.SetStateAction<TableTopInfo>>,
 };
-const TableTop: FC<TableTopProps> = ({ couponType, searchCondition, setSearchCondition, tableTopInfo, setTableTopInfo }) => {
+const TableTop: FC<TableTopProps> = ({ couponType, searchCondition, setSearchCondition, tableTopInfo }) => {
 
-    const { titleFrom, titleTo, totalChargePoint, totalPointChange } = tableTopInfo;
+    const { titleFrom, titleTo } = tableTopInfo;
 
     const handleSearch = () => {
         const { from, to } = searchCondition;
@@ -177,16 +181,12 @@ const TableTop: FC<TableTopProps> = ({ couponType, searchCondition, setSearchCon
                             <p>조회기간: {titleFrom} ~ {titleTo}</p>
                         </div>
                         <ul className="search-result">
-                        <li>출석 이벤트 쿠폰&nbsp;:&nbsp;<span className="value">10,000원</span></li>
-                            <li>밀크티 트립 스탬프 이벤트 쿠폰&nbsp;:&nbsp;<span className="value">10,000원</span></li>
-                            <li>어플 설치 1500원 할인 쿠폰:<span className="value">10,000원</span></li>
-                            <li>고객 클레임 서비스 쿠폰:<span className="value">10,000원</span></li>
-                            <li>기타 본사 서비스 쿠폰:<span className="value">10,000원</span></li>
-                            <li>본사 쿠폰 사용금액 합계:<span className="value">10,000원</span></li>
-
-                            {/* <li>충전포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalChargePoint)}원</span></li>
-                            <li>잔돈포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalPointChange)}원</span></li>
-                            <li>유상(충전+잔돈)포인트 사용금액 합계:<span className="value">{Utils.numberComma(totalChargePoint + totalPointChange)}원</span></li> */}
+                            {
+                                Object.values(couponType).map((coupon, index) => (
+                                    tableTopInfo[coupon.value] && <li key={index}>{tableTopInfo[coupon.value].title} : <span className="value">{Utils.numberComma(tableTopInfo[coupon.value].sum)}원</span></li>
+                                ))
+                            }
+                            <li>본사 쿠폰 사용금액 합계 : <span className="value">{Utils.numberComma(tableTopInfo.allCouponSum)}원</span></li>
                         </ul>
                     </>
                 }
@@ -220,20 +220,27 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
 
     const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetail(listQueryKey, fCode, staffNo, triggerFromDate, triggertoDate);
 
-    // render Node 필터링, 충전/잔돈 포인트 합계 계산
-    const [renderTableList, totalChargePoint, totalPointChange] = useMemo(() => {
+    // Table render Node 필터링, 쿠폰 사용금액 합계 계산
+    const [renderTableList, totalSumObj] = useMemo(() => {
 
-        let totalChargePoint = 0; // 충전포인트 합계
-        let totalPointChange = 0; // 잔돈포인트 합계
+        // 쿠폰 종류 데이터 fetched 안됐을 때
+        if (Object.values(couponType).length < 2) return [];
 
-        const renderTableList = couponDetailList?.reduce((arr, pointDetail, index) => {
+        // 쿠폰 합계 객체 생성
+        const sumObj = Object.values(couponType).reduce((arr, cur) => {
+            if (cur.value !== 0) arr[cur.value] = { title: cur.title, sum: 0 };
+            return arr;
+        }, { allCouponSum: 0 } as sumInfo);
 
-            const { rcp_date, item_type, item_type_code, sItem, total_amt, rcp_type, phone, supply_amt, vat_amt } = pointDetail;
+        // 필터링 된 Table List 생성
+        const tableList = couponDetailList?.reduce((arr, couponDetail, index) => {
+
+            const { rcp_date, item_type, item_type_code, sItem, total_amt, rcp_type, phone, supply_amt, vat_amt } = couponDetail;
             const [date] = rcp_date.split(' '); // [date, time]
 
             // 합계 계산
-            // if (use_point_type === POINT_TYPE.CHARGE.value) totalChargePoint += total_amt;
-            // else if (use_point_type === POINT_TYPE.CHANGE.value) totalPointChange += total_amt;
+            sumObj[item_type_code].sum += total_amt;
+            sumObj.allCouponSum += total_amt;
 
             // 필터링 조건
             const showCoupon = parseInt(searchOption[0].value + '');
@@ -256,11 +263,10 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
                 )
             }
             return arr;
-        }, [] as ReactNode[])
-        console.log(renderTableList);
+        }, [] as ReactNode[]);
 
-        return [renderTableList, totalChargePoint, totalPointChange];
-    }, [couponDetailList, searchOption]);
+        return [tableList, sumObj];
+    }, [couponDetailList, searchOption, couponType]);
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
     useEffect(() => {
@@ -269,8 +275,8 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, titleFrom:triggerFromDate, titleTo:triggertoDate, totalChargePoint, totalPointChange }));
-    }, [setTableTopInfo, triggerFromDate, triggertoDate, totalChargePoint, totalPointChange]);
+        setTableTopInfo(prev => ({ ...prev, ...totalSumObj, titleFrom: triggerFromDate, titleTo: triggertoDate }));
+    }, [setTableTopInfo, triggerFromDate, totalSumObj, triggertoDate, renderTableList]);
 
     return (
         <>
@@ -313,7 +319,6 @@ const TableBottom: FC<TableBottomProps> = ({ fCodeName, tableTopInfo, tableRef, 
             // Excel - sheet options: 셀 시작 위치, 셀 크기
             const options = {
                 type: 'table', // 필수 O
-                // sheetOption: { origin: "B3", outline: { above: true } }, // 해당 셀부터 데이터 표시, 세부정보 아래 요약행, 필수 X
                 sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: TABLE_COLUMN_INFO.width.map(wpx => ({ wpx: parseInt(wpx) * 1.2 })), // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X
@@ -321,7 +326,7 @@ const TableBottom: FC<TableBottomProps> = ({ fCodeName, tableTopInfo, tableRef, 
                 sheetName: '', // 시트이름, 필수 X
             };
 
-            const fileName = `${titleFrom}~${titleTo}_${fCodeName}_유상포인트_결제내역`;
+            const fileName = `${titleFrom}~${titleTo}_${fCodeName}_본사_쿠폰_결제내역`;
 
             Utils.excelDownload(tableRef.current, options, fileName);
         };
