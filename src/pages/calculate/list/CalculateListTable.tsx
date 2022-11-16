@@ -140,9 +140,8 @@ const TableTop: FC<TableTopProps> = ({ listQuerykey, calculateId, caculateStatus
                     <div className="select-wrap">
                         <div className="search-wrap">
                             <select name="" id="" value={searchDate} onChange={(e) => setSearchDate(prev => e.currentTarget.value)}>
-                                {
-                                    monthList?.map((item, index) => <option key={index} value={item.std_month}>{item.std_month}</option>)
-                                }
+                                {monthList?.map((item, index) => <option key={index} value={item.std_month}>{item.std_month}</option>)}
+                                {monthList?.length === 0 && <option value={searchDate}>{searchDate}</option>}
                             </select>
                             <button className="goast-btn" onClick={() => queryClient.refetchQueries(listQuerykey)}>선택</button>
                         </div>

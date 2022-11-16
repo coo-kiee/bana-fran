@@ -6,7 +6,7 @@ import { CalculateStatusType, CALCULATE_TYPE } from "types/calculate/calculateTy
 
 // State
 import { useRecoilValue } from "recoil";
-import { loginState } from "state";
+import { franState, loginState } from "state";
 
 // Component
 import CalculateHeader from "pages/calculate/component/CalculateHeader";
@@ -23,7 +23,7 @@ const CalculateList: FC = () => {
     
     // 사용자 정보
     const { userInfo } = useRecoilValue(loginState);
-    const f_code = userInfo?.f_list[0]?.f_code || 0;
+    const f_code = useRecoilValue(franState);
     const f_code_name = userInfo?.f_list[0]?.f_code_name || '';
     const staff_no = userInfo?.staff_no || 0;
 

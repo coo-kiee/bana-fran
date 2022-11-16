@@ -8,7 +8,7 @@ import { BoardInfo, BOARD_GROUP, ListSearchCondition, MenuType, MENU_TYPE } from
 
 // state
 import { useRecoilValue } from "recoil";
-import { loginState } from "state";
+import { franState, loginState } from "state";
 
 // Util
 import Utils from "utils/Utils";
@@ -53,10 +53,11 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
     }, [menuType, boardType, bId, isBoardType]);
 
     const { userInfo } = useRecoilValue(loginState);
+    const fCode = useRecoilValue(franState);
 
     // 리스트 검색 정보
     const initialData = {
-        f_code: userInfo?.f_list[0]?.f_code || 0,
+        f_code: fCode,
         staff_no: userInfo?.staff_no || 0,
         board_type: BOARD_GROUP[menuType][0].type,
         search_category: 0,

@@ -216,7 +216,7 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
 
     const { currentPage, row } = pageInfo;
     const { searchOption, triggerFromDate, triggertoDate } = searchCondition;
-    const listQueryKey = ['calculateCouponDetail', JSON.stringify({ triggerFromDate, triggertoDate })];
+    const listQueryKey = ['calculateCouponDetail', JSON.stringify({ fCode, staffNo, triggerFromDate, triggertoDate })];
 
     const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetail(listQueryKey, fCode, staffNo, triggerFromDate, triggertoDate);
 

@@ -5,7 +5,7 @@ import { CALCULATE_TYPE } from "types/calculate/calculateType";
 
 
 // State
-import { loginState } from "state";
+import { franState, loginState } from "state";
 import { useRecoilValue } from "recoil";
 
 // Component
@@ -20,7 +20,7 @@ const CalculateCoupon: FC = () => {
 
     // 사용자 정보
     const { userInfo } = useRecoilValue(loginState);
-    const f_code = userInfo?.f_list[0]?.f_code || 0;
+    const f_code = useRecoilValue(franState);
     const f_code_name = userInfo?.f_list[0]?.f_code_name || '';
     const staff_no = userInfo?.staff_no || 0;
 

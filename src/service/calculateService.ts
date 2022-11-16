@@ -24,7 +24,7 @@ const useCalculateMonthList = (queryKey: string | Array<string>, f_code: number,
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: option.suspense ? option.suspense : true,
+        suspense: option.suspense ? option.suspense : false,
         enabled: staffNo > 0,
     });
 };

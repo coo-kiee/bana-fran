@@ -193,8 +193,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
 
     const { currentPage, row } = pageInfo;
     const { searchOption, triggerFromDate, triggertoDate } = searchCondition;
-    const listQueryKey = ['calculatePointDetail', JSON.stringify({ triggerFromDate, triggertoDate })];
-
+    const listQueryKey = ['calculatePointDetail', JSON.stringify({ fCode, staffNo, triggerFromDate, triggertoDate })];
     const { data: pointDetailList } = CALCULATE_SERVICE.useCalculatePointDetail(listQueryKey, fCode, staffNo, triggerFromDate, triggertoDate);
 
     // Table render Node 필터링, 충전/잔돈 포인트 합계 계산
