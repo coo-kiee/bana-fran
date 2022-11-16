@@ -1,8 +1,10 @@
-
+// Types
+import { SalesTable } from 'types/sales/salesType';
 // Utils
-import { SalesTable } from 'types/sales';
 import Utils from 'utils/Utils';
-import LoadingTable from '../../../common/loading/LoadingTable';
+
+// Components
+import LoadingTable from 'pages/common/loading/LoadingTable';
 
 const SalesStatisticTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTable) => {
 	// totalSales: 합계 계산용 data 가공

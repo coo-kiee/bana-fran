@@ -9,7 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 // Type
 import { SearchInfoType, SearchInfoSelectType, SearchInfoRadioType, isSelect, isRadio } from 'types/etc/etcType';
 
-interface CalanderSearchProps {
+interface CalendarSearchProps {
     title?: string, // 제목
     dateType: string, // 날짜 형식 ... ex) yyyy-MM-dd  
     searchInfo: SearchInfoType | SearchInfoSelectType | SearchInfoRadioType, // 검색 날짜, 옵션 관련 상태
@@ -19,9 +19,12 @@ interface CalanderSearchProps {
     radioOption?: Array<{ [x: string]: { title: string, id: string, value: string } }>,  // radio로 나타날 옵션 정보
     optionList?: Array<any>, // option 맵핑할 때 사용  
     handleSearch: any, // 실제 검색하는 함수 (ex. refetch)
+    minDate?: Date, // 검색가능한 기간(시작일) 설정
+    showMonthYearPicker?: boolean, // 월만 보여주는 Datepicker 활성화 (기본값 false)
+    showFullMonthYearPicker?: boolean, // 월만 보여주는 Datepicker 활성화 (기본값 false)
 }
 
-const CalanderSearch: React.FC<CalanderSearchProps> = ({ title, dateType, searchInfo, setSearchInfo, optionType = 'SELECT', selectOption, radioOption, optionList, handleSearch }) => {
+const CalanderSearch: React.FC<CalendarSearchProps> = ({ title, dateType, searchInfo, setSearchInfo, optionType = 'SELECT', selectOption, radioOption, optionList, handleSearch, minDate, showMonthYearPicker = false, showFullMonthYearPicker = false }) => {
     // TODO: Select onChange 변경
     const handleSearchSelect = (e: React.ChangeEvent<HTMLSelectElement>, idx1: number) => {
         let target = { value: e.target.value, title: e.target.childNodes[e.target.selectedIndex].textContent };
@@ -33,9 +36,22 @@ const CalanderSearch: React.FC<CalanderSearchProps> = ({ title, dateType, search
     };
 
     // TODO: Radio onChange 변경
+    /* 11-14 수정: 일/월 검색조건에 따라 value format도 달라지기 때문에 함수 내 조건 추가 및 상태변경 수정 */
     const handleSearchRadio = (searchType: string) => {
         return setSearchInfo((prev: SearchInfoRadioType) => {
-            return { ...prev, searchType }
+            return (
+                searchType === 'M' ? 
+                {
+                    from: format(new Date(searchInfo.from), 'yyyy-MM'), 
+                    to: format(new Date(searchInfo.to), 'yyyy-MM'),
+                    searchType
+                } : 
+                {
+                    from: format(new Date(searchInfo.from), 'yyyy-MM-dd'), 
+                    to: format(new Date(searchInfo.to), 'yyyy-MM-dd'),
+                    searchType                    
+                }
+            )
         }) as React.Dispatch<React.SetStateAction<SearchInfoRadioType>>;
     };
 
@@ -44,9 +60,9 @@ const CalanderSearch: React.FC<CalanderSearchProps> = ({ title, dateType, search
             {title && <p className="title bullet">{title}</p>}
             <div className="search-wrap">
                 <div className="input-wrap">
-                    <SearchCalanderItem date={searchInfo.from} dateType={dateType} updateDate={(date) => setSearchInfo((prev: any) => ({ ...prev, from: format(date!, dateType) }))} />
+                    <SearchCalendarItem date={searchInfo.from} dateType={dateType} updateDate={(date) => setSearchInfo((prev: any) => ({ ...prev, from: format(date!, dateType) }))} minDate={minDate} showMonthYearPicker={showMonthYearPicker} showFullMonthYearPicker={showFullMonthYearPicker} />
                     <i>~</i>
-                    <SearchCalanderItem date={searchInfo.to} dateType={dateType} updateDate={(date) => setSearchInfo((prev: any) => ({ ...prev, to: format(date!, dateType) }))} />
+                    <SearchCalendarItem date={searchInfo.to} dateType={dateType} updateDate={(date) => setSearchInfo((prev: any) => ({ ...prev, to: format(date!, dateType) }))} minDate={minDate} showMonthYearPicker={showMonthYearPicker} showFullMonthYearPicker={showFullMonthYearPicker} />
                 </div>
 
                 {selectOption && optionList && isSelect(searchInfo) && optionType === 'SELECT' &&
@@ -70,10 +86,11 @@ const CalanderSearch: React.FC<CalanderSearchProps> = ({ title, dateType, search
 
                 {radioOption && optionList && isRadio(searchInfo) && optionType === 'RADIO' &&
                     <div className='radio-wrap'>
-                        {radioOption.map((selectData) => {
-                            {/* #1: div 만들기 */ }
+                        {radioOption.map((selectData: any, selectDataIdx: number) => {
+                            /* #1: div 만들기 */ 
                             return optionList.map((option, optionListIdx) => {
-                                return (
+                                return ( 
+                                    // (optionListIdx === selectDataIdx) &&
                                     <div key={`radio_wrapper_${optionListIdx}`} >
                                         <input
                                             className='radio'
@@ -82,7 +99,7 @@ const CalanderSearch: React.FC<CalanderSearchProps> = ({ title, dateType, search
                                             id={`${selectData[option].id}`}
                                             value={selectData[option].value}
                                             defaultChecked={searchInfo.searchType === selectData[option].value}
-                                            onChange={(e) => { searchInfo.searchType !== selectData[option].value && handleSearchRadio(selectData[option].value) }}
+                                            onChange={() => { searchInfo.searchType !== selectData[option].value && handleSearchRadio(selectData[option].value) }}
                                         />
                                         <label htmlFor={`${selectData[option].id}`}>{selectData[option].title}</label>
                                     </div>
@@ -99,12 +116,16 @@ const CalanderSearch: React.FC<CalanderSearchProps> = ({ title, dateType, search
 
 export default CalanderSearch
 
-interface CalanderSearchItemProps {
+interface CalendarSearchItemProps {
     date: string, // 날짜 ex)2022-11-10
     dateType: string, // 날짜 형식
     updateDate: (date: any) => void, // 조회할 날짜 변경하는 함수
+    minDate: Date | undefined,
+    showMonthYearPicker: boolean,
+    showFullMonthYearPicker: boolean,
+
 }
-const SearchCalanderItem: React.FC<CalanderSearchItemProps> = ({ date, dateType, updateDate }) => {
+const SearchCalendarItem: React.FC<CalendarSearchItemProps> = ({ date, dateType, updateDate, minDate = undefined, showMonthYearPicker, showFullMonthYearPicker }) => {
     return (
         <DatePicker
             selected={new Date(date)}
@@ -112,6 +133,10 @@ const SearchCalanderItem: React.FC<CalanderSearchItemProps> = ({ date, dateType,
             locale={ko}
             dateFormat={dateType}
             onChange={(date) => updateDate(date)}
+            minDate={minDate}
+            maxDate={new Date()}
+            showMonthYearPicker={showMonthYearPicker}
+            showFullMonthYearPicker={showFullMonthYearPicker}
         />
     )
 }

@@ -2,10 +2,10 @@ import { format } from 'date-fns';
 import Utils from 'utils/Utils';
 
 const LineChartDays = (props: any) => {
-    console.log(props)
+	// console.log(props);
 	return props.points.map((point: any, idx: number) => {
 		// position value x
-        const { x } = point.data;
+		const { x } = point.data;
 
 		const month = format(new Date(x), 'MM'); // day month
 		const date = format(new Date(x), 'dd'); // day date
@@ -15,10 +15,10 @@ const LineChartDays = (props: any) => {
 
 		// 주말 css color hexcode
 		const dayColor = (dayText: string) => {
-			if (dayText === '토') return '#0000ff'; 
+			if (dayText === '토') return '#0000ff';
 			else if (dayText === '일') return '#ff0000';
 			else return '#333';
-		}
+		};
 
 		return (
 			<g transform={`translate(${point.x},${250})`} key={idx}>
@@ -44,7 +44,8 @@ const LineChartDays = (props: any) => {
 					({dayText})
 				</text>
 			</g>
-		);});
+		);
+	});
 };
 
 export default LineChartDays;

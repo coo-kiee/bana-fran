@@ -1,8 +1,9 @@
-import { SalesTable } from "types/sales";
+import { SalesTable } from "types/sales/salesType";
 import Utils from "utils/Utils";
 import LoadingTable from "../../../common/loading/LoadingTable";
 
 const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTable) => {
+	
 	// 표시 날짜 줄바꿈 추가
 	const convertDateLineBreak = (str: string) => {
 		const findSpace = /\s/;
@@ -14,7 +15,7 @@ const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTa
 			</>
 		);
 	};
-
+	
 	return (
 		<>
 			<colgroup>
@@ -26,8 +27,8 @@ const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTa
 				<col width='78' />
 				<col width='94' />
 				<col width='47' />
-				<col width='78' />
-				<col width='50' />
+				<col width='73' />
+				<col width='55' />
 				<col width='62' />
 				<col width='62' />
 				<col width='62' />
@@ -42,7 +43,7 @@ const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTa
 				<col width='62' />
 				<col width='62' />
 			</colgroup>
-			<tbody>
+			<thead>
 				<tr>
 					<th rowSpan={2}>
 						결제<span className='block'>일시</span>
@@ -100,21 +101,23 @@ const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTa
 					<td className='price-area boder-th-l'>스탬프(개)</td>
 					<td className='price-area'>바나포인트(P)</td>
 				</tr>
+
+			</thead>
+			<tbody>
 				{!isLoading ? data.map((history: any, idx: number) => {
 					const {
-						dtRcp, // 결제일시(?)
 						rcp_date, // 결제일시
 						cancel_date, // 취소일시. order_state === 50일 때만 사용
-						order_type, // 주문유형. 필터처리에 사용. 주문타입 1: 앱 2: 쿠팡 3: 배민 else: 매장
-						order_type_name, // 주문유형
-						order_state, // 주문상태. 50일 때 취소
-						order_state_name, // 주문상태
+						// order_type, // 주문유형. 필터처리에 사용. 주문타입 1: 앱 2: 쿠팡 3: 배민 else: 매장
+						order_type_name, // 주문유형명
+						order_state, // 주문상태. 50일 때 취소 / 5: 대기 10, 20: 제조중, 30: 제조완료, 35: 배달중, 40: 완료, 50: 취소
+						order_state_name, // 주문상태명
 						phone, // 전화번호
 						bOrderGiftCert, // 실물상품권/일반제품
 						item_name, // 주문메뉴
 						nCount, // 총 건수
 						rcp_type, // 접수타입
-						pay_type, // 결제방식
+						pay_type, // 결제방식. 0: 결제완료, 1: 현장카드, 2: 현장카드?
 						nChargeTotal, // 주문금액(메뉴), 합계
 						nDeliveryCharge, // 배달비(앱주문)
 						card_charge, // 카드
@@ -125,14 +128,13 @@ const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTa
 						fran_coupon_charge, // 가맹점쿠폰
 						hd_coupon_charge, // 본사쿠폰
 						nStampCount, // 스탬프(계)
-						nDeliveryPayType, // 배달비유형?
-						nOrderID,
+						// nDeliveryPayType, // 배달비유형?
+						// nOrderID,
 						nSavingPoint, // 바나포인트(적립)
-						sChargeDisDetail,
-						sChargeDisReason,
-						sCouponID,
+						// sChargeDisDetail,
+						// sChargeDisReason,
+						// sCouponID,
 					} = history;
-
 					return (
 						(currentPage - 1) * rowPerPage <= idx &&
 						currentPage * rowPerPage > idx && (
@@ -149,7 +151,7 @@ const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTa
 								<td className='align-center'>{bOrderGiftCert === 1 ? '실물상품권' : '일반제품'}</td>
 								<td className='align-center'>{item_name}</td>
 								<td className='align-right'>{nCount}</td>
-								<td className='align-right'>{rcp_type}</td>
+								<td className='align-center'>{rcp_type}</td>
 								<td className='align-center'>{pay_type}</td>
 								<td className='align-center'>{Utils.numberComma(nChargeTotal)}</td>
 								<td className='align-center'>{nDeliveryCharge !== 0 ? Utils.numberComma(nDeliveryCharge) : ''}</td>
@@ -163,7 +165,7 @@ const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTa
 								<td className='align-center'>{hd_coupon_charge !== 0 ? Utils.numberComma(hd_coupon_charge) : ''}</td>
 								<td className='align-center'>{nStampCount !== 0 ? nStampCount : ''}</td>
 								<td className='align-right'>{nSavingPoint}</td>
-								<td className='align-center'></td>
+								<td className='align-center'>-</td>
 							</tr>
 						))
 				}) : <LoadingTable width={100} height={100} marginTop={15} />}

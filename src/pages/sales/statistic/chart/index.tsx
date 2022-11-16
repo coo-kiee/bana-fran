@@ -1,18 +1,16 @@
-import { format, getDay } from 'date-fns';
 import { ResponsiveLine } from '@nivo/line';
 
 // Types
-import { SalesLineChartProps } from 'types/sales';
+import { SalesLineChartProps } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
 // Components
 import LineChartDays from './LineChartDays';
 import LineChartMonths from './LineChartMonths';
 import LineChartTooltip from './LineChartTooltip';
-import { useMemo } from 'react';
 
-const LineChart = ({ filterSales, data, searchType }: SalesLineChartProps) => {
-    const { total, paid, app, free } = filterSales;
+const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
+    const { total, paid, app, free } = filterChart;
     // chart data 가공: Serie[] 형태로 데이터 매핑
     const totalData = data.map((d: any) => {return { x: d.std_date, y: d.total_sales_amt }});
     const appDeliveryData = data.map((d: any) => {return { x: d.std_date, y: d.app_delivery_amt }});
@@ -25,10 +23,11 @@ const LineChart = ({ filterSales, data, searchType }: SalesLineChartProps) => {
         { id: 'app', data: appDeliveryData, color: '#6ecfbc' },
         { id: 'free', data: freeData, color: '#ff9177' },
     ]
-    // 이중 필터 (매출유형별, 기간별)
+
+    // 필터 (매출유형별)
 	const filteredData = () => {
 		// 조건 1 해당 항목 필터링 (id filter)
-		const filterSalesTypeData = chartedData.filter((fd: any) => {
+		const filterChartTypeData = chartedData.filter((fd: any) => {
 			return (
 				(total && fd.id === 'total') || 
 				(paid && fd.id === 'paid') || 
@@ -37,7 +36,7 @@ const LineChart = ({ filterSales, data, searchType }: SalesLineChartProps) => {
 			)
 		});
 
-        return filterSalesTypeData
+        return filterChartTypeData
 	};
 
     // const totalMax = Math.max(...filteredData()[0].data.map((d: {x: string, y: number}) => { return d.y}))

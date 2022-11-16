@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import styled from 'styled-components';
+// Utils
 import Utils from 'utils/Utils';
 
 const LineChartTooltip = ({ point, searchType }: any) => {
