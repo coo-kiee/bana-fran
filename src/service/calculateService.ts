@@ -6,10 +6,10 @@ import { useQuery, useQueryClient, UseQueryResult } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 
 // Type
-import { CalculateDetail, CalculateDetailOut, CalculateDetailSum, CalculateFixDetail, CalculatePointDetail } from 'types/calculate/calculateType';
+import { CalculateCouponDetail, CalculateDetail, CalculateDetailOut, CalculateDetailSum, CalculateFixDetail, CalculatePointDetail } from 'types/calculate/calculateType';
 
 
-// 정산관리 - 검색 월
+// 검색 월
 const useCalculateMonthList = (queryKey: string | Array<string>, f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
 
     const data = {
@@ -140,7 +140,7 @@ const useCalculateFixList = (queryKey: string | Array<string>, nFCode: number, s
     });
 };
 
-// 정산관리 - 포인트/쿠폰/클레임/기타 전월 상세내역 합계
+// 포인트/쿠폰/클레임/기타 전월 내역 합계
 const useCalculateDetailSum = (queryKey: string | Array<string>, f_code: number, staffNo: number, search_item_type: number, option: { [key: string]: any } = {}) => {
 
     const data = {
@@ -161,8 +161,8 @@ const useCalculateDetailSum = (queryKey: string | Array<string>, f_code: number,
     });
 };
 
-// 정산관리 - 포인트 상세내역
-type useCalculatePointDetailParameter = (
+// 유상포인트 결제내역 상세
+type PointDetailParameter = (
     queryKey: string | Array<string>, 
     f_code: number, 
     staffNo: number, 
@@ -170,7 +170,7 @@ type useCalculatePointDetailParameter = (
     to_date: string, 
     option?: { [key: string]: any },
 ) => UseQueryResult<CalculatePointDetail[], unknown>;
-const useCalculatePointDetail: useCalculatePointDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
+const useCalculatePointDetail: PointDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
 
     const data = {
         ws: "fprocess",
@@ -191,7 +191,54 @@ const useCalculatePointDetail: useCalculatePointDetailParameter = (queryKey, f_c
     });
 };
 
-//YQULRZGJLB30OII4CFCJ	web_fran_s_calculate_month_list
+// 본사 쿠폰 결제내역 상세 - 쿠폰리스트
+const useCalculateCouponType = (queryKey: string | Array<string>, f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
+    const data = {
+        ws: "fprocess",
+        query: "1ERHH8TI5ER8Z2SNLA5K", // web_fran_s_calculate_hq_coupon_code
+        params: {
+            f_code,
+        },
+    };
+
+    return useQuery<{ code: number, code_name: string }[]>(queryKey, () => queryFn.getDataList(data), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        suspense: option.suspense ? option.suspense : false,
+        enabled: staffNo > 0,
+    });
+};
+
+// 본사 쿠폰 결제내역 상세
+type CouponDetailParameter = (
+    queryKey: string | Array<string>, 
+    f_code: number, 
+    staffNo: number, 
+    from_date: string, 
+    to_date: string, 
+    option?: { [key: string]: any },
+) => UseQueryResult<CalculateCouponDetail[], unknown>;
+const useCalculateCouponDetail: CouponDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
+
+    const data = {
+        ws: "fprocess",
+        query: "NQSZNEAMQLUNQXDTAD70", // web_fran_s_calculate_hq_coupon_list
+        params: {
+            f_code,
+            from_date,
+            to_date,
+        },
+    };
+
+    return useQuery<CalculateCouponDetail[]>(queryKey, () => queryFn.getDataList(data), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        suspense: option.suspense ? option.suspense : true,
+        enabled: staffNo > 0,
+    });
+};
 
 export default {
     useCalculateMonthList,
@@ -201,4 +248,6 @@ export default {
     useCalculateFixList,
     useCalculateDetailSum,
     useCalculatePointDetail,
+    useCalculateCouponType,
+    useCalculateCouponDetail,
 };
