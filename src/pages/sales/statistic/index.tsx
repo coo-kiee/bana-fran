@@ -1,10 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
-import { format, isBefore, subDays } from "date-fns";
-// import { ko } from 'date-fns/locale';
-// datepicker
-// import DatePicker from "react-datepicker";
-// import 'react-datepicker/dist/react-datepicker.css';
+import { format, isBefore, subDays, subMonths } from "date-fns";
 
 // global states
 import { franState } from "state";
@@ -16,11 +12,11 @@ import { SalesStatisticSearch, FilterChart } from "types/sales/salesType";
 // Utils
 import Utils from "utils/Utils";
 // Components
-import LineChart from "pages/sales/statistic/chart";
 import Loading from "pages/common/loading";
-import SalesStatisticTable from "pages/sales/statistic/table";
 import Pagination from "pages/common/pagination";
 import CalanderSearch from "pages/common/calanderSearch";
+import LineChart from "pages/sales/statistic/chart";
+import SalesStatisticTable from "pages/sales/statistic/table";
 
 // option value에 사용할 값 관련 타입
 const STATISTIC_SEARCH_TYPE = {
@@ -41,7 +37,7 @@ const SalesStatistic = () => {
 	const today = new Date();
 
 	// filter options
-    const [statisticSearch, setStatisticSearch] = useState<SalesStatisticSearch>({ searchType: 'D', from: format(new Date(today.getFullYear(), today.getMonth()-1, today.getDate()), 'yyyy-MM-dd'), to: format(new Date(today), 'yyyy-MM-dd') });
+    const [statisticSearch, setStatisticSearch] = useState<SalesStatisticSearch>({ searchType: 'D', from: format(subMonths(today, 1), 'yyyy-MM-dd'), to: format(today, 'yyyy-MM-dd') });
     const [filterChart, setFilterChart] = useState<FilterChart>({ total: 1, paid: 0, app: 0, free: 0 });
 
 	// pagination
@@ -49,47 +45,34 @@ const SalesStatistic = () => {
 	const [rowPerPage, setRowPerPage] = useState<number>(3);
 
 	// query
-	// 월별 검색(M)이면 from/to에 -01 string 추가
+	// 월별 검색(M)이면 from/to에 -01 string 추가 M: yy-MM, D: yy-MM-dd 포멧
 	const { data, isLoading, isFetching, refetch } = SALES_SERVICE.useSalesStatistic({ 
 		f_code: fCode, search_type: statisticSearch.searchType, 
 		from_date: statisticSearch.searchType === 'M' ? (statisticSearch.from + '-01') : statisticSearch.from, 
 		to_date: statisticSearch.searchType === 'M' ? (statisticSearch.to + '-01') : statisticSearch.to 
 	})
 
-	// searchTypeMemo for Line Chart
+	// searchTypeMemo for Line Chart (searchType 변경되어도 유지되도록)
 	const searchTypeMemo = useMemo(() => {return statisticSearch.searchType}, [data]);
 	
     // data && console.log(data);
 	
-	// 상태가 바뀔 때, 제한 조건(90일)을 넘어가면 제한날짜로 바꿔주는 함수
-	// 구현해야함~!~!~!~!~!~!
+	// 상태가 바뀔 때, 제한 조건(90일)을 넘어가면 refecth를 막고 날짜 바꿔주는 함수
 	const handleSearch = () => {
-		const limitDate = subDays(today.getFullYear(), 90);
-		// console.log(isBefore(new Date('2022-08-17').setTime(today.getTime()), new Date(limitDate))) 
-		// console.log(new Date(limitDate)) // 시간 있음(현재시간)
-		// console.log(new Date('2022-08-17').setTime(today.getTime())) // 시간없음 09:00
-		if (statisticSearch.searchType === 'D' && isBefore(new Date(statisticSearch.from), limitDate)) {
-			setStatisticSearch((prev) => ({...prev, from: format(limitDate, 'yyyy-MM-dd')}))
-			return alert('일별 매출 통계는 90일 이내로만 조회할 수 있습니다.')
-		} else if (statisticSearch.searchType === 'D' && isBefore(new Date(statisticSearch.to), limitDate)) {
-			setStatisticSearch((prev) => ({...prev, to: format(today, 'yyyy-MM-dd')}))
-			return alert('조회 기간을 확인해주세요')
+		const limitDate = subDays(today, 90);
+		const { searchType, from, to } = statisticSearch;
+
+		// limitDate에 렌더 됐을 때의 시간이 들어있어 날짜가 같아도 isBefore가 true로 적용될 수 있기에, from/to에 시간대를 설정
+		if (searchType === 'D' && isBefore(new Date(from + ' 23:59:59'), limitDate)) { 
+			setStatisticSearch((prev) => ({...prev, from: format(limitDate, 'yyyy-MM-dd')}));
+			return alert('일별 매출 통계는 90일 이내로만 조회할 수 있습니다.');
+		} else if (searchType === 'D' && isBefore(new Date(to + ' 23:59:59'), limitDate)) {
+			setStatisticSearch((prev) => ({...prev, to: format(today, 'yyyy-MM-dd')}));
+			return alert('일별 매출 통계는 90일 이내로만 조회할 수 있습니다.');
 		}
-		refetch()
+		refetch();
 	}
 
-	// statisticSearch바뀔 때마다 제한조건에 맞는지 확인
-
-	// useEffect(() => {
-	// 	const limitDate = subDays(today, 90);
-	// 	if (statisticSearch.searchType === 'D') {
-	// 		isBefore(new Date(statisticSearch.from), limitDate) && setStatisticSearch((prev) => ({...prev, from: format(limitDate, 'yyyy-MM-dd')}))
-	// 		isBefore(new Date(statisticSearch.to), limitDate) && setStatisticSearch((prev) => ({...prev, to: format(limitDate, 'yyyy-MM-dd')}))
-	// 	} else {
-	// 		setStatisticSearch((prev) => ({...prev, from: format(new Date(statisticSearch.from), 'yyyy-MM'), to: format(new Date(statisticSearch.to), 'yyyy-MM')}))
-	// 	}
-	// }, [statisticSearch, today])
-	
 	/* 검색 기간 필터링 (onChange) */
 	
     /* excel download */
@@ -149,9 +132,7 @@ const SalesStatistic = () => {
 								checked={filterChart.total === 1}
 								value={filterChart.total}
 								onChange={(e) => {
-									e.target.checked
-										? setFilterChart({ ...filterChart, total: 1 })
-										: setFilterChart({ ...filterChart, total: 0 });
+									setFilterChart({ ...filterChart, total: e.target.checked ? 1 : 0 });
 								}}
 							/>
 							<label htmlFor='total-sales'>총 매출</label>
@@ -164,9 +145,7 @@ const SalesStatistic = () => {
 								checked={filterChart.paid === 1}
 								value={filterChart.paid}
 								onChange={(e) => {
-									e.target.checked
-										? setFilterChart({ ...filterChart, paid: 1 })
-										: setFilterChart({ ...filterChart, paid: 0 });
+									setFilterChart({ ...filterChart, paid: e.target.checked ? 1 : 0 })
 								}}
 							/>
 							<label htmlFor='paid-sales'>유상매출</label>
@@ -179,9 +158,7 @@ const SalesStatistic = () => {
 								checked={filterChart.app === 1}
 								value={filterChart.app}
 								onChange={(e) => {
-									e.target.checked
-										? setFilterChart({ ...filterChart, app: 1 })
-										: setFilterChart({ ...filterChart, app: 0 });
+									setFilterChart({ ...filterChart, app: e.target.checked ? 1 : 0 })
 								}}
 							/>
 							<label htmlFor='delivery-sales'>배달매출</label>
@@ -194,9 +171,7 @@ const SalesStatistic = () => {
 								checked={filterChart.free === 1}
 								value={filterChart.free}
 								onChange={(e) => {
-									e.target.checked
-										? setFilterChart({ ...filterChart, free: 1 })
-										: setFilterChart({ ...filterChart, free: 0 });
+									setFilterChart({ ...filterChart, free: e.target.checked ? 1 : 0 })
 								}}
 							/>
 							<label htmlFor='free-sales'>무상서비스</label>

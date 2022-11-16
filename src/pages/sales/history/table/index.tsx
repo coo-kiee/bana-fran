@@ -1,9 +1,14 @@
+import { useRef, useEffect } from "react";
+// Types
 import { SalesTable } from "types/sales/salesType";
+// Utils
 import Utils from "utils/Utils";
+// Components
 import LoadingTable from "../../../common/loading/LoadingTable";
 
 const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTable) => {
 	
+	const trRef = useRef<HTMLTableRowElement>(null)
 	// 표시 날짜 줄바꿈 추가
 	const convertDateLineBreak = (str: string) => {
 		const findSpace = /\s/;
@@ -16,6 +21,28 @@ const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTa
 		);
 	};
 	
+
+	let options = {
+		root: null,
+		rootMargin: '0px',
+		threshold: 0.1
+	}
+
+	// const getScroll = (entries: any, observer: any) => {
+	// 	if (trRef.current) {console.log('getScroll');}
+	// 	console.log(entries)
+	// 	console.log(observer)
+	// }
+
+	// const observer = new IntersectionObserver(getScroll, options);
+	
+	
+	// if (trRef.current) {
+	// 	observer.observe(trRef.current)
+	// }
+
+
+
 	return (
 		<>
 			<colgroup>
@@ -44,7 +71,7 @@ const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTa
 				<col width='62' />
 			</colgroup>
 			<thead>
-				<tr>
+				<tr ref={trRef} id='thead-row'>
 					<th rowSpan={2}>
 						결제<span className='block'>일시</span>
 					</th>

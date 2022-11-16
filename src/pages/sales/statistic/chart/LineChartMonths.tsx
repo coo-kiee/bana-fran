@@ -5,7 +5,7 @@ const LineChartMonths = (props: any) => {
 	return props.points.map((point: any, idx: number) => {
 		// position value x
         const { x } = point.data;
-		const month = format(new Date(x), 'MM');
+		const month = format(new Date(x), 'M');
 
 		return (
 			<g transform={`translate(${point.x},${250})`} key={idx}>

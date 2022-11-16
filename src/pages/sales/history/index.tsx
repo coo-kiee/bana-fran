@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { format, subYears } from "date-fns";
 
@@ -17,6 +17,7 @@ import CalanderSearch from "pages/common/calanderSearch";
 import Pagination from "pages/common/pagination";
 import SalesHistoryTable from "pages/sales/history/table";
 import PrefixSum from "pages/sales/history/PrefixSum";
+import StickyHeader from "./table/StickyHeader";
 
 
 /* option value에 사용할 값 관련 타입들 */
@@ -129,6 +130,8 @@ const SalesHistory = () => {
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [rowPerPage, setRowPerPage] = useState<number>(3);
     
+	// sticky header display
+	const [showSticky, setShowSticky] = useState<boolean>(false);
 	const { data, isLoading, isRefetching, refetch } = SALES_SERVICE.useSalesOrderList({ from_date: historySearch.from, to_date: historySearch.to, f_code: fCode });
 
 
@@ -238,7 +241,7 @@ const SalesHistory = () => {
             catch (error) { console.log(error); }
         }
     }
-
+	
 	return (
 		// <Suspense fallback={<div style={{width: '800px', height: '1000px', backgroundColor: '#0000ff', position: 'fixed', zIndex: '10'}}>loading</div>}>
 			<>
@@ -246,6 +249,11 @@ const SalesHistory = () => {
 				<div className='info-wrap'>
 					<p>※ 주문내역을 조회할 수 있습니다. (최대 12개월 이내)</p>
 				</div>
+				{/* <p>
+					titles: {historySearch.searchOption[0].title}/{historySearch.searchOption[1].title}/{historySearch.searchOption[2].title}/{historySearch.searchOption[3].title}/{historySearch.searchOption[4].title} <br/>
+					typeof: {typeof historySearch.searchOption[0].type}/{typeof historySearch.searchOption[1].type}/{typeof historySearch.searchOption[2].type}/{typeof historySearch.searchOption[3].type}/{typeof historySearch.searchOption[4].type}<br/>
+					types: {historySearch.searchOption[0].type}/{historySearch.searchOption[1].type}/{historySearch.searchOption[2].type}/{historySearch.searchOption[3].type}/{historySearch.searchOption[4].type}
+				</p> */}
 				<div className='fixed-paid-point-wrap'>
 					{/* <!-- 검색 --> */}
 					<CalanderSearch 
@@ -295,7 +303,7 @@ const SalesHistory = () => {
 						<SalesHistoryTable 
 							data={checkedFilteredData || []} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} />
 					</table>
-					{/* <StickyHeader /> */}
+					{showSticky ? <StickyHeader /> : null}
 					{/* <!-- 게시판 --> */}
 				</div>
 				{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
