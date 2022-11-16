@@ -4,11 +4,13 @@ import { SalesTable } from "types/sales/salesType";
 // Utils
 import Utils from "utils/Utils";
 // Components
-import LoadingTable from "../../../common/loading/LoadingTable";
+import LoadingTable from "pages/common/loading/LoadingTable";
+import TableColGroup from "./TableColGroup";
+import TableHead from "./TableHead";
 
-const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTable) => {
+const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage, setShowSticky }: SalesTable) => {
 	
-	const trRef = useRef<HTMLTableRowElement>(null)
+	
 	// 표시 날짜 줄바꿈 추가
 	const convertDateLineBreak = (str: string) => {
 		const findSpace = /\s/;
@@ -20,116 +22,31 @@ const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTa
 			</>
 		);
 	};
-	
 
-	let options = {
-		root: null,
-		rootMargin: '0px',
-		threshold: 0.1
+	/* sticky part */
+	const trRef = useRef<HTMLTableRowElement>(null)
+	// 조건에 따라 state 바꿔줌
+	const handleShowSticky = (entries: any, observer: any) => {
+		// console.log(observer)
+		entries.forEach((entry: any) => {
+			if (!entry.isIntersecting) setShowSticky((prev: any) => !prev);
+			entry.intersectionRatio <= 0.1 ? setShowSticky(true) : setShowSticky(false);
+			
+		});
 	}
+	// IntersectionObserver
+	const observer = new IntersectionObserver(handleShowSticky, {root: null, rootMargin: '0px', threshold: 0.1});
 
-	// const getScroll = (entries: any, observer: any) => {
-	// 	if (trRef.current) {console.log('getScroll');}
-	// 	console.log(entries)
-	// 	console.log(observer)
-	// }
-
-	// const observer = new IntersectionObserver(getScroll, options);
+	useEffect(() => {
+		if (trRef.current) {
+			observer.observe(trRef.current)
+		}
+	}, [])	
 	
-	
-	// if (trRef.current) {
-	// 	observer.observe(trRef.current)
-	// }
-
-
-
 	return (
 		<>
-			<colgroup>
-				<col width='108' />
-				<col width='108' />
-				<col width='50' />
-				<col width='64' />
-				<col width='116' />
-				<col width='78' />
-				<col width='94' />
-				<col width='47' />
-				<col width='73' />
-				<col width='55' />
-				<col width='62' />
-				<col width='62' />
-				<col width='62' />
-				<col width='62' />
-				<col width='62' />
-				<col width='62' />
-				<col width='62' />
-				<col width='62' />
-				<col width='62' />
-				<col width='62' />
-				<col width='62' />
-				<col width='62' />
-				<col width='62' />
-			</colgroup>
-			<thead>
-				<tr ref={trRef} id='thead-row'>
-					<th rowSpan={2}>
-						결제<span className='block'>일시</span>
-					</th>
-					<th rowSpan={2}>
-						취소<span className='block'>일시</span>
-					</th>
-					<th rowSpan={2}>
-						주문<span className='block'>유형</span>
-					</th>
-					<th rowSpan={2}>
-						주문<span className='block'>상태</span>
-					</th>
-					<th rowSpan={2}>
-						전화<span className='block'>번호</span>
-					</th>
-					<th rowSpan={2}>
-						판매<span className='block'>구분</span>
-					</th>
-					<th rowSpan={2}>
-						주문<span className='block'>메뉴</span>
-					</th>
-					<th rowSpan={2}>
-						총<br />건수
-					</th>
-					<th rowSpan={2}>
-						접수<span className='block'>타입</span>
-					</th>
-					<th rowSpan={2}>
-						결제<span className='block'>방식</span>
-					</th>
-					<th rowSpan={2}>
-						주문금액<br />(메뉴)
-					</th>
-					<th rowSpan={2}>
-						배달비<br />(앱주문)
-					</th>
-					<th colSpan={8} className='price-area boder-th-b'>
-						결제상세(앱주문 배달비 포함)
-					</th>
-					<th colSpan={2} className='price-area boder-th-b boder-th-l'>
-						적립
-					</th>
-					<th rowSpan={2}>현금영수증</th>
-				</tr>
-				<tr>
-					<td className='price-area boder-th-b'>합계</td>
-					<td className='price-area'>카드</td>
-					<td className='price-area'>현금</td>
-					<td className='price-area'>바나포인트</td>
-					<td className='price-area'>충전포인트</td>
-					<td className='price-area'>잔돈포인트</td>
-					<td className='price-area'>가맹점쿠폰</td>
-					<td className='price-area'>본사쿠폰</td>
-					<td className='price-area boder-th-l'>스탬프(개)</td>
-					<td className='price-area'>바나포인트(P)</td>
-				</tr>
-
-			</thead>
+			<TableColGroup />
+			<TableHead ref={trRef}/>
 			<tbody>
 				{!isLoading ? data.map((history: any, idx: number) => {
 					const {
@@ -182,7 +99,7 @@ const SalesHistoryTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTa
 								<td className='align-center'>{pay_type}</td>
 								<td className='align-center'>{Utils.numberComma(nChargeTotal)}</td>
 								<td className='align-center'>{nDeliveryCharge !== 0 ? Utils.numberComma(nDeliveryCharge) : ''}</td>
-								<td className='align-center'>{Utils.numberComma(nChargeTotal)}</td>
+								<td className='align-center'>{Utils.numberComma(nChargeTotal + nDeliveryCharge)}</td>
 								<td className='align-center'>{card_charge !== 0 ? Utils.numberComma(card_charge) : ''}</td>
 								<td className='align-center'>{cash_charge !== 0 ? Utils.numberComma(cash_charge) : ''}</td>
 								<td className='align-center'>{bana_point !== 0 ? Utils.numberComma(bana_point) : ''}</td>

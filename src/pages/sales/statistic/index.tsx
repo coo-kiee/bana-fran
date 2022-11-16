@@ -8,7 +8,7 @@ import { franState } from "state";
 // API
 import SALES_SERVICE from 'service/salesService'
 // Types
-import { SalesStatisticSearch, FilterChart } from "types/sales/salesType";
+import { SalesStatisticSearch, FilterChart, STATISTIC_SEARCH_LIST, STATISTIC_SEARCH_TYPE } from "types/sales/salesType";
 // Utils
 import Utils from "utils/Utils";
 // Components
@@ -17,17 +17,7 @@ import Pagination from "pages/common/pagination";
 import CalanderSearch from "pages/common/calanderSearch";
 import LineChart from "pages/sales/statistic/chart";
 import SalesStatisticTable from "pages/sales/statistic/table";
-
-// option value에 사용할 값 관련 타입
-const STATISTIC_SEARCH_TYPE = {
-	DAY: 'D',
-	MONTH: 'M'
-}
-// select안에서 사용할 option의 타입 LIST
-const STATISTIC_SEARCH_LIST = [
-	STATISTIC_SEARCH_TYPE.DAY,
-	STATISTIC_SEARCH_TYPE.MONTH
-]
+import StickyHead from "./table/StickyHead";
 
 const SalesStatistic = () => {
 	// global states
@@ -42,7 +32,10 @@ const SalesStatistic = () => {
 
 	// pagination
 	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [rowPerPage, setRowPerPage] = useState<number>(3);
+	const [rowPerPage, setRowPerPage] = useState<number>(50);
+    
+	// sticky header display
+	const [showSticky, setShowSticky] = useState<boolean>(false);
 
 	// query
 	// 월별 검색(M)이면 from/to에 -01 string 추가 M: yy-MM, D: yy-MM-dd 포멧
@@ -202,8 +195,9 @@ const SalesStatistic = () => {
 				{/* <!-- // 조회기간 --> */}
 				{/* <!-- 게시판 --> */}
 				<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
-					<SalesStatisticTable data={data} isLoading={isLoading} rowPerPage={rowPerPage} currentPage={currentPage} />
+					<SalesStatisticTable data={data} isLoading={isLoading} rowPerPage={rowPerPage} currentPage={currentPage} setShowSticky={setShowSticky} />
 				</table>
+				{ showSticky ? <StickyHead /> : null}
 				{/* <!-- 게시판 --> */}
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}

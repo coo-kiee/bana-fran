@@ -5,8 +5,11 @@ import Utils from 'utils/Utils';
 
 // Components
 import LoadingTable from 'pages/common/loading/LoadingTable';
+import { useRef, useEffect } from 'react';
+import TableColGroup from 'pages/sales/statistic/table/TableColGroup';
+import TableHead from './TableHead';
 
-const SalesStatisticTable = ({ data, isLoading, rowPerPage, currentPage }: SalesTable) => {
+const SalesStatisticTable = ({ data, isLoading, rowPerPage, currentPage, setShowSticky }: SalesTable) => {
 	// totalSales: 합계 계산용 data 가공
 	const totalSales = {
 		total_sales_amt: data?.reduce((acc: any, cur: any) => { return acc + cur.total_sales_amt; }, 0), // 총 매출
@@ -23,169 +26,210 @@ const SalesStatisticTable = ({ data, isLoading, rowPerPage, currentPage }: Sales
 		bana_point: data?.reduce((acc: any, cur: any) => { return acc + cur.bana_point; }, 0), // 바나포인트
 		fran_coupon_charge: data?.reduce((acc: any, cur: any) => { return acc + cur.fran_coupon_charge; }, 0), // 가맹점 쿠폰
 	};
+	
+	/* sticky part */
+	const trRef = useRef<HTMLTableRowElement>(null)
+	// 조건에 따라 state 바꿔줌
+	const handleShowSticky = (entries: any, observer: any) => {
+		entries.forEach((entry: any) => {
+			if (!entry.isIntersecting) setShowSticky((prev: any) => !prev);
+			entry.intersectionRatio <= 0.1 ? setShowSticky(true) : setShowSticky(false);
+			
+		});
+	}
+	// IntersectionObserver
+	const observer = new IntersectionObserver(handleShowSticky, {root: null, rootMargin: '0px', threshold: 0.1});
+	
+	useEffect(() => {
+		if (trRef.current) {
+			observer.observe(trRef.current)
+		}
+	}, [])	
 
 	return (
 		<>
-			<colgroup>
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-				<col width='122' />
-			</colgroup>
-				<tbody>
-					<tr>
-						<th rowSpan={2}>일시</th>
-						<th rowSpan={2} className='bg-a'>
-							총매출<br />(부가세 포함)
-						</th>
-						<th rowSpan={2} className='bg-b'>
-							앱 주문<br />배달매출<br />(배달비 포함)
-						</th>
-						<th rowSpan={2} className='bg-c'>
-							쿠팡/배민<br />배달 매출<br />(배달비 제외)
-						</th>
-						<th rowSpan={2} className='bg_d'>
-							배달비<br />(앱 주문)
-						</th>
-						<th rowSpan={2} className='bg-e bg-e-right'>
-							유상매출<br />합계<br />(부가세 포함)
-						</th>
-						<th colSpan={5} className='bg-e bg-e-bottom'>
-							유상 매출 상세 (부가세 포함)
-						</th>
-						<th rowSpan={2} className='bg-right'>
-							무상서비스 비용 합계
-						</th>
-						<th colSpan={2} className='bg-bottom'>
-							바나포인트 (적립&월간랭킹보상)
-						</th>
-					</tr>
-					<tr>
-						<th className='bg-e height-63'>
-							카드매출<br />(키오스크/POS)
-						</th>
-						<th className='bg-e height-63'>
-							카드매출<br />(어플)
-						</th>
-						<th className='bg-e height-63'>
-							현금매출<br />(POS)
-						</th>
-						<th className='bg-e height-63'>
-							유상포인트<br />매출
-						</th>
-						<th className='bg-e height-63'>
-							본사 쿠폰<br />매출
-						</th>
-						<th>
-							바나포인트<br />사용금액
-						</th>
-						<th>
-							가맹점 쿠폰<br />사용금액
-						</th>
-					</tr>
-					
-					{ isLoading ? <LoadingTable width={100} height={100} marginTop={20} /> : <>
-					<tr>
-						<td className='total'>합계</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.total_sales_amt)}<br />
-							<span>({(100 * totalSales.total_sales_amt) / totalSales.total_sales_amt}%)</span>
-						</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.app_delivery_amt)}<br />
-							<span>({Math.round((100 * totalSales.app_delivery_amt) / totalSales.total_sales_amt)}%)</span>
-						</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.etc_delivery_amt)}<br />
-							<span>({Math.round((100 * totalSales.etc_delivery_amt) / totalSales.total_sales_amt)}%)</span>
-						</td>
-						<td className='total'>{Utils.numberComma(totalSales.app_delivery_charge)}</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.paid_sales_amt)}<br />
-							<span>({Math.round((100 * totalSales.paid_sales_amt) / totalSales.total_sales_amt)}%)</span>
-						</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.kiosk_card_amt)}<br />
-							<span>({Math.round((100 * totalSales.kiosk_card_amt) / totalSales.total_sales_amt)}%)</span>
-						</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.app_card_amt)}<br />
-							<span>({Math.round((100 * totalSales.app_card_amt) / totalSales.total_sales_amt)}%)</span>
-						</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.pos_cash_amt)}<br />
-							<span>({Math.round((100 * totalSales.pos_cash_amt) / totalSales.total_sales_amt)}%)</span>
-						</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.paid_point)}<br />
-							<span>({Math.round((100 * totalSales.paid_point) / totalSales.total_sales_amt)}%)</span>
-						</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.hd_coupon_charge)}<br />
-							<span>({Math.round((100 * totalSales.hd_coupon_charge) / totalSales.total_sales_amt)}%)</span>
-						</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.free_sales_amt)}<br />
-							<span>({Math.round((100 * totalSales.free_sales_amt) / totalSales.total_sales_amt)}%)</span>
-						</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.bana_point)}<br />
-							<span>({Math.round((100 * totalSales.bana_point) / totalSales.total_sales_amt)}%)</span>
-						</td>
-						<td className='total'>
-							{Utils.numberComma(totalSales.fran_coupon_charge)}<br />
-							<span>({Math.round((100 * totalSales.fran_coupon_charge) / totalSales.total_sales_amt)}%)</span>
-						</td>
-					</tr>
-					{data?.map((salesData: any, idx: number) => {
-						const {
-							std_date,
-							total_sales_amt,
-							app_delivery_amt,
-							etc_delivery_amt,
-							app_delivery_charge,
-							paid_sales_amt,
-							kiosk_card_amt,
-							app_card_amt,
-							pos_cash_amt,
-							paid_point,
-							hd_coupon_charge,
-							free_sales_amt,
-							bana_point,
-							fran_coupon_charge,
-						} = salesData;
-						return (
-							((currentPage - 1) * rowPerPage <= idx) &&
-							(currentPage * rowPerPage > idx) &&
-							<tr key={idx}>
-								<td>{Utils.converDateFormat(new Date(std_date), '-')}</td>
-								<td>{Utils.numberComma(total_sales_amt)}</td>
-								<td>{Utils.numberComma(app_delivery_amt)}</td>
-								<td>{Utils.numberComma(etc_delivery_amt)}</td>
-								<td>{Utils.numberComma(app_delivery_charge)}</td>
-								<td>{Utils.numberComma(paid_sales_amt)}</td>
-								<td>{Utils.numberComma(kiosk_card_amt)}</td>
-								<td>{Utils.numberComma(app_card_amt)}</td>
-								<td>{Utils.numberComma(pos_cash_amt)}</td>
-								<td>{Utils.numberComma(paid_point)}</td>
-								<td>{Utils.numberComma(hd_coupon_charge)}</td>
-								<td>{Utils.numberComma(free_sales_amt)}</td>
-								<td>{Utils.numberComma(bana_point)}</td>
-								<td>{Utils.numberComma(fran_coupon_charge)}</td>
-							</tr>
-						);
-					})}
-				</>}
+			<TableColGroup />
+			{/* <thead>
+				<tr ref={trRef}>
+					<th rowSpan={2}>일시</th>
+					<th rowSpan={2} className='bg-a'>
+						총매출<br />(부가세 포함)
+					</th>
+					<th rowSpan={2} className='bg-b'>
+						앱 주문<br />배달매출<br />(배달비 포함)
+					</th>
+					<th rowSpan={2} className='bg-c'>
+						쿠팡/배민<br />배달 매출<br />(배달비 제외)
+					</th>
+					<th rowSpan={2} className='bg_d'>
+						배달비<br />(앱 주문)
+					</th>
+					<th rowSpan={2} className='bg-e bg-e-right'>
+						유상매출<br />합계<br />(부가세 포함)
+					</th>
+					<th colSpan={5} className='bg-e bg-e-bottom'>
+						유상 매출 상세 (부가세 포함)
+					</th>
+					<th rowSpan={2} className='bg-right'>
+						무상서비스 비용 합계
+					</th>
+					<th colSpan={2} className='bg-bottom'>
+						바나포인트 (적립&월간랭킹보상)
+					</th>
+				</tr>
+				<tr>
+					<th className='bg-e height-63'>
+						카드매출<br />(키오스크/POS)
+					</th>
+					<th className='bg-e height-63'>
+						카드매출<br />(어플)
+					</th>
+					<th className='bg-e height-63'>
+						현금매출<br />(POS)
+					</th>
+					<th className='bg-e height-63'>
+						유상포인트<br />매출
+					</th>
+					<th className='bg-e height-63'>
+						본사 쿠폰<br />매출
+					</th>
+					<th>
+						바나포인트<br />사용금액
+					</th>
+					<th>
+						가맹점 쿠폰<br />사용금액
+					</th>
+				</tr>
+			</thead> */}
+			<TableHead ref={trRef} />
+			<tbody>
+				{isLoading ? (
+					<LoadingTable width={100} height={100} marginTop={20} />
+				) : (
+					<>
+						<tr>
+							<td className='total'>합계</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.total_sales_amt)}
+								<br />
+								<span>({(100 * totalSales.total_sales_amt) / totalSales.total_sales_amt}%)</span>
+							</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.app_delivery_amt)}
+								<br />
+								<span>
+									({Math.round((100 * totalSales.app_delivery_amt) / totalSales.total_sales_amt)}%)
+								</span>
+							</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.etc_delivery_amt)}
+								<br />
+								<span>
+									({Math.round((100 * totalSales.etc_delivery_amt) / totalSales.total_sales_amt)}%)
+								</span>
+							</td>
+							<td className='total'>{Utils.numberComma(totalSales.app_delivery_charge)}</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.paid_sales_amt)}
+								<br />
+								<span>
+									({Math.round((100 * totalSales.paid_sales_amt) / totalSales.total_sales_amt)}%)
+								</span>
+							</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.kiosk_card_amt)}
+								<br />
+								<span>
+									({Math.round((100 * totalSales.kiosk_card_amt) / totalSales.total_sales_amt)}%)
+								</span>
+							</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.app_card_amt)}
+								<br />
+								<span>
+									({Math.round((100 * totalSales.app_card_amt) / totalSales.total_sales_amt)}%)
+								</span>
+							</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.pos_cash_amt)}
+								<br />
+								<span>
+									({Math.round((100 * totalSales.pos_cash_amt) / totalSales.total_sales_amt)}%)
+								</span>
+							</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.paid_point)}
+								<br />
+								<span>({Math.round((100 * totalSales.paid_point) / totalSales.total_sales_amt)}%)</span>
+							</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.hd_coupon_charge)}
+								<br />
+								<span>
+									({Math.round((100 * totalSales.hd_coupon_charge) / totalSales.total_sales_amt)}%)
+								</span>
+							</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.free_sales_amt)}
+								<br />
+								<span>
+									({Math.round((100 * totalSales.free_sales_amt) / totalSales.total_sales_amt)}%)
+								</span>
+							</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.bana_point)}
+								<br />
+								<span>({Math.round((100 * totalSales.bana_point) / totalSales.total_sales_amt)}%)</span>
+							</td>
+							<td className='total'>
+								{Utils.numberComma(totalSales.fran_coupon_charge)}
+								<br />
+								<span>
+									({Math.round((100 * totalSales.fran_coupon_charge) / totalSales.total_sales_amt)}%)
+								</span>
+							</td>
+						</tr>
+						{data?.map((salesData: any, idx: number) => {
+							const {
+								std_date,
+								total_sales_amt,
+								app_delivery_amt,
+								etc_delivery_amt,
+								app_delivery_charge,
+								paid_sales_amt,
+								kiosk_card_amt,
+								app_card_amt,
+								pos_cash_amt,
+								paid_point,
+								hd_coupon_charge,
+								free_sales_amt,
+								bana_point,
+								fran_coupon_charge,
+							} = salesData;
+							return (
+								(currentPage - 1) * rowPerPage <= idx &&
+								currentPage * rowPerPage > idx && (
+									<tr key={idx}>
+										<td>{Utils.converDateFormat(new Date(std_date), '-')}</td>
+										<td>{Utils.numberComma(total_sales_amt)}</td>
+										<td>{Utils.numberComma(app_delivery_amt)}</td>
+										<td>{Utils.numberComma(etc_delivery_amt)}</td>
+										<td>{Utils.numberComma(app_delivery_charge)}</td>
+										<td>{Utils.numberComma(paid_sales_amt)}</td>
+										<td>{Utils.numberComma(kiosk_card_amt)}</td>
+										<td>{Utils.numberComma(app_card_amt)}</td>
+										<td>{Utils.numberComma(pos_cash_amt)}</td>
+										<td>{Utils.numberComma(paid_point)}</td>
+										<td>{Utils.numberComma(hd_coupon_charge)}</td>
+										<td>{Utils.numberComma(free_sales_amt)}</td>
+										<td>{Utils.numberComma(bana_point)}</td>
+										<td>{Utils.numberComma(fran_coupon_charge)}</td>
+									</tr>
+								)
+							);
+						})}
+					</>
+				)}
 			</tbody>
 		</>
 	);

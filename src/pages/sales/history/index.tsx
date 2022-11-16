@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { format, subYears } from "date-fns";
 
@@ -8,7 +8,7 @@ import { franState } from "state";
 // API
 import SALES_SERVICE from 'service/salesService'
 // Types
-import { SalesHistorySearch } from "types/sales/salesType";
+import { HISTORY_GIFT_CERT, HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE, HISTORY_PAY_TYPE, HISTORY_RCP_TYPE, HISTORY_SEARCH_TYPE_LIST, SalesHistorySearch } from "types/sales/salesType";
 // Utils
 import Utils from "utils/Utils";
 
@@ -17,90 +17,8 @@ import CalanderSearch from "pages/common/calanderSearch";
 import Pagination from "pages/common/pagination";
 import SalesHistoryTable from "pages/sales/history/table";
 import PrefixSum from "pages/sales/history/PrefixSum";
-import StickyHeader from "./table/StickyHeader";
+import StickyHead from "./table/StickyHead";
 
-
-/* option value에 사용할 값 관련 타입들 */
-
-// 주문 유형(ORDER_TYPE)
-const HISTORY_ORDER_TYPE = {
-	TOTAL: 'total',
-	CAFE: '0',
-	APP: '1',
-	COUPANG: '2',
-	BAEMIN: '3',
-}
-// 주문 상태(ORDER_STATE)
-const HISTORY_ORDER_STATE = {
-	TOTAL: 'total',
-	AWAIT: '5',
-	MAKING: '10',
-	MAKING_FINISH: '30',
-	DELIVERY: '35',
-	COMPLETE: '40',
-	CANCEL: '50',
-}
-// 접수타입(RCP_TYPE)
-const HISTORY_RCP_TYPE = {
-	TOTAL: 'total',
-	APP: '앱',
-	KIOSK: '키오스크',
-	POS: '직접결제POS',
-	FPROCESS: '매장앱'
-}
-// 결제방식(PAY_TYPE)
-const HISTORY_PAY_TYPE = {
-	TOTAL: 'total',
-	COMPLETE: '결제완료',
-	CARD: '현장카드',
-	CASH: '현장현금',
-	CANCEL: '결제취소',
-}
-// 일반제품(GIFT_CERT)
-const HISTORY_GIFT_CERT = {
-	TOTAL: 'total',
-	GIFT: '0',
-	CERT: '1',
-}
-
-// select안에서 사용할 option의 타입 LIST
-const HISTORY_SEARCH_TYPE_LIST = [
-	[
-		HISTORY_ORDER_TYPE.TOTAL,
-		HISTORY_ORDER_TYPE.CAFE,
-		HISTORY_ORDER_TYPE.APP,
-		HISTORY_ORDER_TYPE.COUPANG,
-		HISTORY_ORDER_TYPE.BAEMIN,
-	],
-	[
-		HISTORY_ORDER_STATE.TOTAL,
-		HISTORY_ORDER_STATE.AWAIT,
-		HISTORY_ORDER_STATE.MAKING,
-		HISTORY_ORDER_STATE.MAKING_FINISH,
-		HISTORY_ORDER_STATE.DELIVERY,
-		HISTORY_ORDER_STATE.COMPLETE,
-		HISTORY_ORDER_STATE.CANCEL,
-	],
-	[
-		HISTORY_RCP_TYPE.TOTAL,
-		HISTORY_RCP_TYPE.APP,
-		HISTORY_RCP_TYPE.KIOSK,
-		HISTORY_RCP_TYPE.POS,
-		HISTORY_RCP_TYPE.FPROCESS,
-	],
-	[
-		HISTORY_PAY_TYPE.TOTAL,
-		HISTORY_PAY_TYPE.COMPLETE,
-		HISTORY_PAY_TYPE.CARD,
-		HISTORY_PAY_TYPE.CASH,
-		HISTORY_PAY_TYPE.CANCEL,
-	],
-	[
-		HISTORY_GIFT_CERT.TOTAL,
-		HISTORY_GIFT_CERT.GIFT,
-		HISTORY_GIFT_CERT.CERT,
-	],
-]
 
 const SalesHistory = () => {
 	// global states
@@ -113,11 +31,11 @@ const SalesHistory = () => {
 		from: format(new Date(today.getFullYear(), today.getMonth()-1, today.getDate()), 'yyyy-MM-dd'), 
 		to: format(new Date(today), 'yyyy-MM-dd'),
 		searchOption: [
-			{ title: '주문유형 전체', type: 'total' },
-			{ title: '주문상태 전체', type: 'total' },
-			{ title: '접수타입 전체', type: 'total' },
-			{ title: '결제방식 전체', type: 'total' },
-			{ title: '상품 전체', type: 'total' },
+			{ title: '주문유형 전체', value: 'total' },
+			{ title: '주문상태 전체', value: 'total' },
+			{ title: '접수타입 전체', value: 'total' },
+			{ title: '결제방식 전체', value: 'total' },
+			{ title: '상품 전체', value: 'total' },
 		]
 	});
 
@@ -128,10 +46,12 @@ const SalesHistory = () => {
 
 	// pagination
 	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [rowPerPage, setRowPerPage] = useState<number>(3);
+	const [rowPerPage, setRowPerPage] = useState<number>(50);
     
 	// sticky header display
 	const [showSticky, setShowSticky] = useState<boolean>(false);
+
+	// query
 	const { data, isLoading, isRefetching, refetch } = SALES_SERVICE.useSalesOrderList({ from_date: historySearch.from, to_date: historySearch.to, f_code: fCode });
 
 
@@ -139,10 +59,10 @@ const SalesHistory = () => {
 	const searchOptionList = [
 		{
 			[HISTORY_ORDER_TYPE.TOTAL]: { title: '주문유형 전체', value: 'total' },
-			[HISTORY_ORDER_TYPE.CAFE]: { title: '매장주문', value: 'cafe' },
-			[HISTORY_ORDER_TYPE.APP]: { title: '앱주문', value: 'app' },
-			[HISTORY_ORDER_TYPE.COUPANG]: { title: '쿠팡주문', value: 'coupang' },
-			[HISTORY_ORDER_TYPE.BAEMIN]: { title: '배민주문', value: 'baemin ' },
+			[HISTORY_ORDER_TYPE.CAFE]: { title: '매장주문', value: '0' },
+			[HISTORY_ORDER_TYPE.APP]: { title: '앱주문', value: '1' },
+			[HISTORY_ORDER_TYPE.COUPANG]: { title: '쿠팡주문', value: '2' },
+			[HISTORY_ORDER_TYPE.BAEMIN]: { title: '배민주문', value: '3' },
 		},
 		{
 			[HISTORY_ORDER_STATE.TOTAL]: { title: '주문상태 전체', value: 'total' },
@@ -151,45 +71,44 @@ const SalesHistory = () => {
 			[HISTORY_ORDER_STATE.MAKING_FINISH]: { title: '제조완료', value: '30' },
 			[HISTORY_ORDER_STATE.DELIVERY]: { title: '배달중', value: '35' },
 			[HISTORY_ORDER_STATE.COMPLETE]: { title: '완료', value: '40' },
-			[HISTORY_ORDER_STATE.CANCEL]: { title: '취소', value: '50' },
+			// [HISTORY_ORDER_STATE.CANCEL]: { title: '취소', value: '50' },
 		},
 		{
 			[HISTORY_RCP_TYPE.TOTAL]: { title: '접수타입 전체', value: 'total' },
-			[HISTORY_RCP_TYPE.APP]: { title: '앱', value: 'app' },
-			[HISTORY_RCP_TYPE.KIOSK]: { title: '키오스크', value: 'kiosk' },
-			[HISTORY_RCP_TYPE.POS]: { title: '직접결제POS', value: 'pos' },
-			[HISTORY_RCP_TYPE.FPROCESS]: { title: '매장앱', value: 'fprocess' },
+			[HISTORY_RCP_TYPE.APP]: { title: '앱', value: '앱' },
+			[HISTORY_RCP_TYPE.KIOSK]: { title: '키오스크', value: '키오스크' },
+			[HISTORY_RCP_TYPE.POS]: { title: '직접결제POS', value: '직접결제POS' },
+			[HISTORY_RCP_TYPE.FPROCESS]: { title: '매장앱', value: '매장앱' },
 		},
 		{
 			[HISTORY_PAY_TYPE.TOTAL]: { title: '결제방식 전체', value: 'total' },
-			[HISTORY_PAY_TYPE.COMPLETE]: { title: '결제완료', value: 'complete' },
-			[HISTORY_PAY_TYPE.CARD]: { title: '현장카드결제', value: 'card' },
-			[HISTORY_PAY_TYPE.CASH]: { title: '현장현금결제', value: 'cash' },
-			[HISTORY_PAY_TYPE.CANCEL]: { title: '결제취소', value: 'cancel' },
+			[HISTORY_PAY_TYPE.COMPLETE]: { title: '결제완료', value: '결제완료' },
+			[HISTORY_PAY_TYPE.CARD]: { title: '현장카드결제', value: '현장카드' },
+			[HISTORY_PAY_TYPE.CASH]: { title: '현장현금결제', value: '현장현금' },
+			[HISTORY_PAY_TYPE.CANCEL]: { title: '결제취소', value: '결제취소' },
 		},
 		{
 			[HISTORY_GIFT_CERT.TOTAL]: { title: '상품 전체', value: 'total' },
-			[HISTORY_GIFT_CERT.GIFT]: { title: '실물상품권', value: 'gift' },
-			[HISTORY_GIFT_CERT.CERT]: { title: '일반제품', value: 'cert' },
+			[HISTORY_GIFT_CERT.PRODUCT]: { title: '일반제품', value: '0' },
+			[HISTORY_GIFT_CERT.GIFT_CERT]: { title: '실물상품권', value: '1' },
 		}
 		
 	]
 
-	data && console.log(data);
+	// data && console.log(data);
 
 	// select box filter (change on refetch): order_type, order_state, rcp_rtpe, pay_type, gift_cert
 	const filteredData = useMemo(() => {
-		const orderType = historySearch.searchOption[0].type; 	// 주문유형 1: 앱 2:쿠팡 3: 배민 else: 매장
-		const orderState = historySearch.searchOption[1].type;	// 주문상태
-		const rcpType = historySearch.searchOption[2].type;		// 접수타입
-		const payType = historySearch.searchOption[3].type;		// 결제방식 
-		const giftCert = historySearch.searchOption[4].type;	// 0: 일반결제, 1: 상품권
-		// console.log(orderType)
+		const orderType = historySearch.searchOption[0].value; 	// 주문유형 1: 앱 2:쿠팡 3: 배민 else: 매장
+		const orderState = historySearch.searchOption[1].value;	// 주문상태
+		const rcpType = historySearch.searchOption[2].value;		// 접수타입
+		const payType = historySearch.searchOption[3].value;		// 결제방식 
+		const giftCert = historySearch.searchOption[4].value;	// 0: 일반결제, 1: 상품권
 		let resultData = data;
 
 		if (orderType !== 'total') { 
 			resultData = resultData.filter((dd: any) => {return dd.order_type === Number(orderType)})
-		}
+		} 
 		if (orderState !== 'total' && orderState !== '10') { // 주문상태
 			// total과 제조중(10) 제외한 나머지 state			
 			resultData = resultData.filter((dd: any) => {return dd.order_state === Number(orderState)})
@@ -204,9 +123,8 @@ const SalesHistory = () => {
 			resultData = resultData.filter((dd: any) => {return dd.pay_type === payType})			
 		}
 		if (giftCert !== 'total') {
-			resultData = resultData.filter((dd: any) => {return dd.gift_cert === Number(giftCert)})
+			resultData = resultData.filter((dd: any) => {return dd.bOrderGiftCert === giftCert})
 		}
-		// console.log(resultData)
 		return resultData;
 	}, [data, isRefetching]);
 
@@ -249,11 +167,6 @@ const SalesHistory = () => {
 				<div className='info-wrap'>
 					<p>※ 주문내역을 조회할 수 있습니다. (최대 12개월 이내)</p>
 				</div>
-				{/* <p>
-					titles: {historySearch.searchOption[0].title}/{historySearch.searchOption[1].title}/{historySearch.searchOption[2].title}/{historySearch.searchOption[3].title}/{historySearch.searchOption[4].title} <br/>
-					typeof: {typeof historySearch.searchOption[0].type}/{typeof historySearch.searchOption[1].type}/{typeof historySearch.searchOption[2].type}/{typeof historySearch.searchOption[3].type}/{typeof historySearch.searchOption[4].type}<br/>
-					types: {historySearch.searchOption[0].type}/{historySearch.searchOption[1].type}/{historySearch.searchOption[2].type}/{historySearch.searchOption[3].type}/{historySearch.searchOption[4].type}
-				</p> */}
 				<div className='fixed-paid-point-wrap'>
 					{/* <!-- 검색 --> */}
 					<CalanderSearch 
@@ -273,6 +186,11 @@ const SalesHistory = () => {
 						<div className='search-date'>
 							<p>조회기간: {historySearch.from} ~ {historySearch.to}</p>
 						</div>
+						{/* <p>
+							titles: {historySearch.searchOption[0].title}/{historySearch.searchOption[1].title}/{historySearch.searchOption[2].title}/{historySearch.searchOption[3].title}/{historySearch.searchOption[4].title} <br/>
+							values: {historySearch.searchOption[0].value}/{historySearch.searchOption[1].value}/{historySearch.searchOption[2].value}/{historySearch.searchOption[3].value}/{historySearch.searchOption[4].value}<br/>
+							types: {historySearch.searchOption[0].type}/{historySearch.searchOption[1].type}/{historySearch.searchOption[2].type}/{historySearch.searchOption[3].type}/{historySearch.searchOption[4].type}
+						</p> */}
 						<PrefixSum data={data || []} />
 						<div className='detail-info-wrap'>
 							<div className='price-info'>
@@ -301,9 +219,9 @@ const SalesHistory = () => {
 					{/* <!-- 게시판 --> */}
 					<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
 						<SalesHistoryTable 
-							data={checkedFilteredData || []} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} />
+							data={checkedFilteredData || []} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} setShowSticky={setShowSticky} />
 					</table>
-					{showSticky ? <StickyHeader /> : null}
+					{showSticky ? <StickyHead /> : null}
 					{/* <!-- 게시판 --> */}
 				</div>
 				{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
