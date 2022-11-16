@@ -1,19 +1,23 @@
-import { FC, Suspense, useRef, useState } from "react";
+import { FC, ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-// DatePicker
-import ReactDatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { ko } from "date-fns/esm/locale";
-
+// API
+import CALCULATE_SERVICE from "service/calculateService";
 
 // Util
 import Utils from "utils/Utils";
 
+// Date
+import { format, lastDayOfMonth, subMonths } from "date-fns";
+
+// Type
+import { SearchInfoSelectType } from "types/etc/etcType";
+
 // Component
 import Pagination from "pages/common/pagination";
 import Loading from "pages/common/loading";
-import { CustomErrorComponent } from "pages/calculate/list/CalculateListTable";
+import CalanderSearch from "pages/common/calanderSearch";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 interface PointDetailTableProps {
     userInfo: {
@@ -27,26 +31,53 @@ const PointDetailTable: FC<PointDetailTableProps> = ({ userInfo }) => {
     // 사용자 정보
     const { f_code, staff_no, f_code_name } = userInfo;
 
-    // defalt Date
-    const today = new Date();
-    const lastMonthStartDate = new Date(today.getFullYear(), today.getMonth() - 1, 2);
-    const lastMonthEndDate = new Date(today.getFullYear(), today.getMonth());
+    // 쿠폰 종류
+    const [couponType, setCouponType] = useState<CouponType>({ 
+        0: { title: '쿠폰 전체', value: 0 },
+    });
+    const { data: couponList } = CALCULATE_SERVICE.useCalculateCouponType(['couponList', JSON.stringify({f_code, staff_no})], f_code, staff_no);
+    useEffect(() => {
+        if (couponList) {
+            const couponObj = couponList.reduce((res, cur) => {
+                const title = cur.code_name;
+                const value = cur.code;
+                res[value] = { title, value };
+                return res;
+            }, couponType);
+            setCouponType(prev => ({...prev, ...couponObj}));
+        };
+    }, [couponList]);
 
-    const initialDate = {
-        fromDate: Utils.converDateFormat(lastMonthStartDate, '-'),
-        toDate: Utils.converDateFormat(lastMonthEndDate, '-'),
-        pointType: 0,
-        deviceType: 0,
-    };
-    const [searchCondition, setSearchCondition] = useState<SearchCondition>(initialDate);
-    const [searchControll, setSearchControll] = useState<SearchControll>({ isSearch: false, titleFromDate: searchCondition.fromDate, titleToDate: searchCondition.toDate });
+    // 검색 조건
+    const fromDate = format(subMonths(new Date(), 1), 'yyyy-MM-01');
+    const toDate = format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd');
+    const [searchCondition, setSearchCondition] = useState<SearchCondition>({
+        from: fromDate,
+        to: toDate,
+        searchOption: [couponType[0], DEVICE_TYPE.ALL,],
+        triggerFromDate: Utils.converDateFormat(fromDate, '-'), // query trigger
+        triggertoDate: Utils.converDateFormat(toDate, '-'), // query trigger
+    });
+
+    const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
+        titleFrom: Utils.converDateFormat(searchCondition.from, '-'),
+        titleTo: Utils.converDateFormat(searchCondition.to, '-'),
+        totalChargePoint: 0,
+        totalPointChange: 0,
+    });
+
+    const [pageInfo, setPageInfo] = useState({
+        dataCnt: 0,
+        currentPage: 1,
+        row: 50,
+    });
 
     const { width, thInfo, tdInfo } = TABLE_COLUMN_INFO;
     const tableRef = useRef<HTMLTableElement | null>(null);
 
     return (
         <>
-            <TableTop searchCondition={searchCondition} setSearchCondition={setSearchCondition} searchControll={searchControll} setSearchControll={setSearchControll} />
+            <TableTop couponType={couponType} searchCondition={searchCondition} setSearchCondition={setSearchCondition} tableTopInfo={tableTopInfo} setTableTopInfo={setTableTopInfo} />
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
@@ -55,15 +86,14 @@ const PointDetailTable: FC<PointDetailTableProps> = ({ userInfo }) => {
                     <tr>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr>
                     <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
                     {/* List */}
-                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <CustomErrorComponent resetErrorBoundary={resetErrorBoundary} colsPan={TABLE_COLUMN_INFO.width.length} />} onError={(e) => console.log('CouponDetail')}>
-                        <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={-50} /></td></tr>}>
-                            <TableList fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} searchControll={searchControll} setSearchControll={setSearchControll} />
+                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
+                        <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={-50} /></td></tr>}>
+                            <TableList couponType={couponType} fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
             </table>
-            < TableBottom fCodeName={f_code_name} tableRef={tableRef} searchControll={searchControll} />
-            {/* <TableBottom dataCnt={pageInfo?.total_cnt || 0} row={listSearchCondition.page_size || 50} currentPage={listSearchCondition.page_idx || 1} setListSearchCondition={setListSearchCondition} /> */}
+            < TableBottom fCodeName={f_code_name} tableRef={tableRef} tableTopInfo={tableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
         </>
     );
 }
@@ -87,84 +117,76 @@ const TABLE_COLUMN_INFO = {
     tdInfo: ['공급가', '부가세', '합계']
 } as const;
 
-type SearchCondition = {
-    fromDate: string,
-    toDate: string,
-    pointType: number,
-    deviceType: number,
+type CouponType = {
+    [key: number]: { title: string, value: number }
 };
 
-type SearchControll = {
-    isSearch: boolean,
-    titleFromDate: string,
-    titleToDate: string,
+const DEVICE_TYPE = {
+    ALL: { title: '거래기기 전체', value: '거래기기 전체' },
+    KIOSK: { title: '키오스크', value: '키오스크' },
+    APP: { title: '어플', value: '어플' },
+} as const;
+
+interface SearchCondition extends SearchInfoSelectType {
+    triggerFromDate: string,
+    triggertoDate: string,
 };
+
+type TableTopInfo = {
+    titleFrom: string,
+    titleTo: string,
+    totalChargePoint: number,
+    totalPointChange: number,
+};
+
 
 interface TableTopProps {
+    couponType: CouponType,
     searchCondition: SearchCondition,
     setSearchCondition: React.Dispatch<React.SetStateAction<SearchCondition>>,
-    searchControll: SearchControll,
-    setSearchControll: React.Dispatch<React.SetStateAction<SearchControll>>,
+    tableTopInfo: TableTopInfo,
+    setTableTopInfo: React.Dispatch<React.SetStateAction<TableTopInfo>>,
 };
-const TableTop: FC<TableTopProps> = ({ searchCondition, setSearchCondition, searchControll, setSearchControll }) => {
+const TableTop: FC<TableTopProps> = ({ couponType, searchCondition, setSearchCondition, tableTopInfo, setTableTopInfo }) => {
 
-    const { fromDate, toDate, pointType, deviceType } = searchCondition;
-    const { isSearch, titleFromDate, titleToDate } = searchControll;
-
-    const handleSearchCondition = (key: string, value: any) => {
-        setSearchCondition(prev => ({ ...prev, [key]: value }));
-    };
+    const { titleFrom, titleTo, totalChargePoint, totalPointChange } = tableTopInfo;
 
     const handleSearch = () => {
-        setSearchControll(prev => ({ ...prev, isSearch: true }));
+        const { from, to } = searchCondition;
+        const triggerFromDate = Utils.converDateFormat(from, '-');
+        const triggertoDate = Utils.converDateFormat(to, '-');
+        setSearchCondition(prev => ({ ...prev, triggerFromDate, triggertoDate }));
     };
 
     return (
         <>
-            <p className="title bullet">상세내역</p>
-            <div className="search-wrap">
-                <div className="input-wrap">
-                    <ReactDatePicker
-                        dateFormat={'yyyy-MM-dd'}
-                        selected={new Date(fromDate)}
-                        onChange={(date) => handleSearchCondition('fromDate', Utils.converDateFormat(date, '-'))}
-                        maxDate={new Date()}
-                        locale={ko}
-                    />
-                    <i>~</i>
-                    <ReactDatePicker
-                        dateFormat={'yyyy-MM-dd'}
-                        selected={new Date(toDate)}
-                        onChange={(date) => handleSearchCondition('toDate', Utils.converDateFormat(date, '-'))}
-                        maxDate={new Date()}
-                        locale={ko}
-                    />
-                </div>
-                <div className="select-wrap">
-                    <select name="pointType" id="" value={pointType} onChange={(e) => handleSearchCondition(e.currentTarget.name, e.currentTarget.value)} >
-                        <option value={0}>포인트 구분 전체</option>
-                    </select>&nbsp;&nbsp;
-                    <select name="deviceType" id="" value={deviceType} onChange={(e) => handleSearchCondition(e.currentTarget.name, e.currentTarget.value)} >
-                        <option value={0}>거래기기 전체</option>
-                        <option value={1}>포인트 구분 전체</option>
-                    </select>
-                </div>
-                <button className="btn-search" onClick={handleSearch}>조회</button>
-            </div>
+            <CalanderSearch
+                title={'상세내역'}
+                dateType={'yyyy-MM-dd'}
+                searchInfo={searchCondition}
+                setSearchInfo={setSearchCondition}
+                optionType={'SELECT'}
+                selectOption={[couponType, DEVICE_TYPE]} // select로 나타날 옵션 정보
+                optionList={[Object.keys(couponType), Object.keys(DEVICE_TYPE)]} // option 맵핑할 때 사용  
+                handleSearch={() => { handleSearch() }}
+            />
             <div className="search-result-wrap">
                 {
-                    !isSearch &&
                     <>
                         <div className="search-date">
-                            <p>조회기간: {titleFromDate} ~ {titleToDate}</p>
+                            <p>조회기간: {titleFrom} ~ {titleTo}</p>
                         </div>
                         <ul className="search-result">
-                            <li>출석 이벤트 쿠폰&nbsp;:&nbsp;<span className="value">10,000원</span></li>
+                        <li>출석 이벤트 쿠폰&nbsp;:&nbsp;<span className="value">10,000원</span></li>
                             <li>밀크티 트립 스탬프 이벤트 쿠폰&nbsp;:&nbsp;<span className="value">10,000원</span></li>
                             <li>어플 설치 1500원 할인 쿠폰:<span className="value">10,000원</span></li>
                             <li>고객 클레임 서비스 쿠폰:<span className="value">10,000원</span></li>
                             <li>기타 본사 서비스 쿠폰:<span className="value">10,000원</span></li>
                             <li>본사 쿠폰 사용금액 합계:<span className="value">10,000원</span></li>
+
+                            {/* <li>충전포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalChargePoint)}원</span></li>
+                            <li>잔돈포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalPointChange)}원</span></li>
+                            <li>유상(충전+잔돈)포인트 사용금액 합계:<span className="value">{Utils.numberComma(totalChargePoint + totalPointChange)}원</span></li> */}
                         </ul>
                     </>
                 }
@@ -174,76 +196,116 @@ const TableTop: FC<TableTopProps> = ({ searchCondition, setSearchCondition, sear
 };
 
 interface TableListProps {
+    couponType: CouponType,
     fCode: number,
     staffNo: number,
     searchCondition: SearchCondition,
-    searchControll: SearchControll,
-    setSearchControll: React.Dispatch<React.SetStateAction<SearchControll>>,
+    setTableTopInfo: React.Dispatch<React.SetStateAction<TableTopInfo>>,
+    pageInfo: {
+        dataCnt: number;
+        currentPage: number;
+        row: number;
+    },
+    setPageInfo: React.Dispatch<React.SetStateAction<{
+        dataCnt: number;
+        currentPage: number;
+        row: number;
+    }>>,
 };
-const TableList: FC<TableListProps> = ({ searchCondition, searchControll, setSearchControll }) => {
+const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondition, setTableTopInfo, pageInfo, setPageInfo }) => {
 
-    // const { list, out: pageInfo } = boardList;
-    // const { total_cnt } = pageInfo;
+    const { currentPage, row } = pageInfo;
+    const { searchOption, triggerFromDate, triggertoDate } = searchCondition;
+    const listQueryKey = ['calculateCouponDetail', JSON.stringify({ triggerFromDate, triggertoDate })];
+
+    const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetail(listQueryKey, fCode, staffNo, triggerFromDate, triggertoDate);
+
+    // render Node 필터링, 충전/잔돈 포인트 합계 계산
+    const [renderTableList, totalChargePoint, totalPointChange] = useMemo(() => {
+
+        let totalChargePoint = 0; // 충전포인트 합계
+        let totalPointChange = 0; // 잔돈포인트 합계
+
+        const renderTableList = couponDetailList?.reduce((arr, pointDetail, index) => {
+
+            const { rcp_date, item_type, item_type_code, sItem, total_amt, rcp_type, phone, supply_amt, vat_amt } = pointDetail;
+            const [date] = rcp_date.split(' '); // [date, time]
+
+            // 합계 계산
+            // if (use_point_type === POINT_TYPE.CHARGE.value) totalChargePoint += total_amt;
+            // else if (use_point_type === POINT_TYPE.CHANGE.value) totalPointChange += total_amt;
+
+            // 필터링 조건
+            const showCoupon = parseInt(searchOption[0].value + '');
+            const isCouponType = showCoupon === couponType[0].value || showCoupon === item_type_code;
+            const isDeviceType = searchOption[1].value === DEVICE_TYPE.ALL.value || searchOption[1].value === rcp_type;
+
+            if (isCouponType && isDeviceType) {
+                arr.push(
+                    <tr key={index}>
+                        <td className="align-center">{date}</td>
+                        <td className="align-left">{item_type}</td>
+                        <td className="align-center">{sItem}</td>
+                        <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                        <td className="align-center">{rcp_type}</td>
+                        <td className="align-center">{phone}</td>
+                        <td className="align-right">{Utils.numberComma(supply_amt)}</td>
+                        <td className="align-right">{Utils.numberComma(vat_amt)}</td>
+                        <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                    </tr>
+                )
+            }
+            return arr;
+        }, [] as ReactNode[])
+        console.log(renderTableList);
+
+        return [renderTableList, totalChargePoint, totalPointChange];
+    }, [couponDetailList, searchOption]);
+
+    // 페이지 로딩 && 필터적용 시 페이지 정보 수정
+    useEffect(() => {
+        if (renderTableList) setPageInfo(prev => ({ ...prev, dataCnt: renderTableList.length }));
+    }, [setPageInfo, renderTableList]);
+
+    // 페이지 로딩 시 합계 값 대입
+    useEffect(() => {
+        setTableTopInfo(prev => ({ ...prev, titleFrom:triggerFromDate, titleTo:triggertoDate, totalChargePoint, totalPointChange }));
+    }, [setTableTopInfo, triggerFromDate, triggertoDate, totalChargePoint, totalPointChange]);
 
     return (
         <>
-            <tr>
-                <td className="align-center">22/06/01~22/06/30</td>
-                <td className="align-left">출석 이벤트 쿠폰</td>
-                <td className="align-left">아메리카노</td>
-                <td className="align-right">13,000</td>
-                <td className="align-center">어플</td>
-                <td className="align-center">0101234****</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right"><strong>130,000</strong></td>
-            </tr>
-            <tr>
-                <td className="align-center">22/06/01~22/06/30</td>
-                <td className="align-left">밀크티 트립 스탬프 이벤트 쿠폰</td>
-                <td className="align-left">아메리카노</td>
-                <td className="align-right">13,000</td>
-                <td className="align-center">어플</td>
-                <td className="align-center">0101234****</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right"><strong>130,000</strong></td>
-            </tr>
-            <tr>
-                <td className="align-center">22/06/01~22/06/30</td>
-                <td className="align-left">어플 설치 1500원 할인 쿠폰</td>
-                <td className="align-left">아메리카노</td>
-                <td className="align-right">13,000</td>
-                <td className="align-center">키오스크</td>
-                <td className="align-center">0101234****</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right"><strong>130,000</strong></td>
-            </tr>
-            {/* <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr> */}
+            {/* 페이지네이션 적용 */}
+            {renderTableList?.map((item, index) => (index >= (currentPage - 1) * row && index < currentPage * row) && item)}
+            {renderTableList?.length === 0 && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>}
         </>
     )
 };
 
 interface TableBottomProps {
     fCodeName: string,
-    dataCnt: number,
-    currentPage: number,
-    row: number,
-    searchControll: SearchControll,
+    tableTopInfo: TableTopInfo,
     tableRef: React.MutableRefObject<HTMLTableElement | null>,
+    pageInfo: {
+        dataCnt: number;
+        currentPage: number;
+        row: number;
+    },
+    setPageInfo: React.Dispatch<React.SetStateAction<{
+        dataCnt: number;
+        currentPage: number;
+        row: number;
+    }>>,
 };
-// const TableBottom: FC<TableBottomProps> = ({ fCodeName, dataCnt, currentPage, row, searchControll, tableRef }) => {
-const TableBottom: FC<{ fCodeName: string, searchControll: SearchControll, tableRef: React.MutableRefObject<HTMLTableElement | null>, }> = ({ fCodeName, searchControll, tableRef }) => {
+const TableBottom: FC<TableBottomProps> = ({ fCodeName, tableTopInfo, tableRef, pageInfo, setPageInfo }) => {
 
-    const { dataCnt = 1, currentPage = 1, row = 50 } = {};
-    const { titleFromDate, titleToDate } = searchControll;
+    const { dataCnt = 1, currentPage = 1, row = 50 } = pageInfo;
+    const { titleFrom, titleTo } = tableTopInfo;
     const handlePageChange = (changePage: number) => {
-        // setListSearchCondition(prev => ({ ...prev, page_idx: changePage }))
+        setPageInfo(prev => ({ ...prev, currentPage: changePage }));
     };
 
     const handlePageRow = (row: number) => {
-        // setListSearchCondition(prev => ({ ...prev, page_size: row }))
+        setPageInfo(prev => ({ ...prev, row, currentPage: 1 }));
     };
 
     const excelDownload = () => {
@@ -259,7 +321,7 @@ const TableBottom: FC<{ fCodeName: string, searchControll: SearchControll, table
                 sheetName: '', // 시트이름, 필수 X
             };
 
-            const fileName = `${titleFromDate}~${titleToDate}_${fCodeName}_본사_쿠폰_결제내역`;
+            const fileName = `${titleFrom}~${titleTo}_${fCodeName}_유상포인트_결제내역`;
 
             Utils.excelDownload(tableRef.current, options, fileName);
         };
@@ -272,7 +334,7 @@ const TableBottom: FC<{ fCodeName: string, searchControll: SearchControll, table
                 <>
                     <div className="result-function-wrap" >
                         <div className="function">
-                            <button className="goast-btn" onClick={excelDownload}>엑셀다운</button>&nbsp;
+                            <button className="goast-btn" onClick={excelDownload}>엑셀다운</button>
                         </div>
                         <Pagination dataCnt={dataCnt} handlePageChange={handlePageChange} handlePageRow={handlePageRow} pageInfo={{ currentPage, row }} />
                     </div>

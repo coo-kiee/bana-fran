@@ -1,34 +1,71 @@
-/* eslint-disable */
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, Suspense, useRef, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+
+// DatePicker
+import ReactDatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { ko } from "date-fns/esm/locale";
+
+
+// Util
+import Utils from "utils/Utils";
 
 // Component
 import Pagination from "pages/common/pagination";
+import Loading from "pages/common/loading";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 interface ClaimDetailTableProps {
+    userInfo: {
+        f_code: number,
+        f_code_name: string,
+        staff_no: number
+    },
 };
-const ClaimDetailTable: FC<ClaimDetailTableProps> = ({ }) => {
+const ClaimDetailTable: FC<ClaimDetailTableProps> = ({ userInfo }) => {
 
-    // const { data: boardList } = BOARD_SERVICE.useBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
-    // const { out: pageInfo } = boardList as BoardListResult || {};
+    // 사용자 정보
+    const { f_code, staff_no, f_code_name } = userInfo;
+
+    // defalt Date
+    const today = new Date();
+    const lastMonthStartDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const lastMonthEndDate = new Date(today.getFullYear(), today.getMonth(), 0);
+
+    const initialDate = {
+        fromDate: Utils.converDateFormat(lastMonthStartDate, '-'),
+        toDate: Utils.converDateFormat(lastMonthEndDate, '-'),
+    };
+    const [searchCondition, setSearchCondition] = useState<SearchCondition>({
+        isSearch: false, 
+        fromDate: Utils.converDateFormat(lastMonthStartDate, '-'),
+        toDate: Utils.converDateFormat(lastMonthEndDate, '-'),
+    });
+    const [searchControll, setSearchControll] = useState<SearchControll>({ isSearch: false, titleFromDate: searchCondition.fromDate, titleToDate: searchCondition.toDate });
 
     const { width, thInfo, tdInfo } = TABLE_COLUMN_INFO;
+    const tableRef = useRef<HTMLTableElement | null>(null);
 
     return (
         <>
-            <TableTop >
-                <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
+            <TableWrap lastMonthEndDate={lastMonthEndDate} searchCondition={searchCondition} setSearchCondition={setSearchCondition} searchControll={searchControll} setSearchControll={setSearchControll} >
+                <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                     {/* Column Width */}
                     <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
                     <tbody>
                         {/* Table Header  */}
-                        <tr>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr>
+                        <tr style={{ whiteSpace: 'pre-line' }}>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr>
                         <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
                         {/* List */}
-                        <TableList />
+                        <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail')}>
+                            <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={-50} /></td></tr>}>
+                                <TableList fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} searchControll={searchControll} setSearchControll={setSearchControll} />
+                            </Suspense>
+                        </ErrorBoundary>
                     </tbody>
                 </table>
-            </TableTop>
-            < TableBottom />
+            </TableWrap>
+            < TableBottom fCodeName={f_code_name} tableRef={tableRef} searchControll={searchControll} />
             {/* <TableBottom dataCnt={pageInfo?.total_cnt || 0} row={listSearchCondition.page_size || 50} currentPage={listSearchCondition.page_idx || 1} setListSearchCondition={setListSearchCondition} /> */}
         </>
     );
@@ -46,7 +83,7 @@ const TABLE_COLUMN_INFO = {
         { text: '쿠폰 사용일시', rowSpan: 2, colSpan: 1, className: '' },
         { text: '사용여부', rowSpan: 2, colSpan: 1, className: '' },
         { text: '쿠폰명', rowSpan: 2, colSpan: 1, className: '' },
-        { text: `쿠폰발행${<br />}(최대)금액`, rowSpan: 2, colSpan: 1, className: '' },
+        { text: `쿠폰발행\n(최대)금액`, rowSpan: 2, colSpan: 1, className: '' },
         { text: '유효기간', rowSpan: 2, colSpan: 1, className: '' },
         { text: '발급고객', rowSpan: 2, colSpan: 1, className: '' },
         { text: '클레임 내용', rowSpan: 2, colSpan: 1, className: '' },
@@ -56,10 +93,38 @@ const TABLE_COLUMN_INFO = {
     tdInfo: ['공급가', '부가세', '합계']
 } as const;
 
-interface TableTopProps {
-    children: ReactNode,
+type SearchCondition = {
+    isSearch: boolean,
+    fromDate: string,
+    toDate: string,
 };
-const TableTop: FC<TableTopProps> = ({ children }) => {
+
+type SearchControll = {
+    isSearch: boolean,
+    titleFromDate: string,
+    titleToDate: string,
+};
+
+interface TableWrapProps {
+    children: ReactNode,
+    lastMonthEndDate: Date,
+    searchCondition: SearchCondition,
+    setSearchCondition: React.Dispatch<React.SetStateAction<SearchCondition>>,
+    searchControll: SearchControll,
+    setSearchControll: React.Dispatch<React.SetStateAction<SearchControll>>,
+};
+const TableWrap: FC<TableWrapProps> = ({ children, lastMonthEndDate, searchCondition, setSearchCondition, searchControll, setSearchControll }) => {
+
+    const { fromDate, toDate } = searchCondition;
+    const { isSearch, titleFromDate, titleToDate } = searchControll;
+
+    const handleSearchCondition = (key: string, value: any) => {
+        setSearchCondition(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleSearch = () => {
+        setSearchControll(prev => ({ ...prev, isSearch: true }));
+    };
 
     return (
         <>
@@ -68,21 +133,38 @@ const TableTop: FC<TableTopProps> = ({ children }) => {
                 <div className="search-wrap">
                     <p className="title">발생일시</p>
                     <div className="input-wrap">
-                        <input type="text" placeholder="2022-03-01" />
+                        <ReactDatePicker
+                            dateFormat={'yyyy-MM-dd'}
+                            selected={new Date(fromDate)}
+                            onChange={(date) => handleSearchCondition('fromDate', Utils.converDateFormat(date, '-'))}
+                            maxDate={lastMonthEndDate}
+                            locale={ko}
+                        />
                         <i>~</i>
-                        <input type="text" placeholder="2022-03-30" />
+                        <ReactDatePicker
+                            dateFormat={'yyyy-MM-dd'}
+                            selected={new Date(toDate)}
+                            onChange={(date) => handleSearchCondition('toDate', Utils.converDateFormat(date, '-'))}
+                            maxDate={lastMonthEndDate}
+                            locale={ko}
+                        />
                     </div>
-                    <button className="btn-search">조회</button>
+                    <button className="btn-search" onClick={handleSearch}>조회</button>
                 </div>
                 <div className="search-result-wrap">
-                    <div className="search-date">
-                        <p>조회기간: 2022-12-31 ~ 2022-12-31</p>
-                    </div>
-                    <ul className="search-result">
-                        <li>클레임 보상 쿠폰 발행금액 합계&nbsp;:&nbsp;<span className="value">10,000원</span></li>
-                        <li>클레임 보상 쿠폰 만료금액 합계&nbsp;:&nbsp;<span className="value">10,000원</span></li>
-                        <li>클레임 보상 쿠폰 사용금액 합계&nbsp;:&nbsp;<span className="value">20,000원</span></li>
-                    </ul>
+                    {
+                        !isSearch &&
+                        <>
+                            <div className="search-date">
+                                <p>조회기간: {titleFromDate} ~ {titleToDate}</p>
+                            </div>
+                            <ul className="search-result">
+                                <li>클레임 보상 쿠폰 발행금액 합계&nbsp;:&nbsp;<span className="value">10,000원</span></li>
+                                <li>클레임 보상 쿠폰 만료금액 합계&nbsp;:&nbsp;<span className="value">10,000원</span></li>
+                                <li>클레임 보상 쿠폰 사용금액 합계&nbsp;:&nbsp;<span className="value">20,000원</span></li>
+                            </ul>
+                        </>
+                    }
                 </div>
                 {children}
             </div>
@@ -101,8 +183,13 @@ const ClaimTab: FC = () => {
 }
 
 interface TableListProps {
+    fCode: number,
+    staffNo: number,
+    searchCondition: SearchCondition,
+    searchControll: SearchControll,
+    setSearchControll: React.Dispatch<React.SetStateAction<SearchControll>>,
 };
-const TableList: FC<TableListProps> = ({ }) => {
+const TableList: FC<TableListProps> = ({ searchCondition, searchControll, setSearchControll }) => {
 
     // const { list, out: pageInfo } = boardList;
     // const { total_cnt } = pageInfo;
@@ -158,20 +245,43 @@ const TableList: FC<TableListProps> = ({ }) => {
 };
 
 interface TableBottomProps {
+    fCodeName: string,
     dataCnt: number,
     currentPage: number,
     row: number,
+    searchControll: SearchControll,
+    tableRef: React.MutableRefObject<HTMLTableElement | null>,
 };
-// const TableBottom: FC<TableBottomProps> = ({ dataCnt, currentPage, row }) => {
-const TableBottom = () => {
+// const TableBottom: FC<TableBottomProps> = ({ fCodeName, dataCnt, currentPage, row, searchControll, tableRef }) => {
+const TableBottom: FC<{ fCodeName: string, searchControll: SearchControll, tableRef: React.MutableRefObject<HTMLTableElement | null>, }> = ({ fCodeName, searchControll, tableRef }) => {
 
     const { dataCnt = 1, currentPage = 1, row = 50 } = {};
+    const { titleFromDate, titleToDate } = searchControll;
     const handlePageChange = (changePage: number) => {
         // setListSearchCondition(prev => ({ ...prev, page_idx: changePage }))
     };
 
     const handlePageRow = (row: number) => {
         // setListSearchCondition(prev => ({ ...prev, page_size: row }))
+    };
+
+    const excelDownload = () => {
+        if (tableRef.current) {
+            // Excel - sheet options: 셀 시작 위치, 셀 크기
+            const options = {
+                type: 'table', // 필수 O
+                // sheetOption: { origin: "B3", outline: { above: true } }, // 해당 셀부터 데이터 표시, 세부정보 아래 요약행, 필수 X
+                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                colspan: TABLE_COLUMN_INFO.width.map(wpx => ({ wpx: parseInt(wpx) * 1.2 })), // 셀 너비 설정, 필수 X
+                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X
+                addLineHeader: ['쿠폰발행\n(최대)금액'], // 줄바꿈 원하는곳에 \n 넣기!! - br Tag 외 \n, p, span 등 줄바꿈 안되는 헤더명 입력, 필수 X
+                sheetName: '', // 시트이름, 필수 X
+            };
+
+            const fileName = `${titleFromDate}~${titleToDate}_${fCodeName}_유상포인트_결제내역`;
+
+            Utils.excelDownload(tableRef.current, options, fileName);
+        };
     };
 
     return (
@@ -181,7 +291,7 @@ const TableBottom = () => {
                 <>
                     <div className="result-function-wrap" >
                         <div className="function">
-                            <button className="goast-btn">엑셀다운</button>&nbsp;
+                            <button className="goast-btn" onClick={excelDownload}>엑셀다운</button>
                         </div>
                         <Pagination dataCnt={dataCnt} handlePageChange={handlePageChange} handlePageRow={handlePageRow} pageInfo={{ currentPage, row }} />
                     </div>

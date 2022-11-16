@@ -15,7 +15,7 @@ interface CalanderSearchProps {
     searchInfo: SearchInfoType | SearchInfoSelectType | SearchInfoRadioType, // 검색 날짜, 옵션 관련 상태
     setSearchInfo: any, // searchInfo setState
     optionType?: 'SELECT' | 'RADIO', // 사용하는 옵션 타입
-    selectOption?: Array<{ [x: string]: { title: string, value: string } }>, // select로 나타날 옵션 정보
+    selectOption?: Array<{ [x: string | number]: { title: string, value: string | number } }>, // select로 나타날 옵션 정보
     radioOption?: Array<{ [x: string]: { title: string, id: string, value: string } }>,  // radio로 나타날 옵션 정보
     optionList?: Array<any>, // option 맵핑할 때 사용  
     handleSearch: any, // 실제 검색하는 함수 (ex. refetch)

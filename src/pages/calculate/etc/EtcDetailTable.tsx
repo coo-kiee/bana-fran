@@ -1,53 +1,69 @@
-/* eslint-disable */
-import { FC, useRef } from "react";
+import { FC, Suspense, useRef, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+
+// DatePicker
+import ReactDatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { ko } from "date-fns/esm/locale";
+
+
+// Util
+import Utils from "utils/Utils";
 
 // Component
 import Pagination from "pages/common/pagination";
-import Utils from "utils/Utils";
+import Loading from "pages/common/loading";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 interface EtcDetailTableProps {
+    userInfo: {
+        f_code: number,
+        f_code_name: string,
+        staff_no: number
+    },
 };
-const EtcDetailTable: FC<EtcDetailTableProps> = ({ }) => {
+const EtcDetailTable: FC<EtcDetailTableProps> = ({ userInfo }) => {
 
-    // const { data: boardList } = BOARD_SERVICE.useBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
-    // const { out: pageInfo } = boardList as BoardListResult || {};
+    // 사용자 정보
+    const { f_code, staff_no, f_code_name } = userInfo;
+
+    // defalt Date
+    const today = new Date();
+    const lastMonthStartDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const lastMonthEndDate = new Date(today.getFullYear(), today.getMonth(), 0);
+
+       
+    const [searchCondition, setSearchCondition] = useState<SearchCondition>({
+        isSearch: false, 
+        fromDate: Utils.converDateFormat(lastMonthStartDate, '-'),
+        toDate: Utils.converDateFormat(lastMonthEndDate, '-'),
+        pointType: 0,
+        deviceType: 0,
+    });
+    const [searchControll, setSearchControll] = useState<SearchControll>({ isSearch: false, titleFromDate: searchCondition.fromDate, titleToDate: searchCondition.toDate });
 
     const { width, thInfo, tdInfo } = TABLE_COLUMN_INFO;
-
-    const test = useRef<null | HTMLTableElement>(null);
-    const testExcel = () => {
-        if (test.current) {
-            // Excel - sheet options: 셀 시작 위치, 셀 크기
-            const options = {
-                type: 'table', // 필수 O
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: TABLE_COLUMN_INFO.width.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
-                // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
-                sheetName: 'test', // 시트이름, 필수 X
-                addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','d3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X
-                addLineHeader: ['발행일시\nTT'], // 줄바꿈 원하는곳에 \n 넣기!! - br Tag 외 \n, p, span 등 줄바꿈 안되는 헤더명 입력, 필수 X
-            };
-
-            Utils.excelDownload(test.current, options, 'test');
-        };
-    };
+    const tableRef = useRef<HTMLTableElement | null>(null);
 
     return (
         <>
-            <TableTop />
-            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={test} >
+            <TableTop lastMonthEndDate={lastMonthEndDate} searchCondition={searchCondition} setSearchCondition={setSearchCondition} searchControll={searchControll} setSearchControll={setSearchControll} />
+            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
                 <tbody>
                     {/* Table Header  */}
-                    <tr style={{ whiteSpace: 'pre' }}>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}<th rowSpan={2}>TT<br />TEST</th></tr>
-                    {/* <tr >{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr> */}
-                    <tr >{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
+                    <tr>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr>
+                    <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
                     {/* List */}
-                    <TableList />
+                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('EtcDetail')}>
+                        <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={-50} /></td></tr>}>
+                            <TableList fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} searchControll={searchControll} setSearchControll={setSearchControll} />
+                        </Suspense>
+                    </ErrorBoundary>
                 </tbody>
             </table>
-            < TableBottom testExcel={testExcel} />
+            < TableBottom fCodeName={f_code_name} tableRef={tableRef} searchControll={searchControll} />
             {/* <TableBottom dataCnt={pageInfo?.total_cnt || 0} row={listSearchCondition.page_size || 50} currentPage={listSearchCondition.page_idx || 1} setListSearchCondition={setListSearchCondition} /> */}
         </>
     );
@@ -69,117 +85,171 @@ const TABLE_COLUMN_INFO = {
     tdInfo: ['공급가', '부가세', '합계']
 } as const;
 
-interface TableTopProps {
-
+type SearchCondition = {
+    isSearch: boolean,
+    fromDate: string,
+    toDate: string,
+    pointType: number,
+    deviceType: number,
 };
-const TableTop: FC<TableTopProps> = ({ }) => {
+
+type SearchControll = {
+    isSearch: boolean,
+    titleFromDate: string,
+    titleToDate: string,
+};
+
+interface TableTopProps {
+    lastMonthEndDate:Date,
+    searchCondition: SearchCondition,
+    setSearchCondition: React.Dispatch<React.SetStateAction<SearchCondition>>,
+    searchControll: SearchControll,
+    setSearchControll: React.Dispatch<React.SetStateAction<SearchControll>>,
+};
+const TableTop: FC<TableTopProps> = ({ lastMonthEndDate, searchCondition, setSearchCondition, searchControll, setSearchControll }) => {
+
+    const { fromDate, toDate, pointType, deviceType } = searchCondition;
+    const { isSearch, titleFromDate, titleToDate } = searchControll;
+
+    const handleSearchCondition = (key: string, value: any) => {
+        setSearchCondition(prev => ({ ...prev, [key]: value }));
+    };
+
+    const handleSearch = () => {
+        setSearchControll(prev => ({ ...prev, isSearch: true }));
+    };
 
     return (
         <>
             <p className="title bullet">상세내역</p>
             <div className="search-wrap">
                 <div className="input-wrap">
-                    <input type="text" placeholder="2022-03-01" />
+                    <ReactDatePicker
+                        dateFormat={'yyyy-MM-dd'}
+                        selected={new Date(fromDate)}
+                        onChange={(date) => handleSearchCondition('fromDate', Utils.converDateFormat(date, '-'))}
+                        maxDate={lastMonthEndDate}
+                        locale={ko}
+                    />
                     <i>~</i>
-                    <input type="text" placeholder="2022-03-30" />
+                    <ReactDatePicker
+                        dateFormat={'yyyy-MM-dd'}
+                        selected={new Date(toDate)}
+                        onChange={(date) => handleSearchCondition('toDate', Utils.converDateFormat(date, '-'))}
+                        maxDate={lastMonthEndDate}
+                        locale={ko}
+                    />
                 </div>
                 <div className="select-wrap">
-                    <select name="" id="">
-                        <option value="">포인트 구분 전체</option>
-                    </select>
-                    <select name="" id="">
-                        <option value="">거래기기 전체</option>
+                    <select name="pointType" id="" value={pointType} onChange={(e) => handleSearchCondition(e.currentTarget.name, e.currentTarget.value)} >
+                        <option value={0}>포인트 구분 전체</option>
+                    </select>&nbsp;&nbsp;
+                    <select name="deviceType" id="" value={deviceType} onChange={(e) => handleSearchCondition(e.currentTarget.name, e.currentTarget.value)} >
+                        <option value={0}>거래기기 전체</option>
+                        <option value={1}>포인트 구분 전체</option>
                     </select>
                 </div>
-                <button className="btn-search">조회</button>
+                <button className="btn-search" onClick={handleSearch}>조회</button>
             </div>
             <div className="search-result-wrap">
-                <div className="search-date">
-                    <p>조회기간: 2022-12-31 ~ 2022-12-31</p>
-                </div>
-                <ul className="search-result">
-                    <li>청구 금액 합계<span className="colon"></span><span className="value">10,000원</span></li>
-                    <li>보전 금액 합계<span className="colon"></span><span className="value">10,000원</span></li>
-                </ul>
+                {
+                    !isSearch &&
+                    <>
+                        <div className="search-date">
+                            <p>조회기간: {titleFromDate} ~ {titleToDate}</p>
+                        </div>
+                        <ul className="search-result">
+                            <li>청구 금액 합계<span className="colon"></span><span className="value">10,000원</span></li>
+                            <li>보전 금액 합계<span className="colon"></span><span className="value">10,000원</span></li>
+                        </ul>
+                    </>
+                }
             </div>
         </>
     )
 };
 
 interface TableListProps {
+    fCode: number,
+    staffNo: number,
+    searchCondition: SearchCondition,
+    searchControll: SearchControll,
+    setSearchControll: React.Dispatch<React.SetStateAction<SearchControll>>,
 };
-const TableList: FC<TableListProps> = ({ }) => {
+const TableList: FC<TableListProps> = ({ searchCondition, searchControll, setSearchControll }) => {
 
     // const { list, out: pageInfo } = boardList;
     // const { total_cnt } = pageInfo;
 
     return (
         <>
-            {
-                // list.map((board, index) => {
-
-                //     const { category_name, title, attach_cnt, insert_date, rownum, important, board_id } = board;
-                //     const rowNumInt = total_cnt - parseInt(rownum) + 1;
-                //     const isEndBoard = index === (total_cnt - 1);
-                //     const isImportant = important === "1";
-
-                //     return (
-                //         <tr className={isImportant ? "important" : ""} key={rowNumInt} >
-                //             <td className={isImportant ? "point" : isEndBoard ? 'left-radius' : ""}>{isImportant ? "중요" : rowNumInt}</td>
-                //             <td>{category_name}</td>
-                //             <td className="content">{title}</td>
-                //             <td className={isImportant ? "point" : ""}>{attach_cnt}개</td>
-                //             <td className={isEndBoard ? 'right-radius' : ""}>{insert_date.substring(0, 10)}</td>
-                //         </tr>
-                //     )
-                // })
-            }
-            {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
+            <tr>
+                <td className="align-center">2022/03/01</td>
+                <td className="align-center">청구</td>
+                <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
+            </tr>
+            <tr>
+                <td className="align-center">2022/03/01</td>
+                <td className="align-center">청구</td>
+                <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
+            </tr>
+            <tr>
+                <td className="align-center">2022/03/01</td>
+                <td className="align-center">청구</td>
+                <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right">130,000</td>
+                <td className="align-right"><strong>130,000</strong></td>
+            </tr>
             {/* <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr> */}
-            <tr>
-                <td className="align-center">2022/03/01</td>
-                <td className="align-center">청구</td>
-                <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right"><strong>130,000</strong></td>
-            </tr>
-            <tr>
-                <td className="align-center">2022/03/01</td>
-                <td className="align-center">청구</td>
-                <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right">130,000</td>
-                <td className="align-right"><strong>130,000</strong></td>
-            </tr>
-            <tr>
-                <td className="align-center">2022/03/01</td>
-                <td className="align-center">청구</td>
-                <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
-                <td className="align-right">1장 130,000</td>
-                <td className="align-right">+130,000</td>
-                <td className="align-right"><strong>-130,000</strong></td>
-            </tr>
         </>
     )
 };
 
 interface TableBottomProps {
-    // dataCnt: number,
-    // currentPage: number,
-    // row: number,
-    testExcel: () => void,
+    fCodeName: string,
+    dataCnt: number,
+    currentPage: number,
+    row: number,
+    searchControll: SearchControll,
+    tableRef: React.MutableRefObject<HTMLTableElement | null>,
 };
-// const TableBottom: FC<TableBottomProps> = ({ dataCnt, currentPage, row }) => {
-const TableBottom: FC<TableBottomProps> = ({ testExcel }) => {
+// const TableBottom: FC<TableBottomProps> = ({ fCodeName, dataCnt, currentPage, row, searchControll, tableRef }) => {
+const TableBottom: FC<{ fCodeName: string, searchControll: SearchControll, tableRef: React.MutableRefObject<HTMLTableElement | null>, }> = ({ fCodeName, searchControll, tableRef }) => {
 
     const { dataCnt = 1, currentPage = 1, row = 50 } = {};
+    const { titleFromDate, titleToDate } = searchControll;
     const handlePageChange = (changePage: number) => {
         // setListSearchCondition(prev => ({ ...prev, page_idx: changePage }))
     };
 
     const handlePageRow = (row: number) => {
         // setListSearchCondition(prev => ({ ...prev, page_size: row }))
+    };
+
+    const excelDownload = () => {
+        if (tableRef.current) {
+            // Excel - sheet options: 셀 시작 위치, 셀 크기
+            const options = {
+                type: 'table', // 필수 O
+                // sheetOption: { origin: "B3", outline: { above: true } }, // 해당 셀부터 데이터 표시, 세부정보 아래 요약행, 필수 X
+                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                colspan: TABLE_COLUMN_INFO.width.map(wpx => ({ wpx: parseInt(wpx) * 1.2 })), // 셀 너비 설정, 필수 X
+                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X
+                // addLineHeader: ['발행일시\nTT'], // 줄바꿈 원하는곳에 \n 넣기!! - br Tag 외 \n, p, span 등 줄바꿈 안되는 헤더명 입력, 필수 X
+                sheetName: '', // 시트이름, 필수 X
+            };
+
+            const fileName = `${titleFromDate}~${titleToDate}_${fCodeName}_본사_쿠폰_결제내역`;
+
+            Utils.excelDownload(tableRef.current, options, fileName);
+        };
     };
 
     return (
@@ -189,7 +259,7 @@ const TableBottom: FC<TableBottomProps> = ({ testExcel }) => {
                 <>
                     <div className="result-function-wrap" >
                         <div className="function">
-                            <button className="goast-btn" onClick={testExcel}>엑셀다운</button>&nbsp;
+                            <button className="goast-btn" onClick={excelDownload}>엑셀다운</button>
                         </div>
                         <Pagination dataCnt={dataCnt} handlePageChange={handlePageChange} handlePageRow={handlePageRow} pageInfo={{ currentPage, row }} />
                     </div>

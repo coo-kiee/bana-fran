@@ -4,7 +4,7 @@ interface SearchInfoType {
     to: string,
 }; // 검색 날짜만 필요한 경우
 interface SearchInfoSelectType extends SearchInfoType {
-    searchOption: { value: string, title: string }[], // Select
+    searchOption: { value: string | number, title: string }[], // Select
 } // 검색 날짜 + 추가 옵션으로 Select 사용하는 경우
 interface SearchInfoRadioType extends SearchInfoType {
     searchType: string,
