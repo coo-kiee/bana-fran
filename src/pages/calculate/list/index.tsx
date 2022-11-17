@@ -35,7 +35,7 @@ const CalculateList: FC = () => {
     };
 
     // list 조회 후 outPut 데이터
-    const [outPut, setOutput] = useState<{ sumAll: number, calculateStatus: CalculateStatusType, calculateId: number }>({ sumAll: 0, calculateStatus: -1, calculateId: 0 });
+    const [outPut, setOutput] = useState<Output>({ sumAll: undefined, calculateStatus: -1, calculateId: 0 });
 
     // PDF 다운로드
     const [isPDF, setIsPDF] = useState(false);
@@ -60,3 +60,12 @@ const CalculateList: FC = () => {
 }
 
 export default CalculateList;
+
+
+
+// Component Type
+export type Output = {
+    sumAll: number | undefined;
+    calculateStatus: CalculateStatusType;
+    calculateId: number;
+};

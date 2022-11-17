@@ -22,6 +22,7 @@ export default CalculateHeader;
 
 
 
+// Component Type
 const HEADER_SUBTITLE = {
     [CALCULATE_TYPE.LIST]: '정산내역 확인',
     [CALCULATE_TYPE.POINT]: '유상포인트 결제내역',

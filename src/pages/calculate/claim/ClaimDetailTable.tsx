@@ -6,7 +6,6 @@ import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/esm/locale";
 
-
 // Util
 import Utils from "utils/Utils";
 
@@ -66,7 +65,6 @@ const ClaimDetailTable: FC<ClaimDetailTableProps> = ({ userInfo }) => {
                 </table>
             </TableWrap>
             < TableBottom fCodeName={f_code_name} tableRef={tableRef} searchControll={searchControll} />
-            {/* <TableBottom dataCnt={pageInfo?.total_cnt || 0} row={listSearchCondition.page_size || 50} currentPage={listSearchCondition.page_idx || 1} setListSearchCondition={setListSearchCondition} /> */}
         </>
     );
 }
@@ -75,35 +73,6 @@ export default ClaimDetailTable;
 
 
 
-
-const TABLE_COLUMN_INFO = {
-    width: ['130', '130', '88', '150', '109', '130', '136', '*', '92', '130', '130', '130'],
-    thInfo: [
-        { text: '쿠폰 발행일시', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '쿠폰 사용일시', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '사용여부', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '쿠폰명', rowSpan: 2, colSpan: 1, className: '' },
-        { text: `쿠폰발행\n(최대)금액`, rowSpan: 2, colSpan: 1, className: '' },
-        { text: '유효기간', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '발급고객', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '클레임 내용', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '사용매장', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '본사발행 쿠폰 결제내역', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
-    ],
-    tdInfo: ['공급가', '부가세', '합계']
-} as const;
-
-type SearchCondition = {
-    isSearch: boolean,
-    fromDate: string,
-    toDate: string,
-};
-
-type SearchControll = {
-    isSearch: boolean,
-    titleFromDate: string,
-    titleToDate: string,
-};
 
 interface TableWrapProps {
     children: ReactNode,
@@ -137,7 +106,7 @@ const TableWrap: FC<TableWrapProps> = ({ children, lastMonthEndDate, searchCondi
                             dateFormat={'yyyy-MM-dd'}
                             selected={new Date(fromDate)}
                             onChange={(date) => handleSearchCondition('fromDate', Utils.converDateFormat(date, '-'))}
-                            maxDate={lastMonthEndDate}
+                            maxDate={new Date()}
                             locale={ko}
                         />
                         <i>~</i>
@@ -145,7 +114,7 @@ const TableWrap: FC<TableWrapProps> = ({ children, lastMonthEndDate, searchCondi
                             dateFormat={'yyyy-MM-dd'}
                             selected={new Date(toDate)}
                             onChange={(date) => handleSearchCondition('toDate', Utils.converDateFormat(date, '-'))}
-                            maxDate={lastMonthEndDate}
+                            maxDate={new Date()}
                             locale={ko}
                         />
                     </div>
@@ -176,7 +145,7 @@ const ClaimTab: FC = () => {
 
     return (
         <ul className="tab-wrap">
-            <li className="tab active" data-tab="tab1">클레임 내역전체</li>
+            <li className="tab active" data-tab="tab1">클레임 내역 전체</li>
             <li className="tab" data-tab="tab2">정산 내역 조회</li>
         </ul>
     );
@@ -258,11 +227,11 @@ const TableBottom: FC<{ fCodeName: string, searchControll: SearchControll, table
     const { dataCnt = 1, currentPage = 1, row = 50 } = {};
     const { titleFromDate, titleToDate } = searchControll;
     const handlePageChange = (changePage: number) => {
-        // setListSearchCondition(prev => ({ ...prev, page_idx: changePage }))
+        // setListSearchParameter(prev => ({ ...prev, page_idx: changePage }))
     };
 
     const handlePageRow = (row: number) => {
-        // setListSearchCondition(prev => ({ ...prev, page_size: row }))
+        // setListSearchParameter(prev => ({ ...prev, page_size: row }))
     };
 
     const excelDownload = () => {
@@ -298,4 +267,40 @@ const TableBottom: FC<{ fCodeName: string, searchControll: SearchControll, table
             }
         </>
     )
-}
+};
+
+// Component Type
+const TABLE_COLUMN_INFO = {
+    width: ['130', '130', '88', '150', '109', '130', '136', '*', '92', '130', '130', '130'],
+    thInfo: [
+        { text: '쿠폰 발행일시', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '쿠폰 사용일시', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '사용여부', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '쿠폰명', rowSpan: 2, colSpan: 1, className: '' },
+        { text: `쿠폰발행\n(최대)금액`, rowSpan: 2, colSpan: 1, className: '' },
+        { text: '유효기간', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '발급고객', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '클레임 내용', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '사용매장', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '본사발행 쿠폰 결제내역', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
+    ],
+    tdInfo: ['공급가', '부가세', '합계']
+} as const;
+
+type SearchCondition = {
+    isSearch: boolean,
+    fromDate: string,
+    toDate: string,
+};
+
+type SearchControll = {
+    isSearch: boolean,
+    titleFromDate: string,
+    titleToDate: string,
+};
+
+const TAB_TYPE = {
+    CLAIM: 'claim',
+    CALCULATE: 'calculate',
+} as const;
+type TabType = typeof TAB_TYPE[keyof typeof TAB_TYPE];

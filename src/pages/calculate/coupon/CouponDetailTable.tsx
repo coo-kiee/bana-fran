@@ -18,6 +18,7 @@ import Pagination from "pages/common/pagination";
 import Loading from "pages/common/loading";
 import CalanderSearch from "pages/common/calanderSearch";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import NoData from "pages/common/noData";
 
 interface CouponDetailTableProps {
     userInfo: {
@@ -104,45 +105,6 @@ const CouponDetailTable: FC<CouponDetailTableProps> = ({ userInfo }) => {
 export default CouponDetailTable;
 
 
-
-
-const TABLE_COLUMN_INFO = {
-    width: ['188', '393', '262', '116', '134', '136', '136', '136', '136'],
-    thInfo: [
-        { text: '결제일시', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '쿠폰', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '사용메뉴', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '쿠폰 사용금액', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '거래기기', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '주문자', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '본사발행 쿠폰 결제내역', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
-    ],
-    tdInfo: ['공급가', '부가세', '합계']
-} as const;
-
-type CouponType = {
-    [key: number]: { title: string, value: number }
-};
-
-const DEVICE_TYPE = {
-    ALL: { title: '거래기기 전체', value: '거래기기 전체' },
-    KIOSK: { title: '키오스크', value: '키오스크' },
-    APP: { title: '어플', value: '어플' },
-} as const;
-
-interface SearchCondition extends SearchInfoSelectType {
-    triggerFromDate: string,
-    triggertoDate: string,
-};
-
-type sumInfo = {
-    [key: number]: { title: string, sum: number },
-    allCouponSum: number,
-};
-interface TableTopInfo extends sumInfo {
-    titleFrom: string,
-    titleTo: string,
-};
 
 
 interface TableTopProps {
@@ -282,7 +244,7 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
         <>
             {/* 페이지네이션 적용 */}
             {renderTableList?.map((item, index) => (index >= (currentPage - 1) * row && index < currentPage * row) && item)}
-            {renderTableList?.length === 0 && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>}
+            {renderTableList?.length === 0 && <NoData isTable={true} />}
         </>
     )
 };
@@ -347,4 +309,44 @@ const TableBottom: FC<TableBottomProps> = ({ fCodeName, tableTopInfo, tableRef, 
             }
         </>
     )
-}
+};
+
+// Component Type
+const TABLE_COLUMN_INFO = {
+    width: ['188', '393', '262', '116', '134', '136', '136', '136', '136'],
+    thInfo: [
+        { text: '결제일시', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '쿠폰', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '사용메뉴', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '쿠폰 사용금액', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '거래기기', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '주문자', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '본사발행 쿠폰 결제내역', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
+    ],
+    tdInfo: ['공급가', '부가세', '합계']
+} as const;
+
+const DEVICE_TYPE = {
+    ALL: { title: '거래기기 전체', value: '거래기기 전체' },
+    KIOSK: { title: '키오스크', value: '키오스크' },
+    APP: { title: '어플', value: '어플' },
+} as const;
+
+interface SearchCondition extends SearchInfoSelectType {
+    triggerFromDate: string,
+    triggertoDate: string,
+};
+
+type CouponType = {
+    [key: number]: { title: string, value: number }
+};
+
+type sumInfo = {
+    [key: number]: { title: string, sum: number },
+    allCouponSum: number,
+};
+
+interface TableTopInfo extends sumInfo {
+    titleFrom: string,
+    titleTo: string,
+};

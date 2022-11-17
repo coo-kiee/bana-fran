@@ -7,7 +7,7 @@ import { queryFn } from 'hooks/useQuery';
 
 // Type
 import { CalculateCouponDetail, CalculateDetail, CalculateDetailOut, CalculateDetailSum, CalculateFixDetail, CalculatePointDetail } from 'types/calculate/calculateType';
-
+import { CALCULATE_CHARGE_TYPE } from 'pages/calculate/list/CalculateListTable';
 
 // 검색 월
 const useCalculateMonthList = (queryKey: string | Array<string>, f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
@@ -51,8 +51,8 @@ const useCalculateDetailList = (queryKey: string | Array<string>, f_code: number
             if (data.list.length > 0) {
                 let sum = 0;
                 for (const calculateData of data.list) {
-                    sum += calculateData.total_amt;
-                }
+                    sum += calculateData.total_amt * CALCULATE_CHARGE_TYPE[calculateData.calculate_type as keyof typeof CALCULATE_CHARGE_TYPE];
+                };
                 data.sumAll = sum;
             };
             return data;
@@ -163,11 +163,11 @@ const useCalculateDetailSum = (queryKey: string | Array<string>, f_code: number,
 
 // 유상포인트 결제내역 상세
 type PointDetailParameter = (
-    queryKey: string | Array<string>, 
-    f_code: number, 
-    staffNo: number, 
-    from_date: string, 
-    to_date: string, 
+    queryKey: string | Array<string>,
+    f_code: number,
+    staffNo: number,
+    from_date: string,
+    to_date: string,
     option?: { [key: string]: any },
 ) => UseQueryResult<CalculatePointDetail[], unknown>;
 const useCalculatePointDetail: PointDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
@@ -191,7 +191,7 @@ const useCalculatePointDetail: PointDetailParameter = (queryKey, f_code, staffNo
     });
 };
 
-// 본사 쿠폰 결제내역 상세 - 쿠폰리스트
+// 본사 쿠폰 결제내역 상세 - 쿠폰 리스트
 const useCalculateCouponType = (queryKey: string | Array<string>, f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
     const data = {
         ws: "fprocess",
@@ -212,11 +212,11 @@ const useCalculateCouponType = (queryKey: string | Array<string>, f_code: number
 
 // 본사 쿠폰 결제내역 상세
 type CouponDetailParameter = (
-    queryKey: string | Array<string>, 
-    f_code: number, 
-    staffNo: number, 
-    from_date: string, 
-    to_date: string, 
+    queryKey: string | Array<string>,
+    f_code: number,
+    staffNo: number,
+    from_date: string,
+    to_date: string,
     option?: { [key: string]: any },
 ) => UseQueryResult<CalculateCouponDetail[], unknown>;
 const useCalculateCouponDetail: CouponDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
@@ -232,6 +232,36 @@ const useCalculateCouponDetail: CouponDetailParameter = (queryKey, f_code, staff
     };
 
     return useQuery<CalculateCouponDetail[]>(queryKey, () => queryFn.getDataList(data), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        suspense: option.suspense ? option.suspense : true,
+        enabled: staffNo > 0,
+    });
+};
+
+// 기타 정산 내역 상세
+type EtcDetailParameter = (
+    queryKey: string | Array<string>,
+    f_code: number,
+    staffNo: number,
+    from_date: string,
+    to_date: string,
+    option?: { [key: string]: any },
+) => UseQueryResult<CalculatePointDetail[], unknown>;
+const useCalculateEtcDetail: EtcDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
+
+    const data = {
+        ws: "fprocess",
+        query: "6HURAKO83BCYD8ZXBORH", // web_fran_s_calculate_paid_point_list
+        params: {
+            f_code,
+            from_date,
+            to_date,
+        },
+    };
+
+    return useQuery<any[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,

@@ -18,6 +18,7 @@ import Pagination from "pages/common/pagination";
 import Loading from "pages/common/loading";
 import CalanderSearch from "pages/common/calanderSearch";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import NoData from "pages/common/noData";
 
 interface PointDetailTableProps {
     userInfo: {
@@ -42,6 +43,7 @@ const PointDetailTable: FC<PointDetailTableProps> = ({ userInfo }) => {
         triggertoDate: Utils.converDateFormat(toDate, '-'), // query trigger
     });
 
+    // 테이블 상단 정보
     const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
         titleFrom: Utils.converDateFormat(searchCondition.from, '-'),
         titleTo: Utils.converDateFormat(searchCondition.to, '-'),
@@ -84,46 +86,6 @@ const PointDetailTable: FC<PointDetailTableProps> = ({ userInfo }) => {
 export default PointDetailTable;
 
 
-
-
-const TABLE_COLUMN_INFO = {
-    width: ['188', '393', '136', '125', '160', '134', '92', '131', '131', '131'],
-    thInfo: [
-        { text: '결제일시', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '주문메뉴', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '주문자', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '총 주문금액', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '유상포인트 사용금액', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '유상포인트 구분', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '거래기기', rowSpan: 2, colSpan: 1, className: '' },
-        { text: '유상포인트 결제금액', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
-    ],
-    tdInfo: ['공급가', '부가세', '합계']
-} as const;
-
-const POINT_TYPE = {
-    ALL: { title: '포인트 구분 전체', value: '포인트 구분 전체' },
-    CHARGE: { title: '충전포인트', value: '충전포인트' },
-    CHANGE: { title: '잔돈포인트', value: '잔돈포인트' },
-} as const;
-
-const DEVICE_TYPE = {
-    ALL: { title: '거래기기 전체', value: '거래기기 전체' },
-    KIOSK: { title: '키오스크', value: '키오스크' },
-    APP: { title: '어플', value: '어플' },
-} as const;
-
-interface SearchCondition extends SearchInfoSelectType {
-    triggerFromDate: string,
-    triggertoDate: string,
-};
-
-type TableTopInfo = {
-    titleFrom: string,
-    titleTo: string,
-    totalChargePoint: number,
-    totalPointChange: number,
-};
 
 
 interface TableTopProps {
@@ -252,7 +214,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
         <>
             {/* 페이지네이션 적용 */}
             {renderTableList?.map((item, index) => (index >= (currentPage - 1) * row && index < currentPage * row) && item)}
-            {renderTableList?.length === 0 && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>}
+            {renderTableList?.length === 0 && <NoData isTable={true} />}
         </>
     )
 };
@@ -317,4 +279,45 @@ const TableBottom: FC<TableBottomProps> = ({ fCodeName, tableTopInfo, tableRef, 
             }
         </>
     )
-}
+};
+
+// Component Type
+const TABLE_COLUMN_INFO = {
+    width: ['188', '393', '136', '125', '160', '134', '92', '131', '131', '131'],
+    thInfo: [
+        { text: '결제일시', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '주문메뉴', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '주문자', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '총 주문금액', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '유상포인트 사용금액', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '유상포인트 구분', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '거래기기', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '유상포인트 결제금액', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
+    ],
+    tdInfo: ['공급가', '부가세', '합계']
+} as const;
+
+// 포인트 타입 데이터 불러올 시 - CouponDetailTable.tsx 참고
+const POINT_TYPE = {
+    ALL: { title: '포인트 구분 전체', value: '포인트 구분 전체' },
+    CHARGE: { title: '충전포인트', value: '충전포인트' },
+    CHANGE: { title: '잔돈포인트', value: '잔돈포인트' },
+} as const;
+
+const DEVICE_TYPE = {
+    ALL: { title: '거래기기 전체', value: '거래기기 전체' },
+    KIOSK: { title: '키오스크', value: '키오스크' },
+    APP: { title: '어플', value: '어플' },
+} as const;
+
+interface SearchCondition extends SearchInfoSelectType {
+    triggerFromDate: string,
+    triggertoDate: string,
+};
+
+type TableTopInfo = {
+    titleFrom: string,
+    titleTo: string,
+    totalChargePoint: number,
+    totalPointChange: number,
+};

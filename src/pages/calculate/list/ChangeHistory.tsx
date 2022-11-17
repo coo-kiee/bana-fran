@@ -55,11 +55,6 @@ export default ChangeHistory;
 
 
 
-const TABLE_COLUMN_INFO = {
-    width: ['130', '98', '98', '372', '250', '250'],
-    headerText: ['일시', '구분', '등록자', '수정요청/답변내용', '변경 전', '변경 후'],
-} as const;
-
 interface TableListProps {
     fCode: number,
     staffNo: number,
@@ -100,3 +95,9 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, calculateId, setDataCnt
         </>
     )
 };
+
+// Component Type
+const TABLE_COLUMN_INFO = {
+    width: ['130', '98', '98', '372', '250', '250'],
+    headerText: ['일시', '구분', '등록자', '수정요청/답변내용', '변경 전', '변경 후'],
+} as const;
