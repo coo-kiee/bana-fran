@@ -37,7 +37,7 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
     }, [boardType, isBoardGroupType, navigation]);
 
     // 게시판 탭 변경 & 게시판 상세 이동
-    useLayoutEffect(() => {
+    useEffect(() => {
         const boardId = parseInt(bId);
         const isBoardId = !Utils.strNumberCheck(bId) && boardId > 0;
 
@@ -57,22 +57,27 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
 
     const { userInfo } = useRecoilValue(loginState);
     const fCode = useRecoilValue(franState);
-
+    useEffect(() => {
+        setListSearchParameter(prev => ({ ...prev, f_code: fCode, staff_no: userInfo.staff_no }));
+    }, [fCode, userInfo]);
+    
     // 리스트 검색 정보
     const [initialSearchCategory, initialSearchText] = Object.values(BOARD_GROUP[menuType]).reduce((arr, cur) => {
         arr[0][cur.type] = 0;
         arr[1][cur.type] = '';
         return arr;
     }, [{} as { [key in BoardInfo['type']]: number }, {} as { [key in BoardInfo['type']]: string }]);
+    
     const [listSearchParameter, setListSearchParameter] = useState<ListSearchParameter>({
         f_code: fCode,
-        staff_no: userInfo?.staff_no || 0,
+        staff_no: userInfo.staff_no,
         board_type: BOARD_GROUP[menuType][0].type,
         search_category: initialSearchCategory,
         search_text: initialSearchText,
         page_idx: 1,
         page_size: 50,
     });
+
     const { board_type, search_category, search_text, staff_no, f_code } = listSearchParameter;
 
     // 상세보기 정보 - 현재 메뉴 boardType들의 boardId + isDetail
