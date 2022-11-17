@@ -1,6 +1,5 @@
 import React, { FC } from "react";
 import { useRecoilValue } from "recoil";
-import { format, subMonths, lastDayOfMonth } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 
@@ -13,14 +12,14 @@ import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import { franState } from 'state';
 
 // API
-import ETC_SERVICE from 'service/etcService';
+import ETC_SERVICE from "service/etcService";
 
 // type
-import { EtcTotalParams, OverallFallbackProps, TotalResultType } from "types/etc/etcType";
+import { OverallFallbackProps, EtcTotalParams, TotalResultType } from "types/etc/etcType";
 
-const MusicChargeOverall: FC<Omit<OverallFallbackProps, 'title'>> = ({ tableColGroup, tableHead }) => {
+const GiftCardOverall: FC<Omit<OverallFallbackProps, 'title'>> = ({ tableColGroup, tableHead }) => {
     const { reset } = useQueryErrorResetBoundary();
-    const title = `${format(subMonths(new Date(), 1), `yyyy년 M월 음악 서비스 이용료`)}`;
+    const title = `실물 상품권 재고 현황`;
 
     return (
         <>
@@ -38,7 +37,7 @@ const MusicChargeOverall: FC<Omit<OverallFallbackProps, 'title'>> = ({ tableColG
                     <React.Suspense fallback={<Loading width={50} height={50} isTable={true} />}>
                         <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />}>
                             {/* *_total 프로시저 사용 컴포넌트 */}
-                            <MusicChargeOverallData title={title} tableColGroup={tableColGroup} tableHead={tableHead} />
+                            <GiftCardOverallData title={title} tableColGroup={tableColGroup} tableHead={tableHead} />
                         </ErrorBoundary>
                     </React.Suspense>
                 </tbody>
@@ -47,33 +46,34 @@ const MusicChargeOverall: FC<Omit<OverallFallbackProps, 'title'>> = ({ tableColG
     )
 }
 
-const MusicChargeOverallData: FC<OverallFallbackProps> = ({ title, tableColGroup, tableHead }) => {
+const GiftCardOverallData: FC<OverallFallbackProps> = ({ title, tableColGroup, tableHead }) => {
     const franCode = useRecoilValue(franState);
 
     // EtcTable 관련 
     let tableBody: any = []; // 프로시저 성공 후 업데이트
 
     // TODO: 프로시저 
-    const etcMusicTotalParam: EtcTotalParams = { fran_store: franCode };
-    const { data: totalData, isSuccess: etcMusicTotalSuccess } = ETC_SERVICE.useEtcTotal<any, TotalResultType>('8WDCFLDHSNA7WRN9JCBS', etcMusicTotalParam, 'etc_music_fee');
+    const etcGiftCardTotalParam: EtcTotalParams = { fran_store: franCode };
+    // !! 다른 페이지 프로시저 -> 나오면 고치기
+    const { data: totalData, isSuccess: etcGiftCardTotalSuccess } = ETC_SERVICE.useEtcTotal<any, TotalResultType>('2Q65LKD2JBSZ3OWKWTWY', etcGiftCardTotalParam, 'etc_giftcard_statistic');
 
-    if (etcMusicTotalSuccess) {
-        console.log('MusicChargeOverall: ', totalData) // !! undefined
+    if (etcGiftCardTotalSuccess) {
+        console.log('etcGiftCardTotal: ', totalData)
         tableBody = [
             [
-                { data: `${format(subMonths(new Date(), 1), 'yy/MM/01')}~${format(lastDayOfMonth(subMonths(new Date(), 1)), 'yy/MM/dd')}` },
-                { data: '음악사용료' },
-                { data: `${totalData.suply_fee}` },
-                { data: `${totalData.suply_fee_tax}` },
-                { data: `${totalData.total_fee}` }
+                { data: `*매장 보유 재고`, className: 'align-center' },
+                { data: `10장 (100,000원)`, className: 'align-center' },
+                { data: `9장 (270,000원)`, className: 'align-center' },
+                { data: `2장 (100,000원)`, className: 'align-center' },
+                { data: `21장 (470,000원)`, className: 'align-center' },
             ],
             [
-                { data: `${format(subMonths(new Date(), 1), 'yy/MM/01')}~${format(lastDayOfMonth(subMonths(new Date(), 1)), 'yy/MM/dd')}` },
-                '공연권료',
-                { data: `${totalData.suply_fee}` },
-                { data: `${totalData.suply_fee_tax}` },
-                { data: `${totalData.total_fee}` },
-            ]
+                { data: `본사DB 재고`, className: 'align-center' },
+                { data: `10장 (100,000원)`, className: 'align-center' },
+                { data: `9장 (270,000원)`, className: 'align-center' },
+                { data: `2장 (100,000원)`, className: 'align-center' },
+                { data: `21장 (470,000원)`, className: 'align-center' },
+            ],
         ];
     }
 
@@ -83,4 +83,4 @@ const MusicChargeOverallData: FC<OverallFallbackProps> = ({ title, tableColGroup
     )
 }
 
-export default MusicChargeOverall;
+export default GiftCardOverall;

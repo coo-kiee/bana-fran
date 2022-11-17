@@ -1,20 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { format, subMonths, lastDayOfMonth } from 'date-fns';
-import { ErrorBoundary } from 'react-error-boundary';
-import { useQueryErrorResetBoundary } from 'react-query';
 
 // type
-import { SearchInfoType, PageInfoType } from "types/etc/etcType";
+import { SearchInfoType } from "types/etc/etcType";
 
-// component 
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+// component  
 import MusicChargeOverall from './component/MusicChargeOverall';
 import MusicChargeDetail from './component/MusicChargeDetail';
-import { OverallFallback, TableFallback } from "../component/EtcTableFallback";
 
 const MusicCharge = () => {
-    const { reset } = useQueryErrorResetBoundary();
-
     // 상태 관련
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
@@ -42,19 +36,10 @@ const MusicCharge = () => {
                 <p>※ 매월 매장 음악 서비스 이용료를 조회할 수 있습니다. <strong>(가상계좌 자동 차감되므로 정산내역에는 반영되지 않습니다.)</strong></p>
             </div>
             <div className="board-date-wrap">
-                <React.Suspense fallback={<OverallFallback tableColGroup={tableColGroup} tableHead={tableHead} />}>
-                    <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                        {/* *_total 프로시저 사용 컴포넌트 */}
-                        <MusicChargeOverall tableColGroup={tableColGroup} tableHead={tableHead} />
-                    </ErrorBoundary>
-                </React.Suspense>
-
-                <React.Suspense fallback={<TableFallback detailTableColGroup={detailTableColGroup} detailPriceInfo={detailPriceInfo} detailTableHead={detailTableHead} />}>
-                    <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                        {/* *_list 프로시저 사용하는 컴포넌트 */}
-                        <MusicChargeDetail searchInfo={searchInfo} detailPriceInfo={detailPriceInfo} handleSearchInfo={handleSearchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
-                    </ErrorBoundary>
-                </React.Suspense>
+                {/* *_total 프로시저 사용 컴포넌트 */}
+                <MusicChargeOverall tableColGroup={tableColGroup} tableHead={tableHead} />
+                {/* *_list 프로시저 사용하는 컴포넌트 */}
+                <MusicChargeDetail searchInfo={searchInfo} detailPriceInfo={detailPriceInfo} handleSearchInfo={handleSearchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </div>
         </div>
     )

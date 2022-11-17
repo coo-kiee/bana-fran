@@ -10,28 +10,55 @@ interface SearchInfoRadioType extends SearchInfoType {
     searchType: string,
 } // 검색 날짜 + 추가 옵션으로 radio 사용하는 경우
 
-interface SearchOptionType {
-    type: number,
-    title: string,
-}
 interface PageInfoType {
     currentPage: number,
     row: number,
-}
-interface PopupOrderDetailType {
-    show: boolean,
-    data: any[],
-}
+} // pagenation으로 넘겨줄 state 타입
+
 interface TableHeadItemType {
     itemName: string, // th 이름 ... '기간'
     rowSpan?: number, // rowSpan 
     colSpan?: number, // colSpan
     className?: string, // className 필요한 경우 사용
-}
+} // EtcDetailTable에 넘겨줄 데이터 타입
 
 // 쿼리 결과값 관련 type
 interface TotalResultType {
     [key: string]: number;
+}
+interface OrderDetailListType {
+    amount: number,
+    cacel_staff: string,
+    cancel_date: string,
+    first_item: string,
+    insert_date: string,
+    last_modify_date: string,
+    last_modify_staff: string,
+    nOrderID: number,
+    order_count: number,
+    staff_name: string,
+    state_name: string
+}
+interface VirtualAccListType {
+    balance: number,
+    deposit: number,
+    division: string,
+    log_date: string,
+    state: string
+}
+interface OrderDetailModalItemType {
+    fOrderCount: number,
+    fran_price: number,
+    nEAPerPack: number,
+    nItem: number,
+    sDeliveryUnit: string,
+    sEtc: number,
+    sGroup: string,
+    sItemShort: string,
+    suply_amount: number,
+    tax_amount: number,
+    total_amount: number,
+    volume: string
 }
 
 // param
@@ -43,46 +70,70 @@ interface EtcListParams {
     from_date: string,
     to_date: string
 }
-
-// props 
-interface OrderDetailProps {
-    setPopupOrderDetail: React.Dispatch<React.SetStateAction<PopupOrderDetailType>>
-}
-
-interface EtcOrderDetailProps {
-    popupOrderDetail: PopupOrderDetailType,
-    setPopupOrderDetail: React.Dispatch<React.SetStateAction<PopupOrderDetailType>>
+interface OrderDetailModalParams {
+    order_code: number,
 }
 
 // Overall props
 interface OverallFallbackProps {
+    title: string,
     tableHead: string[],
     tableColGroup: string[],
 }
-interface DeliveryChargeOverallProps extends OverallFallbackProps {
+interface OverallErrorFallbackProps extends OverallFallbackProps {
+    resetErrorBoundary: () => void,
 }
-interface MusicChargeOverallProps extends OverallFallbackProps {
+interface RoyaltyOverallProps extends VirtualAccountOverallProps {
+    searchInfo: SearchInfoType,
+    detailPriceInfo: string[][],
+}
+interface VirtualAccountOverallProps extends OverallFallbackProps {
+    searchInfo: SearchInfoType,
+    handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
 }
 
 // Detail props
 interface DetailFallbackProps {
-    detailPriceInfo: string[][],
+    detailPriceInfo?: string[][],
     detailTableColGroup: string[],
     detailTableHead: TableHeadItemType[][],
 }
-
+interface DetailErrorFallbackProps extends DetailFallbackProps {
+    resetErrorBoundary: () => void,
+}
 interface DeliveryChargeDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoSelectType,
-    detailPriceInfo: string[][],
     handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
 }
 interface MusicChargeDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoType,
-    detailPriceInfo: string[][],
     handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
+}
+interface GiftcardDetailProps extends DetailFallbackProps {
+    searchInfo: SearchInfoType,
+    handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
+}
+interface OrderDetailDetailProps extends Omit<DetailFallbackProps, 'detailPriceInfo'> {
+    searchInfo: SearchInfoType,
+    handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
+}
+interface RoyaltyDetailProps extends Omit<DetailFallbackProps, 'detailPriceInfo'> {
+    title: string,
+    searchInfo: SearchInfoType,
+}
+interface VirtualAccountDetailProps extends Omit<DetailFallbackProps, 'detailPriceInfo'> {
+    searchInfo: SearchInfoType,
 }
 
 /* Type Check */
+const isOrderDetailListType = (target: any): target is OrderDetailListType => {
+    return 'nOrderID' in target && 'first_item' in target ? true : false;
+}
+
+const isVirtualAccListType = (target: any): target is VirtualAccListType => {
+    return 'log_date' in target && 'balance' in target ? true : false;
+}
+
 const isSelect = (target: any): target is SearchInfoSelectType => {
     return 'searchOption' in target ? true : false;
 }
@@ -127,14 +178,59 @@ const ETC_DELIVERY_SEARCH_OPTION_LIST = [
     ]
 ];
 
+// etc 페이지 실물상품권 판매 검색 옵션 관련
+const ETC_GIFTCARD_SEARCH_CATEGORY_TYPE = {
+    CATEGORY_ALL: 'CATEGORY_ALL', // 구분 전체
+    SELL: 'SELL', // 판매
+    SELL_DELETE: 'SELL_DELETE', // 판매 취소(폐기)
+    ADD: 'ADD', // 임의 추가
+    DELETE: 'DELETE' // 임의 폐기
+}; // 구분 관련
+const ETC_GIFTCARD_SEARCH_CARD_TYPE = {
+    CARD_ALL: 'CARD_ALL', // 상품권종 전체
+    TEN: 'TEN', // 1만원권
+    THIRTY: 'THIRTY', // 3만원권
+    FIFTY: 'FIFTY' // 5만원권
+}; // 상품권종 관련
+const ETC_GIFTCARD_SEARCH_DEVICE_TYPE = {
+    DEVICE_ALL: 'DEVICE_ALL', // 처리기기 전체
+    BRANCH_APP: 'BRANCH_APP', // 매장 앱
+    APP: 'APP', // 어플
+    KIOSK: 'KIOSK', // 키오스크
+    POS: 'POS', // POS
+}; // 처리기기 관련
+
+const ETC_GIFTCARD_SEARCH_CATEGORY_LIST = [
+    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL,
+    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL,
+    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL_DELETE,
+    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ADD,
+    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.DELETE
+]
+const ETC_GIFTCARD_SEARCH_CARD_LIST = [
+    ETC_GIFTCARD_SEARCH_CARD_TYPE.CARD_ALL,
+    ETC_GIFTCARD_SEARCH_CARD_TYPE.TEN,
+    ETC_GIFTCARD_SEARCH_CARD_TYPE.THIRTY,
+    ETC_GIFTCARD_SEARCH_CARD_TYPE.FIFTY,
+]
+const ETC_GIFTCARD_SEARCH_DEVICE_LIST = [
+    ETC_GIFTCARD_SEARCH_DEVICE_TYPE.DEVICE_ALL,
+    ETC_GIFTCARD_SEARCH_DEVICE_TYPE.BRANCH_APP,
+    ETC_GIFTCARD_SEARCH_DEVICE_TYPE.APP,
+    ETC_GIFTCARD_SEARCH_DEVICE_TYPE.KIOSK,
+    ETC_GIFTCARD_SEARCH_DEVICE_TYPE.POS
+]
+
 export type {
-    SearchInfoType, SearchOptionType, PageInfoType, PopupOrderDetailType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
-    TotalResultType,
-    EtcTotalParams, EtcListParams,
-    OverallFallbackProps, OrderDetailProps, EtcOrderDetailProps, DeliveryChargeOverallProps, DetailFallbackProps, DeliveryChargeDetailProps,
-    MusicChargeOverallProps, MusicChargeDetailProps
+    SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
+    TotalResultType, OrderDetailListType, VirtualAccListType, OrderDetailModalItemType,
+    EtcTotalParams, EtcListParams, OrderDetailModalParams,
+    OverallFallbackProps, RoyaltyOverallProps, VirtualAccountOverallProps, OverallErrorFallbackProps, DetailErrorFallbackProps, RoyaltyDetailProps, VirtualAccountDetailProps,
+    DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps,
+    MusicChargeDetailProps, OrderDetailDetailProps,
 };
 export {
     ETC_TAB_TYPE, ETC_TAB_LIST, ETC_DELIVERY_SEARCH_OPTION_TYPE, ETC_DELIVERY_SEARCH_OPTION_LIST,
-    isSelect, isRadio,
+    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_LIST,
+    isOrderDetailListType, isVirtualAccListType, isSelect, isRadio,
 };

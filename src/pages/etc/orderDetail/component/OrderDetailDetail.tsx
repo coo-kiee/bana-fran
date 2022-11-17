@@ -2,17 +2,17 @@ import React, { FC, useState, useRef, useCallback, useMemo } from "react";
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
 import { useQueryClient, useQueryErrorResetBoundary } from "react-query";
-import { format, subMonths, lastDayOfMonth } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
 
 // state
 import { franState } from "state";
 
 // type
-import { EtcListParams, PageInfoType, SearchInfoType, MusicChargeDetailProps } from "types/etc/etcType";
+import { EtcListParams, PageInfoType, SearchInfoType, OrderDetailDetailProps } from "types/etc/etcType";
 
 // API
-import ETC_SERVICE from 'service/etcService';
+import ETC_SERVICE from "service/etcService";
 
 // component 
 import { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableErrorFallback } from "pages/etc/component/EtcDetailTable";
@@ -20,11 +20,11 @@ import EtcDetailFooter from "pages/etc/component/EtcDetailFooter";
 import CalanderSearch from "pages/common/calanderSearch";
 import EtcSearchDetail from "pages/etc/component/EtcSearchDetail";
 
-const MusicChargeDetail: FC<MusicChargeDetailProps> = ({ detailPriceInfo, detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo }) => {
+const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo }) => {
     const { reset } = useQueryErrorResetBoundary();
     const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
-        to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
+        from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
+        to: format(new Date(), 'yyyy-MM-dd')
     }); // etcSearch 내부 검색 날짜 관련 보여질 state 
 
     return (
@@ -41,10 +41,8 @@ const MusicChargeDetail: FC<MusicChargeDetailProps> = ({ detailPriceInfo, detail
             <React.Suspense fallback={<EtcDetailTableFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
                     {/* *_list 프로시저 사용하는 컴포넌트 */}
-                    <MusicChargeDetailData
+                    <OrderDetailDetailData
                         searchInfo={searchInfo}
-                        detailPriceInfo={detailPriceInfo}
-                        handleSearchInfo={handleSearchInfo}
                         detailTableColGroup={detailTableColGroup}
                         detailTableHead={detailTableHead} />
                 </ErrorBoundary>
@@ -53,7 +51,7 @@ const MusicChargeDetail: FC<MusicChargeDetailProps> = ({ detailPriceInfo, detail
     )
 }
 
-const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailPriceInfo, detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo }) => {
+const OrderDetailDetailData: FC<Omit<OrderDetailDetailProps, 'handleSearchInfo'>> = ({ detailTableColGroup, detailTableHead, searchInfo }) => {
     const queryClient = useQueryClient();
     const franCode = useRecoilValue(franState);
 
@@ -63,29 +61,18 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailPriceInfo, de
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
 
-    // .board-wrap table 관련 (가장 하단 테이블)
-    // TODO: 이후에 테스트 데이터 보고 타입 지정 + 수정
-    // ['22/06/01~22/06/30', '아메리카노 외 1건', '1,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
-    // let detailTableBody = useMemo((data:any) => data.filter((el:any) => el.type === searchInfo.searchOption.type), [searchInfo.searchOption.type]); 
-    let detailTableBody = [];
-
     // 프로시저 
-    const etcMusicListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
-    const { data: listData, isSuccess: etcMusicListSuccess } = ETC_SERVICE.useEtcList<EtcListParams>('VK4WML6GW9077BKEWP3O', etcMusicListParam, 'etc_music_list');
+    let detailTableBody: (string | number)[][] = [];
+    let detailSearchResult: any = [];
+    const etcOrderDetailListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
+    const { data: listData, isSuccess: etcMusicListSuccess } = ETC_SERVICE.useEtcList<EtcListParams>('JNXWSFKFWJJD8DRH9OEU', etcOrderDetailListParam, 'etc_order_detail_list'); /*useOrderDetailList(etcOrderDetailListParam);*/
 
     if (etcMusicListSuccess) {
-        console.log('MusicChargeDetail: ', listData)
         detailTableBody = listData;
-    }
-
-    let detailSearchResult = useMemo(() => {
-        const data: any = queryClient.getQueryData(['etc_music_fee', franCode]);
-
-        return [
-            ['음악 사용료 합계', `${data.suply_fee}`],
-            ['공연권료 합계', `${data.suply_fee_tax}`],
+        detailSearchResult = [
+            ['총 발주금액 합계: ', Utils.numberComma(listData.reduce((acc: any, cur: any) => acc += cur.amount, 0))]
         ];
-    }, [queryClient, franCode]); // EtcSearchDetail 내부 데이터
+    }
 
     // 엑셀 다운로드 관련 
     const tableRef = useRef<null | HTMLTableElement>(null);
@@ -112,7 +99,7 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailPriceInfo, de
     return (
         <>
             {/* 조회 기간 -> total 프로시저 관련 */}
-            <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={detailSearchResult} priceInfo={detailPriceInfo} />
+            <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={detailSearchResult} />
 
             {/* 게시판 -> list 프로시저 관련 */}
             <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={detailTableBody} pageInfo={pageInfo} ref={tableRef} />
@@ -123,5 +110,4 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailPriceInfo, de
     )
 }
 
-
-export default MusicChargeDetail; 
+export default OrderDetailDetail; 

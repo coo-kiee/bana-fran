@@ -1,26 +1,20 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { format, subMonths, lastDayOfMonth } from 'date-fns';
-import { ErrorBoundary } from 'react-error-boundary';
-import { useQueryErrorResetBoundary } from 'react-query';
 
-// component 
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+// component  
 import DeliveryChargeOverall from "./components/DeliveryChargeOverall";
 import DeliveryChargeDetail from "./components/DeliveryChargeDetail";
-import { OverallFallback, TableFallback } from "../component/EtcTableFallback";
 
 // type
 import { SearchInfoType, SearchInfoSelectType, TableHeadItemType } from "types/etc/etcType";
 
 const DeliveryCharge = () => {
-    const { reset } = useQueryErrorResetBoundary();
-
     // 상태 관련
     const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
         to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
         searchOption: [{ value: 'SEARCH_0', title: '구분 전체' }]
-    }); // 실제 쿼리에서 사용될 날짜, 옵션값   
+    }); // 실제 쿼리에서 사용될 날짜, 옵션값
 
     // 상태 관련 함수
     const handleSearchInfo = (currentTempSearchInfo: SearchInfoType) => {
@@ -47,19 +41,8 @@ const DeliveryCharge = () => {
             </div>
 
             <div className="board-date-wrap">
-                <React.Suspense fallback={<OverallFallback tableColGroup={tableColGroup} tableHead={tableHead} />}>
-                    <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                        {/* *_total 프로시저 사용 컴포넌트 */}
-                        <DeliveryChargeOverall tableColGroup={tableColGroup} tableHead={tableHead} />
-                    </ErrorBoundary>
-                </React.Suspense>
-
-                <React.Suspense fallback={<TableFallback detailTableColGroup={detailTableColGroup} detailPriceInfo={detailPriceInfo} detailTableHead={detailTableHead} />}>
-                    <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                        {/* *_list 프로시저 사용하는 컴포넌트 */}
-                        <DeliveryChargeDetail searchInfo={searchInfo} detailPriceInfo={detailPriceInfo} handleSearchInfo={handleSearchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
-                    </ErrorBoundary>
-                </React.Suspense>
+                <DeliveryChargeOverall tableColGroup={tableColGroup} tableHead={tableHead} />
+                <DeliveryChargeDetail searchInfo={searchInfo} detailPriceInfo={detailPriceInfo} handleSearchInfo={handleSearchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </div>
         </div>
     )

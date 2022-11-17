@@ -1,124 +1,116 @@
+import { useRecoilState } from 'recoil';
+import React from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useQueryErrorResetBoundary } from 'react-query';
+import Utils from 'utils/Utils';
+
 // type
-import { EtcOrderDetailProps } from 'types/etc/etcType';
+import { OrderDetailModalParams, OrderDetailModalItemType } from 'types/etc/etcType';
 
-const EtcOrderDetail: React.FC<EtcOrderDetailProps> = ({ popupOrderDetail, setPopupOrderDetail }) => {
-    // TODO: EtcTable 내부 데이터 관련 
-    const colGroup = ['226', '100', '100', '100', '100', '100', '191'];
-    const thead = ['품목', '단가', '수량', '공급가', '부가세', '합계(발주금액)', '특이사항'];
-    const tbody = [
-        // 프로시저 데이터 확인 뒤 변경하기
-    ];
+// state
+import { orderDetailModalState } from 'state';
 
-    const handleEtcOrderDetail = () => {
-        setPopupOrderDetail((prev) => ({ ...prev, show: false })); // 끄기
-    }
+// service 
+import ETC_SERVICE from 'service/etcService';
+
+// component
+import Loading from 'pages/common/loading';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+
+const EtcOrderDetail = () => {
+    const { reset } = useQueryErrorResetBoundary();
 
     return (
         <div className="alert-layer order-layer active">
             <div className="msg-wrap">
-                {/* <EtcTable title={`발주 품목 상세`} colGroup={colGroup} thead={thead} tbody={tbody} /> */}
                 <p className="title">발주 품목 상세</p>
-                <table className="board-wrap" cellPadding="0" cellSpacing="0">
-                    <colgroup>
-                        <col width="226" />
-                        <col width="100" />
-                        <col width="100" />
-                        <col width="100" />
-                        <col width="100" />
-                        <col width="100" />
-                        <col width="191" />
-                    </colgroup>
-                    <thead>
-                        <tr>
-                            <th>품목</th>
-                            <th>단가</th>
-                            <th>수량</th>
-                            <th>공급가</th>
-                            <th>부가세</th>
-                            <th>합계(발주금액)</th>
-                            <th>특이사항</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td className="content">
-                                <p>BEAN</p>
-                                <strong>디카페인 원두(콜롬비아/500G)</strong>
-                                <p>배송단위/용량<span className="colon"></span>1개/500g</p>
-                            </td>
-                            <td>10,000</td>
-                            <td className="align-right">5</td>
-                            <td>50,000</td>
-                            <td></td>
-                            <td><strong>50,000</strong></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td className="content">
-                                <p>BEAN</p>
-                                <strong>디카페인 원두(콜롬비아/500G)</strong>
-                                <p>배송단위/용량<span className="colon"></span>1개/500g</p>
-                            </td>
-                            <td>10,000</td>
-                            <td className="align-right">5</td>
-                            <td>50,000</td>
-                            <td>50,000</td>
-                            <td><strong>50,000</strong></td>
-                            <td>
-                                재고부족
-                                <p>(4건발주)</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="content">
-                                <p>BEAN</p>
-                                <strong>디카페인 원두(콜롬비아/500G)</strong>
-                                <p>배송단위/용량<span className="colon"></span>1개/500g</p>
-                            </td>
-                            <td>10,000</td>
-                            <td className="align-right">5</td>
-                            <td>50,000</td>
-                            <td>50,000</td>
-                            <td><strong>50,000</strong></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td className="content">
-                                <p>BEAN</p>
-                                <strong>디카페인 원두(콜롬비아/500G)</strong>
-                                <p>배송단위/용량<span className="colon"></span>1개/500g</p>
-                            </td>
-                            <td>10,000</td>
-                            <td className="align-right">5</td>
-                            <td>50,000</td>
-                            <td>50,000</td>
-                            <td><strong>50,000</strong></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td className="content">
-                                <p>BEAN</p>
-                                <strong>디카페인 원두(콜롬비아/500G)</strong>
-                                <p>배송단위/용량<span className="colon"></span>1개/500g</p>
-                            </td>
-                            <td>10,000</td>
-                            <td className="align-right">5</td>
-                            <td>50,000</td>
-                            <td>50,000</td>
-                            <td><strong>50,000</strong></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td className="result total etc-total" colSpan={5}><strong>합계</strong></td>
-                            <td className="point result total etc-total"><strong>190,000</strong></td>
-                            <td className="result total etc-total"></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button className="btn-close order-close" onClick={handleEtcOrderDetail}></button>
-                <button className="cta-btn">확인</button>
+                <React.Suspense fallback={<div style={{ width: 900, height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}><Loading /></div>}>
+                    <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />}>
+                        <EtcOrderDetailData />
+                    </ErrorBoundary>
+                </React.Suspense>
             </div>
         </div>
+    )
+}
+
+const EtcOrderDetailData = () => {
+    const [modalState, setModalState] = useRecoilState(orderDetailModalState)
+
+    // TODO: EtcTable 내부 데이터 관련 
+    const colGroup = ['226', '100', '100', '100', '100', '100', '191'];
+    const thead = [
+        ['품목', '단가', '수량', '공급가', '부가세', '합계(발주금액)', '특이사항'],
+    ];
+
+    // TODO: 프로시저
+    let tbody: Array<OrderDetailModalItemType> = [];
+    let total: Array<OrderDetailModalItemType> = [];
+
+    const orderDetailModalParams: OrderDetailModalParams = { order_code: modalState.orderCode };
+    const { data, isSuccess } = ETC_SERVICE.useOrderDetailModal(orderDetailModalParams);
+    if (isSuccess) {
+        tbody = data.slice(0, data.length - 1);
+        total = [data[data.length - 1]];
+    }
+
+    const handleModalClose = () => {
+        setModalState((prev) => ({ ...prev, show: false })); // 끄기
+    };
+
+    return (
+        <>
+            <div style={{ 'overflowY': 'auto', 'maxHeight': 500 }}>
+                <table className="board-wrap" cellPadding="0" cellSpacing="0">
+                    <colgroup>
+                        {colGroup.map((col, idx) => <col key={`etc_order_detail_table_col_${idx}`} width={col} />)}
+                    </colgroup>
+                    <thead>
+                        {thead.map((trData, idx1) => {
+                            return (
+                                <tr key={`etc_order_detail_table_head_${idx1}`}>
+                                    {trData.map((thData, idx2) => <th key={`etc_order_detail_table_headitem_${idx2}`} >{thData}</th>)}
+                                </tr>
+                            )
+                        })}
+                    </thead>
+                    <tbody>
+                        {tbody.map((el, idx) => <EtcOrderDetailItem key={`etc_order_detail_item_${idx}`} {...el} />)}
+                        {total.map((el, idx) => {
+                            return (
+                                <tr key={`etc_order_detail_item_total_${idx}`}>
+                                    <td className="result total etc-total" colSpan={5}><strong>합계</strong></td>
+                                    <td className="point result total etc-total"><strong>{Utils.numberComma(el.total_amount)}</strong></td>
+                                    <td className="result total etc-total"></td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
+            </div>
+            <button className="btn-close order-close" onClick={handleModalClose}></button>
+            <button className="cta-btn" onClick={handleModalClose}>확인</button>
+        </>
+    )
+}
+
+const EtcOrderDetailItem: React.FC<OrderDetailModalItemType> = (props) => {
+    const { fOrderCount, fran_price, nEAPerPack, sDeliveryUnit, sEtc, sGroup, sItemShort, suply_amount, tax_amount, total_amount, volume } = props;
+
+    return (
+        <tr>
+            <td className="content">
+                <p>{sGroup}</p>
+                <strong>{sItemShort} ({volume})</strong>
+                <p>배송단위/용량<span className="colon"></span>1{sDeliveryUnit}/{nEAPerPack}개</p>
+            </td>
+            <td>{Utils.numberComma(fran_price)}</td>
+            <td className="align-right">{fOrderCount}</td>
+            <td>{Utils.numberComma(suply_amount)}</td>
+            <td>{Utils.numberComma(tax_amount)}</td>
+            <td><strong>{Utils.numberComma(total_amount)}</strong></td>
+            <td>{sEtc}</td>
+        </tr>
     )
 }
 

@@ -16,7 +16,6 @@ interface EtcDetailFooterProps {
 const EtcDetailFooter: React.FC<EtcDetailFooterProps> = (props) => {
     const { excelFn, pageFn, dataCnt, pageInfo } = props;
 
-
     const handlePageChange = (changePage: number) => {
         pageFn((prevPageInfo) => ({ ...prevPageInfo, currentPage: changePage }))
     }
