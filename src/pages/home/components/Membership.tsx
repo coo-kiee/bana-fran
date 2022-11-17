@@ -22,12 +22,14 @@ const Membership = () => {
 					<col width='125' />
 					<col width='*' />
 				</colgroup>
-				<tbody>
+				<thead>
 					<tr>
 						<th>구분</th>
 						<th>건수</th>
 						<th>금액</th>
 					</tr>
+				</thead>
+				<tbody>
 					<tr>
 						<td className='sortation'>미사용 바나포인트(P)</td>
 						<td className='align-right'>-</td>

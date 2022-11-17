@@ -61,25 +61,6 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
                 format: (y: any) => {return (Utils.numberComma(y))}
             }}
             axisBottom={null}
-            // axisBottom={{
-            //     tickSize: 0,
-            //     tickPadding: 15,
-            //     format: (x: any) => {
-            //         const dayNum = getDay(new Date(x));
-            //         let dayText = '일'
-            //         switch (dayNum) {
-            //             case 1: dayText = '월'; break;
-            //             case 2: dayText = '화'; break;
-            //             case 3: dayText = '수'; break;
-            //             case 4: dayText = '목'; break;
-            //             case 5: dayText = '금'; break;
-            //             case 6: dayText = '토'; break;
-            //             default: dayText = '일'; break;
-            //         }
-            //         const formattedValue = format(new Date(x), 'MM.dd') + (dayText);
-            //         return (formattedValue)
-            //     }
-            // }}
             lineWidth={4}
             curve='linear'
             colors={(props: any) => {return props.color}}
@@ -87,7 +68,6 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
             enableGridX={true}
             enableGridY={true}
             enablePoints={true}
-            // enablePointLabel={(total || paid || app || free) ? true : false}
             pointSize={10}
             pointColor='#ffffff'
             pointBorderWidth={4}

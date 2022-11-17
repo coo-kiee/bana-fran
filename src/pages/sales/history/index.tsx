@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
-import { format, subYears } from "date-fns";
+import { format, subDays, subYears } from "date-fns";
 
 // global states
 import { franState } from "state";
@@ -28,7 +28,7 @@ const SalesHistory = () => {
 	
 	// filter options
 	const [historySearch, setHistorySearch] = useState<SalesHistorySearch>({ 
-		from: format(new Date(today.getFullYear(), today.getMonth()-1, today.getDate()), 'yyyy-MM-dd'), 
+		from: format(new Date(subDays(today, 6)), 'yyyy-MM-dd'), 
 		to: format(new Date(today), 'yyyy-MM-dd'),
 		searchOption: [
 			{ title: '주문유형 전체', value: 'total' },
@@ -40,7 +40,7 @@ const SalesHistory = () => {
 	});
 
 	// 취소 주문 표시 여부 0: 취소주문감추기 1: 취소주문표시
-	const [isCancelShow, setIsCancelShow] = useState<0|1>(0);
+	const [isCancelShow, setIsCancelShow] = useState<0|1>(1);
 	// 쿠팡/배민 주문 제외 여부 0: 쿠팡/배민표시 1:쿠팡/배민제외
 	const [isExcludeCouBae, setIsExcludeCouBae] = useState<0|1>(0);
 
@@ -85,7 +85,7 @@ const SalesHistory = () => {
 			[HISTORY_PAY_TYPE.COMPLETE]: { title: '결제완료', value: '결제완료' },
 			[HISTORY_PAY_TYPE.CARD]: { title: '현장카드결제', value: '현장카드' },
 			[HISTORY_PAY_TYPE.CASH]: { title: '현장현금결제', value: '현장현금' },
-			[HISTORY_PAY_TYPE.CANCEL]: { title: '결제취소', value: '결제취소' },
+			// [HISTORY_PAY_TYPE.CANCEL]: { title: '결제취소', value: '결제취소' },
 		},
 		{
 			[HISTORY_GIFT_CERT.TOTAL]: { title: '상품 전체', value: 'total' },
@@ -98,7 +98,7 @@ const SalesHistory = () => {
 	// data && console.log(data);
 
 	// select box filter (change on refetch): order_type, order_state, rcp_rtpe, pay_type, gift_cert
-	const filteredData = useMemo(() => {
+	const filteredData = () => {
 		const orderType = historySearch.searchOption[0].value; 	// 주문유형 1: 앱 2:쿠팡 3: 배민 else: 매장
 		const orderState = historySearch.searchOption[1].value;	// 주문상태
 		const rcpType = historySearch.searchOption[2].value;		// 접수타입
@@ -125,20 +125,26 @@ const SalesHistory = () => {
 		if (giftCert !== 'total') {
 			resultData = resultData.filter((dd: any) => {return dd.bOrderGiftCert === giftCert})
 		}
-		return resultData;
-	}, [data, isRefetching]);
-
-	// checkbox filter (without refetch)
-	const checkedFilteredData = useMemo(() => {
-		let resultData = filteredData;
 		if (isCancelShow === 0) { // 취소주문 감출 때 (unchecked)
 			resultData = resultData?.filter((dd: any) => {return dd.order_state !== 50});
 		}
 		if (isExcludeCouBae === 1) { // 쿠팡/배민 제외시 (checked)
 			resultData = resultData?.filter((fd: any) => {return fd.order_type !== 2 && fd.order_type !== 3});
 		}
-		return resultData
-	}, [isExcludeCouBae, filteredData, isCancelShow]);
+		return resultData;
+	};
+
+	// checkbox filter (without refetch)
+	// const checkedFilteredData = () => {
+	// 	let resultData = filteredData();
+	// 	if (isCancelShow === 0) { // 취소주문 감출 때 (unchecked)
+	// 		resultData = resultData?.filter((dd: any) => {return dd.order_state !== 50});
+	// 	}
+	// 	if (isExcludeCouBae === 1) { // 쿠팡/배민 제외시 (checked)
+	// 		resultData = resultData?.filter((fd: any) => {return fd.order_type !== 2 && fd.order_type !== 3});
+	// 	}
+	// 	return resultData
+	// };
 
 
     /* excel download */
@@ -155,7 +161,7 @@ const SalesHistory = () => {
                 addRowColor: { row: [1,2], color: ['d3d3d3','d3d3d3'] },
                 sheetName: '매출 통계', // 시트이름, 필수 X
             };
-            try { Utils.excelDownload(tableRef.current, options, `바나프레소 주문내역(${from}~${to})`); }
+            try { Utils.excelDownload(tableRef.current, options, `바나프레소 주문내역(${from} ~ ${to})`); }
             catch (error) { console.log(error); }
         }
     }
@@ -219,7 +225,7 @@ const SalesHistory = () => {
 					{/* <!-- 게시판 --> */}
 					<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
 						<SalesHistoryTable 
-							data={checkedFilteredData || []} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} setShowSticky={setShowSticky} />
+							data={filteredData() || []} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} setShowSticky={setShowSticky} />
 					</table>
 					{showSticky ? <StickyHead /> : null}
 					{/* <!-- 게시판 --> */}
@@ -227,10 +233,10 @@ const SalesHistory = () => {
 				{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 				<div className='result-function-wrap'>
 					<div className='function'>
-						<button className='goast-btn' onClick={excelDownload}>엑셀다운</button>
+						<button className='goast-btn' onClick={excelDownload} disabled={isLoading || isRefetching}>엑셀다운</button>
 					</div>
 					<Pagination
-						dataCnt={checkedFilteredData?.length || 0}
+						dataCnt={filteredData()?.length || 0}
 						pageInfo={{row: rowPerPage, currentPage, boundaryRange: 5}}
 						handlePageChange={setCurrentPage}
 						handlePageRow={setRowPerPage}

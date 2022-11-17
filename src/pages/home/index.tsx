@@ -20,15 +20,13 @@ const HomeContainer: React.FC = () => {
 	const fSelected = f_list?.filter((fran: any) => {
 		return fran.f_code === fCode;
 	})[0];
-	// 가맹점명
-	const { f_code_name } = fSelected;
 
 	return (
 		<section className='container'>
 			<header>
 				<div className='page-title home'>
 					<p className='present'>HOME</p>
-					<p className='spot'>{f_code_name || ''}</p>
+					<p className='spot'>{fSelected?.f_code_name || ''}</p>
 				</div>
 			</header>
 			<section className='dashboard'>

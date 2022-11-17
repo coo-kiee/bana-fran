@@ -322,6 +322,10 @@ article { display: flex; position: relative;
                             .contents {
                                 font-size: 16px;
                                 color: #000;
+                                cursor: pointer;
+                                &:hover {
+                                    text-decoration: underline;
+                                }
                             }
 
                             .date {

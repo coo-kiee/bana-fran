@@ -19,7 +19,9 @@
     background: #fff;
 }
 select { @include select-style; }
-.goast-btn { @include goast-btn-padding; }
+.goast-btn { @include goast-btn-padding; 
+    &:disabled {color: #e0e0e0; border-color: #d0d0d0;} 
+}
 .input { 
     display: block; 
     width: 100%; 

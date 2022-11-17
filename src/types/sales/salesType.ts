@@ -7,7 +7,6 @@ interface SalesTable {
     setShowSticky?: any;
 }
 
-
 /* option value에 사용할 값 관련 타입들 */
 
 // history option types
@@ -44,7 +43,7 @@ const HISTORY_PAY_TYPE = {
 	COMPLETE: '결제완료',
 	CARD: '현장카드',
 	CASH: '현장현금',
-	CANCEL: '결제취소',
+	// CANCEL: '결제취소',
 }
 // 일반제품(GIFT_CERT)
 const HISTORY_GIFT_CERT = {
@@ -83,7 +82,7 @@ const HISTORY_SEARCH_TYPE_LIST = [
 		HISTORY_PAY_TYPE.COMPLETE,
 		HISTORY_PAY_TYPE.CARD,
 		HISTORY_PAY_TYPE.CASH,
-		HISTORY_PAY_TYPE.CANCEL,
+		// HISTORY_PAY_TYPE.CANCEL,
 	],
 	[
 		HISTORY_GIFT_CERT.TOTAL,

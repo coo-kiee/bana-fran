@@ -45,56 +45,6 @@ const PrefixSum = ({ data }: PrefixSumProps) => {
 					</li>
 				)
 			})}
-			{/* <li>
-				주문금액 합계<span className='colon'></span>
-				<span className='value'>{Utils.numberComma(prefixSum.chargeTotal || 0)}원</span>
-			</li>
-			<li>
-				배달비 합계<span className='colon'></span>
-				<span className='value'>{Utils.numberComma(prefixSum.deliveryCharge || 0)}원</span>
-			</li>
-			<li>
-				주문금액+배달비 합계<span className='colon'></span>
-				<span className='value'>
-					{Utils.numberComma(prefixSum.chargeTotal + prefixSum.deliveryCharge || 0)}원
-				</span>
-			</li>
-			<li>
-				카드결제 합계<span className='colon'></span>
-				<span className='value'>{Utils.numberComma(prefixSum.cardCharge || 0)}원</span>
-			</li>
-			<li>
-				현금결제 합계<span className='colon'></span>
-				<span className='value'>{Utils.numberComma(prefixSum.cashCharge || 0)}원</span>
-			</li>
-			<li>
-				유상포인트 결제 합계<span className='colon'></span>
-				<span className='value'>{Utils.numberComma(prefixSum.paidPoint || 0)}원</span>
-			</li>
-			<li>
-				바나포인트/가맹점무료쿠폰 결제 합계<span className='colon'></span>
-				<span className='value'>{Utils.numberComma(prefixSum.banaPoint + prefixSum.franCoupon || 0)}원</span>
-			</li>
-			<li>
-				본사 발급 쿠폰 결제 합계<span className='colon'></span>
-				<span className='value'>{Utils.numberComma(prefixSum.hdCoupon || 0)}원</span>
-			</li>
-			<li>
-				적립 스탬프 금액 합계<span className='colon'></span>
-				<span className='value'>{Utils.numberComma(prefixSum.stampCount || 0)}원</span>
-			</li>
-			<li>
-				적립 바나포인트 금액 합계<span className='colon'></span>
-				<span className='value'>{Utils.numberComma(prefixSum.savingPoint || 0)}원</span>
-			</li>
-			<li>
-				실물 상품권 판매 금액 합계<span className='colon'></span>
-				<span className='value'>{Utils.numberComma(prefixSum.giftCertCharge || 0)}원</span>
-			</li>
-			<li>
-				쿠팡/배민주문 금액 합계<span className='colon'></span>
-				<span className='value'>{Utils.numberComma(prefixSum.couBaeCharge || 0)}원</span>
-			</li> */}
 		</ul>
 	);
 };

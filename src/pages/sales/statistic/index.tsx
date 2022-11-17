@@ -39,7 +39,7 @@ const SalesStatistic = () => {
 
 	// query
 	// 월별 검색(M)이면 from/to에 -01 string 추가 M: yy-MM, D: yy-MM-dd 포멧
-	const { data, isLoading, isFetching, refetch } = SALES_SERVICE.useSalesStatistic({ 
+	const { data, isLoading, isRefetching, refetch } = SALES_SERVICE.useSalesStatistic({ 
 		f_code: fCode, search_type: statisticSearch.searchType, 
 		from_date: statisticSearch.searchType === 'M' ? (statisticSearch.from + '-01') : statisticSearch.from, 
 		to_date: statisticSearch.searchType === 'M' ? (statisticSearch.to + '-01') : statisticSearch.to 
@@ -48,7 +48,7 @@ const SalesStatistic = () => {
 	// searchTypeMemo for Line Chart (searchType 변경되어도 유지되도록)
 	const searchTypeMemo = useMemo(() => {return statisticSearch.searchType}, [data]);
 	
-    // data && console.log(data);
+    data && console.log(data);
 	
 	// 상태가 바뀔 때, 제한 조건(90일)을 넘어가면 refecth를 막고 날짜 바꿔주는 함수
 	const handleSearch = () => {
@@ -82,7 +82,7 @@ const SalesStatistic = () => {
                 addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','ffc89f'] },
                 sheetName: '매출 통계', // 시트이름, 필수 X
             };
-            try { Utils.excelDownload(tableRef.current, options, `바나프레소 ${searchType === 'D' ? '일별' : '월별'} 매출통계(${from}~${to})`); }
+            try { Utils.excelDownload(tableRef.current, options, `바나프레소 ${searchType === 'D' ? '일별' : '월별'} 매출통계(${from} ~ ${to})`); }
             catch (error) { console.log(error); }
         }
     }
@@ -94,7 +94,20 @@ const SalesStatistic = () => {
 			[STATISTIC_SEARCH_TYPE.MONTH]: { title: '월별', id: 'month', value: 'M' },
 		}
 	]
-	
+
+	// data sort(reverse)
+	// const dataReverse = (data1: any, data2: any) => {
+	// 	const dateA = new Date(data1.std_date);
+	// 	const dateB = new Date(data2.std_date);
+	// 	let result = 0;
+	// 	if (isBefore(dateA, dateB)) { result = 1;}
+	// 	if (dateA === dateB) { result = 0; }
+	// 	if (isBefore(dateB, dateA)) { result =  -1; }
+	// 	return result;
+	// }
+	const sortedData = useMemo(() => { return data ? [...data] : [] }, [data]);
+	sortedData.reverse();
+
 	return (
 		<>
 			<div className='info-wrap'>
@@ -174,7 +187,7 @@ const SalesStatistic = () => {
 				</div>
 				<div className='chart-wrap'>
 					<div id='statistic-chart' className='line-chart chart'>
-						{!(isLoading || isFetching) && data ? (
+						{!(isLoading || isRefetching) && data ? (
 							<LineChart filterChart={filterChart} data={data} searchType={searchTypeMemo} />
 						) : (
 							<div className='chart-loading-wrap'>
@@ -195,18 +208,18 @@ const SalesStatistic = () => {
 				{/* <!-- // 조회기간 --> */}
 				{/* <!-- 게시판 --> */}
 				<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
-					<SalesStatisticTable data={data} isLoading={isLoading} rowPerPage={rowPerPage} currentPage={currentPage} setShowSticky={setShowSticky} />
+					<SalesStatisticTable data={sortedData} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} setShowSticky={setShowSticky} />
 				</table>
-				{ showSticky ? <StickyHead /> : null}
+				{ showSticky ? <StickyHead /> : null }
 				{/* <!-- 게시판 --> */}
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
 				<div className='function'>
-					<button className='goast-btn' onClick={excelDownload}>엑셀다운</button>
+					<button className='goast-btn' onClick={excelDownload} disabled={isLoading || isRefetching}>엑셀다운</button>
 				</div>
 				<Pagination 
-					dataCnt={data?.length} 
+					dataCnt={sortedData?.length} 
 					pageInfo={{row: rowPerPage, currentPage, boundaryRange: 5}} 
 					handlePageChange={setCurrentPage} 
 					handlePageRow={setRowPerPage}

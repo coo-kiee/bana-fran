@@ -17,6 +17,7 @@ const useBoardList = (params: Params) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
+        suspense: true,
         onError : (err:any) => {
             queryFn.axiosError(err);
         }
@@ -34,6 +35,7 @@ const useMembershipInfo = (params: Params) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
+        suspense: true,
         onError : (err:any) => {
             queryFn.axiosError(err);
         }
@@ -51,6 +53,7 @@ const useSalesToday = (params: Params) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
+        suspense: true,
         onError : (err:any) => {
             queryFn.axiosError(err);
         }
@@ -85,6 +88,7 @@ const useMonthlyOrderList = (params: Params) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
+        suspense: true,
         onError : (err:any) => {
             queryFn.axiosError(err);
         }
@@ -102,6 +106,7 @@ const useHomeCalculateList = (params: Params) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
+        suspense: true,
         onError : (err:any) => {
             queryFn.axiosError(err);
         }

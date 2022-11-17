@@ -41,7 +41,7 @@ const BoardItem = ({ url, boardType, boardId, important, name, title, date }: Bo
 	return (
 		<li className='list-item'>
 			<p className={`state ${typeText}`}>{name}</p>
-			<p className='contents' onClick={() => navigate(`${url}/${boardType}/${boardId}`)}>{title}</p>
+			<p className='contents ellipsis' onClick={() => navigate(`${url}/${boardType}/${boardId}`)}>{title}</p>
 			<p className='date'>{date}</p>
 		</li>
 	);

@@ -19,11 +19,13 @@ const MonthlyOrder = () => {
 					<col width='104' />
 					<col width='151' />
 				</colgroup>
-				<tbody>
+				<thead>
 					<tr>
 						<th>월</th>
 						<th>발주금액</th>
 					</tr>
+				</thead>
+				<tbody>
 					{data?.map((order: any, idx: number, origData: any) => {
 						const {deposit, log_date} = order;
 						return (

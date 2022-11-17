@@ -22,7 +22,7 @@ const CalculateList = () => {
 					<col width='105' />
 					<col width='105' />
 				</colgroup>
-				<tbody>
+				<thead>
 					<tr>
 						<th>정산월</th>
 						<th>보전금액</th>
@@ -30,6 +30,8 @@ const CalculateList = () => {
 						<th>합계</th>
 						<th>상태</th>
 					</tr>
+				</thead>
+				<tbody>
 					{data?.map((settlement: any, idx: number, origData: any) => {
 						const { std_month, receive_charge, send_charge, total_send_charge, status, status_name } = settlement;
 						return (
