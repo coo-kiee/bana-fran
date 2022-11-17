@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import loadable from "@loadable/component";
 
 // Type
-import { BoardInfo, BOARD_GROUP, ListSearchCondition, MenuType, MENU_TYPE } from "types/board/boardType";
+import { BoardInfo, BOARD_GROUP, MenuType, MENU_TYPE } from "types/board/boardType";
 
 // state
 import { useRecoilValue } from "recoil";
@@ -15,7 +15,7 @@ import Utils from "utils/Utils";
 
 // component
 import BoardTab from "./component/BoardTab";
-import BoardSelectCondition from "./component/BoardSelectCondition";
+import BoardSearchCondition from "./component/BoardSearchCondition";
 import BoardTable from "./component/BoardTable";
 import BoardHeader from "./component/BoardHeader";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
@@ -26,47 +26,54 @@ const BoardDetail = loadable(() => import('pages/board/component/detail/BoardDet
 const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD }) => {
 
     const { bType = "0", bId = "0" } = useParams();
-    const boardType = parseInt(bType);
-    const isBoardType = !Utils.strNumberCheck(bType) && boardType > 0 && Object.values(BOARD_GROUP[menuType]).filter((boardInfo) => boardInfo.type === boardType).length > 0;
+    const boardType = parseInt(bType) as BoardInfo['type'] | 0;
+    // 숫자이고, 0보다 크고, 현재 게시판 탭 그룹에 속해 있을때
+    const isBoardGroupType = !Utils.strNumberCheck(bType) && boardType > 0 && Object.values(BOARD_GROUP[menuType]).filter((boardInfo) => boardInfo.type === boardType).length > 0;
     const navigation = useNavigate();
 
-    useEffect(() => { // 게시판 타입이 아닐 시 이전페이지로 이동
-        if (boardType > 0 && !isBoardType) navigation(-1);
-    }, [boardType, isBoardType, navigation]);
+     // 게시판 타입이 아닐 시 이전페이지로 이동
+    useEffect(() => {
+        if (boardType > 0 && !isBoardGroupType) navigation(-1);
+    }, [boardType, isBoardGroupType, navigation]);
 
-    useLayoutEffect(() => { // 게시판 탭 변경 & 게시판 상세 이동
+    // 게시판 탭 변경 & 게시판 상세 이동
+    useLayoutEffect(() => {
         const boardId = parseInt(bId);
         const isBoardId = !Utils.strNumberCheck(bId) && boardId > 0;
 
         if (boardType === 0) { // 페이지 처음 로딩 시
-            setListSearchCondition(prev => ({ ...prev, board_type: BOARD_GROUP[menuType][0].type }));
+            setListSearchParameter(prev => ({ ...prev, board_type: BOARD_GROUP[menuType][0].type })); // 게시판 첫번째 탭 type 입력
             setDetailInfo(prev => ({ ...prev, isDetail: false }));
         }
-        else if (isBoardType && isBoardId) { // 게시판 상세이동
-            setListSearchCondition(prev => ({ ...prev, board_type: boardType as BoardInfo['type'] }));
+        else if (isBoardGroupType && isBoardId) { // 게시판 상세이동
+            setListSearchParameter(prev => ({ ...prev, board_type: boardType }));
             setDetailInfo(prev => ({ ...prev, [boardType]: boardId, isDetail: true }));
         }
-        else if (isBoardType) { // 게시판 탭 변경
-            setListSearchCondition(prev => ({ ...prev, board_type: boardType as BoardInfo['type'] }));
+        else if (isBoardGroupType) { // 게시판 탭 변경
+            setListSearchParameter(prev => ({ ...prev, board_type: boardType }));
             setDetailInfo(prev => ({ ...prev, isDetail: false }));
         }
-    }, [menuType, boardType, bId, isBoardType]);
+    }, [menuType, boardType, bId, isBoardGroupType]);
 
     const { userInfo } = useRecoilValue(loginState);
     const fCode = useRecoilValue(franState);
 
     // 리스트 검색 정보
-    const initialData = {
+    const [initialSearchCategory, initialSearchText] = Object.values(BOARD_GROUP[menuType]).reduce((arr, cur) => {
+        arr[0][cur.type] = 0;
+        arr[1][cur.type] = '';
+        return arr;
+    }, [{} as { [key in BoardInfo['type']]: number }, {} as { [key in BoardInfo['type']]: string }]);
+    const [listSearchParameter, setListSearchParameter] = useState<ListSearchParameter>({
         f_code: fCode,
         staff_no: userInfo?.staff_no || 0,
         board_type: BOARD_GROUP[menuType][0].type,
-        search_category: 0,
-        search_text: "",
+        search_category: initialSearchCategory,
+        search_text: initialSearchText,
         page_idx: 1,
         page_size: 50,
-    };
-    const [listSearchCondition, setListSearchCondition] = useState<ListSearchCondition>(initialData);
-    const { board_type, search_category, staff_no, f_code } = listSearchCondition;
+    });
+    const { board_type, search_category, search_text, staff_no, f_code } = listSearchParameter;
 
     // 상세보기 정보 - 현재 메뉴 boardType들의 boardId + isDetail
     const initialDetail: DetailInfo = Object.values(BOARD_GROUP[menuType]).reduce((detailObj, boardInfo: BoardInfo) => {
@@ -80,10 +87,10 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
     return (
         <>
             {
-                (board_type || isBoardType) &&
+                (board_type || isBoardGroupType) &&
                 <section className="container">
                     <BoardHeader menuType={menuType} />
-                    <section className={`contents-wrap ${isDetail ? 'notice-view-wrap' : 'notice-wrap'}`}>
+                    <section className={`contents-wrap ${isDetail ? `notice-view-wrap` : 'notice-wrap'}`}>
                         <div className="contents">
                             <BoardTab menuType={menuType} boardType={board_type} detailInfo={detailInfo} />
                             <div id="tab1" className="tab-content active">
@@ -97,12 +104,10 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
                                         </ErrorBoundary>
                                         :
                                         // 게시판 리스트
-                                        <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <div style={{ paddingTop: '50px' }}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} /></div>} onError={(e) => console.log('listError', e)}>
-                                            <Suspense fallback={<Loading marginTop={150} />}>
-                                                <BoardSelectCondition boardType={board_type} staffNo={staff_no} fCode={f_code} searchCategory={search_category} setListSearchCondition={setListSearchCondition} />
-                                                <BoardTable menuType={menuType} listSearchCondition={listSearchCondition} setListSearchCondition={setListSearchCondition} />
-                                            </Suspense>
-                                        </ErrorBoundary>
+                                        <>
+                                            <BoardSearchCondition boardType={board_type} staffNo={staff_no} fCode={f_code} searchCategory={search_category} searchText={search_text} setListSearchParameter={setListSearchParameter} />
+                                            <BoardTable menuType={menuType} listSearchParameter={listSearchParameter} setListSearchParameter={setListSearchParameter} />
+                                        </>
                                 }
                             </div>
                         </div>
@@ -117,4 +122,14 @@ export default BoardContainer;
 
 
 
+// Component Type
+export interface ListSearchParameter {
+    f_code: number, // 가맹지점 코드
+    staff_no: number, // 직원번호
+    board_type: BoardInfo['type'], // 1 : 공지사항, 2 : 운영 매뉴얼, 3 : 교육자료실, 4 : 레시피자료실, 5 : 규정 및 가이드, 6 : 정산관련 공지 )
+    search_category: { [key in BoardInfo['type']]: number }, // 게시판 별카테고리 0 : 전체, 1 : 메뉴얼, 2: 규정...
+    search_text: { [key in BoardInfo['type']]: string }, // 검색 키워드
+    page_idx: number, // 조회할 페이지
+    page_size: number, // 조회할 건수
+};
 export type DetailInfo = { [key in BoardInfo['type']]: number } & { isDetail: boolean };

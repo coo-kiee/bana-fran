@@ -1,25 +1,29 @@
-import React, { FC } from "react";
+import React, { FC, Suspense, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ErrorBoundary } from "react-error-boundary";
 
 // API
 import BOARD_SERVICE from "service/boardService";
 
 // Type
-import { BoardListResult, ListSearchCondition, MenuType } from "types/board/boardType";
+import { MenuType } from "types/board/boardType";
+import { ListSearchParameter } from "..";
 
 // Component
 import Pagination from "pages/common/pagination";
+import NoData from "pages/common/noData";
+import Loading from "pages/common/loading";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 interface BoardTableProps {
     menuType: MenuType,
-    listSearchCondition: ListSearchCondition,
-    setListSearchCondition: React.Dispatch<React.SetStateAction<ListSearchCondition>>,
+    listSearchParameter: ListSearchParameter,
+    setListSearchParameter: React.Dispatch<React.SetStateAction<ListSearchParameter>>,
 };
-const BoardTable: FC<BoardTableProps> = ({ menuType, listSearchCondition, setListSearchCondition }) => {
+const BoardTable: FC<BoardTableProps> = ({ menuType, listSearchParameter, setListSearchParameter }) => {
 
-    const { data: boardList } = BOARD_SERVICE.useBoardList(['boardList', JSON.stringify(listSearchCondition)], listSearchCondition);
-    const { out: pageInfo } = boardList as BoardListResult || {};
-
+    const [dataCnt, setDataCnt] = useState(0);
+    
     const { width, headerText } = TABLE_COLUMN_INFO;
     
     return (
@@ -31,10 +35,14 @@ const BoardTable: FC<BoardTableProps> = ({ menuType, listSearchCondition, setLis
                     {/* Table Header  */}
                     <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
                     {/* List */}
-                    {boardList && <TableList menuType={menuType} boardList={boardList} boardType={listSearchCondition.board_type} />}
+                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <div style={{ paddingTop: '50px' }}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} /></div>} onError={(e) => console.log('listError', e)}>
+                        <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
+                            <TableList menuType={menuType} listSearchParameter={listSearchParameter} setDataCnt={setDataCnt} />
+                        </Suspense>
+                    </ErrorBoundary>
                 </tbody>
             </table>
-            <TableBottom dataCnt={pageInfo?.total_cnt || 0} row={listSearchCondition.page_size || 50} currentPage={listSearchCondition.page_idx || 1} setListSearchCondition={setListSearchCondition} />
+            <TableBottom dataCnt={dataCnt} row={listSearchParameter.page_size || 50} currentPage={listSearchParameter.page_idx || 1} setListSearchParameter={setListSearchParameter} />
         </>
     );
 }
@@ -43,35 +51,41 @@ export default BoardTable;
 
 
 
-const TABLE_COLUMN_INFO = {
-    width: ['90', '130', '*', '130', '130'],
-    headerText: ['번호', '분류', '제목', '첨부파일', '등록일'],
-} as const;
-
 interface TableListProps {
     menuType: MenuType,
-    boardList: BoardListResult,
-    boardType: number,
+    listSearchParameter: ListSearchParameter,
+    setDataCnt: React.Dispatch<React.SetStateAction<number>>,
+    // boardList: BoardListResult,
+    // boardType: number,
 };
-const TableList: FC<TableListProps> = ({ menuType, boardList, boardType }) => {
+const TableList: FC<TableListProps> = ({ menuType, listSearchParameter, setDataCnt }) => {
 
-    const { list, out: pageInfo } = boardList;
-    const { total_cnt } = pageInfo;
+    const { search_category, search_text, board_type } = listSearchParameter;
+    const params = { ...listSearchParameter, search_category: search_category[board_type], search_text: search_text[board_type] };
 
-    const navigation = useNavigate();
+    const { data: boardList } = BOARD_SERVICE.useBoardList(['boardList', JSON.stringify(params)], params);
+    const { list, out: pageInfo } = boardList || {};
+    const totalCnt = pageInfo?.total_cnt || 0;
+
     // 게시글 상세보기로 이동
+    const navigation = useNavigate();
     const moveToDetail = (boardId: number) => {
-        navigation(`/${menuType}/${boardType}/${boardId}`);
+        navigation(`/${menuType}/${board_type}/${boardId}`);
     };
+
+    // 리스트 패치 후 totalCnt 갱신
+    useEffect(() => {
+        if (pageInfo) setDataCnt(prev => pageInfo.total_cnt);
+    }, [setDataCnt, pageInfo])
 
     return (
         <>
             {
-                list.map((board, index) => {
+                list?.map((board, index) => {
 
                     const { category_name, title, attach_cnt, insert_date, rownum, important, board_id } = board;
-                    const rowNumInt = total_cnt - parseInt(rownum) + 1;
-                    const isEndBoard = index === (total_cnt - 1);
+                    const rowNumInt = totalCnt - parseInt(rownum) + 1;
+                    const isEndBoard = index === (totalCnt - 1);
                     const isImportant = important === "1";
 
                     return (
@@ -85,8 +99,7 @@ const TableList: FC<TableListProps> = ({ menuType, boardList, boardType }) => {
                     )
                 })
             }
-            {/* {!!!total_cnt && <tr><td colSpan={TABLE_COLUMN_INFO.width.length}>No Data</td></tr>} */}
-            {!!!total_cnt && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>}
+            {!!!totalCnt && <NoData isTable={true} />}
         </>
     )
 };
@@ -95,16 +108,16 @@ interface TableBottomProps {
     dataCnt: number,
     currentPage: number,
     row: number,
-    setListSearchCondition: React.Dispatch<React.SetStateAction<ListSearchCondition>>,
+    setListSearchParameter: React.Dispatch<React.SetStateAction<ListSearchParameter>>,
 };
-const TableBottom: FC<TableBottomProps> = ({ dataCnt, currentPage, row, setListSearchCondition }) => {
+const TableBottom: FC<TableBottomProps> = ({ dataCnt, currentPage, row, setListSearchParameter }) => {
 
     const handlePageChange = (changePage: number) => {
-        setListSearchCondition(prev => ({ ...prev, page_idx: changePage }))
+        setListSearchParameter(prev => ({ ...prev, page_idx: changePage }));
     };
 
     const handlePageRow = (row: number) => {
-        setListSearchCondition(prev => ({ ...prev, page_size: row }))
+        setListSearchParameter(prev => ({ ...prev, page_size: row }));
     };
 
     return (
@@ -117,4 +130,10 @@ const TableBottom: FC<TableBottomProps> = ({ dataCnt, currentPage, row, setListS
             }
         </>
     )
-}
+};
+
+// Component Type
+const TABLE_COLUMN_INFO = {
+    width: ['90', '130', '*', '130', '130'],
+    headerText: ['번호', '분류', '제목', '첨부파일', '등록일'],
+} as const;
