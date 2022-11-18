@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { format, subDays, subYears } from "date-fns";
 
@@ -17,8 +17,6 @@ import CalanderSearch from "pages/common/calanderSearch";
 import Pagination from "pages/common/pagination";
 import SalesHistoryTable from "pages/sales/history/table";
 import PrefixSum from "pages/sales/history/PrefixSum";
-import StickyHead from "./table/StickyHead";
-
 
 const SalesHistory = () => {
 	// global states
@@ -223,11 +221,7 @@ const SalesHistory = () => {
 					</div>
 					{/* <!-- // 조회기간 --> */}
 					{/* <!-- 게시판 --> */}
-					<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
-						<SalesHistoryTable 
-							data={filteredData() || []} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} setShowSticky={setShowSticky} />
-					</table>
-					{showSticky ? <StickyHead /> : null}
+					<SalesHistoryTable data={filteredData() || []} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} setShowSticky={setShowSticky} ref={tableRef} />
 					{/* <!-- 게시판 --> */}
 				</div>
 				{/* <!-- 엑셀다운, 페이징, 정렬 --> */}

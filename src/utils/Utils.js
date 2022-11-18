@@ -480,4 +480,5 @@ export default class Utils {
 		}
         return dayText;
     }
+
 }

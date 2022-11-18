@@ -17,7 +17,6 @@ import Pagination from "pages/common/pagination";
 import CalanderSearch from "pages/common/calanderSearch";
 import LineChart from "pages/sales/statistic/chart";
 import SalesStatisticTable from "pages/sales/statistic/table";
-import StickyHead from "./table/StickyHead";
 
 const SalesStatistic = () => {
 	// global states
@@ -95,16 +94,6 @@ const SalesStatistic = () => {
 		}
 	]
 
-	// data sort(reverse)
-	// const dataReverse = (data1: any, data2: any) => {
-	// 	const dateA = new Date(data1.std_date);
-	// 	const dateB = new Date(data2.std_date);
-	// 	let result = 0;
-	// 	if (isBefore(dateA, dateB)) { result = 1;}
-	// 	if (dateA === dateB) { result = 0; }
-	// 	if (isBefore(dateB, dateA)) { result =  -1; }
-	// 	return result;
-	// }
 	const sortedData =  data ? [...data] : [];
 	sortedData.reverse();
 
@@ -207,10 +196,7 @@ const SalesStatistic = () => {
 				</div>
 				{/* <!-- // 조회기간 --> */}
 				{/* <!-- 게시판 --> */}
-				<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
-					<SalesStatisticTable data={sortedData} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} setShowSticky={setShowSticky} />
-				</table>
-				{ showSticky ? <StickyHead /> : null }
+				<SalesStatisticTable data={sortedData} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} setShowSticky={setShowSticky} />
 				{/* <!-- 게시판 --> */}
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
