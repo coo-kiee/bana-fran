@@ -105,7 +105,7 @@ const SalesStatistic = () => {
 	// 	if (isBefore(dateB, dateA)) { result =  -1; }
 	// 	return result;
 	// }
-	const sortedData = useMemo(() => { return data ? [...data] : [] }, [data]);
+	const sortedData =  data ? [...data] : [];
 	sortedData.reverse();
 
 	return (
