@@ -10,7 +10,7 @@ import Sticky from 'pages/common/sticky';
 import TableColGroup from 'pages/sales/statistic/table/TableColGroup';
 import TableHead from 'pages/sales/statistic/table/TableHead';
 
-const SalesStatisticTable = forwardRef(({ data, isLoading, rowPerPage, currentPage }: SalesTable, forwardRef: any) => {
+const SalesStatisticTable = forwardRef(({ data, isLoading, rowPerPage, currentPage, searchType }: SalesTable, forwardRef: React.LegacyRef<HTMLTableElement>) => {
 	
 	// totalSales: 합계 계산용 data 가공
 	const totalSales = {
@@ -138,7 +138,11 @@ const SalesStatisticTable = forwardRef(({ data, isLoading, rowPerPage, currentPa
 									(currentPage - 1) * rowPerPage <= idx &&
 									currentPage * rowPerPage > idx && (
 										<tr key={idx}>
-											<td>{Utils.converDateFormat(new Date(std_date), '-')}</td>
+											<td>{
+												searchType === 'D' ? 
+												Utils.converDateFormat(new Date(std_date), '-') : 
+												std_date
+											}</td>
 											<td>{Utils.numberComma(total_sales_amt)}</td>
 											<td>{Utils.numberComma(app_delivery_amt)}</td>
 											<td>{Utils.numberComma(app_delivery_charge)}</td>

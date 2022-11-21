@@ -1,5 +1,4 @@
 import { useRecoilValue } from 'recoil';
-// import { linearGradientDef } from '@nivo/core';
 import { ResponsiveBar } from '@nivo/bar';
 import { useTooltip } from '@nivo/tooltip';
 
@@ -12,6 +11,7 @@ import Board from 'pages/home/components/board/Board';
 import ChartLabel from 'pages/home/components/chart/ChartLabel';
 import ChartBar from 'pages/home/components/chart/ChartBar';
 import ChartDays from 'pages/home/components/chart/ChartDays';
+import Loading from 'pages/common/loading';
 
 const Weekly = () => {
 	const fCode = useRecoilValue(franState);
@@ -23,7 +23,7 @@ const Weekly = () => {
 		<Board title='Week' boardClass='week-sales' url='/sales/history' suffix='총 매출'>
 			<div className='contents-list bar-chart chart'>
 				{
-					data && 
+					data ? 
 					<ResponsiveBar
 						data={data}
 						keys={['sales_charge']}
@@ -62,7 +62,8 @@ const Weekly = () => {
 							'legends',
 							(props) => <ChartDays {...props} />
 						]}
-					/>
+					/> : 
+					<Loading width={50} height={50} marginTop={150} />
 				}
 			</div>
 			<p className='noti'>* 부가세 포함</p>

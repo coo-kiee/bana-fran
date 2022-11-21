@@ -18,8 +18,8 @@ const Monthly = () => {
 	const fCode = useRecoilValue(franState);
 
     // 현재 날짜 state
-    const [currentDate, setCurrentDate] = useState(new Date());
-    const searchMonth = useMemo(() => {return format(currentDate, 'yyyy-MM-01')}, [currentDate]); // 선택한 달 (params)
+    const [currentDate, setCurrentDate] = useState<Date>(new Date());
+    const searchMonth: string = useMemo(() => {return format(currentDate, 'yyyy-MM-01')}, [currentDate]); // 선택한 달 (params)
     
     const { data } = HOME_SERVICE.useSalesTerms({ f_code: fCode, search_type: 'M', search_month: searchMonth });
     

@@ -12,7 +12,6 @@ const Membership = () => {
 	const fCode = useRecoilValue(franState);
 
 	const { data } = HOME_SERVICE.useMembershipInfo({ f_code: fCode });
-	// console.log(data);
 
 	return (
 		<Board boardClass='membership' title='멤버십 적립 현황' url='/membership/extra' suffix='누적'>

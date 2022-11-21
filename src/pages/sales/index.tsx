@@ -1,11 +1,11 @@
 import { useLocation } from 'react-router-dom';
 // Components
 import SalesStatistic from "./statistic";
-import SalesHistory from './history/index';
+import SalesHistory from './history';
 
 const SalesContainer = () => {
     const { pathname } = useLocation();
-    const path = pathname.replace('/sales/',''); // URL path 
+    const path = pathname.replace('/sales/', ''); // URL path 
 
 	return (
 		<section className='container'>

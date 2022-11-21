@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 
 const LineChartMonths = (props: any) => {
-    // console.log(props)
+
 	return props.points.map((point: any, idx: number) => {
 		// position value x
         const { x } = point.data;

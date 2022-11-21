@@ -4,9 +4,10 @@ import { useRecoilValue } from 'recoil';
 import { franState } from 'state';
 // API
 import HOME_SERVICE from 'service/homeService';
+// Utils
+import Utils from 'utils/Utils';
 // Components
 import Board from 'pages/home/components/board/Board';
-import Utils from 'utils/Utils';
 
 const CalculateList = () => {
 	const fCode = useRecoilValue(franState);
@@ -32,7 +33,7 @@ const CalculateList = () => {
 					</tr>
 				</thead>
 				<tbody>
-					{data?.map((settlement: any, idx: number, origData: any) => {
+					{data?.map((settlement: any, idx: number) => {
 						const { std_month, receive_charge, send_charge, total_send_charge, status, status_name } = settlement;
 						return (
 							<tr key={String(std_month) + idx}>

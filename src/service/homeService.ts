@@ -1,14 +1,13 @@
 /* eslint-disable import/no-anonymous-default-export */
 import { useQuery } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
+// types
+import { CommonParams, RequestParams } from 'types/common';
+import { BoardListParams, SalesTermsParams } from 'types/home/homeType';
 
-interface Params extends Object {
-    [key: string]: any,
-
-}
 // 공지사항/자료실 조회
-const useBoardList = (params: Params) => {
-    const reqData = {
+const useBoardList = (params: BoardListParams) => {
+    const reqData: RequestParams<BoardListParams> = {
         ws: 'fprocess',
         query: 'XBQQCPJERTDIZDUU4GAV',
         params: params,
@@ -25,8 +24,8 @@ const useBoardList = (params: Params) => {
 };
 
 // 멤버십 적립현황 
-const useMembershipInfo = (params: Params) => {
-    const reqData = {
+const useMembershipInfo = (params: CommonParams) => {
+    const reqData: RequestParams<CommonParams> = {
         ws: 'fprocess',
         query: '1VK2GY5MTPAMXZB4TJFP',
         params: params,
@@ -43,8 +42,8 @@ const useMembershipInfo = (params: Params) => {
 };
 
 // Today - 총매출 조회.
-const useSalesToday = (params: Params) => {
-    const reqData = {
+const useSalesToday = (params: CommonParams) => {
+    const reqData: RequestParams<CommonParams> = {
         ws: 'fprocess',
         query: 'ONDK5LDEKOVLAVRJKBKS',
         params: params,
@@ -61,8 +60,8 @@ const useSalesToday = (params: Params) => {
 };
 
 // 기간별 - 총매출 조회.
-const useSalesTerms = (params: Params) => {
-    const reqData = {
+const useSalesTerms = (params: SalesTermsParams) => {
+    const reqData: RequestParams<SalesTermsParams> = {
         ws: 'fprocess',
         query: 'OMG6XENQJIW8SLYTIROV',
         params: params,
@@ -71,6 +70,7 @@ const useSalesTerms = (params: Params) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
+        // suspense: true,
         onError : (err:any) => {
             queryFn.axiosError(err);
         }
@@ -78,8 +78,8 @@ const useSalesTerms = (params: Params) => {
 };
 
 // 월별 발주금액
-const useMonthlyOrderList = (params: Params) => {
-    const reqData = {
+const useMonthlyOrderList = (params: CommonParams) => {
+    const reqData: RequestParams<CommonParams> = {
         ws: 'fprocess',
         query: 'KSJX8NCX45QKXPKOYE9U',
         params: params,
@@ -96,8 +96,8 @@ const useMonthlyOrderList = (params: Params) => {
 };
 
 // 최근 정산 현황
-const useHomeCalculateList = (params: Params) => {
-    const reqData = {
+const useHomeCalculateList = (params: CommonParams) => {
+    const reqData: RequestParams<CommonParams> = {
         ws: 'fprocess',
         query: 'AU5I5YJNORRJDSYHCRXW',
         params: params,

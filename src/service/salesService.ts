@@ -1,15 +1,12 @@
 /* eslint-disable import/no-anonymous-default-export */
 import { useQuery } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
-
-interface Params extends Object {
-    [key: string]: any,
-
-}
+import { RequestParams } from 'types/common';
+import { SalesOrderParams, SalesStatisticParams } from 'types/sales/salesType';
 
 // 주문 내역 조회
-const useSalesOrderList = (params: Params) => {
-    const reqData = {
+const useSalesOrderList = (params: SalesOrderParams) => {
+    const reqData: RequestParams<SalesOrderParams> = {
         ws: 'fprocess',
         query: 'KTBKHHVNSBCJHXUADDII',
         params: params,
@@ -26,8 +23,8 @@ const useSalesOrderList = (params: Params) => {
 };
 
 // 매출 통계 조회
-const useSalesStatistic = (params: Params) => {
-    const reqData = {
+const useSalesStatistic = (params: SalesStatisticParams) => {
+    const reqData: RequestParams<SalesStatisticParams> = {
         ws: 'fprocess',
         query: 'M2AWHBEO7CTAJMF2B1AW',
         params: params,

@@ -4,9 +4,10 @@ import { useRecoilValue } from 'recoil';
 import { franState } from 'state';
 // API
 import HOME_SERVICE from 'service/homeService';
+// Utils
+import Utils from 'utils/Utils';
 // Components
 import Board from 'pages/home/components/board/Board';
-import Utils from 'utils/Utils';
 
 const MonthlyOrder = () => {
 	const fCode = useRecoilValue(franState);

@@ -1,14 +1,6 @@
 import { useNavigate } from "react-router-dom";
-
-interface BoardItemProps {
-	url: string;
-	boardType: number;
-	boardId: number;
-	important: string;
-	name: string;
-	title: string;
-	date: string;
-}
+// Types
+import { BoardItemProps } from "types/home/homeType";
 
 const BoardItem = ({ url, boardType, boardId, important, name, title, date }: BoardItemProps) => {
 	const navigate = useNavigate();

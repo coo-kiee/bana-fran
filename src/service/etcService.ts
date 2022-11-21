@@ -4,7 +4,7 @@ import { AxiosError } from 'axios';
 import { format, subMonths } from 'date-fns';
 
 // type
-import { RequestParams } from 'types/dataType';
+import { RequestParams } from 'types/common';
 import { EtcTotalParams, EtcListParams, OrderDetailModalParams, OrderDetailModalItemType } from 'types/etc/etcType';
 
 // TODO: 수수료 내역 (*_total 프로시저 공통 함수)

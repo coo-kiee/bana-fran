@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 
-const TableHead = forwardRef((props, forwardRef: any) => {
+const TableHead = forwardRef((props, forwardRef: React.LegacyRef<HTMLTableRowElement>) => {
     return (
         <thead>
             <tr ref={forwardRef}>

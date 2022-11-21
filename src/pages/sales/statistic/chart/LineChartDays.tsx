@@ -1,8 +1,8 @@
 import { format } from 'date-fns';
+// Utils
 import Utils from 'utils/Utils';
 
 const LineChartDays = (props: any) => {
-	// console.log(props);
 	return props.points.map((point: any, idx: number) => {
 		// position value x
 		const { x } = point.data;
@@ -39,7 +39,6 @@ const LineChartDays = (props: any) => {
 					style={{
 						fill: dayColor(dayText),
 						fontSize: 10,
-						// fontWeight: 'bold',
 					}}>
 					({dayText})
 				</text>

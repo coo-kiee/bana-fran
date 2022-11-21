@@ -17,7 +17,7 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
     const paidData = data.map((d: any) => {return { x: d.std_date, y: d.paid_sales_amt }});
     const freeData = data.map((d: any) => {return { x: d.std_date, y: d.free_sales_amt }});
     
-	const chartedData = [
+	const chartData = [
         { id: 'total', data: totalData, color: '#f1658a' },
         { id: 'paid', data: paidData, color: '#ae88ff' },
         { id: 'app', data: appDeliveryData, color: '#6ecfbc' },
@@ -26,8 +26,8 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
 
     // 필터 (매출유형별)
 	const filteredData = () => {
-		// 조건 1 해당 항목 필터링 (id filter)
-		const filterChartTypeData = chartedData.filter((fd: any) => {
+		// 조건 해당 항목 필터링 (id filter)
+		const filteredDataById = chartData.filter((fd: any) => {
 			return (
 				(total && fd.id === 'total') || 
 				(paid && fd.id === 'paid') || 
@@ -36,12 +36,9 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
 			)
 		});
 
-        return filterChartTypeData
+        return filteredDataById;
 	};
 
-    // const totalMax = Math.max(...filteredData()[0].data.map((d: {x: string, y: number}) => { return d.y}))
-    // const totalMin = Math.min(...filteredData()[0].data.map((d: {x: string, y: number}) => { return d.y}))
-    
     return (
         <ResponsiveLine
             data={filteredData()}
@@ -58,7 +55,7 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
                 tickSize: 0,
                 tickPadding: 15,
                 tickRotation: 0,
-                format: (y: any) => {return (Utils.numberComma(y))}
+                format: (y: number) => {return (Utils.numberComma(y))}
             }}
             axisBottom={null}
             lineWidth={4}
@@ -77,7 +74,6 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
             }
             layers={[
                 'grid', 
-                // 'markers', 
                 'axes', 
                 (props: any) => {return searchType === 'D' ? <LineChartDays {...props} /> : <LineChartMonths {...props} />},
                 'crosshair', 

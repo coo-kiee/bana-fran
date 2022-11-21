@@ -9,7 +9,7 @@ import Sticky from "pages/common/sticky";
 import TableColGroup from "pages/sales/history/table/TableColGroup";
 import TableHead from "pages/sales/history/table/TableHead";
 
-const SalesHistoryTable = forwardRef(({ data, isLoading, rowPerPage, currentPage }: SalesTable, forwardRef: any) => {
+const SalesHistoryTable = forwardRef(({ data, isLoading, rowPerPage, currentPage }: SalesTable, forwardRef: React.LegacyRef<HTMLTableElement>) => {
 	
 	// 표시 날짜 줄바꿈 추가
 	const convertDateLineBreak = (str: string) => {

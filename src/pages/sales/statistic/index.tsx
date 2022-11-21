@@ -32,9 +32,6 @@ const SalesStatistic = () => {
 	// pagination
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [rowPerPage, setRowPerPage] = useState<number>(50);
-    
-	// sticky header display
-	const [showSticky, setShowSticky] = useState<boolean>(false);
 
 	// query
 	// 월별 검색(M)이면 from/to에 -01 string 추가 M: yy-MM, D: yy-MM-dd 포멧
@@ -44,10 +41,8 @@ const SalesStatistic = () => {
 		to_date: statisticSearch.searchType === 'M' ? (statisticSearch.to + '-01') : statisticSearch.to 
 	})
 
-	// searchTypeMemo for Line Chart (searchType 변경되어도 유지되도록)
+	// searchTypeMemo for Line Chart, Table (searchType 변경되어도 refetch 전까진 기존 값이 유지되도록)
 	const searchTypeMemo = useMemo(() => {return statisticSearch.searchType}, [data]);
-	
-    data && console.log(data);
 	
 	// 상태가 바뀔 때, 제한 조건(90일)을 넘어가면 refecth를 막고 날짜 바꿔주는 함수
 	const handleSearch = () => {
@@ -57,10 +52,10 @@ const SalesStatistic = () => {
 		// limitDate에 렌더 됐을 때의 시간이 들어있어 날짜가 같아도 isBefore가 true로 적용될 수 있기에, from/to에 시간대를 설정
 		if (searchType === 'D' && isBefore(new Date(from + ' 23:59:59'), limitDate)) { 
 			setStatisticSearch((prev) => ({...prev, from: format(limitDate, 'yyyy-MM-dd')}));
-			return alert('일별 매출 통계는 90일 이내로만 조회할 수 있습니다.');
+			return alert('일별 매출 통계는 오늘부터 90일 전까지만 조회할 수 있습니다.');
 		} else if (searchType === 'D' && isBefore(new Date(to + ' 23:59:59'), limitDate)) {
 			setStatisticSearch((prev) => ({...prev, to: format(today, 'yyyy-MM-dd')}));
-			return alert('일별 매출 통계는 90일 이내로만 조회할 수 있습니다.');
+			return alert('일별 매출 통계는 오늘부터 90일 전까지만 조회할 수 있습니다.');
 		}
 		refetch();
 	}
@@ -94,6 +89,7 @@ const SalesStatistic = () => {
 		}
 	]
 
+	// data 역순 정렬 (table용)
 	const sortedData =  data ? [...data] : [];
 	sortedData.reverse();
 
@@ -104,7 +100,7 @@ const SalesStatistic = () => {
 			</div>
 			<div className='fixed-paid-point-wrap'>
 				<div className='chart-filter-wrap'>
-					{/* <!-- 검색 --> */}
+					{/* <!-- 공통 검색 Calendar with select --> */}
 					<CalanderSearch 
 						dateType={statisticSearch.searchType === 'M' ? 'yyyy-MM' : 'yyyy-MM-dd'}
 						searchInfo={statisticSearch} 
@@ -117,7 +113,7 @@ const SalesStatistic = () => {
 						showMonthYearPicker={statisticSearch.searchType === 'M' ? true : false}
 						showFullMonthYearPicker={statisticSearch.searchType === 'M' ? true : false}
 					/>
-					{/* <!-- // 검색 --> */}
+					{/* <!-- checkbox filter --> */}
 					<div className='chart-filter'>
 						<div className='checkbox-wrap'>
 							<input
@@ -172,11 +168,11 @@ const SalesStatistic = () => {
 							<label htmlFor='free-sales'>무상서비스</label>
 						</div>
 					</div>
-					{/* <!-- 차트 --> */}
 				</div>
+				{/* <!-- 차트 --> */}
 				<div className='chart-wrap'>
 					<div id='statistic-chart' className='line-chart chart'>
-						{!(isLoading || isRefetching) && data ? (
+						{!(isLoading || isRefetching) && data ? ( // loading, refetching 아닐 때
 							<LineChart filterChart={filterChart} data={data} searchType={searchTypeMemo} />
 						) : (
 							<div className='chart-loading-wrap'>
@@ -185,8 +181,6 @@ const SalesStatistic = () => {
 						)}
 					</div>
 				</div>
-				{/* <!-- // 차트 --> */}
-				{/* <!-- 조회기간 --> */}
 				<div className='search-result-wrap'>
 					<div className='detail-info-wrap'>
 						<div className='price-info'>
@@ -194,10 +188,8 @@ const SalesStatistic = () => {
 						</div>
 					</div>
 				</div>
-				{/* <!-- // 조회기간 --> */}
-				{/* <!-- 게시판 --> */}
-				<SalesStatisticTable data={sortedData} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} setShowSticky={setShowSticky} />
-				{/* <!-- 게시판 --> */}
+				{/* <!-- 매출통계 Table --> */}
+				<SalesStatisticTable data={sortedData} searchType={searchTypeMemo} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} />
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>

@@ -1,12 +1,25 @@
+import { CommonParams } from "types/common";
+
 // common
+type SearchType = 'D'|'M';
+
 interface SalesTable {
 	data: any;
     isLoading: boolean;
 	rowPerPage: number;
 	currentPage: number;
-    setShowSticky?: any;
+	searchType?: SearchType;
 }
 
+// API params type
+interface SalesOrderParams extends CommonParams {
+	from_date: string;
+	to_date: string;
+}
+
+interface SalesStatisticParams extends SalesOrderParams {
+	search_type: SearchType;
+}
 /* option value에 사용할 값 관련 타입들 */
 
 // history option types
@@ -114,7 +127,7 @@ interface PrefixSumProps {
 
 // statistics
 interface SalesStatisticSearch {
-    searchType: 'D' | 'M';
+    searchType: SearchType;
     from: string;
     to: string;
 }
@@ -127,12 +140,14 @@ interface FilterChart {
 interface SalesLineChartProps {
     filterChart: FilterChart;
     data: any;
-    searchType: 'D' | 'M';
+    searchType: SearchType;
 }
 
 // types
 export type {
     SalesTable, 
+	SalesOrderParams,
+	SalesStatisticParams,
     SalesHistorySearch, 
     PrefixSumProps, 
     SalesStatisticSearch, 

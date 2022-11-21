@@ -5,8 +5,8 @@ import Utils from 'utils/Utils';
 
 const LineChartTooltip = ({ point, searchType }: any) => {
 	const { serieId, serieColor, data: { xFormatted, yFormatted } } = point;
-	// console.log(point)
-	let salesType = '';
+
+	let salesType = ''; // 매출 유형 string
 	switch (serieId) {
 		case 'total': salesType = '총 매출'; break;
 		case 'paid': salesType = '유상매출'; break;
@@ -17,17 +17,17 @@ const LineChartTooltip = ({ point, searchType }: any) => {
 	return (
 		<CustomTooltip className='custom-tooltip'>
 			<p>
-                {
+                {	// 일별 통계는 날짜까지, 월별 통계는 월만 표시
                     searchType === 'D' ? 
                     format(new Date(xFormatted), 'MM.dd') : 
-                    format(new Date(xFormatted), 'MM월')
+                    format(new Date(xFormatted), 'M월')
                 }
                 {searchType === 'D' ? `(${Utils.getDayName(xFormatted)})` : ''}
             </p>
 			<TooltipContents className='tooltip-contents' color={serieColor}>
 				<StyledRect color={serieColor} />
 				{salesType}
-				<span>{Utils.numberComma(yFormatted) || 0}원</span>
+				<span>{Utils.numberComma(yFormatted)}원</span>
 			</TooltipContents>
 		</CustomTooltip>
 	);
@@ -43,7 +43,6 @@ const CustomTooltip = styled.div`
 	color: #333;
 	p {
 		font-size: 14px;
-		// margin-left: 16px;
 	}
 `;
 const TooltipContents = styled.div`

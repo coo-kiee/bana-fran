@@ -1,8 +1,8 @@
 import { format } from 'date-fns';
 
-const ChartDays = ({bars}: any) => {
+const ChartDays = ({bars}: any) => {	
 	return bars.map((bar: any, idx: number) => {
-		const { x, width } = bar;
+		const { x, y, width } = bar; // y가 0일 때 최대
 
 		const dayNum = new Date(bar.data.data.std_date).getDay(); // day value number
 		const month = format(new Date(bar.data.data.std_date), 'MM'); // day month
@@ -35,8 +35,9 @@ const ChartDays = ({bars}: any) => {
 					dominantBaseline='middle'
 					transform={`translate(${width/2},${5})`}
 					style={{
-						fill: dayColor(dayText),
+						fill: y === 0 ? '#f1658a' : dayColor(dayText),
 						fontSize: 12,
+						fontWeight: y === 0 ? 'bold' : 'normal',
 					}}>
 					{month}/{date}
 				</text>
@@ -45,7 +46,7 @@ const ChartDays = ({bars}: any) => {
 					dominantBaseline='middle'
 					transform={`translate(${width/2},${20})`}
 					style={{
-						fill: dayColor(dayText),
+						fill: y === 0 ? '#f1658a' : dayColor(dayText),
 						fontSize: 12,
 						fontWeight: 'bold',
 					}}>

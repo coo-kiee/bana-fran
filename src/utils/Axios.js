@@ -1,6 +1,6 @@
 import axios from 'axios'
 // import axios_jsonp from 'axios-jsonp-pro';
-import { RES_DATA_TYPE } from 'types/dataType'
+import { RES_DATA_TYPE } from 'types/common'
 
 export default class Axios {
     static get = (url, params, axiosConfig) => {

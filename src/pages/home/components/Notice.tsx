@@ -1,3 +1,5 @@
+import { lazy, Suspense } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useRecoilValue } from 'recoil';
 // global state
 import { franState, loginState } from 'state';
@@ -8,11 +10,10 @@ import HOME_SERVICE from 'service/homeService';
 import Utils from 'utils/Utils';
 // Components
 import Board from 'pages/home/components/board/Board';
-import BoardItem from 'pages/home/components/board/BoardItem';
-import Loading from 'pages/common/loading';
+// import BoardItem from 'pages/home/components/board/BoardItem';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
-import { Suspense } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
+import loadable from '@loadable/component';
+const BoardItem = lazy(() => import ('pages/home/components/board/BoardItem'));
 
 const Notice = () => {
 	const fCode = useRecoilValue(franState);
@@ -24,8 +25,6 @@ const Notice = () => {
 	return (
 		<Board title='공지사항' boardClass='notice' url='/notice'>
 			<ul className='contents-list' style={{ minHeight: '210px' }}>
-				<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('detailError', e)}>
-					<Suspense fallback={<Loading width={55} height={55} marginTop={15} isTable={true} />}>
 						{data?.map((board: any, idx: number) => {
 							const { board_id, board_type, category_name, important, title, insert_date } = board;
 							return (
@@ -41,8 +40,6 @@ const Notice = () => {
 								/>
 							);
 						})}
-					</Suspense>
-				</ErrorBoundary>
 			</ul>
 		</Board>
 	);

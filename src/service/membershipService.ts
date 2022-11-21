@@ -3,7 +3,7 @@ import { queryFn } from 'hooks/useQuery'
 import { AxiosError } from 'axios';
 
 // type
-import { RequestParams } from 'types/dataType';
+import { RequestParams } from 'types/common';
 import { EtcTotalParams, EtcListParams, TotalResultType } from 'types/etc/etcType';
 import { MembershipTotalType } from 'types/membership/extraType';
 
