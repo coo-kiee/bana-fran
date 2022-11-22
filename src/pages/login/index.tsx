@@ -3,6 +3,7 @@ import Utils from 'utils/Utils';
 
 import { useLogin } from 'hooks/useLogin';
 import { useEventKeyCode } from 'hooks/useEventKeyCode';
+import SendAuthKey from './component/SendAuthKey';
 
 type LoginInfoType = {
     loginID : string,
@@ -14,7 +15,7 @@ type LoginInfoType = {
 }
 
 const Login:React.FC = () => {
-    const {login} = useLogin()
+    const {login, authLogin} = useLogin()
 
     const [loginInfo, setLoginInfo] = useState<LoginInfoType>({
         loginID : "",
@@ -24,6 +25,8 @@ const Login:React.FC = () => {
         sCToken : "",
         chkSaveID : false
     })
+
+    const [authKeyPage, setAuthKeyPage] = useState<boolean>(false);
 
     // 아이디 저장표시.
     useEffect(() => {
@@ -54,7 +57,39 @@ const Login:React.FC = () => {
         }
     }
 
-    // 로그인 처리.
+    // 
+    const handleAuthKey = (authPage:boolean) => {
+        setAuthKeyPage(authPage);
+    }
+
+    // 인증 로그인 처리.(인증키)
+    const handleLoginAuth = useCallback((authKey:string) => {
+        const { loginID, loginPW, chkSaveID } = loginInfo
+        if(loginID === ''){
+            alert("아이디를 입력해 주세요.")
+            return false
+        }else if(loginPW === ''){
+            alert("비밀번호를 입력해 주세요.")
+            return false
+        }
+
+        // 아이디 저장.
+        if(chkSaveID) localStorage.setItem("sUserID", loginID)
+        else localStorage.removeItem("sUserID")
+        
+        const params = {
+            'sID' : loginInfo.loginID,
+            'sPW' : loginInfo.loginPW,
+            'btoken' : loginInfo.btoken, // 1이면 토큰값 생성 및 저장 (자동로그인)
+            'sCToken' : '',              // 브라우저에 저장된 토큰값
+            'sIP' : '@ip',
+            'sAuthKey' : authKey
+        }
+        authLogin(params)
+    }, [authLogin, loginInfo])
+
+
+    // 로그인 처리.(일반)
     const handleLogin = useCallback(() => {
         const { loginID, loginPW, chkSaveID } = loginInfo
         if(loginID === ''){
@@ -88,6 +123,8 @@ const Login:React.FC = () => {
                     <div className="login-logo">
                         <p className="prologue">바나프레소 가맹점 사이트에 오신것을 환영합니다.</p>
                     </div>
+                    { authKeyPage ? <SendAuthKey  loginID={loginInfo.loginID} loginPW={loginInfo.loginPW} handleAuthKey={handleAuthKey} handleLoginAuth={handleLoginAuth}/>
+                       :
                     <section className="input-wrap">
                         <input className="input login" type="text" placeholder="전화번호" name="loginID" value={loginInfo.loginID} onChange={handleChangeData} />
                         <input className="input password" type="password" placeholder="비밀번호" name="loginPW" value={loginInfo.loginPW} onChange={handleChangeData}/>
@@ -99,7 +136,9 @@ const Login:React.FC = () => {
                             <button className="password-modify">비밀번호 재설정</button>
                         </div>
                         <button className="btn-cta" onClick={handleLogin}>로그인</button>
+                        {/* <button className="btn-cta" onClick={()=> handleAuthKey(true)}>로그인</button> */}
                     </section>
+                    }
                 </div>
                 <div className="info">
                     <div className="policy">
