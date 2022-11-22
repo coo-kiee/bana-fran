@@ -312,7 +312,7 @@ export default class Utils {
                 // if (value.t && isSellAddress.test(key)) res[key] = value.t !== 'n' ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } } : { ...value, z: "#,##0", s: { ...value.s, alignment: { vertical: "center", horizontal: "right" } } };
 
                 // 숫자는 오른쪽 정렬 및 ,(콤마) 제거, 텍스트는 가운데 정렬
-                if (value.t && isSellAddress.test(key)) res[key] = isAmount.test(value.v) ? { ...value, v: (value.v).replace(',', ''), s: { ...value.s, alignment: { vertical: "center", horizontal: "right", wrapText: true } } } : { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } };
+                if (value.t && isSellAddress.test(key)) res[key] = isAmount.test(value.v) ? { ...value, v: (value.v).replaceAll(',', ''), s: { ...value.s, alignment: { vertical: "center", horizontal: "right", wrapText: true } } } : { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } };
                 
                 // addRowColor 행의 색상 추가
                 rowNums?.forEach((rowNum, index) => {
