@@ -75,7 +75,7 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
     return (
         <div ref={pdfRef}>
             {isPDF && <div style={{ textAlign: 'center', fontSize: '30px', marginBottom: '30px' }}><span style={{ fontWeight: 'bold', color: '#f1658a' }}>{searchDate.replace('-', '년 ')}월</span> {f_code_name} 정산내역 확인</div>}
-            {!isPDF && <TableTop listQuerykey={listQuerykey} caculateStatus={calculateStatus} calculateId={calculateId} fCode={f_code} staffNo={staff_no} searchDate={searchDate} handlePopup={handlePopup} setSearchDate={setSearchDate} />}
+            {!isPDF && <TableTop listQuerykey={listQuerykey} calculateStatus={calculateStatus} calculateId={calculateId} fCode={f_code} staffNo={staff_no} searchDate={searchDate} handlePopup={handlePopup} setSearchDate={setSearchDate} />}
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
@@ -90,7 +90,7 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
                     </ErrorBoundary>
                 </tbody>
             </table>
-            < TableBottom sumAll={sumAll} tableRef={tableRef} searchDate={searchDate} fCodeName={f_code_name} isPDF={isPDF} setIsPDF={setIsPDF} />
+            < TableBottom calculateStatus={calculateStatus} sumAll={sumAll} tableRef={tableRef} searchDate={searchDate} fCodeName={f_code_name} isPDF={isPDF} setIsPDF={setIsPDF} />
         </div>
     );
 }
@@ -103,17 +103,17 @@ export default CalculateListTable;
 interface TableTopProps {
     listQuerykey: string[],
     calculateId: number
-    caculateStatus: CalculateStatusType,
+    calculateStatus: CalculateStatusType,
     fCode: number,
     staffNo: number,
     searchDate: string,
     handlePopup: (key: string, value: boolean) => void,
     setSearchDate: React.Dispatch<React.SetStateAction<string>>,
 };
-const TableTop: FC<TableTopProps> = ({ listQuerykey, calculateId, caculateStatus, fCode, staffNo, searchDate, handlePopup, setSearchDate }) => {
+const TableTop: FC<TableTopProps> = ({ listQuerykey, calculateId, calculateStatus, fCode, staffNo, searchDate, handlePopup, setSearchDate }) => {
 
-    const isError = caculateStatus === CALCULATE_STATUS.ERROR;
-    const isInactive = !caculateStatus || caculateStatus === CALCULATE_STATUS.CONFIRM || isError;
+    const isError = calculateStatus === CALCULATE_STATUS.ERROR;
+    const isInactive = !calculateStatus || calculateStatus === CALCULATE_STATUS.CONFIRM || isError;
     const confirmList = CALCULATE_SERVICE.useCalculateConfirmList(staffNo, calculateId, listQuerykey);
 
     const { data: monthList } = CALCULATE_SERVICE.useCalculateMonthList(['calculateMonthList', JSON.stringify({ fCode, staffNo })], fCode, staffNo);
@@ -200,6 +200,7 @@ const TableList: FC<TableListProps> = ({ listQuerykey, fCode, staffNo, searchDat
 };
 
 interface TableBottomProps {
+    calculateStatus: CalculateStatusType,
     sumAll: number | undefined,
     tableRef: React.MutableRefObject<HTMLTableElement | null>,
     searchDate: string,
@@ -207,7 +208,7 @@ interface TableBottomProps {
     isPDF?: boolean,
     setIsPDF: React.Dispatch<React.SetStateAction<boolean>>,
 };
-const TableBottom: FC<TableBottomProps> = ({ sumAll, tableRef, searchDate, fCodeName, isPDF, setIsPDF }) => {
+const TableBottom: FC<TableBottomProps> = ({ calculateStatus, sumAll, tableRef, searchDate, fCodeName, isPDF, setIsPDF }) => {
 
     const excelDownload = () => {
         if (tableRef.current) {
@@ -226,10 +227,10 @@ const TableBottom: FC<TableBottomProps> = ({ sumAll, tableRef, searchDate, fCode
             Utils.excelDownload(tableRef.current, options, fileName);
         };
     };
-
+    
     return (
         <>
-            {sumAll &&
+            {calculateStatus !== CALCULATE_STATUS.ERROR && calculateStatus !== CALCULATE_STATUS.DISTRIBUTE &&
                 <div className="result-function-wrap" >
                     <div className="function">
                         {
