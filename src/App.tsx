@@ -5,7 +5,6 @@ import 'assets/sass/common.scss';
 import Login from 'pages/login';
 import Layout from 'pages/Layout'
 import { sideMenus as menuRoute, SIDE_MENU_TYPE } from "pages/common/sideMenubar/data/SideMenu";
-// import { Modal } from 'common/components/modal'
 
 function App() {
     return (

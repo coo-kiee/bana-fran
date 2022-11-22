@@ -88,15 +88,13 @@ const SalesHistory = () => {
 		}
 	]
 
-	// data && console.log(data);
-
-	// select box filter (change on refetch): order_type, order_state, rcp_rtpe, pay_type, gift_cert
+	// filter (change on select): order_type, order_state, rcp_type, pay_type, gift_cert, isCancelShow, isExcludeCouBae
 	const filteredData = () => {
-		const orderType = historySearch.searchOption[0].value; 	// 주문유형 1: 앱 2:쿠팡 3: 배민 else: 매장
-		const orderState = historySearch.searchOption[1].value;	// 주문상태
+		const orderType = historySearch.searchOption[0].value; 		// 주문유형 1: 앱 2:쿠팡 3: 배민 else: 매장
+		const orderState = historySearch.searchOption[1].value;		// 주문상태
 		const rcpType = historySearch.searchOption[2].value;		// 접수타입
 		const payType = historySearch.searchOption[3].value;		// 결제방식 
-		const giftCert = historySearch.searchOption[4].value;	// 0: 일반결제, 1: 상품권
+		const giftCert = historySearch.searchOption[4].value;		// 0: 일반결제, 1: 상품권
 		let resultData = data;
 		// selectbox
 		if (orderType !== 'total') { 

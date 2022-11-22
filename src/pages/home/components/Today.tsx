@@ -1,17 +1,14 @@
-import { Suspense, useMemo } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
+import { useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
+
 // global state
 import { franState } from 'state';
-
 // API
 import HOME_SERVICE from 'service/homeService';
 // Utils
 import Utils from 'utils/Utils';
 // Components
 import Board from 'pages/home/components/board/Board';
-import Loading from 'pages/common/loading';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const Today = () => {
 	const fCode = useRecoilValue(franState);

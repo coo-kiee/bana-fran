@@ -29,7 +29,7 @@ const HomeContainer: React.FC = () => {
 	const windowHeight = window?.innerHeight;
 
 	return (
-		<section className='container'>
+		<section className='container' style={{ minWidth: '1820px' }}>
 			<header>
 				<div className='page-title home'>
 					<p className='present'>HOME</p>

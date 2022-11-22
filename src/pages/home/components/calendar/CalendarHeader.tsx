@@ -1,7 +1,8 @@
 import { differenceInMonths, format, isSameMonth, isSameYear } from 'date-fns';
+// Types
+import { CalendarHeaderProps } from 'types/home/homeType';
 
-const CalendarHeader = ({ currentDate, prevMonth, nextMonth }: any) => {
-    
+const CalendarHeader = ({ currentDate, prevMonth, nextMonth }: CalendarHeaderProps) => {    
     const days = ['일', '월', '화', '수', '목', '금', '토']; // 요일
     const today = new Date(); // 오늘
 

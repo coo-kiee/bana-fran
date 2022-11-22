@@ -11,7 +11,7 @@ const Sticky = ({ reference, children }: StickyProps) => {
     // sticky header display states
 	const [showSticky, setShowSticky] = useState<boolean>(false);
 
-	// handleSticky
+	// change sticky states
     const handleSticky = (entries: any, observer: any) => {
         // console.log(observer)
         entries.forEach((entry: any) => {
@@ -23,7 +23,7 @@ const Sticky = ({ reference, children }: StickyProps) => {
 	useEffect(() => {
 		if (reference) {
             const observer = new IntersectionObserver(handleSticky, {root: null, rootMargin: '0px', threshold: 0.1});
-            observer.observe(reference); // do observe
+            observer.observe(reference); // start observe
         }
 	}, [reference]);
 

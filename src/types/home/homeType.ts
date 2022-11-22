@@ -5,7 +5,6 @@ interface BoardListParams extends CommonParams {
     staff_no: number;
     search_type: 1|2; // 1: 공지사항, 2: 자료실
 }
-
 interface SalesTermsParams extends CommonParams {
     search_type: 'W'|'M'; // W: 1주 매출, M: 월별 매출 
     search_month: string;
@@ -19,7 +18,6 @@ interface BoardProps {
     suffix?: string;        // 부제: (총 매출/누적)
 	children: React.ReactNode;
 }
-
 interface BoardItemProps {
 	url: string;
 	boardType: number;
@@ -29,11 +27,22 @@ interface BoardItemProps {
 	title: string;
 	date: string;
 }
+interface CalendarHeaderProps {
+	currentDate: Date;
+	prevMonth: () => void;
+	nextMonth: () => void;
+}
+interface CalendarBodyProps {
+	currentDate: Date;
+	data: any;
+}
 
 export type {
     CommonParams,
     BoardListParams,
     SalesTermsParams,
     BoardProps,
-    BoardItemProps
+    BoardItemProps,
+	CalendarHeaderProps,
+	CalendarBodyProps,
 }

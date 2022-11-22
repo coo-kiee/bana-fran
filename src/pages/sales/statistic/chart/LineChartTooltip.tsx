@@ -49,7 +49,7 @@ const TooltipContents = styled.div`
 	display: flex;
 	align-items: center;
 	font-size: 16px;
-	color: ${(props) => props.color || '#333'};
+	color: ${(props) => props.color};
 	font-weight: bold;
 	span {
 		color: #333;
@@ -59,6 +59,7 @@ const TooltipContents = styled.div`
 const StyledRect = styled.div`
 	width: 12px;
 	height: 12px;
-	background-color: ${(props) => props.color || '#333'};
+	background-color: ${(props) => props.color};
 	margin-right: 4px;
+	border-radius: 2px;
 `;

@@ -107,7 +107,7 @@ const SideMenubar:React.FC = () => {
     console.log("SIDE MENU BAR RENDER!!", loginInfo, ' 선택매장 : ', franCode)
     return(
         <nav>
-            <img className="logo" src={img_logo} alt="banapresso" />
+            <img className="logo" src={img_logo} alt="banapresso" width={146} height={18} />
             <div className="user">
                 <p><span className="name">{localStorage.getItem("userNm")}</span>님</p>
                 <p>안녕하세요.</p>

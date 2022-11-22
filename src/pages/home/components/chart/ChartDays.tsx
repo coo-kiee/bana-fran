@@ -48,7 +48,7 @@ const ChartDays = ({bars}: any) => {
 					style={{
 						fill: y === 0 ? '#f1658a' : dayColor(dayText),
 						fontSize: 12,
-						fontWeight: 'bold',
+						fontWeight:  y === 0 ? 'bold' : 'normal',
 					}}>
 					({dayText})
 				</text>

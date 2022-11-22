@@ -1,13 +1,14 @@
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, isSaturday, isSunday, addDays, isFuture } from 'date-fns';
-
+// Types
+import { CalendarBodyProps } from 'types/home/homeType';
 // Utils
 import Utils from 'utils/Utils';
 
-const CalendarBody = ({ currentDate, onDateClick, salesData }: any) => {
-	const startMonth = startOfMonth(currentDate); // 달의 시작일
-	const endMonth = endOfMonth(startMonth); // 달의 말일
-	const startWeek = startOfWeek(startMonth); // 주의 시작일
-	const endWeek = endOfWeek(endMonth); // 주의
+const CalendarBody = ({ currentDate, data }: CalendarBodyProps) => {
+	const startMonth = startOfMonth(currentDate); 	// 달의 시작일
+	const endMonth = endOfMonth(startMonth); 		// 달의 말일
+	const startWeek = startOfWeek(startMonth); 		// 주의 시작일
+	const endWeek = endOfWeek(endMonth); 			// 주의
 	const today = new Date();
 
 	// 초기값 설정
@@ -20,7 +21,7 @@ const CalendarBody = ({ currentDate, onDateClick, salesData }: any) => {
 		for (let i = 0; i < 7; i++) {
 			formattedDate = format(day, 'd'); // 날짜 표시 형식 변환
 			const dayCopy = day;
-			const targetData = salesData?.filter((franData: any) => {
+			const targetData = data?.filter((franData: any) => {
 				return new Date(franData.std_date).getDate() === Number(format(dayCopy, 'd'));
 			});
 

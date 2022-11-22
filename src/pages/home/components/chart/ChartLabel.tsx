@@ -1,4 +1,3 @@
-// Utils
 import Utils from 'utils/Utils';
 
 // custom label (매출액)
@@ -16,10 +15,9 @@ const ChartLabel = ({ bars }: any) => {
 				<text
 					transform={`translate(${width/2 + 1}, ${-12})`}
 					textAnchor='middle'
-					fontSize='12px'
+					fontSize='12'
 					fontWeight={value === maxValue ?'bold' : 'normal'}
 					fill={value === maxValue ? '#f1658a' : '#555555'}>
-					{/* YOUR LABEL HERE */}
 					{Utils.roundingDown10000(value)}만
 				</text>
 			</g>

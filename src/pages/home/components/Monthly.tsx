@@ -14,7 +14,6 @@ import CalendarBody from 'pages/home/components/calendar/CalendarBody';
 import Loading from 'pages/common/loading';
 
 const Monthly = () => {
-
 	const fCode = useRecoilValue(franState);
 
     // 현재 날짜 state
@@ -45,7 +44,7 @@ const Monthly = () => {
                     data ? 
                     <CalendarBody
                         currentDate={currentDate}
-                        salesData={data}
+                        data={data}
                     /> : 
                     <Loading width={50} height={50} marginTop={100} />
                 }

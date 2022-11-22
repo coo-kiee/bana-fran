@@ -1,3 +1,4 @@
+// Home 달력 (Monthly Sales Calendar)
 .calendar {
     width: 100%;
     display: flex;
@@ -44,7 +45,6 @@
                         border-left: 1px solid #d0d0d0;
                         border-bottom: 1px solid #d0d0d0;
                     }
-                        
                 }
             }
         }
@@ -61,10 +61,6 @@
                 width: calc((100% - 60px) / 7);
                 flex: auto;
                 text-align: center;
-                // background-color: #555;
-                // &:nth-child(odd) {
-                //     background-color: oldlace;
-                // }
                 &.saturday { color: #0000ff; }
                 &.sunday { color: #ff0000; }
             }
@@ -87,10 +83,6 @@
                 flex-direction: column;
                 flex: auto;
                 padding: 2px 0 0 0px;
-                // background-color: #555;
-                // &:nth-child(odd) {
-                //     background-color: oldlace;
-                // }
                 &.sat { color: #0000ff; }
                 &.sun { color: #ff0000; }
 
@@ -121,5 +113,66 @@
                 }
             }
         }
+    }
+}
+
+// 공통 달력 (common datepicker search)
+.react-datepicker {
+    // common
+    border: 0 !important;
+    box-shadow: 0px 0px 0.5px 0.5px #585872;
+    
+    &__triangle::before,
+    &__triangle::after {
+        border-bottom-color: #3a3a4d !important;
+    }
+    &__month-container {
+        .react-datepicker__header {
+            background-color: #3a3a4d;
+            border: 0 !important;
+        }
+        .react-datepicker__current-month {
+            color: #fff;
+            margin: 2px 0;
+        }
+    }
+    .react-datepicker__navigation-icon::before {
+        border-width: 1px 1px 0 0;
+        top: 12px;
+    }
+
+    // 일별 datepicker
+    &__day {
+        &--outside-month { color: #ccc !important; }
+        &-name {
+            &:nth-child(n) { color: #fff; } // rest
+            &:first-child { color: #ff7b7b; }
+            &:last-child { color: #99a8ff; }
+        }
+        &--today { color: #f1658a !important; }
+        &--selected,
+        &--keyboard-selected,
+        &--keyboard-selected:hover {
+            background-color: #f1658a !important;
+            color: #fff !important;
+            font-weight: bold;
+        }
+    }
+    &__week {
+        & > .react-datepicker__day--weekend:nth-child(7n+1):not(.react-datepicker__day--disabled) { color: #ff0000; }
+        & > .react-datepicker__day--weekend:nth-child(7n):not(.react-datepicker__day--disabled) { color: #0000ff; }
+        & > .react-datepicker__day--weekend > .react-datepicker__day--disabled { color: #ccc; }
+    }
+
+    // 월별 datepicker
+    &-year-header {
+        padding: 11px 0 !important;
+        color: #fff !important;
+    }
+    &__month-text.react-datepicker__month {
+        &-text--today { color: #f1658a; }
+        &--selected,
+        &--selected:hover,
+        &-text--keyboard-selected { background-color: #f1658a !important; }
     }
 }
