@@ -1,9 +1,5 @@
 import React from "react";
 
-// component
-import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
-
 // type
 interface EtcTableProps {
     title: string, // 제목

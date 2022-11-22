@@ -6,12 +6,13 @@ import Utils from "utils/Utils";
 import { useRecoilValue } from "recoil";
 
 // type
-import { EtcListParams, SearchInfoType, TableHeadItemType, PageInfoType } from "types/etc/etcType";
-import { MonthRankDetailProps } from "types/membership/monthRankType";
+import { EtcListParams, SearchInfoType, PageInfoType } from "types/etc/etcType";
+import { MonthRankDetailProps, MonthRankDetailDataProps } from "types/membership/monthRankType";
 
 // component
 import CalanderSearch from "pages/common/calanderSearch";
-import { EtcDetailTableFallback, EtcDetailTableErrorFallback } from "pages/etc/component/EtcDetailTable";
+import Sticky from "pages/common/sticky";
+import { EtcDetailTableHead, EtcDetailTableFallback, EtcDetailTableErrorFallback } from "pages/etc/component/EtcDetailTable";
 import EtcDetailFooter from "pages/etc/component/EtcDetailFooter";
 
 // service
@@ -20,14 +21,23 @@ import MEMBERSHIP_SERVICE from "service/membershipService";
 // state
 import { franState } from "state";
 
-const MonthRankDetail: FC<MonthRankDetailProps> = ({ searchInfo, handleSearchInfo, detailTableColGroup, detailTableHead }) => {
+const MonthRankDetail: FC<MonthRankDetailProps> = ({ detailTableColGroup, detailTableHead }) => {
     const { reset } = useQueryErrorResetBoundary();
+    const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
+        to: format(new Date(), 'yyyy-MM'), // 2022-11
+    }); // 실제 쿼리에서 사용될 날짜, 옵션값
+
+    // 상태 관련 함수
+    const handleSearchInfo = (currentTempSearchInfo: SearchInfoType) => {
+        setSearchInfo((prevSearchInfo) => ({ ...prevSearchInfo, ...currentTempSearchInfo }));
+    }; // tempSearchInfo -> searchInfo로 업데이트 (-> 자동으로 refetch역할)
 
     return (
         <>
             <MonthRankDetailSearch handleSearchInfo={handleSearchInfo} />
 
-            <React.Suspense fallback={<EtcDetailTableFallback colSpan={detailTableHead.length} colGroup={detailTableColGroup} theadData={detailTableHead} />}>
+            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableHead.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
                     <MonthRankDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
                 </ErrorBoundary>
@@ -38,26 +48,25 @@ const MonthRankDetail: FC<MonthRankDetailProps> = ({ searchInfo, handleSearchInf
 
 export default MonthRankDetail;
 
-interface MonthRankDetailDataProps {
-    searchInfo: SearchInfoType,
-    detailTableColGroup: string[],
-    detailTableHead: TableHeadItemType[][],
-}
 const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
 
     // TODO: state
     const tableRef = useRef<null | HTMLTableElement>(null);
+    const thRef = useRef<HTMLTableRowElement>(null);
+
+    // const [showSticky, setShowSticky] = useState<boolean>(false); // sticky header display
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
 
     // TODO: 프로시저
-    const rankListParams: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
+    let rankListData: any = [];
+    const rankListParams: EtcListParams = { fran_store: franCode, from_date: searchInfo.from + '-01', to_date: searchInfo.to + '-01' };
     const { data, isSuccess } = MEMBERSHIP_SERVICE.useRankList(rankListParams);
     if (isSuccess) {
-        // console.log(data);
+        rankListData = data;
         // TODO: data에 빈배열 들어오는 경우 처리 
         // TODO: 업데이트 처리 해주기
     }
@@ -85,57 +94,37 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailT
 
     return (
         <>
+            <Sticky reference={thRef.current}>
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+            </Sticky>
+
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                <colgroup>
-                    {detailTableColGroup.map((el, idx) => <col key={`month_rank_col_item_${idx}`} width={el} />)}
-                </colgroup>
-                <thead>
-                    {detailTableHead.map((trData, idx1) => {
-                        return (
-                            <tr key={`extra_overall_table_row_${idx1}`}>
-                                {trData.map((tdData, idx2) => {
-                                    return (
-                                        <th key={`extra_overall_table_row_item_${idx2}`} rowSpan={tdData.rowSpan || undefined} colSpan={tdData.colSpan || undefined} className={tdData.className || ''}>
-                                            {tdData.itemName}
-                                        </th>
-                                    )
-                                })}
-                            </tr>
-                        )
-                    })}
-                </thead>
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
                 <tbody>
-                    <tr>
-                        <td>2022-04</td>
-                        <td>충무로점</td>
-                        <td>1</td>
-                        <td>0101234**** <span>(닉네임)</span></td>
-                        <td>바나포인트<p>(20,000점)</p></td>
-                    </tr>
-                    <tr>
-                        <td>2022-04</td>
-                        <td>충무로점</td>
-                        <td>1</td>
-                        <td>0101234**** <span>(닉네임)</span></td>
-                        <td>바나포인트<p>(20,000점)</p></td>
-                    </tr>
-                    <tr>
-                        <td>2022-04</td>
-                        <td>충무로점</td>
-                        <td>1</td>
-                        <td>0101234**** <span>(닉네임)</span></td>
-                        <td>바나포인트<p>(20,000점)</p></td>
-                    </tr>
-                    <tr>
-                        <td>2022-04</td>
-                        <td>충무로점</td>
-                        <td>1</td>
-                        <td>0101234**** <span>(닉네임)</span></td>
-                        <td>바나포인트<p>(20,000점)</p></td>
-                    </tr>
+                    {
+                        rankListData.map((data: any, idx: number) => {
+                            if (
+                                (idx < (pageInfo.currentPage - 1) * pageInfo.row) || // 현재 페이지 이전에 있는 데이터
+                                (idx >= (pageInfo.currentPage * pageInfo.row)) // 현재 페이지 이후에 있는 데이터
+                            ) {
+                                return null;
+                            } else {
+                                const [rewardType, rewardAmount] = data.gift.split(' ');
+                                return (
+                                    <tr key={`month_rank_row_item_${idx}`}>
+                                        <td>{data.sDate}</td>
+                                        <td>{data.sName}</td>
+                                        <td>{data.nRank}</td>
+                                        <td>{data.sPhone || '번호 정보 없음'} <span>({data.nickname || '-'})</span></td>
+                                        <td>{rewardType}<p>{rewardAmount}</p></td>
+                                    </tr>
+                                )
+                            }
+                        })
+                    }
                 </tbody>
             </table>
-            <EtcDetailFooter excelFn={handleExcelPrint} dataCnt={5} pageInfo={pageInfo} pageFn={setPageInfo} />
+            <EtcDetailFooter excelFn={handleExcelPrint} dataCnt={rankListData.length || 0} pageInfo={pageInfo} pageFn={setPageInfo} />
         </>
     )
 }
@@ -143,8 +132,8 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailT
 const MonthRankDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void }> = ({ handleSearchInfo }) => {
     // state
     const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoType>({
-        from: format(new Date(), 'yyyy-MM-01'),
-        to: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
+        to: format(new Date(), 'yyyy-MM'), // 2022-11  
     }); // 실제 쿼리에서 사용될 날짜, 옵션값
 
     return (
@@ -154,6 +143,7 @@ const MonthRankDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: Sear
             searchInfo={tempSearchInfo}
             setSearchInfo={setTempSearchInfo}
             handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
+            showMonthYearPicker={true}
         />
     )
 }

@@ -11,8 +11,8 @@ import VirtualAccountDetail from './component/VirtualAccountDetail';
 const VirtualAccount = () => {
     // TODO: 상태 관련
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
-        to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
+        to: format(new Date(), 'yyyy-MM'), // 2022-11  
     }); // etcSearch 내부 검색 날짜
 
     // 상태 관련 함수

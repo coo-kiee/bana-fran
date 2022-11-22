@@ -23,22 +23,15 @@ import EtcSearchDetail from "pages/etc/component/EtcSearchDetail";
 const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo }) => {
     const { reset } = useQueryErrorResetBoundary();
     const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
-        to: format(new Date(), 'yyyy-MM-dd')
+        from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'), // 2022-10-18
+        to: format(new Date(), 'yyyy-MM-dd') // 2022-11-18
     }); // etcSearch 내부 검색 날짜 관련 보여질 state 
 
     return (
         <>
-            {/* 검색 -> 관련 X */}
-            <CalanderSearch
-                title={`상세내역`}
-                dateType={'yyyy-MM-dd'}
-                searchInfo={tempSearchInfo}
-                setSearchInfo={setTempSearchInfo}
-                handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
-            />
+            <OrderDetailDetailSearch handleSearchInfo={handleSearchInfo} />
 
-            <React.Suspense fallback={<EtcDetailTableFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} />}>
+            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
                     {/* *_list 프로시저 사용하는 컴포넌트 */}
                     <OrderDetailDetailData
@@ -50,6 +43,8 @@ const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, de
         </>
     )
 }
+
+export default OrderDetailDetail;
 
 const OrderDetailDetailData: FC<Omit<OrderDetailDetailProps, 'handleSearchInfo'>> = ({ detailTableColGroup, detailTableHead, searchInfo }) => {
     const queryClient = useQueryClient();
@@ -84,11 +79,11 @@ const OrderDetailDetailData: FC<Omit<OrderDetailDetailProps, 'handleSearchInfo'>
                 colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: `${searchInfo.from}~${searchInfo.to}`, // 시트이름, 필수 X
-                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
+                addRowColor: { row: [1], color: ['d3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
 
             try {
-                Utils.excelDownload(tableRef.current, options, '음악 서비스 이용료');
+                Utils.excelDownload(tableRef.current, options, '발주내역');
             }
             catch (error) {
                 console.log(error);
@@ -110,4 +105,19 @@ const OrderDetailDetailData: FC<Omit<OrderDetailDetailProps, 'handleSearchInfo'>
     )
 }
 
-export default OrderDetailDetail; 
+const OrderDetailDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void }> = ({ handleSearchInfo }) => {
+    const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoType>({
+        from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'), // 2022-10-18
+        to: format(new Date(), 'yyyy-MM-dd') // 2022-11-18
+    }); // etcSearch 내부 검색 날짜 관련 보여질 state 
+
+    return (
+        <CalanderSearch
+            title={`상세내역`}
+            dateType={'yyyy-MM-dd'}
+            searchInfo={tempSearchInfo}
+            setSearchInfo={setTempSearchInfo}
+            handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
+        />
+    )
+}

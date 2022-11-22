@@ -69,7 +69,7 @@ const MusicChargeOverallData: FC<OverallFallbackProps> = ({ title, tableColGroup
             ],
             [
                 { data: `${format(subMonths(new Date(), 1), 'yy/MM/01')}~${format(lastDayOfMonth(subMonths(new Date(), 1)), 'yy/MM/dd')}` },
-                '공연권료',
+                { data: '공연권료' },
                 { data: `${totalData.suply_fee}` },
                 { data: `${totalData.suply_fee_tax}` },
                 { data: `${totalData.total_fee}` },

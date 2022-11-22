@@ -1,8 +1,4 @@
 import { useState } from 'react';
-import { format, subMonths } from 'date-fns';
-
-// type 
-import { SearchInfoType } from 'types/etc/etcType';
 
 // component
 import PrizeEdit from './component/PrizeEdit';
@@ -10,17 +6,8 @@ import MonthRankOverall from './component/MonthRankOverall';
 import MonthRankDetail from './component/MonthRankDetail';
 
 const MonthRankContainer = () => {
-    // TODO: 상태 관련
-    const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
-        from: format(new Date(), 'yyyy-MM-01'),
-        to: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
-    }); // 실제 쿼리에서 사용될 날짜, 옵션값
+    // TODO: 상태 관련 
     const [popupRankReward, setPopupRankReward] = useState<boolean>(false); // EtcOrderDetail 열림 여부
-
-    // 상태 관련 함수
-    const handleSearchInfo = (currentTempSearchInfo: SearchInfoType) => {
-        setSearchInfo((prevSearchInfo) => ({ ...prevSearchInfo, ...currentTempSearchInfo }));
-    }; // tempSearchInfo -> searchInfo로 업데이트 (-> 자동으로 refetch역할)
 
     // TODO: EtcTable 관련 데이터 
     const colGroup = ['232', '232', '232', '232', '232', '232', '232',];
@@ -47,7 +34,7 @@ const MonthRankContainer = () => {
                         </div>
                         <div className="board-date-wrap">
                             <MonthRankOverall tableColGroup={colGroup} tableHead={thead} setPopupRankReward={setPopupRankReward} />
-                            <MonthRankDetail searchInfo={searchInfo} handleSearchInfo={handleSearchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+                            <MonthRankDetail detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
                         </div>
                     </div>
                 </section>

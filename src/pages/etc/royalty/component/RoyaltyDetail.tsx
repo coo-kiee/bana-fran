@@ -25,7 +25,7 @@ const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'title'>> = (props) => {
 
     return (
         <>
-            <React.Suspense fallback={<EtcDetailTableFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} />}>
+            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
                     {/* 로열티 내역 */}
                     <RoyaltyDetailData title={title} {...props} />
@@ -45,10 +45,9 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
 
-    // 프로시저 - YGQA4CREHNZCZIXPF2AH
     let detailTableBody: any = [];
     // 프로시저 
-    const etcRoyaltyListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
+    const etcRoyaltyListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from + '-01', to_date: searchInfo.to + '-01' };
     const { data: listData, isSuccess: etcRoyaltyListSuccess } = ETC_SERVICE.useEtcList<EtcListParams>('YGQA4CREHNZCZIXPF2AH', etcRoyaltyListParam, 'etc_royalty_list');
 
     if (etcRoyaltyListSuccess) {
@@ -69,7 +68,7 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
             };
 
             try {
-                Utils.excelDownload(tableRef.current, options, '음악 서비스 이용료');
+                Utils.excelDownload(tableRef.current, options, '로열티 내역');
             }
             catch (error) {
                 console.log(error);

@@ -57,9 +57,7 @@ const OrderDetailOverallData: FC<OverallFallbackProps> = ({ title, tableColGroup
     const { data: totalData, isSuccess: etcOrderDetailStatSuccess } = ETC_SERVICE.useOrderDetailStatistic(etcOrderDetailStatParam);
     // const { data: totalData, isSuccess: etcOrderDetailStatSuccess } = useEtcTotal<any, { [key: string]: any }[]>('2Q65LKD2JBSZ3OWKWTWY', etcOrderDetailStatParam, 'etc_order_detail_statistic', selectFn);
     if (etcOrderDetailStatSuccess) {
-        tableBody = [totalData.map((el) => {
-            return { data: Utils.numberComma(el.amount), className: 'align-right' }
-        })];
+        tableBody = [totalData.map((el) => ({ data: Utils.numberComma(el.amount), className: 'align-right' }))];
     }
 
     return (

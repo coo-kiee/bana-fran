@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { format, subMonths, lastDayOfMonth } from 'date-fns';
+import { format, subMonths, lastDayOfMonth, isAfter } from 'date-fns';
 
 // type
 import { SearchInfoType, SearchInfoSelectType } from "types/etc/etcType";
@@ -11,8 +11,8 @@ import GiftCardOverall from './component/GiftCardOverall';
 const GiftCard = () => {
     // TODO: 상태 관련
     const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
-        to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
+        to: format(new Date(), 'yyyy-MM'), // 2022-10 
         searchOption: [
             { value: 'ALL', title: '포인트 구분 전체' },
             { value: 'ALL', title: '상품권종 전체' },
@@ -21,7 +21,7 @@ const GiftCard = () => {
     }); // etcSearch 내부 검색 날짜
 
     // 상태 관련 함수
-    const handleSearchInfo = (currentTempSearchInfo: SearchInfoType) => {
+    const handleSearchInfo = (currentTempSearchInfo: SearchInfoSelectType) => {
         setSearchInfo((prevSearchInfo) => ({ ...prevSearchInfo, ...currentTempSearchInfo }));
     }; // tempSearchInfo -> searchInfo로 업데이트 (-> 자동으로 refetch역할)
 

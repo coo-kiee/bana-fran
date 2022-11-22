@@ -19,7 +19,15 @@ interface RewardEditItemType {
     coupon: number,
     point: number
 }
+
 // param
+interface RankEditParams {
+    fran_store: number,
+    rank_number: number,
+    payment_type: string,
+    payment: number,
+    user_name: string,
+}
 
 // props
 interface MonthRankOverallProps {
@@ -29,10 +37,19 @@ interface MonthRankOverallProps {
 }
 
 interface MonthRankDetailProps {
-    searchInfo: SearchInfoType,
-    handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
     detailTableColGroup: string[],
     detailTableHead: TableHeadItemType[][],
+}
+
+interface MonthRankDetailDataProps extends MonthRankDetailProps {
+    searchInfo: SearchInfoType,
+}
+
+interface RewardEditDataProps {
+    idx: number,
+    title: string,
+    value: RewardEditItemType,
+    handleRewardValue: (keyName: string, value: { [key in keyof RewardEditItemType]?: RewardEditItemType[key] }) => void;
 }
 
 // 보상등록 관련 type
@@ -53,7 +70,8 @@ const RANK_REWARD_LIST = [
 ] as const;
 
 export type {
-    PopupOrderDetailType, RewardEditItemType, RankInfoItemType, MonthRankOverallProps, MonthRankDetailProps
+    PopupOrderDetailType, RewardEditItemType, RankInfoItemType, RankEditParams,
+    MonthRankOverallProps, MonthRankDetailProps, MonthRankDetailDataProps, RewardEditDataProps,
 }
 
 export { RANK_REWARD_TYPE, RANK_REWARD_LIST }

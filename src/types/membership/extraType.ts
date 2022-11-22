@@ -31,6 +31,26 @@ interface MembershipTotalType {
     used_point: number // 총 사용수 포인트
 } // useMembershipTotal 결과 값 타입
 
+interface MembershipListType {
+    convert_coupon_stamp_cnt: number | string, // ? 쿠폰 전환, 갯수 관련
+    expired_coupon_amount: string, // 쿠폰 - 유효기간 소멸 수 금액
+    expired_coupon_cnt: number | string, // 쿠폰 - 유효기간 소멸 수
+    expired_point: number | string, // 포인트 - 유효기간 소멸
+    expired_stamp_cnt: number | string, // 스탬프 - 유효기간 소멸 수
+    std_date: string, // 일시 
+    total_coupon_amount: string, // 쿠폰 - 발급 수 금액
+    total_coupon_cnt: number | string, // 쿠폰 - 발급 수
+    total_point: number | string, // ? 포인트 - 총 액수? 
+    total_stamp_cnt: number | string, // 스탬프 - 지급 수
+    used_coupon_amount: string, // 쿠폰 - 사용 수 금액
+    used_coupon_cnt: number | string, // 쿠폰 - 사용 수 
+    used_point: number | string, // 포인트 - 사용
+} // useMembershipList 결과 값 타입
+
+interface MembershipTempListType {
+    tempMembershipListTotal: MembershipListType,
+    tempMembershipListData: MembershipListType[],
+}
 // props
 interface ExtraOverallProps {
     tableHead: ExtraOverallTableRowItemType[][]
@@ -52,6 +72,6 @@ interface ExtraDetailDataErrorFallbackProps extends Omit<ExtraDetailProps, 'sear
 }
 
 export type {
-    ExtraOverallTableRowItemType, MembershipTotalType,
+    ExtraOverallTableRowItemType, MembershipTempListType, MembershipTotalType, MembershipListType,
     ExtraOverallProps, ExtraDetailProps, ExtraDetailDataProps, ExtraDetailDataErrorFallbackProps,
 }

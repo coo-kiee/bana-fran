@@ -2,7 +2,7 @@ import React, { FC, useState, useRef, useCallback, useMemo } from "react";
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
 import { useQueryClient, useQueryErrorResetBoundary } from "react-query";
-import { format, subMonths, lastDayOfMonth } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
 
 // state
@@ -22,23 +22,12 @@ import EtcSearchDetail from "pages/etc/component/EtcSearchDetail";
 
 const MusicChargeDetail: FC<MusicChargeDetailProps> = ({ detailPriceInfo, detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo }) => {
     const { reset } = useQueryErrorResetBoundary();
-    const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
-        to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
-    }); // etcSearch 내부 검색 날짜 관련 보여질 state 
 
     return (
         <>
-            {/* 검색 -> 관련 X */}
-            <CalanderSearch
-                title={`상세내역`}
-                dateType={'yyyy-MM-dd'}
-                searchInfo={tempSearchInfo}
-                setSearchInfo={setTempSearchInfo}
-                handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
-            />
+            <MusicChargeDetailSearch handleSearchInfo={handleSearchInfo} />
 
-            <React.Suspense fallback={<EtcDetailTableFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} />}>
+            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
                     {/* *_list 프로시저 사용하는 컴포넌트 */}
                     <MusicChargeDetailData
@@ -52,6 +41,8 @@ const MusicChargeDetail: FC<MusicChargeDetailProps> = ({ detailPriceInfo, detail
         </>
     )
 }
+
+export default MusicChargeDetail;
 
 const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailPriceInfo, detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo }) => {
     const queryClient = useQueryClient();
@@ -67,23 +58,27 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailPriceInfo, de
     // TODO: 이후에 테스트 데이터 보고 타입 지정 + 수정
     // ['22/06/01~22/06/30', '아메리카노 외 1건', '1,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
     // let detailTableBody = useMemo((data:any) => data.filter((el:any) => el.type === searchInfo.searchOption.type), [searchInfo.searchOption.type]); 
-    let detailTableBody = [];
+    let detailTableBody: any[] = [];
 
-    // 프로시저 
-    const etcMusicListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
+    // 프로시저
+    // isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
+    const etcMusicListParam: EtcListParams = {
+        fran_store: franCode,
+        from_date: searchInfo.from + '-01',
+        to_date: searchInfo.to + '-01'
+    };
     const { data: listData, isSuccess: etcMusicListSuccess } = ETC_SERVICE.useEtcList<EtcListParams>('VK4WML6GW9077BKEWP3O', etcMusicListParam, 'etc_music_list');
-
     if (etcMusicListSuccess) {
         console.log('MusicChargeDetail: ', listData)
-        detailTableBody = listData;
+        detailTableBody = listData; // MusicChargeDetailType[]
     }
-
     let detailSearchResult = useMemo(() => {
+        // TODO: 프로시저 데이터 확인 후 수정
         const data: any = queryClient.getQueryData(['etc_music_fee', franCode]);
-
+        console.log(data);
         return [
-            ['음악 사용료 합계', `${data.suply_fee}`],
-            ['공연권료 합계', `${data.suply_fee_tax}`],
+            ['음악 사용료 합계', `0`],
+            ['공연권료 합계', `0`],
         ];
     }, [queryClient, franCode]); // EtcSearchDetail 내부 데이터
 
@@ -123,5 +118,20 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailPriceInfo, de
     )
 }
 
+const MusicChargeDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void }> = ({ handleSearchInfo }) => {
+    const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoType>({
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10
+        to: format(new Date(), 'yyyy-MM'), // 2022-11
+    }); // etcSearch 내부 검색 날짜 관련 보여질 state 
 
-export default MusicChargeDetail; 
+    return (
+        <CalanderSearch
+            title={`상세내역`}
+            dateType={'yyyy-MM-dd'}
+            searchInfo={tempSearchInfo}
+            setSearchInfo={setTempSearchInfo}
+            handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
+            showMonthYearPicker={true}
+        />
+    )
+}

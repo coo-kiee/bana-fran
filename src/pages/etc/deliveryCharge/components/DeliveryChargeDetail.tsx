@@ -9,7 +9,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { franState } from "state";
 
 // type
-import { EtcListParams, PageInfoType, DeliveryChargeDetailProps, SearchInfoSelectType, ETC_DELIVERY_SEARCH_OPTION_TYPE, ETC_DELIVERY_SEARCH_OPTION_LIST } from "types/etc/etcType";
+import { EtcListParams, PageInfoType, DeliveryChargeDetailProps, SearchInfoSelectType, ETC_DELIVERY_SEARCH_OPTION_TYPE, ETC_DELIVERY_SEARCH_OPTION_LIST, SearchInfoType } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from 'service/etcService';
@@ -22,35 +22,12 @@ import EtcSearchDetail from "pages/etc/component/EtcSearchDetail";
 
 const DeliveryChargeDetail: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo, detailPriceInfo }) => {
     const { reset } = useQueryErrorResetBoundary();
-    const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoSelectType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
-        to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
-        searchOption: [{ value: 'SEARCH_0', title: '구분 전체' }],
-    }); // etcSearch 내부 검색 날짜 관련 보여질 state
-
-    const searchOptionList = [
-        {
-            [ETC_DELIVERY_SEARCH_OPTION_TYPE.TOTAL]: { title: '구분 전체', value: 'SEARCH_0' },
-            [ETC_DELIVERY_SEARCH_OPTION_TYPE.CARD]: { title: '현장카드', value: 'SEARCH_1' },
-            [ETC_DELIVERY_SEARCH_OPTION_TYPE.CASH]: { title: '현장현금', value: 'SEARCH_2' },
-            [ETC_DELIVERY_SEARCH_OPTION_TYPE.APP]: { title: '어플선결제', value: 'SEARCH_3' },
-        }
-    ];
 
     return (
         <>
-            {/* 검색 -> 관련 X */}
-            <CalanderSearch
-                title={`상세내역`}
-                dateType={'yyyy-MM-dd'}
-                searchInfo={tempSearchInfo}
-                setSearchInfo={setTempSearchInfo}
-                selectOption={searchOptionList}
-                optionList={ETC_DELIVERY_SEARCH_OPTION_LIST}
-                handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
-            />
+            <DeliveryChargeDetailSearch handleSearchInfo={handleSearchInfo} />
 
-            <React.Suspense fallback={<EtcDetailTableFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} />}>
+            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
                     {/* *_list 프로시저 사용하는 컴포넌트 */}
                     <DeliveryChargeDetailData
@@ -65,6 +42,8 @@ const DeliveryChargeDetail: FC<DeliveryChargeDetailProps> = ({ detailTableColGro
         </>
     )
 }
+
+export default DeliveryChargeDetail;
 
 const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo, detailPriceInfo }) => {
     const queryClient = useQueryClient();
@@ -131,14 +110,14 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
         setIsSearching(true);
         console.log(`searchOption.type 변경되었다면 실행`)
         // const data: any = queryClient.getQueryData([`etc_delivery_list`, searchInfo.from, searchInfo.to, franCode]);
-        // detailTableBody = data.filter(....)
+        // detailTableBody = data.filter((el) => el.payment === '현장카드');
         setIsSearching(false);
     }, [searchInfo.searchOption])
 
     return (
         <>
             {isSearching ?
-                <EtcDetailTableFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} />
+                <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />
                 :
                 <>
                     {/* 조회 기간 -> total 프로시저 관련 */}
@@ -154,4 +133,32 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
     )
 }
 
-export default DeliveryChargeDetail; 
+const DeliveryChargeDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void }> = ({ handleSearchInfo }) => {
+    const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoSelectType>({
+        from: format(subMonths(new Date(), 1), 'yyyy-MM-01'), // 2022-10-01
+        to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'), // 2022-10-31
+        searchOption: [{ value: 'SEARCH_0', title: '구분 전체' }],
+    }); // etcSearch 내부 검색 날짜 관련 보여질 state
+
+    const searchOptionList = [
+        {
+            [ETC_DELIVERY_SEARCH_OPTION_TYPE.TOTAL]: { title: '구분 전체', value: 'TOTAL' },
+            [ETC_DELIVERY_SEARCH_OPTION_TYPE.CARD]: { title: '현장카드', value: 'CARD' },
+            [ETC_DELIVERY_SEARCH_OPTION_TYPE.CASH]: { title: '현장현금', value: 'CASH' },
+            [ETC_DELIVERY_SEARCH_OPTION_TYPE.APP]: { title: '어플선결제', value: 'APP' },
+        }
+    ];
+
+    return (
+        // 검색 -> 관련 X 
+        <CalanderSearch
+            title={`상세내역`}
+            dateType={'yyyy-MM-dd'}
+            searchInfo={tempSearchInfo}
+            setSearchInfo={setTempSearchInfo}
+            selectOption={searchOptionList}
+            optionList={ETC_DELIVERY_SEARCH_OPTION_LIST}
+            handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
+        />
+    )
+}

@@ -121,7 +121,7 @@ const RoyaltyOverallData: FC<RoyaltyOverallProps> = ({ title, tableColGroup, tab
     const { data: totalData, isSuccess: etcRoyaltyTotalSuccess } = ETC_SERVICE.useEtcTotal<any, TotalResultType>('C0UUYOSQY3S4OUKJE7XG', etcRoyaltyTotalParam, 'etc_royalty_total');
 
     if (etcRoyaltyTotalSuccess) {
-        // console.log('etcRoyaltyTotal: ', totalData)
+        console.log('etcRoyaltyTotal: ', totalData)
         tableBody = [
             [
                 { data: `${format(subMonths(new Date(), 1), 'yyyy/MM/01')}~${format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy/MM/dd')}` },
@@ -149,7 +149,9 @@ const RoyaltyOverallData: FC<RoyaltyOverallProps> = ({ title, tableColGroup, tab
                         {tableHead.map((head, idx) => <th key={`etc_table_thead_${idx}`}>{head}</th>)}
                     </tr>
                 </thead>
-                <EtcTable title={title} colGroup={tableColGroup} thead={tableHead} tbody={tableBody} />
+                <tbody>
+                    <EtcTable title={title} colGroup={tableColGroup} thead={tableHead} tbody={tableBody} />
+                </tbody>
             </table>
 
             <RoyaltyOverallSearch handleSearchInfo={handleSearchInfo} />
@@ -158,23 +160,21 @@ const RoyaltyOverallData: FC<RoyaltyOverallProps> = ({ title, tableColGroup, tab
     )
 }
 
-interface RoyaltyOverallSearchProps {
-    handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void
-}
-const RoyaltyOverallSearch: FC<RoyaltyOverallSearchProps> = ({ handleSearchInfo }) => {
+const RoyaltyOverallSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void }> = ({ handleSearchInfo }) => {
     // 로열티 검색
     const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
-        to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
+        to: format(new Date(), 'yyyy-MM'), // 2022-11  
     }); // etcSearch 내부 검색 날짜 관련 보여질 state 
 
     return (
         <CalanderSearch
             title={`상세내역`}
-            dateType={'yyyy-MM-dd'}
+            dateType={'yyyy-MM'}
             searchInfo={tempSearchInfo}
             setSearchInfo={setTempSearchInfo}
             handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
+            showMonthYearPicker={true}
         />
     )
 }

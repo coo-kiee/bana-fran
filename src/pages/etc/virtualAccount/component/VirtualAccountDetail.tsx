@@ -25,7 +25,7 @@ const VirtualAccountDetail: FC<VirtualAccountDetailProps> = (props) => {
 
     return (
         <>
-            <React.Suspense fallback={<EtcDetailTableFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} />}>
+            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
                     {/* 로열티 내역 */}
                     <VirtualAccountDetailData {...props} />
@@ -46,7 +46,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
 
     // 프로시저 
     let detailTableBody: any = [];
-    const etcVirtualAccBalanceListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
+    const etcVirtualAccBalanceListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from + '-01', to_date: searchInfo.to + '-01' };
     const { data: listData, isSuccess: etcVirtualAccBalanceListSuccess } = ETC_SERVICE.useEtcList<EtcListParams>('CS4QOSEGOQGJ8QCALM7L', etcVirtualAccBalanceListParam, 'etc_virtual_acc_balance_total_list');
 
     if (etcVirtualAccBalanceListSuccess) {
@@ -60,15 +60,15 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
         if (tableRef.current) {
             const options = {
                 type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                sheetOption: { origin: "B2" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: `${searchInfo.from}~${searchInfo.to}`, // 시트이름, 필수 X
-                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
+                addRowColor: { row: [1], color: ['d3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
 
             try {
-                Utils.excelDownload(tableRef.current, options, '음악 서비스 이용료');
+                Utils.excelDownload(tableRef.current, options, '가상계좌 내역');
             }
             catch (error) {
                 console.log(error);

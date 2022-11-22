@@ -36,7 +36,7 @@ const ExtraOverall: FC<{ tableHead: ExtraOverallTableRowItemType[][] }> = ({ tab
                                 {trData.map((tdData, idx2) => {
                                     return (
                                         <th key={`extra_overall_table_row_item_${idx2}`} rowSpan={tdData.rowSpan || undefined} colSpan={tdData.colSpan || undefined} className={tdData.className || ''}>
-                                            {tdData.itemName.length > 1 ? <>{tdData.itemName[0]}<p>{tdData.itemName[1]}</p></> : tdData.itemName[0]}
+                                            {tdData.itemName.length > 1 ? <>{tdData.itemName[0]}<p>({tdData.itemName[1]})</p></> : tdData.itemName[0]}
                                         </th>
                                     )
                                 })}
@@ -58,6 +58,7 @@ const ExtraOverall: FC<{ tableHead: ExtraOverallTableRowItemType[][] }> = ({ tab
 }
 
 const ExtraOverallData = () => {
+    console.log('ExtraOverallData')
     const franCode = useRecoilValue(franState);
 
     // 프로시저
@@ -84,26 +85,24 @@ const ExtraOverallData = () => {
     const { data, isSuccess } = MEMBERSHIP_SERVICE.useMembershipTotal(membershipTotalParams)
 
     if (isSuccess) {
-        extraOverallTotal = { ...extraOverallTotal, ...data }
+        extraOverallTotal = { ...data }
     }
 
     return (
-        <tbody>
-            <tr>
-                <td>{Utils.numberComma(extraOverallTotal.total_stamp_cnt)}</td>
-                <td>{Utils.numberComma(extraOverallTotal.total_coupon_cnt)}개</td>
-                <td>{Utils.numberComma(extraOverallTotal.expired_stamp_cnt)}개</td>
-                <td className="point">{Utils.numberComma(extraOverallTotal.notyet_coupon_stamp_cnt)}개</td>
-                <td>{Utils.numberComma(extraOverallTotal.total_coupon_cnt)}개<p>({Utils.numberComma(extraOverallTotal.total_coupon_amount)}원)</p></td>
-                <td>{Utils.numberComma(extraOverallTotal.used_coupon_cnt)}개<p>({Utils.numberComma(extraOverallTotal.used_coupon_amount)}원)</p></td>
-                <td>{Utils.numberComma(extraOverallTotal.expired_coupon_cnt)}개<p>({Utils.numberComma(extraOverallTotal.expired_coupon_amount)}원)</p></td>
-                <td className="point">{Utils.numberComma(extraOverallTotal.not_used_coupon_cnt)}개<p>({Utils.numberComma(extraOverallTotal.not_used_coupon_amount)}원)</p></td>
-                <td>{Utils.numberComma(extraOverallTotal.total_point)}P</td>
-                <td>{Utils.numberComma(extraOverallTotal.used_point)}P</td>
-                <td>{Utils.numberComma(extraOverallTotal.expired_point)}P</td>
-                <td className="point">{Utils.numberComma(extraOverallTotal.not_used_point)}P</td>
-            </tr>
-        </tbody>
+        <tr>
+            <td>{Utils.numberComma(extraOverallTotal.total_stamp_cnt)}</td>
+            <td>{Utils.numberComma(extraOverallTotal.total_coupon_cnt)}개</td>
+            <td>{Utils.numberComma(extraOverallTotal.expired_stamp_cnt)}개</td>
+            <td className="point">{Utils.numberComma(extraOverallTotal.notyet_coupon_stamp_cnt)}개</td>
+            <td>{Utils.numberComma(extraOverallTotal.total_coupon_cnt)}개<p>({Utils.numberComma(extraOverallTotal.total_coupon_amount)}원)</p></td>
+            <td>{Utils.numberComma(extraOverallTotal.used_coupon_cnt)}개<p>({Utils.numberComma(extraOverallTotal.used_coupon_amount)}원)</p></td>
+            <td>{Utils.numberComma(extraOverallTotal.expired_coupon_cnt)}개<p>({Utils.numberComma(extraOverallTotal.expired_coupon_amount)}원)</p></td>
+            <td className="point">{Utils.numberComma(extraOverallTotal.not_used_coupon_cnt)}개<p>({Utils.numberComma(extraOverallTotal.not_used_coupon_amount)}원)</p></td>
+            <td>{Utils.numberComma(extraOverallTotal.total_point)}P</td>
+            <td>{Utils.numberComma(extraOverallTotal.used_point)}P</td>
+            <td>{Utils.numberComma(extraOverallTotal.expired_point)}P</td>
+            <td className="point">{Utils.numberComma(extraOverallTotal.not_used_point)}P</td>
+        </tr>
     )
 } // 실제 컴포넌트
 

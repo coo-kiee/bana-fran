@@ -26,7 +26,7 @@ const useEtcTotal = <T extends EtcTotalParams, U>(query: string, params: T, quer
 };
 
 // TODO: 상세 내역 (*_list 프로시저 공통 함수)
-const useEtcList = <T extends EtcListParams>(query: string, params: T, queryKey: string): UseQueryResult<any, AxiosError<unknown, any>> => {
+const useEtcList = <T extends EtcListParams>(query: string, params: T, queryKey: string, selectFn?: any): UseQueryResult<any, AxiosError<unknown, any>> => {
     const reqData: RequestParams<T> = { ws: 'fprocess', query, params };
     return useQuery([queryKey, params.from_date, params.to_date, params.fran_store], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
@@ -36,6 +36,9 @@ const useEtcList = <T extends EtcListParams>(query: string, params: T, queryKey:
         onError: (err: any) => {
             queryFn.axiosError(err);
         },
+        select: (data: any) => {
+            return !!selectFn ? selectFn(data) : data
+        }
     });
 };
 

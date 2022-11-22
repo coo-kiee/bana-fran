@@ -26,6 +26,13 @@ interface TableHeadItemType {
 interface TotalResultType {
     [key: string]: number;
 }
+interface MusicChargeDetailType {
+    state: string,
+    std_date: string,
+    suply_amount: number,
+    tax_amount: number,
+    total_amount: number
+} // web_fran_s_etc_delivery_list 결과 타입 (음악 서비스 이용료, 로열티에서 사용)
 interface OrderDetailListType {
     amount: number,
     cacel_staff: string,
@@ -38,14 +45,14 @@ interface OrderDetailListType {
     order_count: number,
     staff_name: string,
     state_name: string
-}
+} // web_fran_s_etc_order_list 결과 타입
 interface VirtualAccListType {
     balance: number,
     deposit: number,
     division: string,
     log_date: string,
     state: string
-}
+} // web_fran_s_etc_balance_list 결과 타입
 interface OrderDetailModalItemType {
     fOrderCount: number,
     fran_price: number,
@@ -59,7 +66,7 @@ interface OrderDetailModalItemType {
     tax_amount: number,
     total_amount: number,
     volume: string
-}
+}// web_fran_s_etc_order_detail 결과 타입
 
 // param
 interface EtcTotalParams {
@@ -110,8 +117,8 @@ interface MusicChargeDetailProps extends DetailFallbackProps {
     handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
 }
 interface GiftcardDetailProps extends DetailFallbackProps {
-    searchInfo: SearchInfoType,
-    handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
+    searchInfo: SearchInfoSelectType,
+    handleSearchInfo: (currentTempSearchInfo: SearchInfoSelectType) => void,
 }
 interface OrderDetailDetailProps extends Omit<DetailFallbackProps, 'detailPriceInfo'> {
     searchInfo: SearchInfoType,
@@ -128,6 +135,10 @@ interface VirtualAccountDetailProps extends Omit<DetailFallbackProps, 'detailPri
 /* Type Check */
 const isOrderDetailListType = (target: any): target is OrderDetailListType => {
     return 'nOrderID' in target && 'first_item' in target ? true : false;
+}
+
+const isMusicChargeDetailType = (target: any): target is MusicChargeDetailType => {
+    return 'suply_amount' in target && 'tax_amount' in target && 'total_amount' in target && 'std_date' in target && 'state' in target;
 }
 
 const isVirtualAccListType = (target: any): target is VirtualAccListType => {
@@ -163,10 +174,10 @@ const ETC_TAB_LIST = [
 
 // etc 페이지 상세내역 검색 옵션 관련
 const ETC_DELIVERY_SEARCH_OPTION_TYPE = {
-    TOTAL: 0, // '구분 전체'
-    CARD: 1, // '현장 카드'
-    CASH: 2, // '현장 현금'
-    APP: 3, // '어플선결제'
+    TOTAL: 'TOTAL', // '구분 전체'
+    CARD: 'CARD', // '현장 카드'
+    CASH: "CASH", // '현장 현금'
+    APP: 'APP', // '어플선결제'
 }
 
 const ETC_DELIVERY_SEARCH_OPTION_LIST = [
@@ -223,7 +234,7 @@ const ETC_GIFTCARD_SEARCH_DEVICE_LIST = [
 
 export type {
     SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
-    TotalResultType, OrderDetailListType, VirtualAccListType, OrderDetailModalItemType,
+    TotalResultType, MusicChargeDetailType, OrderDetailListType, VirtualAccListType, OrderDetailModalItemType,
     EtcTotalParams, EtcListParams, OrderDetailModalParams,
     OverallFallbackProps, RoyaltyOverallProps, VirtualAccountOverallProps, OverallErrorFallbackProps, DetailErrorFallbackProps, RoyaltyDetailProps, VirtualAccountDetailProps,
     DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps,
@@ -232,5 +243,5 @@ export type {
 export {
     ETC_TAB_TYPE, ETC_TAB_LIST, ETC_DELIVERY_SEARCH_OPTION_TYPE, ETC_DELIVERY_SEARCH_OPTION_LIST,
     ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_LIST,
-    isOrderDetailListType, isVirtualAccListType, isSelect, isRadio,
+    isMusicChargeDetailType, isOrderDetailListType, isVirtualAccListType, isSelect, isRadio,
 };

@@ -1,9 +1,3 @@
-import { useState } from 'react';
-import { format, subMonths } from 'date-fns'
-
-// type
-import { SearchInfoType } from 'types/etc/etcType';
-
 // component
 import ExtraOverall from './component/ExtraOverall';
 import ExtraDetail from './component/ExtraDetail';
@@ -51,9 +45,9 @@ const ExtraContainer = () => {
             { itemName: ['발급 수', '금액'], className: 'height-63' },
             { itemName: ['사용 수', '금액'], className: 'height-63' },
             { itemName: ['유효기간 소멸 수', '금액'], className: 'height-63' },
-            { itemName: ['공급가'], className: 'price-area height-63' },
-            { itemName: ['부가세'], className: 'price-area height-63' },
-            { itemName: ['합계'], className: 'price-area height-63' },
+            { itemName: ['적립'], className: 'price-area height-63' },
+            { itemName: ['사용'], className: 'price-area height-63' },
+            { itemName: ['유효기간 소멸'], className: 'price-area height-63' },
         ],
     ];
 
