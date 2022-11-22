@@ -26,19 +26,19 @@ const BoardDetail = loadable(() => import('pages/board/component/detail/BoardDet
 const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD }) => {
 
     const { bType = "0", bId = "0" } = useParams();
-    const boardType = parseInt(bType) as BoardInfo['type'] | 0;
+    const boardType = Number(bType) as BoardInfo['type'] | 0;
     // 숫자이고, 0보다 크고, 현재 게시판 탭 그룹에 속해 있을때
     const isBoardGroupType = !Utils.strNumberCheck(bType) && boardType > 0 && Object.values(BOARD_GROUP[menuType]).filter((boardInfo) => boardInfo.type === boardType).length > 0;
+    
+    // 게시판 타입이 아닐 시 이전페이지로 이동
     const navigation = useNavigate();
-
-     // 게시판 타입이 아닐 시 이전페이지로 이동
     useEffect(() => {
         if (boardType > 0 && !isBoardGroupType) navigation(-1);
     }, [boardType, isBoardGroupType, navigation]);
 
     // 게시판 탭 변경 & 게시판 상세 이동
     useEffect(() => {
-        const boardId = parseInt(bId);
+        const boardId = Number(bId);
         const isBoardId = !Utils.strNumberCheck(bId) && boardId > 0;
 
         if (boardType === 0) { // 페이지 처음 로딩 시
@@ -57,17 +57,18 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
 
     const { userInfo } = useRecoilValue(loginState);
     const fCode = useRecoilValue(franState);
-    useEffect(() => {
+    useEffect(() => { // 유저정보, 가맹점 코드 변경 시 listSearchParameter 갱신
         setListSearchParameter(prev => ({ ...prev, f_code: fCode, staff_no: userInfo.staff_no }));
     }, [fCode, userInfo]);
-    
+
     // 리스트 검색 정보
     const [initialSearchCategory, initialSearchText] = Object.values(BOARD_GROUP[menuType]).reduce((arr, cur) => {
         arr[0][cur.type] = 0;
         arr[1][cur.type] = '';
         return arr;
-    }, [{} as { [key in BoardInfo['type']]: number }, {} as { [key in BoardInfo['type']]: string }]);
+    }, [{}, {}] as [ListSearchParameter['search_category'], ListSearchParameter['search_text']]);
     
+    // 리스트 조회에 필요한 파라미터
     const [listSearchParameter, setListSearchParameter] = useState<ListSearchParameter>({
         f_code: fCode,
         staff_no: userInfo.staff_no,

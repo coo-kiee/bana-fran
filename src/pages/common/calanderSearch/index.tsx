@@ -11,6 +11,7 @@ import { SearchInfoType, SearchInfoSelectType, SearchInfoRadioType, isSelect, is
 
 interface CalendarSearchProps {
     title?: string, // 제목
+    dateTitle?: string, // 날짜제목
     dateType: string, // 날짜 형식 ... ex) yyyy-MM-dd  
     searchInfo: SearchInfoType | SearchInfoSelectType | SearchInfoRadioType, // 검색 날짜, 옵션 관련 상태
     setSearchInfo: any, // searchInfo setState
@@ -24,7 +25,7 @@ interface CalendarSearchProps {
     showFullMonthYearPicker?: boolean, // 월만 보여주는 Datepicker 활성화 (기본값 false)
 }
 
-const CalanderSearch: React.FC<CalendarSearchProps> = ({ title, dateType, searchInfo, setSearchInfo, optionType = 'SELECT', selectOption, radioOption, optionList, handleSearch, minDate, showMonthYearPicker = false, showFullMonthYearPicker = false }) => {
+const CalanderSearch: React.FC<CalendarSearchProps> = ({ title, dateTitle, dateType, searchInfo, setSearchInfo, optionType = 'SELECT', selectOption, radioOption, optionList, handleSearch, minDate, showMonthYearPicker = false, showFullMonthYearPicker = false }) => {
     // TODO: Select onChange 변경
     const handleSearchSelect = (e: React.ChangeEvent<HTMLSelectElement>, idx1: number) => {
         let target = { value: e.target.value, title: e.target.childNodes[e.target.selectedIndex].textContent };
@@ -59,6 +60,7 @@ const CalanderSearch: React.FC<CalendarSearchProps> = ({ title, dateType, search
         <>
             {title && <p className="title bullet">{title}</p>}
             <div className="search-wrap">
+                {dateTitle && <p className="title">{dateTitle}</p>}
                 <div className="input-wrap">
                     <SearchCalendarItem date={searchInfo.from} dateType={dateType} updateDate={(date) => setSearchInfo((prev: any) => ({ ...prev, from: format(date!, dateType) }))} minDate={minDate} showMonthYearPicker={showMonthYearPicker} showFullMonthYearPicker={showFullMonthYearPicker} />
                     <i>~</i>

@@ -36,19 +36,18 @@ const PointDetailTable: FC<PointDetailTableProps> = ({ userInfo }) => {
     const fromDate = format(subMonths(new Date(), 1), 'yyyy-MM-01');
     const toDate = format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd');
     const [searchCondition, setSearchCondition] = useState<SearchCondition>({
-        from: fromDate,
-        to: toDate,
-        searchOption: [POINT_TYPE.ALL, DEVICE_TYPE.ALL,],
-        triggerFromDate: Utils.converDateFormat(fromDate, '-'), // query trigger
-        triggertoDate: Utils.converDateFormat(toDate, '-'), // query trigger
+        from: fromDate, // 달력 선택 정보
+        to: toDate, // 달력 선택 정보
+        searchOption: [POINT_TYPE.ALL, DEVICE_TYPE.ALL,], // 필터링 옵션
+        searchTrigger: false, // query trigger
     });
 
     // 테이블 상단 정보
     const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
         titleFrom: Utils.converDateFormat(searchCondition.from, '-'),
         titleTo: Utils.converDateFormat(searchCondition.to, '-'),
-        totalChargePoint: 0,
-        totalPointChange: 0,
+        totalChargePoint: 0, // 충전포인트 합계
+        totalPointChange: 0, // 잔돈포인트 합계
     });
 
     const [pageInfo, setPageInfo] = useState({
@@ -58,18 +57,20 @@ const PointDetailTable: FC<PointDetailTableProps> = ({ userInfo }) => {
     });
 
     const { width, thInfo, tdInfo } = TABLE_COLUMN_INFO;
-    const tableRef = useRef<HTMLTableElement | null>(null);
+    const tableRef = useRef<HTMLTableElement | null>(null); // 엑셀 다운에 사용
 
     return (
         <>
-            <TableTop searchCondition={searchCondition} setSearchCondition={setSearchCondition} tableTopInfo={tableTopInfo} setTableTopInfo={setTableTopInfo} />
+            <TableTop searchCondition={searchCondition} setSearchCondition={setSearchCondition} tableTopInfo={tableTopInfo} />
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
-                <tbody>
-                    {/* Table Header  */}
+                {/* Table Header  */}
+                <thead>
                     <tr>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr>
                     <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
+                </thead>
+                <tbody>
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
                         <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
@@ -92,17 +93,14 @@ interface TableTopProps {
     searchCondition: SearchCondition,
     setSearchCondition: React.Dispatch<React.SetStateAction<SearchCondition>>,
     tableTopInfo: TableTopInfo,
-    setTableTopInfo: React.Dispatch<React.SetStateAction<TableTopInfo>>,
 };
-const TableTop: FC<TableTopProps> = ({ searchCondition, setSearchCondition, tableTopInfo, setTableTopInfo }) => {
+const TableTop: FC<TableTopProps> = ({ searchCondition, setSearchCondition, tableTopInfo }) => {
 
     const { titleFrom, titleTo, totalChargePoint, totalPointChange } = tableTopInfo;
 
+    // 조회 버튼 클릭
     const handleSearch = () => {
-        const { from, to } = searchCondition;
-        const triggerFromDate = Utils.converDateFormat(from, '-');
-        const triggertoDate = Utils.converDateFormat(to, '-');
-        setSearchCondition(prev => ({ ...prev, triggerFromDate, triggertoDate }));
+        setSearchCondition(prev => ({ ...prev, searchTrigger: !prev.searchTrigger }));
     };
 
     return (
@@ -154,9 +152,13 @@ interface TableListProps {
 const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTableTopInfo, pageInfo, setPageInfo }) => {
 
     const { currentPage, row } = pageInfo;
-    const { searchOption, triggerFromDate, triggertoDate } = searchCondition;
-    const listQueryKey = ['calculatePointDetail', JSON.stringify({ fCode, staffNo, triggerFromDate, triggertoDate })];
-    const { data: pointDetailList } = CALCULATE_SERVICE.useCalculatePointDetail(listQueryKey, fCode, staffNo, triggerFromDate, triggertoDate);
+    const { searchOption, from, to, searchTrigger } = searchCondition;
+    const fromDate = Utils.converDateFormat(from, '-');
+    const toDate = Utils.converDateFormat(to, '-');
+    
+    // eslint-disable-next-line
+    const listQueryKey = useMemo(() => ['calculatePointDetail', JSON.stringify({ fCode, staffNo, fromDate, toDate })], [fCode, staffNo, searchTrigger]);
+    const { data: pointDetailList } = CALCULATE_SERVICE.useCalculatePointDetail(listQueryKey, fCode, staffNo, fromDate, toDate);
 
     // Table render Node 필터링, 충전/잔돈 포인트 합계 계산
     const [renderTableList, totalChargePoint, totalPointChange] = useMemo(() => {
@@ -202,13 +204,14 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
     useEffect(() => {
-        if (renderTableList) setPageInfo(prev => ({ ...prev, dataCnt: renderTableList.length }));
+        if (renderTableList) setPageInfo(prev => ({ ...prev, dataCnt: renderTableList.length, currentPage: 1 }));
     }, [setPageInfo, renderTableList]);
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, titleFrom:triggerFromDate, titleTo:triggertoDate, totalChargePoint, totalPointChange }));
-    }, [setTableTopInfo, triggerFromDate, triggertoDate, totalChargePoint, totalPointChange]);
+        setTableTopInfo(prev => ({ ...prev, titleFrom: fromDate, titleTo: toDate, totalChargePoint, totalPointChange }));
+        // eslint-disable-next-line
+    }, [setTableTopInfo, totalChargePoint, totalPointChange]);
 
     return (
         <>
@@ -252,7 +255,7 @@ const TableBottom: FC<TableBottomProps> = ({ fCodeName, tableTopInfo, tableRef, 
             const options = {
                 type: 'table', // 필수 O
                 sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: TABLE_COLUMN_INFO.width.map(wpx => ({ wpx: parseInt(wpx) * 1.2 })), // 셀 너비 설정, 필수 X
+                colspan: TABLE_COLUMN_INFO.width.map(wpx => ({ wpx: Number(wpx) * 1.2 })), // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X
                 // addLineHeader: ['발행일시\nTT'], // 줄바꿈 원하는곳에 \n 넣기!! - br Tag 외 \n, p, span 등 줄바꿈 안되는 헤더명 입력, 필수 X
                 sheetName: '', // 시트이름, 필수 X
@@ -311,8 +314,7 @@ const DEVICE_TYPE = {
 } as const;
 
 interface SearchCondition extends SearchInfoSelectType {
-    triggerFromDate: string,
-    triggertoDate: string,
+    searchTrigger: boolean,
 };
 
 type TableTopInfo = {

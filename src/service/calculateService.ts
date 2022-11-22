@@ -240,6 +240,36 @@ const useCalculateCouponDetail: CouponDetailParameter = (queryKey, f_code, staff
     });
 };
 
+// 고객 클레임 보상내역 상세
+type ClaimDetailParameter = (
+    queryKey: string | Array<string>,
+    f_code: number,
+    staffNo: number,
+    from_date: string,
+    to_date: string,
+    option?: { [key: string]: any },
+) => UseQueryResult<CalculatePointDetail[], unknown>;
+const useCalculateClaimDetail: ClaimDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
+
+    const data = {
+        ws: "fprocess",
+        query: "6HURAKO83BCYD8ZXBORH", // web_fran_s_calculate_paid_point_list
+        params: {
+            f_code,
+            from_date,
+            to_date,
+        },
+    };
+
+    return useQuery<any[]>(queryKey, () => queryFn.getDataList(data), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        suspense: option.suspense ? option.suspense : true,
+        enabled: staffNo > 0,
+    });
+};
+
 // 기타 정산 내역 상세
 type EtcDetailParameter = (
     queryKey: string | Array<string>,
@@ -280,4 +310,6 @@ export default {
     useCalculatePointDetail,
     useCalculateCouponType,
     useCalculateCouponDetail,
+    useCalculateClaimDetail,
+    useCalculateEtcDetail,
 };

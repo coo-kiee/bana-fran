@@ -1,19 +1,25 @@
+// Date
+import { format, lastDayOfMonth, subMonths } from "date-fns";
 
 // Type
-import { FC } from "react";
-import { CALCULATE_TYPE } from "types/calculate/calculateType";
+import { FC, useState } from "react";
+import { CALCULATE_TYPE, CLAIM_TAB_TYPE, TabType } from "types/calculate/calculateType";
 
 // State
 import { franState, loginState } from "state";
 import { useRecoilValue } from "recoil";
+
+// Util
+import Utils from "utils/Utils";
 
 // Component
 import CalculateHeader from "pages/calculate/component/CalculateHeader";
 import CalculatePrecautions from "pages/calculate/component/CalculatePrecautions";
 import ClaimDetailTable from "./ClaimDetailTable";
 import CalculateLastMonthTable from "pages/calculate/component/CalculateLastMonthTable";
+import ClaimTab from "./ClaimTab";
 
-const CalculateClaim: FC = ({ }) => {
+const CalculateClaim: FC = () => {
 
     const caculateType = CALCULATE_TYPE.CLAIM;
 
@@ -22,6 +28,16 @@ const CalculateClaim: FC = ({ }) => {
     const f_code = useRecoilValue(franState);
     const f_code_name = userInfo?.f_list[0]?.f_code_name || '';
     const staff_no = userInfo?.staff_no || 0;
+
+    const [tabType, setTabType] = useState<TabType>(CLAIM_TAB_TYPE.CLAIM);
+    const fromDate = format(subMonths(new Date(), 1), 'yyyy-MM-01');
+    const toDate = format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd');
+    const initialSearchDate = Object.values(CLAIM_TAB_TYPE).reduce((arr, cur) => {
+        arr[cur] = { fromDate: Utils.converDateFormat(fromDate, '-'), toDate: Utils.converDateFormat(toDate, '-') };
+        return arr
+    }, {} as TabSearchDateInfo);
+    
+    const [tabSearchDateInfo, setTabSearchDateInfo] = useState<TabSearchDateInfo>(initialSearchDate);
 
     return (
         <>
@@ -32,7 +48,10 @@ const CalculateClaim: FC = ({ }) => {
                         <CalculatePrecautions caculateType={caculateType} />
                         <div className="board-date-wrap">
                             <CalculateLastMonthTable userInfo={{ f_code, f_code_name, staff_no }} caculateType={caculateType} />
-                            <ClaimDetailTable userInfo={{ f_code, f_code_name, staff_no }} />
+                            <div id="tab1" className="tab-content active">
+                                <ClaimTab tabType={tabType} setTabType={setTabType}/>
+                                <ClaimDetailTable tabType={tabType} userInfo={{ f_code, f_code_name, staff_no }} tabSearchDateInfo={tabSearchDateInfo} setTabSearchDateInfo={setTabSearchDateInfo} />
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -42,3 +61,11 @@ const CalculateClaim: FC = ({ }) => {
 }
 
 export default CalculateClaim;
+
+
+
+
+// Component Type
+export type TabSearchDateInfo = {
+    [key in TabType]: { fromDate: string, toDate: string }
+};

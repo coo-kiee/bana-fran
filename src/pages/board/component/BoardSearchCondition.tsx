@@ -21,7 +21,7 @@ const BoardSearchCondition: FC<BoardSearchConditionProps> = ({ boardType, staffN
 
     // 카테고리 변경
     const handleSearchCategory: ChangeEventHandler<HTMLSelectElement> = (e) => {
-        const value = parseInt(e.currentTarget.value);
+        const value = Number(e.currentTarget.value);
         const newCategoryObj = { ...searchCategory, [boardType]: value };
         setListSearchParameter(prev => ({ ...prev, search_category: newCategoryObj, page_idx: 1 }));
     };

@@ -49,7 +49,7 @@ type CalculateFixDetail = {
     change_data: string, // 변경 후
 };
 
-// 정산관리 - 포인트, 쿠폰 ,클레임, 기타 전월 결제내역
+// 포인트, 쿠폰 ,클레임, 기타 전월 결제내역
 type CalculateDetailSum = {
     from_date: string, // 정산기간
     to_date:string, // 정산기간
@@ -60,7 +60,7 @@ type CalculateDetailSum = {
     total_amt: number, // 합계
 };
 
-// 정산관리 - 포인트 상세내역
+// 유상포인트 결제내역 상세
 type CalculatePointDetail = {
     rcp_date: string, // 결제일시
     item_name: string, // 주문 메뉴
@@ -73,6 +73,7 @@ type CalculatePointDetail = {
     vat_amt: number, // 유상포인트 결제금액 부가세
 };
 
+// 본사 쿠폰 결제내역 상세
 type CalculateCouponDetail = {
     rcp_date: string, // 결제일시
     item_type: string, // 쿠폰
@@ -85,11 +86,18 @@ type CalculateCouponDetail = {
     vat_amt: number, // 본사발행 쿠폰 결제내역 부가세
 };
 
+// 고객 클레임 보상내역 탭
+const CLAIM_TAB_TYPE = {
+    CLAIM: 'claim',
+    CALCULATE: 'calculate',
+} as const;
+type TabType = typeof CLAIM_TAB_TYPE[keyof typeof CLAIM_TAB_TYPE];
+
 export {
-    CALCULATE_TYPE, CALCULATE_STATUS
+    CALCULATE_TYPE, CALCULATE_STATUS, CLAIM_TAB_TYPE
 };
 
 export type {
     CalculateType, CalculateDetail, CalculateDetailOut, CalculateStatusType, CalculateFixDetail,
-    CalculateDetailSum, CalculatePointDetail, CalculateCouponDetail,
+    CalculateDetailSum, CalculatePointDetail, CalculateCouponDetail, TabType
 };

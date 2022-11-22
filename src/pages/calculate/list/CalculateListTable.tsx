@@ -159,7 +159,7 @@ const TableList: FC<TableListProps> = ({ listQuerykey, fCode, staffNo, searchDat
     const { data } = CALCULATE_SERVICE.useCalculateDetailList(listQuerykey, fCode, staffNo, searchDate);
 
     const caculateList = data?.list as CalculateDetail[];
-    const { calculate_status, calculate_id, error_msg } = data?.out as CalculateDetailOut;
+    const { calculate_status, calculate_id, error_msg } = data?.out as CalculateDetailOut || {};
     const sumAll = data?.sumAll as number;
 
     useEffect(() => {

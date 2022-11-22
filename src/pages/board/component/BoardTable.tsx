@@ -84,7 +84,7 @@ const TableList: FC<TableListProps> = ({ menuType, listSearchParameter, setDataC
                 list?.map((board, index) => {
 
                     const { category_name, title, attach_cnt, insert_date, rownum, important, board_id } = board;
-                    const rowNumInt = totalCnt - parseInt(rownum) + 1;
+                    const rowNumInt = totalCnt - Number(rownum) + 1;
                     const isEndBoard = index === (totalCnt - 1);
                     const isImportant = important === "1";
 

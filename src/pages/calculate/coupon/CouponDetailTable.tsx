@@ -42,10 +42,10 @@ const CouponDetailTable: FC<CouponDetailTableProps> = ({ userInfo }) => {
             const [couponObj, tableTopTotalObj] = couponList.reduce((res, cur) => {
                 const title = cur.code_name;
                 const value = cur.code;
-                res[0][value] = { title, value };
-                res[1][value] = { title, sum: 0 };
+                res[0][value] = { title, value }; // couponObj
+                res[1][value] = { title, sum: 0 }; // tableTopTotalObj
                 return res;
-            }, [{} as CouponType, {} as sumInfo]);
+            }, [{}, {}] as [CouponType, sumInfo]);
             setCouponType(prev => ({ ...prev, ...couponObj }));
             setTableTopInfo(prev => ({ ...prev, ...tableTopTotalObj }));
         };
@@ -55,11 +55,10 @@ const CouponDetailTable: FC<CouponDetailTableProps> = ({ userInfo }) => {
     const fromDate = format(subMonths(new Date(), 1), 'yyyy-MM-01');
     const toDate = format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd');
     const [searchCondition, setSearchCondition] = useState<SearchCondition>({
-        from: fromDate,
-        to: toDate,
-        searchOption: [couponType[0], DEVICE_TYPE.ALL,],
-        triggerFromDate: Utils.converDateFormat(fromDate, '-'), // query trigger
-        triggertoDate: Utils.converDateFormat(toDate, '-'), // query trigger
+        from: fromDate, // 달력 선택 정보
+        to: toDate, // 달력 선택 정보
+        searchOption: [couponType[0], DEVICE_TYPE.ALL,], // 필터링 옵션
+        searchTrigger: false, // query trigger
     });
 
     // 테이블 상단 정보
@@ -77,28 +76,32 @@ const CouponDetailTable: FC<CouponDetailTableProps> = ({ userInfo }) => {
     });
 
     const { width, thInfo, tdInfo } = TABLE_COLUMN_INFO;
-    const tableRef = useRef<HTMLTableElement | null>(null);
+    const tableRef = useRef<HTMLTableElement | null>(null); // 엑셀 다운에 사용
 
     return (
-        <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('CouponDetailTop', e)}>
+        <>
             <TableTop couponType={couponType} searchCondition={searchCondition} setSearchCondition={setSearchCondition} tableTopInfo={tableTopInfo} />
-            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                {/* Column Width */}
-                <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
-                <tbody>
+            <div>
+                <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
+                    {/* Column Width */}
+                    <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
                     {/* Table Header  */}
-                    <tr>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr>
-                    <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
-                    {/* List */}
-                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
-                        <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
-                            <TableList couponType={couponType} fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
-                        </Suspense>
-                    </ErrorBoundary>
-                </tbody>
-            </table>
+                    <thead>
+                        <tr>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr>
+                        <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
+                    </thead>
+                    <tbody>
+                        {/* List */}
+                        <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
+                            <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
+                                <TableList couponType={couponType} fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
+                            </Suspense>
+                        </ErrorBoundary>
+                    </tbody>
+                </table>
+            </div>
             < TableBottom fCodeName={f_code_name} tableRef={tableRef} tableTopInfo={tableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
-        </ErrorBoundary>
+        </>
     );
 }
 
@@ -117,12 +120,11 @@ const TableTop: FC<TableTopProps> = ({ couponType, searchCondition, setSearchCon
 
     const { titleFrom, titleTo } = tableTopInfo;
 
+    // 조회 버튼 클릭
     const handleSearch = () => {
-        const { from, to } = searchCondition;
-        const triggerFromDate = Utils.converDateFormat(from, '-');
-        const triggertoDate = Utils.converDateFormat(to, '-');
-        setSearchCondition(prev => ({ ...prev, triggerFromDate, triggertoDate }));
+        setSearchCondition(prev => ({ ...prev, searchTrigger: !prev.searchTrigger }));
     };
+
 
     return (
         <>
@@ -177,10 +179,13 @@ interface TableListProps {
 const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondition, setTableTopInfo, pageInfo, setPageInfo }) => {
 
     const { currentPage, row } = pageInfo;
-    const { searchOption, triggerFromDate, triggertoDate } = searchCondition;
-    const listQueryKey = ['calculateCouponDetail', JSON.stringify({ fCode, staffNo, triggerFromDate, triggertoDate })];
+    const { searchOption, from, to, searchTrigger } = searchCondition;
+    const fromDate = Utils.converDateFormat(from, '-');
+    const toDate = Utils.converDateFormat(to, '-');
 
-    const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetail(listQueryKey, fCode, staffNo, triggerFromDate, triggertoDate);
+    // eslint-disable-next-line
+    const listQueryKey = useMemo(() => ['calculateCouponDetail', JSON.stringify({ fCode, staffNo, fromDate, toDate })], [fCode, staffNo, searchTrigger]);
+    const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetail(listQueryKey, fCode, staffNo, fromDate, toDate);
 
     // Table render Node 필터링, 쿠폰 사용금액 합계 계산
     const [renderTableList, totalSumObj] = useMemo(() => {
@@ -205,7 +210,7 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
             sumObj.allCouponSum += total_amt;
 
             // 필터링 조건
-            const showCoupon = parseInt(searchOption[0].value + '');
+            const showCoupon = Number(searchOption[0].value);
             const isCouponType = showCoupon === couponType[0].value || showCoupon === item_type_code;
             const isDeviceType = searchOption[1].value === DEVICE_TYPE.ALL.value || searchOption[1].value === rcp_type;
 
@@ -232,13 +237,14 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
     useEffect(() => {
-        if (renderTableList) setPageInfo(prev => ({ ...prev, dataCnt: renderTableList.length }));
+        if (renderTableList) setPageInfo(prev => ({ ...prev, dataCnt: renderTableList.length, currentPage: 1 }));
     }, [setPageInfo, renderTableList]);
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, ...totalSumObj, titleFrom: triggerFromDate, titleTo: triggertoDate }));
-    }, [setTableTopInfo, triggerFromDate, totalSumObj, triggertoDate, renderTableList]);
+        setTableTopInfo(prev => ({ ...prev, ...totalSumObj, titleFrom: fromDate, titleTo: toDate }));
+        // eslint-disable-next-line
+    }, [setTableTopInfo, totalSumObj, renderTableList]);
 
     return (
         <>
@@ -282,7 +288,7 @@ const TableBottom: FC<TableBottomProps> = ({ fCodeName, tableTopInfo, tableRef, 
             const options = {
                 type: 'table', // 필수 O
                 sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: TABLE_COLUMN_INFO.width.map(wpx => ({ wpx: parseInt(wpx) * 1.2 })), // 셀 너비 설정, 필수 X
+                colspan: TABLE_COLUMN_INFO.width.map(wpx => ({ wpx: Number(wpx) * 1.2 })), // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, // 색상 넣을 행(rgb #빼고 입력), 필수 X
                 // addLineHeader: ['발행일시\nTT'], // 줄바꿈 원하는곳에 \n 넣기!! - br Tag 외 \n, p, span 등 줄바꿈 안되는 헤더명 입력, 필수 X
                 sheetName: '', // 시트이름, 필수 X
@@ -333,8 +339,7 @@ const DEVICE_TYPE = {
 } as const;
 
 interface SearchCondition extends SearchInfoSelectType {
-    triggerFromDate: string,
-    triggertoDate: string,
+    searchTrigger: boolean,
 };
 
 type CouponType = {

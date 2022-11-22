@@ -27,6 +27,6 @@ const HEADER_SUBTITLE = {
     [CALCULATE_TYPE.LIST]: '정산내역 확인',
     [CALCULATE_TYPE.POINT]: '유상포인트 결제내역',
     [CALCULATE_TYPE.COUPON]: '본사 쿠폰 결제내역',
-    [CALCULATE_TYPE.CLAIM]: '고객 클레임 보상 내역',
+    [CALCULATE_TYPE.CLAIM]: '고객 클레임 보상내역',
     [CALCULATE_TYPE.ETC]: '기타 정산 내역',
 } as const;

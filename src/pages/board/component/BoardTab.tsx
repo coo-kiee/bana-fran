@@ -16,7 +16,7 @@ const BoardTab: FC<BoardTabProps> = ({ menuType, boardType, detailInfo }) => {
     
     // Tab(BoardInfo) 변경
     const handleBoardInfo: MouseEventHandler<HTMLDivElement> = (e) => {
-        const bType = parseInt(e.currentTarget.dataset.type as string) as BoardInfo['type'];
+        const bType = Number(e.currentTarget.dataset.type as string) as BoardInfo['type'];
         navigation(`/${menuType}/${bType}${detailInfo[bType] > 0 ? '/' + detailInfo[bType] : ''}`); // 이동하려는 게시판(탭)에 boardId 있으면 URL 파리미터 추가
     };
 

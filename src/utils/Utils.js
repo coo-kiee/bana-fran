@@ -302,7 +302,7 @@ export default class Utils {
             
             // 엑셀 정렬 스타일 추가 - 문자열: 가운데 정렬, 자동줄바꿈 / 숫자: 오른쪽 정렬, 3자리마다 ',' 표시
             const isSellAddress  = /[A-Z]{1,3}\d{1,5}/;
-            const isAmount = /^([0-9]{1,3}(,[0-9]{3})*)$|%|\d개|\d원$|\dP$|\d장|^\+|^\-/;
+            const isAmount = /^([0-9]{1,3}(,[0-9]{3})*)$|%|\d개|\d원$|\dP$|\d장|^\+\d$|^\-\d$/;
             const checkAddLineHeader = addLineHeader.map(item => item?.replace('\n', ' ')); // 라인 추가할 헤더 체크값 변환
             Object.entries(workSheet).reduce((res, cur) => {
                 const key = cur[0];

@@ -33,7 +33,7 @@ const Pagination:FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, h
 
     // 페이지 번호 클릭
     const handlePage: MouseEventHandler<HTMLElement> = (e) => {
-        const changePage = parseInt(e.currentTarget.innerText);
+        const changePage = Number(e.currentTarget.innerText);
         handlePageChange(changePage);
     };
     
@@ -56,7 +56,7 @@ const Pagination:FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, h
     // 리스트 개수 선택
     const rows = [3, 50, 100, 150, 200];
     const handleListRow:ChangeEventHandler<HTMLSelectElement> = (e) => {
-        const row = parseInt(e.currentTarget.value);
+        const row = Number(e.currentTarget.value);
         handlePageRow(row);
         handlePageChange(1);
     };
