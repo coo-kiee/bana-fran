@@ -310,7 +310,10 @@ export default class Utils {
                 // if (isSellAddress.test(key) && (isAmount.test(value.v))) console.log(key, value);
                 // if(isSellAddress.test(key) && isAmount.test(value.v)) res[key].t = 'n'; // 금액 타입 숫자로 변경 - 저장 후 파일 열면 에러 메세지 발생(내용에만 문제 없음)
                 // if (value.t && isSellAddress.test(key)) res[key] = value.t !== 'n' ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } } : { ...value, z: "#,##0", s: { ...value.s, alignment: { vertical: "center", horizontal: "right" } } };
-                if (value.t && isSellAddress.test(key)) res[key] = isAmount.test(value.v) ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "right", wrapText: true } } } : { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } };
+
+                // 숫자는 오른쪽 정렬 및 ,(콤마) 제거, 텍스트는 가운데 정렬
+                if (value.t && isSellAddress.test(key)) res[key] = isAmount.test(value.v) ? { ...value, v: (value.v).replace(',', ''), s: { ...value.s, alignment: { vertical: "center", horizontal: "right", wrapText: true } } } : { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } };
+                
                 // addRowColor 행의 색상 추가
                 rowNums?.forEach((rowNum, index) => {
                     if (addRowColorCellGroup[rowNum].includes(key)) res[key].s = { ...res[key].s, fill: { fgColor: { rgb: rowColors[index] || 'd3d3d3' } }};
