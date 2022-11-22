@@ -15,9 +15,9 @@ import Utils from "utils/Utils";
 // Component
 import CalculateHeader from "pages/calculate/component/CalculateHeader";
 import CalculatePrecautions from "pages/calculate/component/CalculatePrecautions";
-import ClaimDetailTable from "./ClaimDetailTable";
+import CalculateClaimDetailTable from "./CalculateClaimDetailTable";
 import CalculateLastMonthTable from "pages/calculate/component/CalculateLastMonthTable";
-import ClaimTab from "./ClaimTab";
+import CalculateClaimTab from "./CalculateClaimTab";
 
 const CalculateClaim: FC = () => {
 
@@ -49,8 +49,8 @@ const CalculateClaim: FC = () => {
                         <div className="board-date-wrap">
                             <CalculateLastMonthTable userInfo={{ f_code, f_code_name, staff_no }} caculateType={caculateType} />
                             <div id="tab1" className="tab-content active">
-                                <ClaimTab tabType={tabType} setTabType={setTabType}/>
-                                <ClaimDetailTable tabType={tabType} userInfo={{ f_code, f_code_name, staff_no }} tabSearchDateInfo={tabSearchDateInfo} setTabSearchDateInfo={setTabSearchDateInfo} />
+                                <CalculateClaimTab tabType={tabType} setTabType={setTabType}/>
+                                <CalculateClaimDetailTable tabType={tabType} userInfo={{ f_code, f_code_name, staff_no }} tabSearchDateInfo={tabSearchDateInfo} setTabSearchDateInfo={setTabSearchDateInfo} />
                             </div>
                         </div>
                     </div>

@@ -10,7 +10,7 @@ import { useRecoilValue } from "recoil";
 // Component
 import CalculateHeader from "pages/calculate/component/CalculateHeader";
 import CalculatePrecautions from "pages/calculate/component/CalculatePrecautions";
-import EtcDetailTable from "./EtcDetailTable";
+import CalculateEtcDetailTable from "./CalculateEtcDetailTable";
 import CalculateLastMonthTable from "pages/calculate/component/CalculateLastMonthTable";
 
 const CalculateEtc: FC = () => {
@@ -32,7 +32,7 @@ const CalculateEtc: FC = () => {
                         <CalculatePrecautions caculateType={caculateType} />
                         <div className="board-date-wrap">
                             <CalculateLastMonthTable userInfo={{ f_code, f_code_name, staff_no }} caculateType={caculateType} />
-                            <EtcDetailTable userInfo={{ f_code, f_code_name, staff_no }} />
+                            <CalculateEtcDetailTable userInfo={{ f_code, f_code_name, staff_no }} />
                         </div>
                     </div>
                 </section>

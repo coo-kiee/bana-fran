@@ -7,7 +7,7 @@ interface ClaimTabProps {
     tabType: TabType,
     setTabType: React.Dispatch<React.SetStateAction<TabType>>,
 };
-const ClaimTab: FC<ClaimTabProps> = ({ tabType, setTabType }) => {
+const CalculateClaimTab: FC<ClaimTabProps> = ({ tabType, setTabType }) => {
 
     const handleTab:MouseEventHandler<HTMLElement> = (e) => {
         const value = e.currentTarget.dataset.type as TabType;
@@ -27,7 +27,7 @@ const ClaimTab: FC<ClaimTabProps> = ({ tabType, setTabType }) => {
     );
 }
 
-export default ClaimTab;
+export default CalculateClaimTab;
 
 
 

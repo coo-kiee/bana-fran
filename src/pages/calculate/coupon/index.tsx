@@ -11,7 +11,7 @@ import { useRecoilValue } from "recoil";
 // Component
 import CalculateHeader from "pages/calculate/component/CalculateHeader";
 import CalculatePrecautions from "pages/calculate/component/CalculatePrecautions";
-import CouponDetailTable from "./CouponDetailTable";
+import CalculateCouponDetailTable from "./CalculateCouponDetailTable";
 import CalculateLastMonthTable from "pages/calculate/component/CalculateLastMonthTable";
 
 const CalculateCoupon: FC = () => {
@@ -33,7 +33,7 @@ const CalculateCoupon: FC = () => {
                         <CalculatePrecautions caculateType={caculateType} />
                         <div className="fixed-paid-point-wrap">
                             <CalculateLastMonthTable userInfo={{ f_code, f_code_name, staff_no }} caculateType={caculateType} />
-                            <CouponDetailTable userInfo={{ f_code, f_code_name, staff_no }} />
+                            <CalculateCouponDetailTable userInfo={{ f_code, f_code_name, staff_no }} />
                         </div>
                     </div>
                 </section>
