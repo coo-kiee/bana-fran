@@ -232,7 +232,7 @@ export default class Utils {
         addLineHeader: ['발행\n일시'], // 줄바꿈 원하는곳에 \n 넣기!! - br Tag 외 \n, p, span 등 줄바꿈 안되는 헤더명 입력, 필수 X
     };
     */
-    static excelDownload = (downloadDatas, options, fileName) => {
+    static excelDownload = (downloadDatas, options, fileName, displayAll = true) => {
 
         // 엑셀 워크북 생성
         const book = xlsx.utils.book_new();
@@ -277,7 +277,7 @@ export default class Utils {
             workSheet['!cols'] = [ ...workSheet['!cols'], ...colspan ];
 
             // 셀 높이 설정
-            workSheet['!rows'] = [ ...workSheet['!rows'], ...rowspan ];
+            workSheet['!rows'] = displayAll ? [ ...rowspan ] : [ ...workSheet['!rows'], ...rowspan ];
 
             // 세부사항 아래 통계행 추가
             if(outline) workSheet['!outline'] = outline;

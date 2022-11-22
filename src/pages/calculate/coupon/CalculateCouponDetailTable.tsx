@@ -214,21 +214,20 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
             const isCouponType = showCoupon === couponType[0].value || showCoupon === item_type_code;
             const isDeviceType = searchOption[1].value === DEVICE_TYPE.ALL.value || searchOption[1].value === rcp_type;
 
-            if (isCouponType && isDeviceType) {
-                arr.push(
-                    <tr key={index}>
-                        <td className="align-center">{date}</td>
-                        <td className="align-left">{item_type}</td>
-                        <td className="align-center">{sItem}</td>
-                        <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                        <td className="align-center">{rcp_type}</td>
-                        <td className="align-center">{phone}</td>
-                        <td className="align-right">{Utils.numberComma(supply_amt)}</td>
-                        <td className="align-right">{Utils.numberComma(vat_amt)}</td>
-                        <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                    </tr>
-                )
-            }
+            arr.push(
+                <tr key={index} style={{ display: isCouponType && isDeviceType ? '' : 'none' }}>
+                    <td className="align-center">{date}</td>
+                    <td className="align-left">{item_type}</td>
+                    <td className="align-center">{sItem}</td>
+                    <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                    <td className="align-center">{rcp_type}</td>
+                    <td className="align-center">{phone}</td>
+                    <td className="align-right">{Utils.numberComma(supply_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(vat_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                </tr>
+            );
+            
             return arr;
         }, [] as ReactNode[]);
 

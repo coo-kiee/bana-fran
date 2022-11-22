@@ -19,6 +19,7 @@ import CalanderSearch from "pages/common/calanderSearch";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import NoData from "pages/common/noData";
 import CalculateDetailTableBottom from "../component/CalculateDetailTableBottom";
+import CalculateDetailTableTop from "../component/CalculateDetailTableTop";
 
 interface CalculatePointDetailTableProps {
     userInfo: {
@@ -71,6 +72,7 @@ const CalculatePointDetailTable: FC<CalculatePointDetailTableProps> = ({ userInf
 
     return (
         <>
+            {/* <CalculateDetailTableTop calanderSearchOption={calanderSearchOption} titleFrom={tableTopInfo.titleFrom} titleTo={tableTopInfo.titleTo} searchResult={[]} searchCondition={searchCondition} setSearchCondition={setSearchCondition} /> */}
             <TableTop searchCondition={searchCondition} setSearchCondition={setSearchCondition} tableTopInfo={tableTopInfo} />
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 {/* Column Width */}
@@ -190,27 +192,27 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
             const isPointType = searchOption[0].value === POINT_TYPE.ALL.value || searchOption[0].value === use_point_type;
             const isDeviceType = searchOption[1].value === DEVICE_TYPE.ALL.value || searchOption[1].value === rcp_type;
 
-            if (isPointType && isDeviceType) {
-                arr.push(
-                    <tr key={index}>
-                        <td className="align-center">{date}</td>
-                        <td className="align-left">{item_name}</td>
-                        <td className="align-center">{phone}</td>
-                        <td className="align-right">{Utils.numberComma(nChargeTotal)}</td>
-                        <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                        <td className="align-center">{use_point_type}</td>
-                        <td className="align-center">{rcp_type}</td>
-                        <td className="align-right">{Utils.numberComma(supply_amt)}</td>
-                        <td className="align-right">{Utils.numberComma(vat_amt)}</td>
-                        <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                    </tr>
-                )
-            }
+            arr.push(
+                <tr key={index} style={{ display: isPointType && isDeviceType ? '' : 'none' }}>
+                    <td className="align-center">{date}</td>
+                    <td className="align-left">{item_name}</td>
+                    <td className="align-center">{phone}</td>
+                    <td className="align-right">{Utils.numberComma(nChargeTotal)}</td>
+                    <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                    <td className="align-center">{use_point_type}</td>
+                    <td className="align-center">{rcp_type}</td>
+                    <td className="align-right">{Utils.numberComma(supply_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(vat_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                </tr>
+            );
+            
             return arr;
         }, [] as ReactNode[]);
 
         return [tableList, ChargePointSum, PointChangeSum];
     }, [pointDetailList, searchOption]);
+    console.log(renderTableList);
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
     useEffect(() => {

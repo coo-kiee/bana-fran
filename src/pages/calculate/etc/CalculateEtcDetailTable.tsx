@@ -41,7 +41,7 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
         searchOption: [ETC_TYPE.ALL],  // 필터링 옵션
         searchTrigger: false, // query trigger
     });
-    
+
     const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
         titleFrom: Utils.converDateFormat(searchCondition.from, '-'),
         titleTo: Utils.converDateFormat(searchCondition.to, '-'),
@@ -181,30 +181,29 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
             // 필터링 조건
             const isPointType = searchOption[0].value === ETC_TYPE.ALL.value || searchOption[0].value === use_point_type;
 
-            if (isPointType) {
-                arr.push(
-                    <tr key={index}>
-                        <td className="align-center">2022/03/01</td>
-                        <td className="align-center">청구</td>
-                        <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
-                        <td className="align-right">130,000</td>
-                        <td className="align-right">130,000</td>
-                        <td className="align-right"><strong>130,000</strong></td>
-                    </tr>
-                    // <tr key={index}>
-                    //     <td className="align-center">{date}</td>
-                    //     <td className="align-left">{item_name}</td>
-                    //     <td className="align-center">{phone}</td>
-                    //     <td className="align-right">{Utils.numberComma(nChargeTotal)}</td>
-                    //     <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                    //     <td className="align-center">{use_point_type}</td>
-                    //     <td className="align-center">{rcp_type}</td>
-                    //     <td className="align-right">{Utils.numberComma(supply_amt)}</td>
-                    //     <td className="align-right">{Utils.numberComma(vat_amt)}</td>
-                    //     <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                    // </tr>
-                )
-            }
+            arr.push(
+                <tr key={index} style={{ display: isPointType ? '' : 'none' }}>
+                    <td className="align-center">2022/03/01</td>
+                    <td className="align-center">청구</td>
+                    <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
+                    <td className="align-right">130,000</td>
+                    <td className="align-right">130,000</td>
+                    <td className="align-right"><strong>130,000</strong></td>
+                </tr>
+                // <tr key={index}>
+                //     <td className="align-center">{date}</td>
+                //     <td className="align-left">{item_name}</td>
+                //     <td className="align-center">{phone}</td>
+                //     <td className="align-right">{Utils.numberComma(nChargeTotal)}</td>
+                //     <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                //     <td className="align-center">{use_point_type}</td>
+                //     <td className="align-center">{rcp_type}</td>
+                //     <td className="align-right">{Utils.numberComma(supply_amt)}</td>
+                //     <td className="align-right">{Utils.numberComma(vat_amt)}</td>
+                //     <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                // </tr>
+            );
+
             return arr;
         }, [] as ReactNode[]);
 
@@ -218,7 +217,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, titleFrom:fromDate, titleTo:toDate, totalBilling, totalConservation }));
+        setTableTopInfo(prev => ({ ...prev, titleFrom: fromDate, titleTo: toDate, totalBilling, totalConservation }));
         // eslint-disable-next-line
     }, [setTableTopInfo, totalBilling, totalConservation]);
 
