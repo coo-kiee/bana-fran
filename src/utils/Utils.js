@@ -32,6 +32,13 @@ export default class Utils {
         return (' ' + e.className + ' ').indexOf(' ' + c + ' ') > -1
     }
 
+    static phoneRegexp = (x) => {
+        // 휴대폰번호 체크 정규식
+        const phoneRegExp = /^01([0|1|6|7|8|9])-?([0-9]{4})-?([0-9]{4})$/
+
+        return phoneRegExp.test(x.toString())
+    }
+
     // 숫자값 체크. (true : 숫자가 아닌값 포함됨.)
     static strNumberCheck = (str) => {
         let regexp = /^[0-9]*$/
@@ -107,6 +114,12 @@ export default class Utils {
 
     static numberComma = function (x) {
         return x ? x.toString().replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,') : x
+    }
+
+    // 비밀번호 체크. (영문,숫자,특수기호 조합 8자리이상)
+    static pwCheck = function(str){
+        let regPass = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/;
+        return regPass.test(str)
     }
 
     /**

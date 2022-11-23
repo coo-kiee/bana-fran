@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'; 
 
 type Props = {
-    handleSendAuthKey : () => void,
-    handleLoginAuth : (param: any) => void,
-    setAuthKeyPage : (param: any) => void
+    loginID : string,
+    loginPW : string,
+    handleReSendAuthKey : () => void,
+    handleChangePassword : (param: any) => void,
+    setPwAuthPage : (param: any) => void
 }
 
 // 인증시간 타이머
@@ -36,38 +38,36 @@ const Timer:React.FC<{endAuthTime : number}> = ({endAuthTime}) => {
 }
 
 const SendAuthKey:React.FC<Props> = (props) => {
-    const { handleSendAuthKey, handleLoginAuth, setAuthKeyPage } = props
+    const { handleReSendAuthKey, handleChangePassword, setPwAuthPage } = props
     const [endAuthTime, setEndAuthTime] = useState<number>(new Date().getTime() + 2 * 60 * 1000)
     const [authKey, setAuthKey] = useState<string>('');
     
     // 인증번호 재발송.
     const reSendAuthKey = () => {
-        handleSendAuthKey()
+        handleReSendAuthKey()
         setEndAuthTime(new Date().getTime() + 2 * 60 * 1000)
     }
 
     // 인증번호 확인.
-    const checkLoginAuthKey = () => {
+    const checkPasswordAuthKey = () => {
         if(endAuthTime < new Date().getTime()){
             alert("인증시간이 초과 되었습니다.")
         }else{
-            handleLoginAuth(authKey)
+            handleChangePassword(authKey)
         }
     }
 
     return (
-        <section className="auth-wrap">
+        <section className="contents-wrap">
             <div className="contents">
                 <p className="description">휴대폰으로 수신된 인증번호를 입력해주세요.</p>
                 <div className="input-wrap">
-                    <input className="input number" placeholder="인증번호 입력" value={authKey} onChange={(e) => { setAuthKey(e.target.value)}}/>
+                    <input className="input number" placeholder="인증번호" value={authKey} onChange={(e) => { setAuthKey(e.target.value)}}/>
                     <button className="resend" onClick={reSendAuthKey}>재발송</button>
                 </div>
                 <Timer endAuthTime={endAuthTime}/>
-            </div>
-            <div className="cta-btn-wrap">
-                <button className="btn-close" onClick={() => setAuthKeyPage(false)}>취소</button>
-                <button className="btn-check" onClick={checkLoginAuthKey}>확인</button>
+                <button className="btn-modify" onClick={() => setPwAuthPage(false)}>취소</button>
+                <button className="btn-modify" onClick={checkPasswordAuthKey}>변경하기</button>
             </div>
         </section>
     )

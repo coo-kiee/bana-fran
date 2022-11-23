@@ -1,9 +1,11 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import Utils from 'utils/Utils';
+import LOGIN_SERVICE from 'service/loginService';
 
 import { useLogin } from 'hooks/useLogin';
 import { useEventKeyCode } from 'hooks/useEventKeyCode';
 import SendAuthKey from './component/SendAuthKey';
+import ResetPassword from './component/ResetPassword';
 
 type LoginInfoType = {
     loginID : string,
@@ -27,6 +29,7 @@ const Login:React.FC = () => {
     })
 
     const [authKeyPage, setAuthKeyPage] = useState<boolean>(false);
+    const [resetPWView, setResetPWView] = useState<boolean>(false);
 
     // 아이디 저장표시.
     useEffect(() => {
@@ -57,9 +60,33 @@ const Login:React.FC = () => {
         }
     }
 
-    // 
-    const handleAuthKey = (authPage:boolean) => {
-        setAuthKeyPage(authPage);
+    // 비밀번호 인증번호 발송. Mutation
+    const sendAuthKey = LOGIN_SERVICE.useSendAuthKey(
+        (error: any) => {
+            console.log("비밀번호 변경 인증 오류", error)
+        },
+        (result: any) => {
+            if(result.return === 1){
+                setAuthKeyPage(true)
+            }else{
+                alert(result.out.sError);
+            }
+        }
+    );
+
+    // 로그인 처리 (인증번호 발송)
+    const handleSendAuthKey = () => {
+        const params = {
+            sID : loginInfo.loginID,
+            sPW : loginInfo.loginPW,
+            sIP : "@ip"
+        }
+        sendAuthKey.mutate(params)
+    }
+
+    // 임시비밀번호 발송 모달.
+    const handleSendTempPW = (view:boolean) => {
+        setResetPWView(view);
     }
 
     // 인증 로그인 처리.(인증키)
@@ -89,7 +116,7 @@ const Login:React.FC = () => {
     }, [authLogin, loginInfo])
 
 
-    // 로그인 처리.(일반)
+    // 로그인 처리.(일반) - 테스트용.
     const handleLogin = useCallback(() => {
         const { loginID, loginPW, chkSaveID } = loginInfo
         if(loginID === ''){
@@ -114,7 +141,7 @@ const Login:React.FC = () => {
         login(params)
     }, [login, loginInfo])
 
-    useEventKeyCode(handleLogin, 'Enter');
+    useEventKeyCode(handleSendAuthKey, 'Enter');
 
     return (
         <article>
@@ -123,7 +150,7 @@ const Login:React.FC = () => {
                     <div className="login-logo">
                         <p className="prologue">바나프레소 가맹점 사이트에 오신것을 환영합니다.</p>
                     </div>
-                    { authKeyPage ? <SendAuthKey  loginID={loginInfo.loginID} loginPW={loginInfo.loginPW} handleAuthKey={handleAuthKey} handleLoginAuth={handleLoginAuth}/>
+                    { authKeyPage ? <SendAuthKey handleSendAuthKey={handleSendAuthKey} handleLoginAuth={handleLoginAuth} setAuthKeyPage={setAuthKeyPage}/>
                        :
                     <section className="input-wrap">
                         <input className="input login" type="text" placeholder="전화번호" name="loginID" value={loginInfo.loginID} onChange={handleChangeData} />
@@ -133,10 +160,10 @@ const Login:React.FC = () => {
                                 <input className="check" type="checkbox" name="chkSaveID" id="id" onChange={handleChangeData} checked={loginInfo.chkSaveID}/>
                                 <label htmlFor="id">아이디 저장</label>
                             </div>
-                            <button className="password-modify">비밀번호 재설정</button>
+                            <button className="password-modify" onClick={() => handleSendTempPW(true)}>비밀번호 재설정</button>
                         </div>
                         <button className="btn-cta" onClick={handleLogin}>로그인</button>
-                        {/* <button className="btn-cta" onClick={()=> handleAuthKey(true)}>로그인</button> */}
+                        {/* <button className="btn-cta" onClick={handleSendAuthKey}>로그인</button> */}
                     </section>
                     }
                 </div>
@@ -153,6 +180,7 @@ const Login:React.FC = () => {
                     </div>
                 </div>
             </section>
+            {resetPWView && <ResetPassword loginID={loginInfo.loginID} handleSendTempPW={handleSendTempPW}/> }
         </article>
     )
 }

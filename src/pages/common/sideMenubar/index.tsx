@@ -127,7 +127,7 @@ const SideMenubar:React.FC = () => {
             {/* 로그아웃 */}
             <div className="user-function">
                 <p><Link to={'#'} onClick={handleLogOut}>로그아웃</Link></p>
-                <p><Link to={'#'}>비밀번호 변경</Link></p>
+                <p><Link to={'/password_change'} >비밀번호 변경</Link></p>
             </div>
         </nav>
     )

@@ -1,21 +1,24 @@
 /* eslint-disable import/no-anonymous-default-export */
-import { useMutation, useQuery } from 'react-query'
+import { useMutation } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
 
 // 인증 문자 발송.
-const useSendAuthKey = (params: Object) => {
-    const reqData = { 
-        ws: "fprocess", 
-        query: "LTW78NBLVBJPKYW6PMVF", 
-        params: params
-    } // web_fran_s_send_auth_key_sms
-    return useQuery('web_fran_s_send_auth_key_sms', () => queryFn.getDataOutput(reqData), {
-        keepPreviousData: false,
-        refetchOnWindowFocus: false,
-        retry: false,
-        cacheTime : Infinity,
-        onError : (err:any) => {
-            alert(`문자발송에 실패하였습니다. ${err.response.data}`);
+const useSendAuthKey = (onError: any, onSuccess: any) => {
+    const fetch = (params: Object) => {
+        const reqData = {
+            ws: 'fprocess',
+            query: 'LTW78NBLVBJPKYW6PMVF',
+            params: params,
+        } // web_fran_s_send_auth_key_sms
+        return queryFn.getDataOutput(reqData)
+    }
+
+    return useMutation((params: Object) => fetch(params), {
+        onError: (err:any) => {
+             if(onError) onError(err.response) 
+        },
+        onSuccess(data, variables) {
+            if(onSuccess) onSuccess(data, variables) 
         }
     })
 }
@@ -83,9 +86,31 @@ const useLogout = (onError: any, onSuccess: any) => {
     })
 }
 
+// 임시 패스워드 문자발송.
+const useSendPassword = (onError: any, onSuccess: any) => {
+    const fetch = (params: Object) => {
+        const reqData = {
+            ws: 'fprocess',
+            query: 'TOJOKGAON0FHZTUJN4OC',
+            params: params,
+        } // web_fran_s_send_temp_password_sms
+        return queryFn.getDataOutput(reqData)
+    }
+
+    return useMutation((params: Object) => fetch(params), {
+        onError: (err:any) => {
+             if(onError) onError(err.response) 
+        },
+        onSuccess(data, variables) {
+            if(onSuccess) onSuccess(data, variables) 
+        }
+    })
+}
+
 export default {
     useSendAuthKey,
     useAuthLogin,
     useLogin,
-    useLogout
+    useLogout,
+    useSendPassword
 }

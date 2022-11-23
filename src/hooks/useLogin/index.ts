@@ -22,6 +22,9 @@ export const useLogin = () => {
                 localStorage.setItem("userID", result?.out?.sLoginID);
                 localStorage.setItem("userNm", result?.out?.sName);
                 localStorage.setItem("userNo", result?.out?.nSNo);
+                
+                // 패스워드 8자리 체크.
+                const pwLenth = result?.out?.sLoginPWLen||10
 
                 setLoginAuth({
                     isLogin : true,
@@ -34,7 +37,8 @@ export const useLogin = () => {
                 })
 
                 if(result?.list.length > 0) setFranCode(result?.list[0].f_code|0)
-                if(window.location.pathname === '/index') navigate("/home");
+                if(pwLenth < 8) navigate("/password_change");
+                else if(window.location.pathname === '/index') navigate("/home");
             }else{
                 removeToken()
                 setFranCode(0)

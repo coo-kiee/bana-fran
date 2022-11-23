@@ -103,7 +103,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         addPath: []
     },
     {
-        path: "/recruitQnaMgmt",
+        path: "/etc",
         name: "기타내역",
         icon: "question circle outline",
         id: 500,
