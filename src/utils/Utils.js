@@ -300,19 +300,18 @@ export default class Utils {
             };
             // console.log(addRowColorCellGroup);
             
-            // 엑셀 정렬 스타일 추가 - 문자열: 가운데 정렬, 자동줄바꿈 / 숫자: 오른쪽 정렬, 3자리마다 ',' 표시
+            // 엑셀 스타일 변경
             const isSellAddress  = /[A-Z]{1,3}\d{1,5}/;
-            const isAmount = /^([0-9]{1,3}(,[0-9]{3})*)$|%|\d개|\d원$|\dP$|\d장|^\+\d$|^\-\d$/;
+            const isAmount = /^([0-9]{1,3}(,[0-9]{3})*)$|^\+([0-9]{1,3})(,[0-9]{3})*$|^\-([0-9]{1,3})(,[0-9]{3})*$/;
             const checkAddLineHeader = addLineHeader.map(item => item?.replace('\n', ' ')); // 라인 추가할 헤더 체크값 변환
             Object.entries(workSheet).reduce((res, cur) => {
                 const key = cur[0];
                 const value = cur[1];
-                // if (isSellAddress.test(key) && (isAmount.test(value.v))) console.log(key, value);
-                // if(isSellAddress.test(key) && isAmount.test(value.v)) res[key].t = 'n'; // 금액 타입 숫자로 변경 - 저장 후 파일 열면 에러 메세지 발생(내용에만 문제 없음)
+                
+                // 숫자 - 3자리마다 ',' 표시 / 숫자 타입으로 변경 / 문자열 ,(콤마) 및 +기호 제거 / 오른쪽 정렬 : 텍스트 - 가운데 정렬
                 // if (value.t && isSellAddress.test(key)) res[key] = value.t !== 'n' ? { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } } : { ...value, z: "#,##0", s: { ...value.s, alignment: { vertical: "center", horizontal: "right" } } };
-
-                // 숫자는 오른쪽 정렬 및 ,(콤마) 제거, 텍스트는 가운데 정렬
-                if (value.t && isSellAddress.test(key)) res[key] = isAmount.test(value.v) ? { ...value, v: (value.v).replaceAll(',', ''), s: { ...value.s, alignment: { vertical: "center", horizontal: "right", wrapText: true } } } : { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } };
+                if (value.t && isSellAddress.test(key)) res[key] = isAmount.test(value.v) ? 
+                { ...value, z: "#,##0", t:'n', v: (value.v).replaceAll(/[,\+]/g, ''), s: { ...value.s, alignment: { vertical: "center", horizontal: "right", wrapText: true } } } : { ...value, s: { ...value.s, alignment: { vertical: "center", horizontal: "center", wrapText: true } } };
                 
                 // addRowColor 행의 색상 추가
                 rowNums?.forEach((rowNum, index) => {

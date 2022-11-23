@@ -233,6 +233,18 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
                 return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
             })}
             {renderTableList?.length === 0 && <NoData isTable={true} />}
+            <tr>
+                <td className="align-center">2022/12/31 12:30</td>
+                <td className="align-center">판매취소(폐기)</td>
+                <td className="align-center">3만원</td>
+                <td className="align-center">1장 (30,000)</td>
+                <td className="align-center">어플</td>
+                <td className="align-right">+10,000</td>
+                <td className="align-right">-10,000</td>
+                <td></td>
+                <td></td>
+                <td className="align-center">1장 (50,000)</td>
+            </tr>
         </>
     )
 };

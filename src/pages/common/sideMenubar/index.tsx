@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useEffect, useState, useCallback } from 'react';
 import { sideMenus, SIDE_MENU_TYPE } from "./data/SideMenu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { useLogin } from 'hooks/useLogin';
 import { franState, loginState } from 'state';
@@ -52,6 +52,7 @@ const SideMenu:React.FC<{activeMenu:SideMenuBarType, sideMenus:Array<SIDE_MENU_T
 }
 
 const SideMenubar:React.FC = () => {
+    const navigation = useNavigate();
     const {logout} = useLogin()
     const loginInfo = useRecoilValue(loginState)
     const franCode = useRecoilValue(franState)
@@ -107,7 +108,7 @@ const SideMenubar:React.FC = () => {
     console.log("SIDE MENU BAR RENDER!!", loginInfo, ' 선택매장 : ', franCode)
     return(
         <nav>
-            <img className="logo" src={img_logo} alt="banapresso" width={146} height={18} />
+            <img className="logo" src={img_logo} alt="banapresso" width={146} height={18} onClick={() => navigation('/home')} />
             <div className="user">
                 <p><span className="name">{localStorage.getItem("userNm")}</span>님</p>
                 <p>안녕하세요.</p>
