@@ -12,8 +12,6 @@ const Etc = loadable(() => import('pages/etc'));
 const Extra = loadable(() => import('pages/membership/extra'));
 const MonthRank = loadable(() => import('pages/membership/monthRank'));
 const SalesContainer = loadable(() => import('pages/sales'));
-const SalesHistory = loadable(() => import('pages/sales/history'));
-const SalesStatistic = loadable(() => import('pages/sales/statistic'));
 
 // 사이드 메뉴
 type SIDE_MENU_TYPE = {

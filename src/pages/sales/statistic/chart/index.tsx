@@ -27,7 +27,7 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
     // 필터 (매출유형별)
 	const filteredData = () => {
 		// 조건 해당 항목 필터링 (id filter)
-		const filteredDataById = chartData.filter((fd: any) => {
+		return chartData.filter((fd: any) => {
 			return (
 				(total && fd.id === 'total') || 
 				(paid && fd.id === 'paid') || 
@@ -35,8 +35,6 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
 				(free && fd.id === 'free')
 			)
 		});
-
-        return filteredDataById;
 	};
 
     return (

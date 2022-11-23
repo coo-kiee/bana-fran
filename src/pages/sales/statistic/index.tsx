@@ -58,7 +58,7 @@ const SalesStatistic = () => {
 		} else if (searchType === 'D' && isBefore(new Date(to + ' 23:59:59'), limitDate)) {
 			setStatisticSearch((prev) => ({...prev, to: format(today, 'yyyy-MM-dd')}));
 			return alert('일별 매출 통계는 오늘부터 90일 전까지만 조회할 수 있습니다.');
-		}
+		} 
 		refetch();
 	}
 
@@ -69,7 +69,6 @@ const SalesStatistic = () => {
   
     const excelDownload = () => {
 		const {searchType, from, to} = statisticSearch;
-		console.log('do!')
         if (tableRef.current) {
             // Excel - sheet options: 셀 시작 위치, 셀 크기
             const options = {
@@ -175,8 +174,10 @@ const SalesStatistic = () => {
 				{/* <!-- 차트 --> */}
 				<div className='chart-wrap'>
 					<div id='statistic-chart' className='line-chart chart'>
-						{!(isLoading || isRefetching) && data ? ( // loading, refetching 아닐 때
-							<LineChart filterChart={filterChart} data={data} searchType={searchTypeMemo} />
+						{!(isLoading || isRefetching) ? ( // loading, refetching 아닐 때
+							data ? 
+							<LineChart filterChart={filterChart} data={data} searchType={searchTypeMemo} /> : 
+							<div className="no-chart">데이터를 불러올 수 없습니다.</div>
 						) : (
 							<div className='chart-loading-wrap'>
 								<Loading width={100} height={100} marginTop={0} />

@@ -27,7 +27,7 @@ const TableBody = ({data, rowPerPage, currentPage, searchType}: SalesTableBodyPr
             // pagination
             const isDisplay = (currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx
             return (
-                <tr key={idx} style={{ display: isDisplay ? '' : 'none'}}>
+                isDisplay && <tr key={idx}>
                     <td>{searchType === 'M' ? std_date : Utils.converDateFormat(new Date(std_date), '-')}</td>
                     <td>{Utils.numberComma(total_sales_amt)}</td>
                     <td>{Utils.numberComma(app_delivery_amt)}</td>

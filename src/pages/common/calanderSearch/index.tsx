@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import DatePicker from 'react-datepicker';
 import { ko } from 'date-fns/locale';
-import { format } from 'date-fns';
+import { format, isBefore } from 'date-fns';
 
 // style
 import 'react-datepicker/dist/react-datepicker.css';
@@ -56,6 +56,13 @@ const CalanderSearch: React.FC<CalendarSearchProps> = ({ title, dateTitle, dateT
         }) as React.Dispatch<React.SetStateAction<SearchInfoRadioType>>;
     };
 
+    const asyncHandleSearch = async () => {
+        const {from, to} = searchInfo
+        if (isBefore(new Date(to), new Date(from))) {
+            await setSearchInfo({...searchInfo, from: to, to: from})
+        }
+        await handleSearch();
+    }
     return (
         <>
             {title && <p className="title bullet">{title}</p>}
@@ -110,7 +117,7 @@ const CalanderSearch: React.FC<CalendarSearchProps> = ({ title, dateTitle, dateT
                         })}
                     </div>
                 }
-                <button className="btn-search" onClick={handleSearch}>조회</button>
+                <button className="btn-search" onClick={asyncHandleSearch}>조회</button>
             </div>
         </>
     )

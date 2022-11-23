@@ -4,6 +4,7 @@ import { SalesTableBodyProps } from 'types/sales/salesType';
 import Utils from 'utils/Utils';
 
 const TableBody = ({ data, currentPage, rowPerPage }: SalesTableBodyProps) => {
+    
 	// 표시 날짜 줄바꿈 추가
 	const convertDateLineBreak = (str: string) => {
 		const findSpace = /\s/;
@@ -44,17 +45,17 @@ const TableBody = ({ data, currentPage, rowPerPage }: SalesTableBodyProps) => {
                 nEtcDeliveryCharge,  // 쿠팡/배민 배달비
                 nStampCount, 		// 스탬프(계)
                 nSavingPoint, 		// 바나포인트(적립)
+                // sChargeDisDetail,
+                // sChargeDisReason,
+                // sCouponID,
             } = history;
             // pagination
             const isDisplay = (currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx;
 
             return (
-                <tr key={idx} style={{ display: isDisplay ? '' : 'none'}}>
+                isDisplay && <tr key={idx}>
                     <td className='align-center'>{convertDateLineBreak(rcp_date)}</td>
-                    <td className='align-center'>
-                        {/* order_state가 50(취소)일 때만 표시 */}
-                        {order_state === 50 ? convertDateLineBreak(cancel_date) : '-'}
-                    </td>
+                    <td className='align-center'>{order_state === 50 ? convertDateLineBreak(cancel_date) : '-'}</td>
                     <td className='align-center'>{order_type_name}</td>
                     <td className='align-center'>{order_state_name}</td>
                     <td className='align-center'>{phone ? phone : '-'}</td>
@@ -75,8 +76,8 @@ const TableBody = ({ data, currentPage, rowPerPage }: SalesTableBodyProps) => {
                     <td className='align-center'>{hd_coupon_charge !== 0 ? Utils.numberComma(hd_coupon_charge) : ''}</td>
                     <td className='align-center'>{etc_delivery_charge !== 0 ? Utils.numberComma(etc_delivery_charge) : ''}</td>
                     <td className='align-center'>{nEtcDeliveryCharge !== 0 ? Utils.numberComma(nEtcDeliveryCharge) : ''}</td>
-                    <td className='align-center'>{nStampCount !== 0 ? nStampCount : ''}</td>
-                    <td className='align-center'>{Utils.numberComma(nSavingPoint) || ''}</td>
+                    <td className='align-center'>{nStampCount !== 0 ? nStampCount : '-'}</td>
+                    <td className='align-center'>{Utils.numberComma(nSavingPoint) || '-'}</td>
                     <td className='align-center'>-</td>
                 </tr>
             )
