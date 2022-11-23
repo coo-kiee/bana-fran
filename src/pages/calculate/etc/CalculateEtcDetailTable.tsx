@@ -181,29 +181,30 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
             // 필터링 조건
             const isPointType = searchOption[0].value === ETC_TYPE.ALL.value || searchOption[0].value === use_point_type;
 
-            arr.push(
-                <tr key={index} style={{ display: isPointType ? '' : 'none' }}>
-                    <td className="align-center">2022/03/01</td>
-                    <td className="align-center">청구</td>
-                    <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
-                    <td className="align-right">130,000</td>
-                    <td className="align-right">130,000</td>
-                    <td className="align-right"><strong>130,000</strong></td>
-                </tr>
-                // <tr key={index}>
-                //     <td className="align-center">{date}</td>
-                //     <td className="align-left">{item_name}</td>
-                //     <td className="align-center">{phone}</td>
-                //     <td className="align-right">{Utils.numberComma(nChargeTotal)}</td>
-                //     <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                //     <td className="align-center">{use_point_type}</td>
-                //     <td className="align-center">{rcp_type}</td>
-                //     <td className="align-right">{Utils.numberComma(supply_amt)}</td>
-                //     <td className="align-right">{Utils.numberComma(vat_amt)}</td>
-                //     <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                // </tr>
-            );
-
+            if (isPointType) {
+                arr.push(
+                    <>
+                        <td className="align-center">2022/03/01</td>
+                        <td className="align-center">청구</td>
+                        <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
+                        <td className="align-right">130,000</td>
+                        <td className="align-right">130,000</td>
+                        <td className="align-right"><strong>130,000</strong></td>
+                    </>
+                    // <tr key={index}>
+                    //     <td className="align-center">{date}</td>
+                    //     <td className="align-left">{item_name}</td>
+                    //     <td className="align-center">{phone}</td>
+                    //     <td className="align-right">{Utils.numberComma(nChargeTotal)}</td>
+                    //     <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                    //     <td className="align-center">{use_point_type}</td>
+                    //     <td className="align-center">{rcp_type}</td>
+                    //     <td className="align-right">{Utils.numberComma(supply_amt)}</td>
+                    //     <td className="align-right">{Utils.numberComma(vat_amt)}</td>
+                    //     <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                    // </tr>
+                )
+            }
             return arr;
         }, [] as ReactNode[]);
 
@@ -224,7 +225,10 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
     return (
         <>
             {/* 페이지네이션 적용 */}
-            {renderTableList?.map((item, index) => (index >= (currentPage - 1) * row && index < currentPage * row) && item)}
+            {renderTableList?.map((item, index) => {
+                const isCurrentPage = (index >= (currentPage - 1) * row && index < currentPage * row);
+                return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
+            })}
             {renderTableList?.length === 0 && <NoData isTable={true} />}
         </>
     )

@@ -19,7 +19,6 @@ import CalanderSearch from "pages/common/calanderSearch";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import NoData from "pages/common/noData";
 import CalculateDetailTableBottom from "../component/CalculateDetailTableBottom";
-import CalculateDetailTableTop from "../component/CalculateDetailTableTop";
 
 interface CalculatePointDetailTableProps {
     userInfo: {
@@ -56,7 +55,7 @@ const CalculatePointDetailTable: FC<CalculatePointDetailTableProps> = ({ userInf
         currentPage: 1,
         row: 50,
     });
-    
+
     // 테이블 상단 검색영역 파라미터
     const calanderSearchOption = useMemo(() => ({
         title: '상세내역',
@@ -167,7 +166,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
     const { searchOption, from, to, searchTrigger } = searchCondition;
     const fromDate = Utils.converDateFormat(from, '-');
     const toDate = Utils.converDateFormat(to, '-');
-    
+
     // eslint-disable-next-line
     const listQueryKey = useMemo(() => ['calculatePointDetail', JSON.stringify({ fCode, staffNo, fromDate, toDate })], [fCode, staffNo, searchTrigger]);
     const { data: pointDetailList } = CALCULATE_SERVICE.useCalculatePointDetail(listQueryKey, fCode, staffNo, fromDate, toDate);
@@ -192,27 +191,28 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
             const isPointType = searchOption[0].value === POINT_TYPE.ALL.value || searchOption[0].value === use_point_type;
             const isDeviceType = searchOption[1].value === DEVICE_TYPE.ALL.value || searchOption[1].value === rcp_type;
 
-            arr.push(
-                <tr key={index} style={{ display: isPointType && isDeviceType ? '' : 'none' }}>
-                    <td className="align-center">{date}</td>
-                    <td className="align-left">{item_name}</td>
-                    <td className="align-center">{phone}</td>
-                    <td className="align-right">{Utils.numberComma(nChargeTotal)}</td>
-                    <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                    <td className="align-center">{use_point_type}</td>
-                    <td className="align-center">{rcp_type}</td>
-                    <td className="align-right">{Utils.numberComma(supply_amt)}</td>
-                    <td className="align-right">{Utils.numberComma(vat_amt)}</td>
-                    <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                </tr>
-            );
-            
+            if (isPointType && isDeviceType) {
+                arr.push(
+                    <>
+                        <td className="align-center">{date}</td>
+                        <td className="align-left">{item_name}</td>
+                        <td className="align-center">{phone}</td>
+                        <td className="align-right">{Utils.numberComma(nChargeTotal)}</td>
+                        <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                        <td className="align-center">{use_point_type}</td>
+                        <td className="align-center">{rcp_type}</td>
+                        <td className="align-right">{Utils.numberComma(supply_amt)}</td>
+                        <td className="align-right">{Utils.numberComma(vat_amt)}</td>
+                        <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                    </>
+                )
+            }
             return arr;
         }, [] as ReactNode[]);
 
         return [tableList, ChargePointSum, PointChangeSum];
-    }, [pointDetailList, searchOption]);
-    console.log(renderTableList);
+    }, [pointDetailList, searchOption, currentPage, row]);
+
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
     useEffect(() => {
@@ -228,7 +228,10 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
     return (
         <>
             {/* 페이지네이션 적용 */}
-            {renderTableList?.map((item, index) => (index >= (currentPage - 1) * row && index < currentPage * row) && item)}
+            {renderTableList?.map((item, index) => {
+                const isCurrentPage = (index >= (currentPage - 1) * row && index < currentPage * row);
+                return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
+            })}
             {renderTableList?.length === 0 && <NoData isTable={true} />}
         </>
     )
