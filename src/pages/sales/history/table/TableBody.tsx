@@ -64,7 +64,7 @@ const TableBody = ({ data, currentPage, rowPerPage }: SalesTableBodyProps) => {
                     <td className='align-center'>{rcp_type}</td>
                     <td className='align-center'>{pay_type}</td>
                     <td className='align-center'>{Utils.numberComma(nChargeTotal)}</td>
-                    <td className='align-center'>{nDeliveryCharge !== 0 ? Utils.numberComma(nDeliveryCharge) : ''}</td>
+                    <td className='align-center'>{nDeliveryCharge !== 0 ? Utils.numberComma(nDeliveryCharge) : '-'}</td>
                     <td className='align-center'>{Utils.numberComma(nChargeTotal + nDeliveryCharge)}</td>
                     <td className='align-center'>{card_charge !== 0 ? Utils.numberComma(card_charge) : ''}</td>
                     <td className='align-center'>{cash_charge !== 0 ? Utils.numberComma(cash_charge) : ''}</td>
@@ -76,7 +76,7 @@ const TableBody = ({ data, currentPage, rowPerPage }: SalesTableBodyProps) => {
                     <td className='align-center'>{etc_delivery_charge !== 0 ? Utils.numberComma(etc_delivery_charge) : ''}</td>
                     <td className='align-center'>{nEtcDeliveryCharge !== 0 ? Utils.numberComma(nEtcDeliveryCharge) : ''}</td>
                     <td className='align-center'>{nStampCount !== 0 ? nStampCount : ''}</td>
-                    <td className='align-right'>{nSavingPoint}</td>
+                    <td className='align-center'>{Utils.numberComma(nSavingPoint) || ''}</td>
                     <td className='align-center'>-</td>
                 </tr>
             )

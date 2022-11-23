@@ -92,7 +92,7 @@ const SalesHistory = () => {
 		}
 	]
 
-	// filter (change on select): order_type, order_state, rcp_type, pay_type, gift_cert, isCancelShow, isExcludeCouBae
+	// filter (change on select/check): order_type, order_state, rcp_type, pay_type, gift_cert, isCancelShow, isExcludeCouBae
 	const filteredData = () => {
 		const orderType = historySearch.searchOption[0].value; 		// 주문유형 1: 앱 2,3:쿠팡/배민 else: 매장
 		const orderState = historySearch.searchOption[1].value;		// 주문상태
@@ -146,7 +146,7 @@ const SalesHistory = () => {
             const options = {
                 type: 'table', // 필수 O
                 sheetOption: { origin: "A1" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: [{wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 28}, {wch: 6}, {wch: 15}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 14}, {wch: 14}, {wch: 14}, ], // 셀 너비 설정, 필수 X
+                colspan: [{wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 28}, {wch: 6}, {wch: 15}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 14}, {wch: 14}, {wch: 14}, ], // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1,2], color: ['d3d3d3','d3d3d3'] },
                 sheetName: '주문내역', // 시트이름, 필수 X
             };

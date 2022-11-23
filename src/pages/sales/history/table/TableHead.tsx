@@ -57,8 +57,8 @@ const TableHead = forwardRef((props, forwardRef: React.LegacyRef<HTMLTableRowEle
                 <td className='price-area'>잔돈포인트</td>
                 <td className='price-area'>가맹점쿠폰</td>
                 <td className='price-area'>본사쿠폰</td>
-                <td className='price-area'>쿠팡/배민(주문금액)</td>
-                <td className='price-area'>쿠팡/배민(배달비)</td>
+                <td className='price-area'>쿠팡/배민<br />(주문금액)</td>
+                <td className='price-area'>쿠팡/배민<br />(배달비)</td>
                 <td className='price-area boder-th-l'>스탬프(개)</td>
                 <td className='price-area'>바나포인트(P)</td>
             </tr>

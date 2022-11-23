@@ -69,12 +69,13 @@ const SalesStatistic = () => {
   
     const excelDownload = () => {
 		const {searchType, from, to} = statisticSearch;
+		console.log('do!')
         if (tableRef.current) {
             // Excel - sheet options: 셀 시작 위치, 셀 크기
             const options = {
                 type: 'table', // 필수 O
                 sheetOption: { origin: "A1" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: [{wch: 15}, {wch: 18}, {wch: 18}, {wch: 16}, {wch: 16}, {wch: 22}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 20}, {wch: 18}, {wch: 18}, ], // 셀 너비 설정, 필수 X
+                colspan: [{wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 22}, {wch: 16}, {wch: 16},], // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','ffc89f'] },
                 sheetName: '매출통계', // 시트이름, 필수 X
             };
@@ -191,7 +192,7 @@ const SalesStatistic = () => {
 					</div>
 				</div>
 				{/* <!-- 매출통계 Table --> */}
-				<SalesStatisticTable data={sortedData} searchType={searchTypeMemo} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} />
+				<SalesStatisticTable data={sortedData} searchType={searchTypeMemo} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} ref={tableRef} />
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
