@@ -14,12 +14,12 @@ const Today = () => {
 	const fCode = useRecoilValue(franState);
 	const { data } = HOME_SERVICE.useSalesToday({ f_code: fCode });
 
-	// 바나포인트결제, 카드결제, 현금결제, 배달매출, 가맹점쿠폰결제, 본사쿠폰결제, 유상포인트결제
-	let { bana_point, card_charge, cash_charge, delivery_charge, fran_coupon_charge, hd_coupon_charge, paid_point } = data[0];
+	// 배달매출, 카드결제, 현금결제, 유상포인트결제, 본사쿠폰결제, 쿠팡/배민, 가맹점쿠폰결제, 바나포인트결제,
+	let { delivery_charge, card_charge, cash_charge, paid_point, hd_coupon_charge, etc_delivery_charge, fran_coupon_charge, bana_point } = data[0];
 	
-	const freeService = useMemo(() => { return data[0].fran_coupon_charge + data[0].bana_point }, [data]); // 무상서비스
-	const paidSales = useMemo(() => { return data[0].card_charge + data[0].cash_charge + data[0].paid_point + data[0].hd_coupon_charge }, [data]); // 유상 매출
-	const totalSales = useMemo(() => { return freeService + paidSales }, [freeService, paidSales]);	// 총 매출
+	const freeService = useMemo(() => {return data[0].fran_coupon_charge + data[0].bana_point}, [data]); // 무상서비스
+	const paidSales = useMemo(() => {return data[0].card_charge + data[0].cash_charge + data[0].paid_point + data[0].hd_coupon_charge}, [data]); // 유상 매출
+	const totalSales = useMemo(() => {return freeService + paidSales}, [freeService, paidSales]);	// 총 매출
 	
 	return (
 		<Board boardClass='today' title='Today' url='/sales/statistic' suffix='총 매출'>
@@ -35,12 +35,13 @@ const Today = () => {
 					<col width='163' />
 					<col width='163' />
 					<col width='163' />
+					<col width='163' />
 				</colgroup>
 				<thead>
 					<tr>
 						<th rowSpan={2}>총매출 <br /> (부가세 포함)</th>
 						<th rowSpan={2}>배달매출 <br /> (부가세 포함) </th>
-						<th colSpan={5}>유상매출 (부가세 포함)</th>
+						<th colSpan={6}>유상매출 (부가세 포함)</th>
 						<th colSpan={3}>무상 서비스 비용</th>
 					</tr>
 					<tr>
@@ -49,48 +50,52 @@ const Today = () => {
 						<td className='sales'>현금결제</td>
 						<td className='sales'>유상포인트결제</td>
 						<td className='sales'>본사쿠폰결제</td>
+						<td className='sales'>쿠팡/배민</td>
 						<td className='service'>합계</td>
 						<td className='service'>가맹점쿠폰결제</td>
 						<td className='service'>바나포인트결제</td>
 					</tr>
 				</thead>
-					<tbody>
-						<tr>
-							<td className='point'>{Utils.numberComma(totalSales)}원</td>
-							<td>
-								{Utils.numberComma(delivery_charge || 0)}원<span className='percentage'>({(100 * delivery_charge/totalSales).toFixed(1) || 0}%)</span>
-							</td>
-							<td className='point'>
-								{Utils.numberComma(paidSales)}원<span className='percentage'>({(100 * paidSales/totalSales || 0).toFixed(1)}%)</span>
-							</td>
-							<td>
-								{Utils.numberComma(card_charge || 0)}원<span className='percentage'>({(100 * card_charge/totalSales || 0).toFixed(1)}%)</span>
-							</td>
-							<td>
-								{Utils.numberComma(cash_charge || 0)}원<span className='percentage'>({(100 * cash_charge/totalSales || 0).toFixed(1)}%)</span>
-							</td>
-							<td>
-								{Utils.numberComma(paid_point || 0)}원<span className='percentage'>({(100 * paid_point/totalSales || 0).toFixed(1)}%)</span>
-							</td>
-							<td>
-								{Utils.numberComma(hd_coupon_charge || 0)}원<span className='percentage'>({(100 * hd_coupon_charge/totalSales || 0).toFixed(1)}%)</span>
-							</td>
-							<td className='point'>
-								{Utils.numberComma(fran_coupon_charge + bana_point)}원<span className='percentage'>({(100 * freeService/totalSales || 0).toFixed(1)}%)</span>
-							</td>
-							<td>
-								{Utils.numberComma(fran_coupon_charge || 0)}원<span className='percentage'>({(100 * fran_coupon_charge/totalSales || 0).toFixed(1)}%)</span>
-							</td>
-							<td>
-								{Utils.numberComma(bana_point || 0)}원<span className='percentage'>({(100 * bana_point/totalSales || 0).toFixed(1)}%)</span>
-							</td>
-						</tr>
-					</tbody>
+				<tbody>
+					<tr>
+						<td className='point'>{Utils.numberComma(totalSales)}원</td>
+						<td>
+							{Utils.numberComma(delivery_charge || 0)}원<span className='percentage'>({(100 * delivery_charge/totalSales).toFixed(1) || 0}%)</span>
+						</td>
+						<td className='point'>
+							{Utils.numberComma(paidSales)}원<span className='percentage'>({(100 * paidSales/totalSales || 0).toFixed(1)}%)</span>
+						</td>
+						<td>
+							{Utils.numberComma(card_charge || 0)}원<span className='percentage'>({(100 * card_charge/totalSales || 0).toFixed(1)}%)</span>
+						</td>
+						<td>
+							{Utils.numberComma(cash_charge || 0)}원<span className='percentage'>({(100 * cash_charge/totalSales || 0).toFixed(1)}%)</span>
+						</td>
+						<td>
+							{Utils.numberComma(paid_point || 0)}원<span className='percentage'>({(100 * paid_point/totalSales || 0).toFixed(1)}%)</span>
+						</td>
+						<td>
+							{Utils.numberComma(hd_coupon_charge || 0)}원<span className='percentage'>({(100 * hd_coupon_charge/totalSales || 0).toFixed(1)}%)</span>
+						</td>
+						<td>
+							{Utils.numberComma(etc_delivery_charge)}원<span className='percentage'>({(100 * etc_delivery_charge/totalSales || 0).toFixed(1)}%)</span>
+						</td>
+						<td className='point'>
+							{Utils.numberComma(fran_coupon_charge + bana_point)}원<span className='percentage'>({(100 * freeService/totalSales || 0).toFixed(1)}%)</span>
+						</td>
+						<td>
+							{Utils.numberComma(fran_coupon_charge || 0)}원<span className='percentage'>({(100 * fran_coupon_charge/totalSales || 0).toFixed(1)}%)</span>
+						</td>
+						<td>
+							{Utils.numberComma(bana_point || 0)}원<span className='percentage'>({(100 * bana_point/totalSales || 0).toFixed(1)}%)</span>
+						</td>
+					</tr>
+				</tbody>
 			</table>
 			<div className='description'>
-				<p className='hyphen'>총 매출(자체 앱주문 배달비 포함): 유상매출+무상서비스</p>
+				<p className='hyphen'>총 매출: 유상매출+무상서비스</p>
 				<p className='hyphen'>유상매출과 무상서비스 금액에 자체 앱주문 배달비 포함.</p>
-				<p className='hyphen'>배달매출: 앱배달/쿠팡/배민 합계. (앱주문 배달비 포함)</p>
+				<p className='hyphen'>배달매출: 앱배달/쿠팡/배민 합계. (배달비 포함)</p>
 			</div>
 		</Board>
 	);

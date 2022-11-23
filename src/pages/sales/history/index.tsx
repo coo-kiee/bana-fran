@@ -3,7 +3,7 @@ import { useRecoilValue } from "recoil";
 import { format, subDays, subYears } from "date-fns";
 
 // global states
-import { franState } from "state";
+import { franState, loginState } from "state";
 
 // API
 import SALES_SERVICE from 'service/salesService'
@@ -20,7 +20,10 @@ import Pagination from "pages/common/pagination";
 
 const SalesHistory = () => {
 	// global states
+	const { userInfo } = useRecoilValue(loginState);
 	const fCode = useRecoilValue(franState);
+	const selectedFran = userInfo?.f_list.filter((info: any) => { return (info.f_code === fCode) });
+	const fCodeName = selectedFran[0]?.f_code_name || ''; // 가맹점명
 	
 	const today = new Date();
 	
@@ -54,9 +57,9 @@ const SalesHistory = () => {
 		{
 			[HISTORY_ORDER_TYPE.TOTAL]: { title: '주문유형 전체', value: 'total' },
 			[HISTORY_ORDER_TYPE.CAFE]: { title: '매장주문', value: '0' },
-			[HISTORY_ORDER_TYPE.APP]: { title: '앱주문', value: '1' },
-			[HISTORY_ORDER_TYPE.COUPANG]: { title: '쿠팡주문', value: '2' },
-			[HISTORY_ORDER_TYPE.BAEMIN]: { title: '배민주문', value: '3' },
+			[HISTORY_ORDER_TYPE.APP]: { title: '앱배달주문', value: '1' },
+			[HISTORY_ORDER_TYPE.COUBAE]: { title: '쿠팡/배민주문', value: '2' },
+			// [HISTORY_ORDER_TYPE.BAEMIN]: { title: '배민주문', value: '3' },
 		},
 		{
 			[HISTORY_ORDER_STATE.TOTAL]: { title: '주문상태 전체', value: 'total' },
@@ -73,6 +76,7 @@ const SalesHistory = () => {
 			[HISTORY_RCP_TYPE.KIOSK]: { title: '키오스크', value: '키오스크' },
 			[HISTORY_RCP_TYPE.POS]: { title: '직접결제POS', value: '직접결제POS' },
 			[HISTORY_RCP_TYPE.FPROCESS]: { title: '매장앱', value: '매장앱' },
+			[HISTORY_RCP_TYPE.NA]: { title: 'N/A', value: 'N/A' },
 		},
 		{
 			[HISTORY_PAY_TYPE.TOTAL]: { title: '결제방식 전체', value: 'total' },
@@ -90,25 +94,31 @@ const SalesHistory = () => {
 
 	// filter (change on select): order_type, order_state, rcp_type, pay_type, gift_cert, isCancelShow, isExcludeCouBae
 	const filteredData = () => {
-		const orderType = historySearch.searchOption[0].value; 		// 주문유형 1: 앱 2:쿠팡 3: 배민 else: 매장
+		const orderType = historySearch.searchOption[0].value; 		// 주문유형 1: 앱 2,3:쿠팡/배민 else: 매장
 		const orderState = historySearch.searchOption[1].value;		// 주문상태
 		const rcpType = historySearch.searchOption[2].value;		// 접수타입
 		const payType = historySearch.searchOption[3].value;		// 결제방식 
 		const giftCert = historySearch.searchOption[4].value;		// 0: 일반결제, 1: 상품권
 		let resultData = data;
 		// selectbox
-		if (orderType !== 'total') { 
+		if (orderType !== 'total' && orderType !== HISTORY_ORDER_TYPE.COUBAE) { 
 			resultData = resultData.filter((dd: any) => {return dd.order_type === Number(orderType)});
-		} 
-		if (orderState !== 'total' && orderState !== '10') { // 주문상태
+		} else if (orderType !== 'total' && orderType === HISTORY_ORDER_TYPE.COUBAE) { 
+			resultData = resultData.filter((dd: any) => {return dd.order_type === 2 || dd.order_type === 3});
+		}
+		if (orderState !== 'total' && orderState !== HISTORY_ORDER_STATE.MAKING) { // 주문상태
 			// total과 제조중(10) 제외한 나머지 state			
 			resultData = resultData.filter((dd: any) => {return dd.order_state === Number(orderState)});
-		} else if (orderState !== 'total' && orderState === '10') { 
+		} else if (orderState !== 'total' && orderState === HISTORY_ORDER_STATE.MAKING) { 
 			// 제조중(10)이면 order_state === 10 || 20
 			resultData = resultData.filter((dd: any) => {return dd.order_state === 10 || dd.order_state === 20});
 		}
-		if (rcpType !== 'total') {
+		if (rcpType !== 'total' && rcpType !== HISTORY_RCP_TYPE.NA) {
 			resultData = resultData.filter((dd: any) => {return dd.rcp_type === rcpType});
+		} else if (rcpType !== 'total' && rcpType === HISTORY_RCP_TYPE.NA) {
+			resultData = resultData.filter((dd: any) => {
+				return !(dd.rcp_type === '앱' || dd.rcp_type === '키오스크' || dd.rcp_type === '직접결제POS' || dd.rcp_type === '매장앱')
+			});
 		}
 		if (payType !== 'total') {
 			resultData = resultData.filter((dd: any) => {return dd.pay_type === payType});
@@ -121,7 +131,7 @@ const SalesHistory = () => {
 			resultData = resultData?.filter((dd: any) => {return dd.order_state !== 50});
 		}
 		if (isExcludeCouBae === 1) { // 쿠팡/배민 제외시 (checked)
-			resultData = resultData?.filter((fd: any) => {return fd.order_type !== 2 && fd.order_type !== 3});
+			resultData = resultData?.filter((dd: any) => {return dd.order_type !== 2 && dd.order_type !== 3});
 		}
 		return resultData;
 	};
@@ -138,9 +148,9 @@ const SalesHistory = () => {
                 sheetOption: { origin: "A1" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: [{wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 28}, {wch: 6}, {wch: 15}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 14}, {wch: 14}, {wch: 14}, ], // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1,2], color: ['d3d3d3','d3d3d3'] },
-                sheetName: '매출 통계', // 시트이름, 필수 X
+                sheetName: '주문내역', // 시트이름, 필수 X
             };
-            try { Utils.excelDownload(tableRef.current, options, `바나프레소 주문내역(${from} ~ ${to})`); }
+            try { Utils.excelDownload(tableRef.current, options, `${fCodeName}_주문내역(${from}~${to})`); }
             catch (error) { console.log(error); }
         }
     }
@@ -153,7 +163,6 @@ const SalesHistory = () => {
 			<div className='fixed-paid-point-wrap'>
 				{/* <!-- 공통 검색 Calendar with select --> */}
 				<CalanderSearch 
-					title='상세내역' 
 					dateType='yyyy-MM-dd' 
 					searchInfo={historySearch} 
 					setSearchInfo={setHistorySearch} 
@@ -167,11 +176,6 @@ const SalesHistory = () => {
 					<div className='search-date'>
 						<p>조회기간: {historySearch.from} ~ {historySearch.to}</p>
 					</div>
-					{/* <p>
-						titles: {historySearch.searchOption[0].title}/{historySearch.searchOption[1].title}/{historySearch.searchOption[2].title}/{historySearch.searchOption[3].title}/{historySearch.searchOption[4].title} <br/>
-						values: {historySearch.searchOption[0].value}/{historySearch.searchOption[1].value}/{historySearch.searchOption[2].value}/{historySearch.searchOption[3].value}/{historySearch.searchOption[4].value}<br/>
-						types: {historySearch.searchOption[0].type}/{historySearch.searchOption[1].type}/{historySearch.searchOption[2].type}/{historySearch.searchOption[3].type}/{historySearch.searchOption[4].type}
-					</p> */}
 					{/* 누적 합계 */}
 					<PrefixSum data={data || []} />
 					<div className='detail-info-wrap'>

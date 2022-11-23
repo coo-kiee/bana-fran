@@ -11,6 +11,13 @@ interface SalesTable {
 	searchType?: SearchType;
 }
 
+interface SalesTableBodyProps {
+    data: any;
+    currentPage: number;
+    rowPerPage: number;
+	searchType?: SearchType; 
+}
+
 // API params type
 interface SalesOrderParams extends CommonParams {
 	from_date: string;
@@ -29,8 +36,8 @@ const HISTORY_ORDER_TYPE = {
 	TOTAL: 'total',
 	CAFE: '0',
 	APP: '1',
-	COUPANG: '2',
-	BAEMIN: '3',
+	COUBAE: '2',
+	// BAEMIN: '3',
 }
 // 주문상태(ORDER_STATE)
 const HISTORY_ORDER_STATE = {
@@ -48,7 +55,8 @@ const HISTORY_RCP_TYPE = {
 	APP: '앱',
 	KIOSK: '키오스크',
 	POS: '직접결제POS',
-	FPROCESS: '매장앱'
+	FPROCESS: '매장앱',
+	NA: 'N/A'
 }
 // 결제방식(PAY_TYPE)
 const HISTORY_PAY_TYPE = {
@@ -71,8 +79,8 @@ const HISTORY_SEARCH_TYPE_LIST = [
 		HISTORY_ORDER_TYPE.TOTAL,
 		HISTORY_ORDER_TYPE.CAFE,
 		HISTORY_ORDER_TYPE.APP,
-		HISTORY_ORDER_TYPE.COUPANG,
-		HISTORY_ORDER_TYPE.BAEMIN,
+		HISTORY_ORDER_TYPE.COUBAE,
+		// HISTORY_ORDER_TYPE.BAEMIN,
 	],
 	[
 		HISTORY_ORDER_STATE.TOTAL,
@@ -89,6 +97,7 @@ const HISTORY_SEARCH_TYPE_LIST = [
 		HISTORY_RCP_TYPE.KIOSK,
 		HISTORY_RCP_TYPE.POS,
 		HISTORY_RCP_TYPE.FPROCESS,
+		HISTORY_RCP_TYPE.NA,
 	],
 	[
 		HISTORY_PAY_TYPE.TOTAL,
@@ -146,6 +155,7 @@ interface SalesLineChartProps {
 // types
 export type {
     SalesTable, 
+	SalesTableBodyProps,
 	SalesOrderParams,
 	SalesStatisticParams,
     SalesHistorySearch, 

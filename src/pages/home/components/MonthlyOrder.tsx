@@ -14,7 +14,7 @@ const MonthlyOrder = () => {
 	const { data } = HOME_SERVICE.useMonthlyOrderList({ f_code: fCode });
 
 	return (
-		<Board boardClass='ordering' title='월별 발주 금액' url='/sales/statistic'>
+		<Board boardClass='ordering' title='월별 발주 금액' url='/sales/statistic' showLink={true}>
 			<table className='contents-list' cellPadding='0' cellSpacing='0'>
 				<colgroup>
 					<col width='104' />

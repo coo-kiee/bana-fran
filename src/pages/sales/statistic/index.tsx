@@ -3,7 +3,7 @@ import { useRecoilValue } from "recoil";
 import { format, isBefore, subDays, subMonths } from "date-fns";
 
 // global states
-import { franState } from "state";
+import { franState, loginState } from "state";
 
 // API
 import SALES_SERVICE from 'service/salesService'
@@ -20,8 +20,10 @@ import SalesStatisticTable from "pages/sales/statistic/table";
 
 const SalesStatistic = () => {
 	// global states
+	const { userInfo } = useRecoilValue(loginState);
 	const fCode = useRecoilValue(franState);
-
+	const selectedFran = userInfo?.f_list.filter((info: any) => { return (info.f_code === fCode) });
+	const fCodeName = selectedFran[0]?.f_code_name || ''; // 가맹점명
 	// today
 	const today = new Date();
 
@@ -74,9 +76,9 @@ const SalesStatistic = () => {
                 sheetOption: { origin: "A1" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: [{wch: 15}, {wch: 18}, {wch: 18}, {wch: 16}, {wch: 16}, {wch: 22}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 20}, {wch: 18}, {wch: 18}, ], // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','ffc89f'] },
-                sheetName: '매출 통계', // 시트이름, 필수 X
+                sheetName: '매출통계', // 시트이름, 필수 X
             };
-            try { Utils.excelDownload(tableRef.current, options, `바나프레소 ${searchType === 'D' ? '일별' : '월별'} 매출통계(${from} ~ ${to})`); }
+            try { Utils.excelDownload(tableRef.current, options, `${fCodeName}_${searchType === 'D' ? '일별' : '월별'}_매출통계(${from}~${to})`); }
             catch (error) { console.log(error); }
         }
     }

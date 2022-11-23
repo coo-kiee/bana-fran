@@ -16,6 +16,7 @@ interface BoardProps {
 	title: string;		    // 제목
 	url: string;			// 게시판 url
     suffix?: string;        // 부제: (총 매출/누적)
+	showLink?: boolean;
 	children: React.ReactNode;
 }
 interface BoardItemProps {

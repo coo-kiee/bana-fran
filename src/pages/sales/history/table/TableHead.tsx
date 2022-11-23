@@ -40,7 +40,7 @@ const TableHead = forwardRef((props, forwardRef: React.LegacyRef<HTMLTableRowEle
                 <th rowSpan={2}>
                     배달비<br />(앱주문)
                 </th>
-                <th colSpan={8} className='price-area boder-th-b'>
+                <th colSpan={10} className='price-area boder-th-b'>
                     결제상세(앱주문 배달비 포함)
                 </th>
                 <th colSpan={2} className='price-area boder-th-b boder-th-l'>
@@ -57,6 +57,8 @@ const TableHead = forwardRef((props, forwardRef: React.LegacyRef<HTMLTableRowEle
                 <td className='price-area'>잔돈포인트</td>
                 <td className='price-area'>가맹점쿠폰</td>
                 <td className='price-area'>본사쿠폰</td>
+                <td className='price-area'>쿠팡/배민(주문금액)</td>
+                <td className='price-area'>쿠팡/배민(배달비)</td>
                 <td className='price-area boder-th-l'>스탬프(개)</td>
                 <td className='price-area'>바나포인트(P)</td>
             </tr>
@@ -64,4 +66,4 @@ const TableHead = forwardRef((props, forwardRef: React.LegacyRef<HTMLTableRowEle
     )
 })
 
-export default TableHead
+export default TableHead;
