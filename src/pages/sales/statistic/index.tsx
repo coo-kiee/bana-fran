@@ -24,7 +24,7 @@ const SalesStatistic = () => {
 	const fCode = useRecoilValue(franState);
 	const selectedFran = userInfo?.f_list.filter((info: any) => { return (info.f_code === fCode) });
 	const fCodeName = selectedFran[0]?.f_code_name || ''; // 가맹점명
-	// today
+	
 	const today = new Date();
 
 	// filter options
@@ -38,7 +38,8 @@ const SalesStatistic = () => {
 	// query
 	// 월별 검색(M)이면 from/to에 -01 string 추가 M: yy-MM, D: yy-MM-dd 포멧
 	const { data, isLoading, isRefetching, refetch } = SALES_SERVICE.useSalesStatistic({ 
-		f_code: fCode, search_type: statisticSearch.searchType, 
+		f_code: fCode, 
+		search_type: statisticSearch.searchType, 
 		from_date: statisticSearch.searchType === 'M' ? (statisticSearch.from + '-01') : statisticSearch.from, 
 		to_date: statisticSearch.searchType === 'M' ? (statisticSearch.to + '-01') : statisticSearch.to 
 	})
@@ -173,11 +174,11 @@ const SalesStatistic = () => {
 				</div>
 				{/* <!-- 차트 --> */}
 				<div className='chart-wrap'>
-					<div id='statistic-chart' className='line-chart chart'>
+					<div className='line-chart chart'>
 						{!(isLoading || isRefetching) ? ( // loading, refetching 아닐 때
 							data ? 
 							<LineChart filterChart={filterChart} data={data} searchType={searchTypeMemo} /> : 
-							<div className="no-chart">데이터를 불러올 수 없습니다.</div>
+							<div className="no-chart">NoData</div>
 						) : (
 							<div className='chart-loading-wrap'>
 								<Loading width={100} height={100} marginTop={0} />

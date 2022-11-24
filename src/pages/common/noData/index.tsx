@@ -4,11 +4,11 @@ interface NoDataProps {
     rowSpan?: number,
     colSpan?: number,
     paddingTop?: number,
-    paddingBotton?: number,
+    paddingBottom?: number,
     isTable?: boolean,
     showImg?: boolean,
 }
-const NoData: FC<NoDataProps> = ({ rowSpan = 10, colSpan = 20, paddingTop = 103, paddingBotton = 103, isTable = false, showImg = false }) => {
+const NoData: FC<NoDataProps> = ({ rowSpan = 10, colSpan = 20, paddingTop = 103, paddingBottom = 103, isTable = false, showImg = false }) => {
     return (
         isTable ?
         <tr>
@@ -16,11 +16,11 @@ const NoData: FC<NoDataProps> = ({ rowSpan = 10, colSpan = 20, paddingTop = 103,
                 className="no-data"
                 rowSpan={rowSpan}
                 colSpan={colSpan}
-                style={showImg ? undefined : { fontSize:25, color:'#555', background: '#fff', paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBotton}px` }} >
+                style={showImg ? undefined : { fontSize:25, color:'#555', background: '#fff', paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }} >
                 No Data
             </td>
         </tr>
-        : <span style={showImg ? undefined : { fontSize:25, color:'#555', background: '#fff', paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBotton}px` }} >No Data</span>
+        : <span style={showImg ? undefined : { fontSize:25, color:'#555', background: '#fff', paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }} >No Data</span>
     );
 }
 

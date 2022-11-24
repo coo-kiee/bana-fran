@@ -56,13 +56,16 @@ const CalanderSearch: React.FC<CalendarSearchProps> = ({ title, dateTitle, dateT
         }) as React.Dispatch<React.SetStateAction<SearchInfoRadioType>>;
     };
 
+    // handleSearch 실행함수
     const asyncHandleSearch = async () => {
-        const {from, to} = searchInfo
+        const { from, to } = searchInfo;
+        // from이 to보다 늦은 날짜인 경우, 둘을 바꿔준 후 검색 실행
         if (isBefore(new Date(to), new Date(from))) {
-            await setSearchInfo({...searchInfo, from: to, to: from})
+            await setSearchInfo({...searchInfo, from: to, to: from});
         }
         await handleSearch();
     }
+
     return (
         <>
             {title && <p className="title bullet">{title}</p>}

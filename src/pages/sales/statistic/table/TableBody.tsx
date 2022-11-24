@@ -1,4 +1,5 @@
 // Types
+import NoData from "pages/common/noData";
 import { SalesTableBodyProps } from "types/sales/salesType";
 // Utils
 import Utils from "utils/Utils";
@@ -27,7 +28,7 @@ const TableBody = ({data, rowPerPage, currentPage, searchType}: SalesTableBodyPr
             // pagination
             const isDisplay = (currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx
             return (
-                isDisplay && <tr key={idx}>
+                <tr key={idx} style={isDisplay ? {} : { display: 'none' }}>
                     <td>{searchType === 'M' ? std_date : Utils.converDateFormat(new Date(std_date), '-')}</td>
                     <td>{Utils.numberComma(total_sales_amt)}</td>
                     <td>{Utils.numberComma(app_delivery_amt)}</td>
@@ -46,9 +47,7 @@ const TableBody = ({data, rowPerPage, currentPage, searchType}: SalesTableBodyPr
                 </tr>
             );
         }) : 
-        <tr>
-            <td colSpan={15}>데이터가 존재하지 않습니다.</td>
-        </tr>
+        <NoData isTable={true} rowSpan={1} colSpan={15} paddingTop={20} paddingBottom={20} />
     )
 }
 

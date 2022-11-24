@@ -99,6 +99,7 @@ const SalesHistory = () => {
 		const rcpType = historySearch.searchOption[2].value;		// 접수타입
 		const payType = historySearch.searchOption[3].value;		// 결제방식 
 		const giftCert = historySearch.searchOption[4].value;		// 0: 일반결제, 1: 상품권
+		
 		let resultData = data;
 		// selectbox
 		if (orderType !== 'total' && orderType !== HISTORY_ORDER_TYPE.COUBAE) { 

@@ -1,4 +1,5 @@
 // Types
+import NoData from 'pages/common/noData';
 import { SalesTableBodyProps } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
@@ -17,7 +18,7 @@ const TableBody = ({ data, currentPage, rowPerPage }: SalesTableBodyProps) => {
 		);
 	};
 
-    return data.length > 0 ? 
+    return ( data.length > 0 ? 
         data.map((history: any, idx: number) => {
             const {
                 rcp_date, 			// 결제일시
@@ -53,7 +54,7 @@ const TableBody = ({ data, currentPage, rowPerPage }: SalesTableBodyProps) => {
             const isDisplay = (currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx;
 
             return (
-                isDisplay && <tr key={idx}>
+                <tr key={idx} style={isDisplay ? {} : { display: 'none' }}>
                     <td className='align-center'>{convertDateLineBreak(rcp_date)}</td>
                     <td className='align-center'>{order_state === 50 ? convertDateLineBreak(cancel_date) : '-'}</td>
                     <td className='align-center'>{order_type_name}</td>
@@ -82,9 +83,8 @@ const TableBody = ({ data, currentPage, rowPerPage }: SalesTableBodyProps) => {
                 </tr>
             )
         }) : 
-    <tr>
-        <td colSpan={25}>데이터가 존재하지 않습니다.</td>
-    </tr>
+        <NoData isTable={true} rowSpan={1} colSpan={25} paddingTop={20} paddingBottom={20} />
+    )
 }
 
 export default TableBody;
