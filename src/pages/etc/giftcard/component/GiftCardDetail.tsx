@@ -2,11 +2,11 @@ import React, { FC, useState, useRef, useEffect } from "react";
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
 import { useQueryClient, useQueryErrorResetBoundary } from "react-query";
-import { format, subMonths } from 'date-fns';
+import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
 
 // state
-import { franState } from "state";
+import { franState, loginState } from "state";
 
 // type
 import {
@@ -18,7 +18,8 @@ import {
 import ETC_SERVICE from "service/etcService";
 
 // component 
-import { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableErrorFallback } from "pages/etc/component/EtcDetailTable";
+import EtcDetailTable from "pages/etc/component/EtcDetailTable";
+import { EtcDetailTableFallback } from 'pages/etc/component/EtcDetailTableHeader'
 import EtcDetailFooter from "pages/etc/component/EtcDetailFooter";
 import CalanderSearch from "pages/common/calanderSearch";
 import EtcSearchDetail from "pages/etc/component/EtcSearchDetail";
@@ -30,8 +31,8 @@ const GiftCardDetail: FC<GiftcardDetailProps> = ({ detailPriceInfo, detailTableH
         <>
             <GiftCardDetailSearch handleSearchInfo={handleSearchInfo} />
 
-            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
+            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
                     {/* *_list 프로시저 사용하는 컴포넌트 */}
                     <GiftCardDetailData
                         searchInfo={searchInfo}
@@ -49,6 +50,7 @@ export default GiftCardDetail
 const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({ detailPriceInfo, detailTableHead, detailTableColGroup, searchInfo }) => {
     const queryClient = useQueryClient();
     const franCode = useRecoilValue(franState);
+    const { userInfo: { f_list } } = useRecoilValue(loginState);
 
     // 상태 
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
@@ -56,10 +58,9 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
     const [isSearching, setIsSearching] = useState(false);
+    const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 관련 
 
-    // .board-wrap table 관련 (가장 하단 테이블)
-    // TODO: 이후에 테스트 데이터 보고 타입 지정 + 수정
-    // ['22/06/01~22/06/30', '아메리카노 외 1건', '1,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'], 
+    // 프로시저
     let detailTableBody: any[] = [
         ['2022/12/31 12:30', '판매취소(폐기)', '3만원', '1장 (30,000)', '어플', '+10,000', '', '', '1장 (50,000)'],
         ['2022/12/31 12:30', '판매취소(폐기)', '3만원', '1장 (30,000)', '어플', '-10,000', '1장 (10,000)', '1장 (10,000)', ''],
@@ -68,9 +69,11 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
         ['2022/12/31 12:30', '판매취소(폐기)', '3만원', '1장 (30,000)', '어플', '+10,000', '', '', '1장 (50,000)'],
         ['2022/12/31 12:30', '판매취소(폐기)', '3만원', '1장 (30,000)', '어플', '-10,000', '1장 (10,000)', '1장 (10,000)', ''],
     ];
-
-    // 프로시저
-    const etcGiftcardListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from + '-01', to_date: searchInfo.to + '-01' };
+    const etcGiftcardListParam: EtcListParams = {
+        fran_store: franCode,
+        from_date: searchInfo.from + '-01',
+        to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
+    };
     // !! 다른 페이지 프로시저 -> 나오면 고치기
     const { data: listData, isSuccess: etcGiftcardListSuccess } = ETC_SERVICE.useEtcList<EtcListParams>('VK4WML6GW9077BKEWP3O', etcGiftcardListParam, 'etc_giftcard_list');
 
@@ -105,28 +108,6 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
         setIsSearching(false);
     }, [searchInfo.searchOption])
 
-    // 엑셀 다운로드 관련 
-    const tableRef = useRef<null | HTMLTableElement>(null);
-    const handleExcelPrint = () => {
-        if (tableRef.current) {
-            const options = {
-                type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
-                // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
-                sheetName: `${searchInfo.from}~${searchInfo.to}`, // 시트이름, 필수 X
-                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
-            };
-
-            try {
-                Utils.excelDownload(tableRef.current, options, '실물 상품권 재고 상세 내역');
-            }
-            catch (error) {
-                console.log(error);
-            }
-        };
-    };
-
     return (
         <>
             {isSearching ?
@@ -141,7 +122,16 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
             }
 
             {/* 엑셀다운, 페이징, 정렬  -> list 프로시저 관련 */}
-            <EtcDetailFooter excelFn={handleExcelPrint} dataCnt={detailTableBody.length || 0} pageInfo={pageInfo} pageFn={setPageInfo} />
+            <EtcDetailFooter
+                dataCnt={detailTableBody.length || 0}
+                pageInfo={pageInfo}
+                pageFn={setPageInfo}
+                tableRef={tableRef}
+                detailTableColGroup={detailTableColGroup}
+                fCodeName={f_list[0].f_code_name}
+                searchDate={`${searchInfo.from}~${searchInfo.to}`}
+                excelFileName={`실물상품권내역`}
+            />
         </>
     )
 }

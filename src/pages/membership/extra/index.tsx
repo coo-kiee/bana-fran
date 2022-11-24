@@ -3,7 +3,6 @@ import ExtraOverall from './component/ExtraOverall';
 import ExtraDetail from './component/ExtraDetail';
 
 const ExtraContainer = () => {
-    // TODO: EtcTable 관련 데이터 (프로시저 데이터 확인 후 수정하기) 
     const thead = [
         [
             { itemName: ['스탬프'], colSpan: 4, className: 'boder-th-a' },
@@ -28,8 +27,6 @@ const ExtraContainer = () => {
             { itemName: ['미사용 잔액'], className: 'height-63' },
         ]
     ];
-
-    // TODO: EtcDetailTable 관련 데이터  
     const detailTableColGroup = ['162', '162', '162', '162', '162', '162', '162', '162', '162', '162'];
     const detailTableHead = [
         [

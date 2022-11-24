@@ -46,6 +46,14 @@ interface OrderDetailListType {
     staff_name: string,
     state_name: string
 } // web_fran_s_etc_order_list 결과 타입
+interface VirtualAccountTotalType {
+    fran_name: string,
+    balance: number,
+    account: string,
+    bank_code: string,
+    total_charge: string,
+    used_amount: string,
+} // web_fran_s_etc_balance 결과 타입
 interface VirtualAccListType {
     balance: number,
     deposit: number,
@@ -234,11 +242,10 @@ const ETC_GIFTCARD_SEARCH_DEVICE_LIST = [
 
 export type {
     SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
-    TotalResultType, MusicChargeDetailType, OrderDetailListType, VirtualAccListType, OrderDetailModalItemType,
+    TotalResultType, MusicChargeDetailType, OrderDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
     EtcTotalParams, EtcListParams, OrderDetailModalParams,
     OverallFallbackProps, RoyaltyOverallProps, VirtualAccountOverallProps, OverallErrorFallbackProps, DetailErrorFallbackProps, RoyaltyDetailProps, VirtualAccountDetailProps,
-    DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps,
-    MusicChargeDetailProps, OrderDetailDetailProps,
+    DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps, MusicChargeDetailProps, OrderDetailDetailProps,
 };
 export {
     ETC_TAB_TYPE, ETC_TAB_LIST, ETC_DELIVERY_SEARCH_OPTION_TYPE, ETC_DELIVERY_SEARCH_OPTION_LIST,

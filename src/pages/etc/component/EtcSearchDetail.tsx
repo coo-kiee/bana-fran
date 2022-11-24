@@ -8,6 +8,7 @@ interface EtcSearchDetailProps {
 
 // TODO: 조회기간, 총 합계 같은 데이터 관련 (.search-result-wrap 부분)
 const EtcSearchDetail: React.FC<EtcSearchDetailProps> = ({ searchDate, searchResult, priceInfo }) => {
+    console.log(`EtcSearchDetail`)
     return (
         <div className="search-result-wrap">
             <div className="search-date">
@@ -33,4 +34,4 @@ const EtcSearchDetail: React.FC<EtcSearchDetailProps> = ({ searchDate, searchRes
     )
 }
 
-export default EtcSearchDetail;
+export default React.memo(EtcSearchDetail);

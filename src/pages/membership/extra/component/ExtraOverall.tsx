@@ -58,7 +58,6 @@ const ExtraOverall: FC<{ tableHead: ExtraOverallTableRowItemType[][] }> = ({ tab
 }
 
 const ExtraOverallData = () => {
-    console.log('ExtraOverallData')
     const franCode = useRecoilValue(franState);
 
     // 프로시저
@@ -79,7 +78,6 @@ const ExtraOverallData = () => {
         used_coupon_amount: '',
         used_coupon_cnt: 0,
         used_point: 0
-
     };
     const membershipTotalParams: EtcTotalParams = { fran_store: franCode };
     const { data, isSuccess } = MEMBERSHIP_SERVICE.useMembershipTotal(membershipTotalParams)

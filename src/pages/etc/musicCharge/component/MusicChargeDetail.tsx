@@ -1,12 +1,12 @@
-import React, { FC, useState, useRef, useCallback, useMemo } from "react";
+import React, { FC, useState, useRef, useCallback, useMemo, ReactNode } from "react";
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
 import { useQueryClient, useQueryErrorResetBoundary } from "react-query";
-import { format, subMonths } from 'date-fns';
+import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
 
 // state
-import { franState } from "state";
+import { franState, loginState } from "state";
 
 // type
 import { EtcListParams, PageInfoType, SearchInfoType, MusicChargeDetailProps } from "types/etc/etcType";
@@ -15,7 +15,8 @@ import { EtcListParams, PageInfoType, SearchInfoType, MusicChargeDetailProps } f
 import ETC_SERVICE from 'service/etcService';
 
 // component 
-import { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableErrorFallback } from "pages/etc/component/EtcDetailTable";
+import EtcDetailTable from "pages/etc/component/EtcDetailTable";
+import { EtcDetailTableFallback } from 'pages/etc/component/EtcDetailTableHeader'
 import EtcDetailFooter from "pages/etc/component/EtcDetailFooter";
 import CalanderSearch from "pages/common/calanderSearch";
 import EtcSearchDetail from "pages/etc/component/EtcSearchDetail";
@@ -27,9 +28,8 @@ const MusicChargeDetail: FC<MusicChargeDetailProps> = ({ detailPriceInfo, detail
         <>
             <MusicChargeDetailSearch handleSearchInfo={handleSearchInfo} />
 
-            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
-                    {/* *_list 프로시저 사용하는 컴포넌트 */}
+            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
                     <MusicChargeDetailData
                         searchInfo={searchInfo}
                         detailPriceInfo={detailPriceInfo}
@@ -47,25 +47,21 @@ export default MusicChargeDetail;
 const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailPriceInfo, detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo }) => {
     const queryClient = useQueryClient();
     const franCode = useRecoilValue(franState);
+    const { userInfo: { f_list } } = useRecoilValue(loginState);
 
     // 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
-    }) // etcDetailFooter 관련 내용
-
-    // .board-wrap table 관련 (가장 하단 테이블)
-    // TODO: 이후에 테스트 데이터 보고 타입 지정 + 수정
-    // ['22/06/01~22/06/30', '아메리카노 외 1건', '1,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'],
-    // let detailTableBody = useMemo((data:any) => data.filter((el:any) => el.type === searchInfo.searchOption.type), [searchInfo.searchOption.type]); 
-    let detailTableBody: any[] = [];
+    }) // etcDetailFooter 관련 내용 
+    const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 관련
 
     // 프로시저
-    // isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
+    let detailTableBody: any[] = [];
     const etcMusicListParam: EtcListParams = {
         fran_store: franCode,
         from_date: searchInfo.from + '-01',
-        to_date: searchInfo.to + '-01'
+        to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
     };
     const { data: listData, isSuccess: etcMusicListSuccess } = ETC_SERVICE.useEtcList<EtcListParams>('VK4WML6GW9077BKEWP3O', etcMusicListParam, 'etc_music_list');
     if (etcMusicListSuccess) {
@@ -82,38 +78,48 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailPriceInfo, de
         ];
     }, [queryClient, franCode]); // EtcSearchDetail 내부 데이터
 
-    // 엑셀 다운로드 관련 
-    const tableRef = useRef<null | HTMLTableElement>(null);
-    const handleExcelPrint = () => {
-        if (tableRef.current) {
-            const options = {
-                type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
-                // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
-                sheetName: `${searchInfo.from}~${searchInfo.to}`, // 시트이름, 필수 X
-                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
+    const renderTableList = useMemo(() => {
+        return listData?.reduce((arr: any, tbodyRow: any) => {
+            const { std_date, state, suply_amount, tax_amount, total_amount } = tbodyRow;
+            const tempData = { std_date, state, suply_amount, tax_amount, total_amount };
+
+            const handleText = (keyName: string, value: string | number) => {
+                if (keyName === 'suply_amount' || keyName === 'tax_amount') return Utils.numberComma(value);
+                else if (keyName === 'total_amount') return <strong>{Utils.numberComma(value)}</strong>
+                else return value;
             };
 
-            try {
-                Utils.excelDownload(tableRef.current, options, '음악 서비스 이용료');
-            }
-            catch (error) {
-                console.log(error);
-            }
-        };
-    };
+            const handleClassName = (keyName: string) => {
+                if (keyName === 'std_date') return 'align-center'
+                else if (keyName === 'state') return 'align-left'
+                else return 'align-right'
+            };
+
+            arr.push(
+                <>
+                    {Object.entries(tempData).map((bodyItem: [string, string | number], idx: number) => {  // ? 프로시저 데이터 확인 후 수정
+                        return <td key={`etc_music_charge_detail_tbody_${idx}`} className={handleClassName(bodyItem[0])}>{handleText(bodyItem[0], bodyItem[1])}</td>
+                    })}
+                </>
+            )
+            return arr;
+        }, [] as ReactNode[]);
+    }, [listData])
 
     return (
         <>
-            {/* 조회 기간 -> total 프로시저 관련 */}
             <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={detailSearchResult} priceInfo={detailPriceInfo} />
-
-            {/* 게시판 -> list 프로시저 관련 */}
-            <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={detailTableBody} pageInfo={pageInfo} ref={tableRef} />
-
-            {/* 엑셀다운, 페이징, 정렬  -> list 프로시저 관련 */}
-            <EtcDetailFooter excelFn={handleExcelPrint} dataCnt={detailTableBody.length || 0} pageInfo={pageInfo} pageFn={setPageInfo} />
+            <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={renderTableList} pageInfo={pageInfo} ref={tableRef} />
+            <EtcDetailFooter
+                dataCnt={detailTableBody.length || 0}
+                pageInfo={pageInfo}
+                pageFn={setPageInfo}
+                tableRef={tableRef}
+                detailTableColGroup={detailTableColGroup}
+                fCodeName={f_list[0].f_code_name}
+                searchDate={`${searchInfo.from}~${searchInfo.to}`}
+                excelFileName={`음악서비스이용료내역`}
+            />
         </>
     )
 }

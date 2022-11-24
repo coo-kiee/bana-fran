@@ -6,7 +6,7 @@ import { useQueryErrorResetBoundary, useQueryClient } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 
 // state
-import { franState } from "state";
+import { franState, loginState } from "state";
 
 // type
 import { EtcListParams, PageInfoType, DeliveryChargeDetailProps, SearchInfoSelectType, ETC_DELIVERY_SEARCH_OPTION_TYPE, ETC_DELIVERY_SEARCH_OPTION_LIST, SearchInfoType } from "types/etc/etcType";
@@ -16,7 +16,8 @@ import ETC_SERVICE from 'service/etcService';
 
 // component  
 import CalanderSearch from "pages/common/calanderSearch";
-import { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableErrorFallback } from "pages/etc/component/EtcDetailTable";
+import EtcDetailTable from "pages/etc/component/EtcDetailTable";
+import { EtcDetailTableFallback } from 'pages/etc/component/EtcDetailTableHeader'
 import EtcDetailFooter from "pages/etc/component/EtcDetailFooter";
 import EtcSearchDetail from "pages/etc/component/EtcSearchDetail";
 
@@ -27,8 +28,8 @@ const DeliveryChargeDetail: FC<DeliveryChargeDetailProps> = ({ detailTableColGro
         <>
             <DeliveryChargeDetailSearch handleSearchInfo={handleSearchInfo} />
 
-            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableColGroup.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
+            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
                     {/* *_list 프로시저 사용하는 컴포넌트 */}
                     <DeliveryChargeDetailData
                         searchInfo={searchInfo}
@@ -48,41 +49,18 @@ export default DeliveryChargeDetail;
 const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo, detailPriceInfo }) => {
     const queryClient = useQueryClient();
     const franCode = useRecoilValue(franState);
+    const { userInfo: { f_list } } = useRecoilValue(loginState);
 
     // TODO: 상태
-    const tableRef = useRef<null | HTMLTableElement>(null);
+    const tableRef = useRef<HTMLTableElement>(null);
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
     const [isSearching, setIsSearching] = useState(false);
 
-    // TODO: 엑셀 다운로드
-    const handleExcelPrint = () => {
-        if (tableRef.current) {
-            const options = {
-                type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
-                // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
-                sheetName: `${searchInfo.from}~${searchInfo.to}`, // 시트이름, 필수 X
-                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
-            };
-
-            try {
-                Utils.excelDownload(tableRef.current, options, '바나 딜리버리 수수료');
-            }
-            catch (error) {
-                console.log(error);
-            }
-        };
-    };
-
-    // .board-wrap table 관련 (가장 하단 테이블)
-    // ['22/06/01~22/06/30', '아메리카노 외 1건', '1,000', '2,900', '현장카드', '카드, 바나포인트', '0101234****', '130,000', '130,000', '130,000'], 
-    let detailTableBody = []; // EtcDetailTable 내부 데이터
-
     // TODO: 프로시저  
+    let detailTableBody = []; // EtcDetailTable 내부 데이터
     const etcDeliveryListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
     const { data: listData, isSuccess: etcDeliveryListSuccess } = ETC_SERVICE.useEtcList<EtcListParams>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListParam, 'etc_delivery_list');
 
@@ -120,15 +98,22 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
                 <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />
                 :
                 <>
-                    {/* 조회 기간 -> total 프로시저 관련 */}
                     <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={detailSearchResultTest} priceInfo={detailPriceInfo} />
-                    {/* 게시판 -> list 프로시저 관련 */}
                     <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={detailTableBody} pageInfo={pageInfo} />
                 </>
             }
 
             {/* 엑셀다운, 페이징, 정렬  -> list 프로시저 관련 */}
-            <EtcDetailFooter excelFn={handleExcelPrint} dataCnt={detailTableBody.length || 0} pageInfo={pageInfo} pageFn={setPageInfo} />
+            <EtcDetailFooter
+                dataCnt={detailTableBody.length || 0}
+                pageInfo={pageInfo}
+                pageFn={setPageInfo}
+                tableRef={tableRef}
+                detailTableColGroup={detailTableColGroup}
+                fCodeName={f_list[0].f_code_name}
+                searchDate={`${searchInfo.from}~${searchInfo.to}`}
+                excelFileName={`딜리버리수수료내역`}
+            />
         </>
     )
 }

@@ -50,7 +50,7 @@ const MonthRankOverall: FC<MonthRankOverallProps> = ({ tableColGroup, tableHead,
 
 const MonthRankOverallData: FC<{ setPopupRankReward: React.Dispatch<React.SetStateAction<boolean>> }> = ({ setPopupRankReward }) => {
     const franCode = useRecoilValue(franState);
-
+    console.log(`MonthRankOverallData`)
     // 프로시저
     let rewards: RankInfoItemType = {
         fran_name: '',

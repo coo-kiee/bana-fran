@@ -9,100 +9,24 @@ import { franState } from 'state';
 
 // component
 import EtcTable from "pages/etc/component/EtcTable";
-import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import CalanderSearch from 'pages/common/calanderSearch';
 import EtcSearchDetail from 'pages/etc/component/EtcSearchDetail';
+import OverallFallback from 'pages/etc/component/OverallFallback';
 
 // type
 import { SearchInfoType, EtcTotalParams, TotalResultType, RoyaltyOverallProps } from 'types/etc/etcType';
+
+// service
 import ETC_SERVICE from 'service/etcService';
 
 const RoyaltyOverall: FC<Omit<RoyaltyOverallProps, 'title'>> = (props) => {
-    const { tableColGroup, tableHead, searchInfo } = props;
-    // 로열티 내역(total) + 로열티 검색, 조회기간
     const { reset } = useQueryErrorResetBoundary();
     const title = `${format(subMonths(new Date(), 1), `yyyy년 M월 로열티 내역`)}`;
 
     return (
         <>
-            <React.Suspense
-                fallback={
-                    <>
-                        {/* 로열티 내역 테이블 컴포넌트 */}
-                        <p className="title bullet">{title}</p>
-                        <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
-                            <colgroup>
-                                {tableColGroup.map((col, idx) => <col key={`etc_table_colgroup_${idx}`} width={col} />)}
-                            </colgroup>
-                            <thead>
-                                <tr>
-                                    {tableHead.map((head, idx) => <th key={`etc_table_thead_${idx}`}>{head}</th>)}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <Loading width={50} height={50} isTable={true} />
-                            </tbody>
-                        </table>
-
-                        {/* 검색 컴포넌트 */}
-                        <p className='title bullet'>상세내역</p>
-                        <div className="search-wrap">
-                            <div className="input-wrap">
-                                <input type="text" placeholder={searchInfo.from} defaultValue={searchInfo.from} />
-                                <i>~</i>
-                                <input type="text" placeholder={searchInfo.to} defaultValue={searchInfo.to} />
-                            </div>
-                            <button className="btn-search">조회</button>
-                        </div>
-                        {/*조회기간 관련 */}
-                        <div className="search-result-wrap">
-                            <div className="search-date">
-                                <p>조회기간: {`${searchInfo.from} ~ ${searchInfo.to}`}</p>
-                            </div>
-                        </div>
-                    </>
-                }
-            >
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => {
-                    return (
-                        <>
-                            {/* 로열티 내역 테이블 컴포넌트 */}
-                            <p className="title bullet">{title}</p>
-                            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
-                                <colgroup>
-                                    {tableColGroup.map((col, idx) => <col key={`etc_table_colgroup_${idx}`} width={col} />)}
-                                </colgroup>
-                                <thead>
-                                    <tr>
-                                        {tableHead.map((head, idx) => <th key={`etc_table_thead_${idx}`}>{head}</th>)}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />
-                                </tbody>
-                            </table>
-
-                            {/* 검색 컴포넌트 */}
-                            <p className='title bullet'>상세내역</p>
-                            <div className="search-wrap">
-                                <div className="input-wrap">
-                                    <input type="text" placeholder={searchInfo.from} defaultValue={searchInfo.from} />
-                                    <i>~</i>
-                                    <input type="text" placeholder={searchInfo.to} defaultValue={searchInfo.to} />
-                                </div>
-                                <button className="btn-search">조회</button>
-                            </div>
-                            {/*조회기간 관련 */}
-                            <div className="search-result-wrap">
-                                <div className="search-date">
-                                    <p>조회기간: {`${searchInfo.from} ~ ${searchInfo.to}`}</p>
-                                </div>
-                            </div>
-                        </>
-                    )
-                }}
-                >
+            <React.Suspense fallback={<OverallFallback title={title} {...props} type={`LOADING`} />} >
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <OverallFallback title={title} {...props} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />}>
                     {/* 로열티 내역 */}
                     <RoyaltyOverallData title={title} {...props} />
                 </ErrorBoundary>

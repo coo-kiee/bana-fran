@@ -12,6 +12,7 @@ interface EtcTableProps {
 
 // TODO: 기타내역 페이지 상위 부분 (수수료내역 / 재고 현황 / 월별 발주내역 / 로열티 내역 / 가상계좌 잔액) (.board-wrap board-top 부분)
 const EtcTable: React.FC<EtcTableProps> = ({ tbody }) => {
+    console.log(`EtcTable`)
     // TODO: className 관련
     const handleClassNameDefault = (idx: number) => {
         if (idx === 0) return 'align-center';
@@ -33,4 +34,4 @@ const EtcTable: React.FC<EtcTableProps> = ({ tbody }) => {
 }
 
 
-export default EtcTable;
+export default React.memo(EtcTable);

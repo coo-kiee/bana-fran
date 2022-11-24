@@ -1,25 +1,26 @@
-import React, { FC, useState, useRef, useMemo } from "react";
+import React, { FC, useState, useRef, useMemo, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useQueryErrorResetBoundary } from 'react-query';
-import { format, subMonths } from 'date-fns'
+import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns'
 import Utils from "utils/Utils";
 import { useRecoilValue } from "recoil";
 
 // component
 import CalanderSearch from "pages/common/calanderSearch";
-import { EtcDetailTableHead, EtcDetailTableFallback, EtcDetailTableErrorFallback } from "pages/etc/component/EtcDetailTable";
+import { EtcDetailTableHead, EtcDetailTableFallback } from 'pages/etc/component/EtcDetailTableHeader'
 import EtcDetailFooter from "pages/etc/component/EtcDetailFooter";
 import Sticky from "pages/common/sticky";
+import NoData from "pages/common/noData";
 
 // type 
 import { SearchInfoType, PageInfoType, EtcListParams } from 'types/etc/etcType';
-import { ExtraDetailProps, ExtraDetailDataProps } from "types/membership/extraType";
+import { ExtraDetailProps, ExtraDetailDataProps, MembershipListType, MembershipTotalType } from "types/membership/extraType";
 
 // service
 import MEMBERSHIP_SERVICE from "service/membershipService";
 
 // state
-import { franState } from "state";
+import { franState, loginState } from "state";
 import Loading from "pages/common/loading";
 
 const ExtraDetail: FC<ExtraDetailProps> = (props) => {
@@ -45,8 +46,8 @@ const ExtraDetail: FC<ExtraDetailProps> = (props) => {
                 </div>
             </div>
 
-            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableHead.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
+            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
                     <ExtraDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
                 </ErrorBoundary>
             </React.Suspense>
@@ -58,6 +59,7 @@ export default ExtraDetail;
 
 const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
+    const { userInfo: { f_list } } = useRecoilValue(loginState);
 
     // TODO: 상태
     const tableRef = useRef<null | HTMLTableElement>(null);
@@ -70,33 +72,41 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
     }) // etcDetailFooter 관련 내용
 
     // TODO: 프로시저 
-    let membershipListData: any = [];
-    const membershipListParams: EtcListParams = { fran_store: franCode, from_date: searchInfo.from + '-01', to_date: searchInfo.to + '-01' }
+    let membershipListData: MembershipListType[] = [];
+    const membershipListParams: EtcListParams = {
+        fran_store: franCode,
+        from_date: searchInfo.from + '-01',
+        to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
+    }
     const { data, isSuccess, isLoading, isError } = MEMBERSHIP_SERVICE.useMembershipList(membershipListParams);
     if (isSuccess) {
-        membershipListData = [...membershipListData, ...data]
+        membershipListData = [...membershipListData, ...data];
     }
 
-    // TODO: 엑셀 다운로드
-    const handleExcelPrint = () => {
-        if (tableRef.current) {
-            const options = {
-                type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
-                // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
-                sheetName: `${searchInfo.from}~${searchInfo.to}`, // 시트이름, 필수 X
-                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
-            };
+    const renderTableList = useMemo(() => {
+        return data?.reduce((arr: any, tbodyRow: any, index: number) => {
+            const {
+                std_date, total_stamp_cnt, convert_coupon_stamp_cnt, expired_stamp_cnt, total_coupon_cnt, total_coupon_amount,
+                used_coupon_cnt, used_coupon_amount, expired_coupon_cnt, expired_coupon_amount, total_point, used_point, expired_point
+            } = tbodyRow;
 
-            try {
-                Utils.excelDownload(tableRef.current, options, '바나 스탬프/쿠폰/바나포인트 상세내역');
-            }
-            catch (error) {
-                console.log(error);
-            }
-        };
-    };
+            arr.push(
+                <>
+                    <td className={index === 0 ? 'total' : ''}>{std_date}</td>
+                    <td className={index === 0 ? 'total' : ''}>{total_stamp_cnt}개</td>
+                    <td className={index === 0 ? 'total' : ''}>{convert_coupon_stamp_cnt}개</td>
+                    <td className={index === 0 ? 'total' : ''}>{expired_stamp_cnt}개</td>
+                    <td className={index === 0 ? 'total' : ''}>{total_coupon_cnt}개<p>({total_coupon_amount}원)</p></td>
+                    <td className={index === 0 ? 'total' : ''}>{used_coupon_cnt}개<p>({used_coupon_amount}원)</p></td>
+                    <td className={index === 0 ? 'total' : ''}>{expired_coupon_cnt}개<p>({expired_coupon_amount}원)</p></td>
+                    <td className={index === 0 ? 'total' : ''}>{total_point}P</td>
+                    <td className={index === 0 ? 'total' : ''}>{used_point}P</td>
+                    <td className={index === 0 ? 'total' : ''}>{expired_point}P</td>
+                </>
+            )
+            return arr;
+        }, [] as ReactNode[]);
+    }, [data]);
 
     return (
         <>
@@ -109,38 +119,24 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
                 <tbody>
                     {isLoading && <Loading width={100} height={100} isTable={true} />}
                     {isError && <tr><td colSpan={10}>에러가 발생했습니다.</td></tr>}
-                    {isSuccess && membershipListData.map((el: any, idx: number) => {
-                        if (
-                            (idx < (pageInfo.currentPage - 1) * pageInfo.row) || // 현재 페이지 이전에 있는 데이터
-                            (idx >= (pageInfo.currentPage * pageInfo.row)) // 현재 페이지 이후에 있는 데이터
-                        ) {
-                            return null;
-                        } else {
-                            const {
-                                std_date, total_stamp_cnt, convert_coupon_stamp_cnt, expired_stamp_cnt, total_coupon_cnt, total_coupon_amount,
-                                used_coupon_cnt, used_coupon_amount, expired_coupon_cnt, expired_coupon_amount, total_point, used_point, expired_point
-                            } = el;
-                            return (
-                                <tr key={`extra_detail_data_item_${idx}`}>
-                                    <td className={idx === 0 ? 'total' : ''}>{std_date}</td>
-                                    <td className={idx === 0 ? 'total' : ''}>{total_stamp_cnt}개</td>
-                                    <td className={idx === 0 ? 'total' : ''}>{convert_coupon_stamp_cnt}개</td>
-                                    <td className={idx === 0 ? 'total' : ''}>{expired_stamp_cnt}개</td>
-                                    <td className={idx === 0 ? 'total' : ''}>{total_coupon_cnt}개<p>({total_coupon_amount}원)</p></td>
-                                    <td className={idx === 0 ? 'total' : ''}>{used_coupon_cnt}개<p>({used_coupon_amount}원)</p></td>
-                                    <td className={idx === 0 ? 'total' : ''}>{expired_coupon_cnt}개<p>({expired_coupon_amount}원)</p></td>
-                                    <td className={idx === 0 ? 'total' : ''}>{total_point}P</td>
-                                    <td className={idx === 0 ? 'total' : ''}>{used_point}P</td>
-                                    <td className={idx === 0 ? 'total' : ''}>{expired_point}P</td>
-                                </tr>
-                            )
-                        }
+                    {renderTableList?.map((item: any, index: number) => {
+                        const isCurrentPage = (index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row);
+                        return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
                     })}
+                    {renderTableList?.length === 0 && <NoData isTable={true} />}
                 </tbody>
             </table>
 
-            {/* 엑셀 다운로드, etc -> 안 말고 밖으로 보내기*/}
-            <EtcDetailFooter excelFn={handleExcelPrint} dataCnt={membershipListData.length || 0} pageInfo={pageInfo} pageFn={setPageInfo} />
+            <EtcDetailFooter
+                dataCnt={membershipListData.length || 0}
+                pageInfo={pageInfo}
+                pageFn={setPageInfo}
+                tableRef={tableRef}
+                detailTableColGroup={detailTableColGroup}
+                fCodeName={f_list[0].f_code_name}
+                searchDate={`${searchInfo.from}~${searchInfo.to}`}
+                excelFileName={`멤버십누적내역`}
+            />
         </>
     )
 };
@@ -155,7 +151,7 @@ const ExtraDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: SearchIn
     return (
         <CalanderSearch
             title={`상세내역`}
-            dateType={'yyyy-MM-dd'}
+            dateType={'yyyy-MM'}
             searchInfo={tempSearchInfo}
             setSearchInfo={setTempSearchInfo}
             handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn

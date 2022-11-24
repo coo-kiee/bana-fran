@@ -1,7 +1,7 @@
-import React, { FC, useState, useRef } from "react";
+import React, { FC, useState, useRef, useMemo, ReactNode } from "react";
 import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
-import { format, subMonths } from "date-fns";
+import { format, isAfter, lastDayOfMonth, subMonths } from "date-fns";
 import Utils from "utils/Utils";
 import { useRecoilValue } from "recoil";
 
@@ -12,14 +12,15 @@ import { MonthRankDetailProps, MonthRankDetailDataProps } from "types/membership
 // component
 import CalanderSearch from "pages/common/calanderSearch";
 import Sticky from "pages/common/sticky";
-import { EtcDetailTableHead, EtcDetailTableFallback, EtcDetailTableErrorFallback } from "pages/etc/component/EtcDetailTable";
+import { EtcDetailTableHead, EtcDetailTableFallback } from 'pages/etc/component/EtcDetailTableHeader'
 import EtcDetailFooter from "pages/etc/component/EtcDetailFooter";
+import NoData from "pages/common/noData";
 
 // service
 import MEMBERSHIP_SERVICE from "service/membershipService";
 
 // state
-import { franState } from "state";
+import { franState, loginState } from "state";
 
 const MonthRankDetail: FC<MonthRankDetailProps> = ({ detailTableColGroup, detailTableHead }) => {
     const { reset } = useQueryErrorResetBoundary();
@@ -37,8 +38,8 @@ const MonthRankDetail: FC<MonthRankDetailProps> = ({ detailTableColGroup, detail
         <>
             <MonthRankDetailSearch handleSearchInfo={handleSearchInfo} />
 
-            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableErrorFallback colSpan={detailTableHead.length} colGroup={detailTableColGroup} theadData={detailTableHead} resetErrorBoundary={resetErrorBoundary} />} >
+            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
                     <MonthRankDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
                 </ErrorBoundary>
             </React.Suspense>
@@ -50,7 +51,8 @@ export default MonthRankDetail;
 
 const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
-
+    const { userInfo: { f_list } } = useRecoilValue(loginState);
+    console.log(`MonthRankDetailData`)
     // TODO: state
     const tableRef = useRef<null | HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
@@ -63,34 +65,33 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailT
 
     // TODO: 프로시저
     let rankListData: any = [];
-    const rankListParams: EtcListParams = { fran_store: franCode, from_date: searchInfo.from + '-01', to_date: searchInfo.to + '-01' };
+    const rankListParams: EtcListParams = {
+        fran_store: franCode,
+        from_date: searchInfo.from + '-01',
+        to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
+    };
     const { data, isSuccess } = MEMBERSHIP_SERVICE.useRankList(rankListParams);
     if (isSuccess) {
         rankListData = data;
-        // TODO: data에 빈배열 들어오는 경우 처리 
-        // TODO: 업데이트 처리 해주기
     }
 
-    // TODO: 엑셀 다운로드
-    const handleExcelPrint = () => {
-        if (tableRef.current) {
-            const options = {
-                type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
-                // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
-                sheetName: `${searchInfo.from}~${searchInfo.to}`, // 시트이름, 필수 X
-                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
-            };
+    const renderTableList = useMemo(() => {
+        return data?.reduce((arr: any, tbodyRow: any, index: number) => {
+            const { sDate, sName, nRank, sPhone, nickname } = tbodyRow;
+            const [rewardType, rewardAmount] = tbodyRow.gift.split(' ');
 
-            try {
-                Utils.excelDownload(tableRef.current, options, '바나 딜리버리 수수료');
-            }
-            catch (error) {
-                console.log(error);
-            }
-        };
-    };
+            arr.push(
+                <>
+                    <td>{sDate}</td>
+                    <td>{sName}</td>
+                    <td>{nRank}</td>
+                    <td>{sPhone || '번호 정보 없음'} <span>({nickname || '-'})</span></td>
+                    <td>{rewardType}<p>{rewardAmount}</p></td>
+                </>
+            )
+            return arr;
+        }, [] as ReactNode[]);
+    }, [data]);
 
     return (
         <>
@@ -101,30 +102,24 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailT
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
                 <tbody>
-                    {
-                        rankListData.map((data: any, idx: number) => {
-                            if (
-                                (idx < (pageInfo.currentPage - 1) * pageInfo.row) || // 현재 페이지 이전에 있는 데이터
-                                (idx >= (pageInfo.currentPage * pageInfo.row)) // 현재 페이지 이후에 있는 데이터
-                            ) {
-                                return null;
-                            } else {
-                                const [rewardType, rewardAmount] = data.gift.split(' ');
-                                return (
-                                    <tr key={`month_rank_row_item_${idx}`}>
-                                        <td>{data.sDate}</td>
-                                        <td>{data.sName}</td>
-                                        <td>{data.nRank}</td>
-                                        <td>{data.sPhone || '번호 정보 없음'} <span>({data.nickname || '-'})</span></td>
-                                        <td>{rewardType}<p>{rewardAmount}</p></td>
-                                    </tr>
-                                )
-                            }
-                        })
-                    }
+                    {renderTableList?.map((item: any, index: number) => {
+                        const isCurrentPage = (index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row);
+                        return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
+                    })}
+                    {renderTableList?.length === 0 && <NoData isTable={true} />}
                 </tbody>
             </table>
-            <EtcDetailFooter excelFn={handleExcelPrint} dataCnt={rankListData.length || 0} pageInfo={pageInfo} pageFn={setPageInfo} />
+
+            <EtcDetailFooter
+                dataCnt={rankListData.length || 0}
+                pageInfo={pageInfo}
+                pageFn={setPageInfo}
+                tableRef={tableRef}
+                detailTableColGroup={detailTableColGroup}
+                fCodeName={f_list[0].f_code_name}
+                searchDate={`${searchInfo.from}~${searchInfo.to}`}
+                excelFileName={`월간랭킹현황`}
+            />
         </>
     )
 }
@@ -139,7 +134,7 @@ const MonthRankDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: Sear
     return (
         <CalanderSearch
             title={`보상 지급 내역`}
-            dateType={'yyyy-MM-dd'}
+            dateType={'yyyy-MM'}
             searchInfo={tempSearchInfo}
             setSearchInfo={setTempSearchInfo}
             handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn

@@ -5,28 +5,25 @@ import { format, subMonths } from 'date-fns';
 
 // type
 import { RequestParams } from 'types/common';
-import { EtcTotalParams, EtcListParams, OrderDetailModalParams, OrderDetailModalItemType } from 'types/etc/etcType';
+import { EtcTotalParams, EtcListParams, OrderDetailModalParams, OrderDetailModalItemType, OrderDetailListType } from 'types/etc/etcType';
 
 // TODO: 수수료 내역 (*_total 프로시저 공통 함수)
-const useEtcTotal = <T extends EtcTotalParams, U>(query: string, params: T, queryKey: string, selectFn?: any): UseQueryResult<U, AxiosError<unknown, any>> => {
+const useEtcTotal = <T extends EtcTotalParams, U>(query: string, params: T, queryKey: string, option?: { [key: string]: any }): UseQueryResult<U, AxiosError<unknown, any>> => {
     // paramType, resultType, query, params, queryKey
     const reqData: RequestParams<T> = { ws: 'fprocess', query, params };
     return useQuery<U, AxiosError>([queryKey, params.fran_store], () => queryFn.getData(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: true,
+        suspense: false,
         onError: (err: any) => {
             queryFn.axiosError(err);
         },
-        select: (data: any) => {
-            return !!selectFn ? selectFn(data) : data
-        }
     });
 };
 
 // TODO: 상세 내역 (*_list 프로시저 공통 함수)
-const useEtcList = <T extends EtcListParams>(query: string, params: T, queryKey: string, selectFn?: any): UseQueryResult<any, AxiosError<unknown, any>> => {
+const useEtcList = <T extends EtcListParams>(query: string, params: T, queryKey: string, option?: { [key: string]: any }): UseQueryResult<any, AxiosError<unknown, any>> => {
     const reqData: RequestParams<T> = { ws: 'fprocess', query, params };
     return useQuery([queryKey, params.from_date, params.to_date, params.fran_store], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
@@ -36,9 +33,6 @@ const useEtcList = <T extends EtcListParams>(query: string, params: T, queryKey:
         onError: (err: any) => {
             queryFn.axiosError(err);
         },
-        select: (data: any) => {
-            return !!selectFn ? selectFn(data) : data
-        }
     });
 };
 
@@ -51,7 +45,7 @@ const useOrderDetailStatistic = (params: EtcTotalParams) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: true,
+        suspense: false,
         onError: (err: any) => {
             queryFn.axiosError(err);
         },
@@ -62,12 +56,26 @@ const useOrderDetailStatistic = (params: EtcTotalParams) => {
                 previousMonths[idx2] = { date_monthly: month, amount: 0 }
             }); // previousMonths = [ {date_monthly: '2022-11', amount: 0}, ...,  {date_monthly: '2022-01', amount: 0}], 최근을 앞에 오게
 
-            data.map((el: any, idx: number) => {
+            data.forEach((el: any, idx: number) => {
                 previousMonths[idx] = { ...previousMonths[idx], amount: el.amount }
             }); // 내림차순이라 idx 그대로 사용 가능
 
-            return previousMonths.reverse(); // 순서 뒤집어주고 정리
-        }
+            return previousMonths.reverse(); // 순서 뒤집어주고 정리  
+        },
+    });
+}
+
+const useOrderDetailList = (params: EtcListParams) => {
+    const reqData: RequestParams<EtcListParams> = { ws: 'fprocess', query: 'JNXWSFKFWJJD8DRH9OEU', params };
+    return useQuery<OrderDetailListType[], AxiosError>(['etc_order_detail_list', params.from_date, params.to_date, params.fran_store], () => queryFn.getDataList(reqData), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        enabled: !!params.fran_store && !!params.from_date && !!params.to_date,
+        suspense: true,
+        onError: (err: any) => {
+            queryFn.axiosError(err);
+        },
     });
 }
 
@@ -78,7 +86,7 @@ const useOrderDetailModal = (params: OrderDetailModalParams) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: true,
+        // suspense: true,
     });
 }
 
@@ -86,6 +94,7 @@ const ETC_SERVICE = {
     useEtcTotal,
     useEtcList,
     useOrderDetailStatistic,
+    useOrderDetailList,
     useOrderDetailModal,
 };
 

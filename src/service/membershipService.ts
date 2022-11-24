@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
 import { AxiosError } from 'axios';
 
@@ -86,14 +86,32 @@ const useRankEdit = (params: RankEditParams) => {
 }; // web_fran_u_membership_rank_info
 
 const useRankEditList = (data: RankEditParams[]) => {
-    const mutateRank1 = useRankEdit(data[0]);
-    const mutateRank2 = useRankEdit(data[1]);
-    const mutateRank3 = useRankEdit(data[2]);
-    const mutateRank4 = useRankEdit(data[3]);
-    const mutateRank5 = useRankEdit(data[4]);
+    const queryClient = useQueryClient();
 
-    return { mutateRank1, mutateRank2, mutateRank3, mutateRank4, mutateRank5 }
-};
+    const { mutateAsync: mutateRank1 } = useRankEdit(data[0]);
+    const { mutateAsync: mutateRank2 } = useRankEdit(data[1]);
+    const { mutateAsync: mutateRank3 } = useRankEdit(data[2]);
+    const { mutateAsync: mutateRank4 } = useRankEdit(data[3]);
+    const { mutateAsync: mutateRank5 } = useRankEdit(data[4]);
+
+    const useRankEditMutate = async () => {
+        try {
+            // mutate
+            await mutateRank1();
+            await mutateRank2();
+            await mutateRank3();
+            await mutateRank4();
+            await mutateRank5();
+
+            await queryClient.invalidateQueries(["membership_rank_info", data[0].fran_store]);
+            alert('등록이 완료되었습니다.')
+        } catch (err) {
+            alert(`문제가 생겼습니다.\n관리자에게 문의하세요.`);
+        }
+    }
+
+    return useRankEditMutate;
+}; // web_fran_u_membership_rank_info -> useMutations 만들기
 
 const useRankList = (params: EtcListParams) => {
     const reqData: RequestParams<EtcListParams> = { ws: 'fprocess', query: 'KUUM9RON9HGD55IBRLQB', params };

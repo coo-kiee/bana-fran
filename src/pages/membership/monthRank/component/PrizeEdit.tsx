@@ -1,28 +1,19 @@
 import React, { useState, FC, useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
-import { ErrorBoundary } from 'react-error-boundary'
-import { useQueryErrorResetBoundary, useQueryClient } from 'react-query'
+import { useQueryClient } from 'react-query'
 
 // state
 import { franState, loginState } from 'state'
 
-// component
-import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
-
 // type
-import { RANK_REWARD_TYPE, RANK_REWARD_LIST, RewardEditItemType, RewardEditDataProps, RankEditParams } from 'types/membership/monthRankType'
+import { RANK_REWARD_TYPE, RANK_REWARD_LIST, RewardEditItemType, RewardEditDataProps } from 'types/membership/monthRankType'
+
+// service
 import MEMBERSHIP_SERVICE from 'service/membershipService'
 
-interface PrizeEditProps {
-    setPopupRankReward: React.Dispatch<React.SetStateAction<boolean>>
-}
-
-const PrizeEdit: FC<PrizeEditProps> = ({ setPopupRankReward }) => {
+const PrizeEdit: FC<{ setPopupRankReward: React.Dispatch<React.SetStateAction<boolean>> }> = ({ setPopupRankReward }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { staff_name } } = useRecoilValue(loginState);
-
-    const { reset } = useQueryErrorResetBoundary();
     const queryClient = useQueryClient();
 
     const colGroup = ['61', '91', '272', '215'];
@@ -47,14 +38,14 @@ const PrizeEdit: FC<PrizeEditProps> = ({ setPopupRankReward }) => {
         return tempRewardInfo;
     };
 
+    // TODO: 상태
     const [rewardValue, setRewardValue] = useState<{ [key: string]: RewardEditItemType }>({
         reward1: handleRewardInfo(data.rank_reward_1),
         reward2: handleRewardInfo(data.rank_reward_2),
         reward3: handleRewardInfo(data.rank_reward_3),
         reward4: handleRewardInfo(data.rank_reward_4),
         reward5: handleRewardInfo(data.rank_reward_5),
-    }); // 입력값 관련
-    const [isLoading, setIsLoading] = useState(false); // 로딩 상태
+    }); // 입력값 관련 
 
     // 상태 관련
     const handleRewardValue = (keyName: string, target: { [key in keyof RewardEditItemType]?: RewardEditItemType[key] }) => {
@@ -79,7 +70,7 @@ const PrizeEdit: FC<PrizeEditProps> = ({ setPopupRankReward }) => {
     };
 
     const editList = useMemo(() => {
-        const handlePayment = ({ none, coupon, point }: RewardEditItemType) => {
+        const handlePayment = ({ coupon, point }: RewardEditItemType) => {
             if (coupon > 0) return { type: 'C', amount: coupon };
             else if (point > 0) return { type: 'P', amount: point };
             else return { type: 'N', amount: 0 };
@@ -89,31 +80,13 @@ const PrizeEdit: FC<PrizeEditProps> = ({ setPopupRankReward }) => {
             const { type, amount } = handlePayment(reward);
             return { fran_store: franCode, rank_number: idx + 1, payment_type: type, payment: amount, user_name: staff_name, } // reqData 준비
         })
-    }, [rewardValue]);
-    const { mutateRank1, mutateRank2, mutateRank3, mutateRank4, mutateRank5 } = MEMBERSHIP_SERVICE.useRankEditList(editList);
+    }, [franCode, staff_name, rewardValue]);
+    const mutate = MEMBERSHIP_SERVICE.useRankEditList(editList);
 
     // 저장버튼 클릭 
     const handleEditSave = async () => {
-        try {
-            setIsLoading(true); // 로딩 컴포넌트 보여주기
-
-            // mutation 요청보내기
-            await mutateRank1.mutateAsync();
-            await mutateRank2.mutateAsync();
-            await mutateRank3.mutateAsync();
-            await mutateRank4.mutateAsync();
-            await mutateRank5.mutateAsync();
-
-            // invalidateQuery
-            await queryClient.invalidateQueries(["membership_rank_info", franCode]);
-
-            setIsLoading(false); // 로딩 컴포넌트 끄기
-            setPopupRankReward(false) // 창 닫기
-            alert('등록이 완료되었습니다.'); // alert로 안내하기
-        } catch (err) {
-            setIsLoading(false); // 로딩 컴포넌트 닫기
-            alert(`문제가 생겼습니다.\n관리자에게 문의하세요.`); // alert로 안내하기
-        }
+        await mutate();
+        setPopupRankReward(false)
     };
 
     return (
@@ -126,16 +99,10 @@ const PrizeEdit: FC<PrizeEditProps> = ({ setPopupRankReward }) => {
                         {colGroup.map((col, idx) => <col key={`month_rank_edit_col_${idx}`} width={col} />)}
                     </colgroup>
                     <tbody>
-                        <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />}>
-                            {isLoading ?
-                                <Loading width={150} height={150} isTable={true} />
-                                :
-                                RANK_REWARD_LIST.map((type: number, idx: number) => {
-                                    const { title, value } = rankEditList[type];
-                                    return <PrizeEditData key={`month_rank_edit_row_${idx}`} idx={idx} title={title} value={value} handleRewardValue={handleRewardValue} />
-                                })
-                            }
-                        </ErrorBoundary>
+                        {RANK_REWARD_LIST.map((type: number, idx: number) => {
+                            const { title, value } = rankEditList[type];
+                            return <PrizeEditData key={`month_rank_edit_row_${idx}`} idx={idx} title={title} value={value} handleRewardValue={handleRewardValue} />
+                        })}
                     </tbody>
                 </table>
                 <button className="btn-close setting-close" onClick={() => setPopupRankReward((prev) => false)}></button>

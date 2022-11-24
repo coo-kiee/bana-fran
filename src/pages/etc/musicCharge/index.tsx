@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { format, subMonths, lastDayOfMonth, isAfter } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 
 // type
 import { SearchInfoType } from "types/etc/etcType";
