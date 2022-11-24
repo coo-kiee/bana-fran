@@ -17,6 +17,7 @@ import Pagination from "pages/common/pagination";
 import CalanderSearch from "pages/common/calanderSearch";
 import LineChart from "pages/sales/statistic/chart";
 import SalesStatisticTable from "pages/sales/statistic/table";
+import NoData from 'pages/common/noData';
 
 const SalesStatistic = () => {
 	// global states
@@ -178,7 +179,7 @@ const SalesStatistic = () => {
 						{!(isLoading || isRefetching) ? ( // loading, refetching 아닐 때
 							data ? 
 							<LineChart filterChart={filterChart} data={data} searchType={searchTypeMemo} /> : 
-							<div className="no-chart">No Data</div>
+							<div className="no-chart"><NoData /></div>
 						) : (
 							<div className='chart-loading-wrap'>
 								<Loading width={100} height={100} marginTop={0} />
