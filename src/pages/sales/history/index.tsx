@@ -212,7 +212,7 @@ const SalesHistory = () => {
 				</div>
 				<Pagination
 					dataCnt={filteredData()?.length || 0}
-					pageInfo={{row: rowPerPage, currentPage, boundaryRange: 5}}
+					pageInfo={{row: rowPerPage, currentPage}}
 					handlePageChange={setCurrentPage}
 					handlePageRow={setRowPerPage}
 				/>

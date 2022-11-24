@@ -178,7 +178,7 @@ const SalesStatistic = () => {
 						{!(isLoading || isRefetching) ? ( // loading, refetching 아닐 때
 							data ? 
 							<LineChart filterChart={filterChart} data={data} searchType={searchTypeMemo} /> : 
-							<div className="no-chart">NoData</div>
+							<div className="no-chart">No Data</div>
 						) : (
 							<div className='chart-loading-wrap'>
 								<Loading width={100} height={100} marginTop={0} />
@@ -203,7 +203,7 @@ const SalesStatistic = () => {
 				</div>
 				<Pagination 
 					dataCnt={sortedData?.length} 
-					pageInfo={{row: rowPerPage, currentPage, boundaryRange: 5}} 
+					pageInfo={{row: rowPerPage, currentPage}} 
 					handlePageChange={setCurrentPage} 
 					handlePageRow={setRowPerPage}
 				/>
