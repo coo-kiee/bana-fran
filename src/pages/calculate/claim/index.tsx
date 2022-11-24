@@ -33,7 +33,7 @@ const CalculateClaim: FC = () => {
     const fromDate = format(subMonths(new Date(), 1), 'yyyy-MM-01');
     const toDate = format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd');
     const initialSearchDate = Object.values(CLAIM_TAB_TYPE).reduce((arr, cur) => {
-        arr[cur] = { fromDate: Utils.converDateFormat(fromDate, '-'), toDate: Utils.converDateFormat(toDate, '-') };
+        arr[cur] = { fromDate, toDate };
         return arr
     }, {} as TabSearchDateInfo);
     

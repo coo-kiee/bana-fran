@@ -17,10 +17,10 @@ const NoData: FC<NoDataProps> = ({ rowSpan = 10, colSpan = 20, paddingTop = 103,
                 rowSpan={rowSpan}
                 colSpan={colSpan}
                 style={showImg ? undefined : { fontSize:25, color:'#555', background: '#fff', paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }} >
-                No Data
+                내역이 없습니다.
             </td>
         </tr>
-        : <span style={showImg ? undefined : { fontSize:25, color:'#555', background: '#fff', paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }} >No Data</span>
+        : <span style={showImg ? undefined : { fontSize:25, color:'#555', background: '#fff', paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }} >내역이 없습니다.</span>
     );
 }
 

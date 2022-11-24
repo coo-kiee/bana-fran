@@ -482,7 +482,7 @@ select { @include select-style; }
             span { color: #f1658a; font-weight: bold; }
         }
     }
-    .price-info { line-height: 20px; margin-top: 30px; font-size: 12px; font-weight: 300; color: #888; 
+    .price-info { line-height: 30px; margin-top: 30px; font-size: 14px; font-weight: 300; color: #888; 
         span { color: #000; font-weight: bold; }
     }
 }
@@ -490,11 +490,12 @@ select { @include select-style; }
 .title { margin-top: 30px; font-size: 20px; font-weight: bold; 
     .sub-title { 
         display: block;
-        font-size: 12px; 
+        font-size: 14px; 
         font-weight: 300; 
         color: #888; 
         &:first-child { margin-top: 10px; }
         &.point { color: #f52323; }
+        line-height: 30px;
     }
 }
 

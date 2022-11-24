@@ -1,12 +1,15 @@
 import { FC, Suspense, useEffect, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
 // Component
 import Loading from "pages/common/loading";
+import CalculateTableHeader from "../component/CalculateTableHeader";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 // API
 import CALCULATE_SERVICE from 'service/calculateService';
-import { ErrorBoundary } from "react-error-boundary";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+
+// Hook
 import { useEventKeyCode } from "hooks/useEventKeyCode";
 
 interface ChangeHistoryProps {
@@ -18,7 +21,7 @@ interface ChangeHistoryProps {
 const ChangeHistory: FC<ChangeHistoryProps> = ({ fCode, staffNo, calculateId, handlePopup }) => {
 
     const [dataCnt, setDataCnt] = useState(0);
-    const { width, headerText } = TABLE_COLUMN_INFO;
+    const { width, thInfo } = TABLE_COLUMN_INFO;
 
     const closePopup = () => {
         handlePopup('changeHistory', false);
@@ -32,12 +35,7 @@ const ChangeHistory: FC<ChangeHistoryProps> = ({ fCode, staffNo, calculateId, ha
                 <p className="title">수정요청/변경이력</p>
                 <div style={{ overflow: 'auto', maxHeight: '1000px' }}>
                     <table className="board-wrap" cellPadding="0" cellSpacing="0">
-                        {/* Column Width */}
-                        <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
-                        {/* Table Header  */}
-                        <thead>
-                            <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
-                        </thead>
+                        <CalculateTableHeader width={width} thInfo={thInfo} />
                         <tbody>
                             {/* List */}
                             <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <tr><td rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ paddingTop: '40px' }}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} /></td></tr>} onError={(e) => console.log('changeHistory', e)}>
@@ -102,5 +100,12 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, calculateId, setDataCnt
 // Component Type
 const TABLE_COLUMN_INFO = {
     width: ['130', '98', '98', '372', '250', '250'],
-    headerText: ['일시', '구분', '등록자', '수정요청/답변내용', '변경 전', '변경 후'],
+    thInfo: [
+        { text: '일시'},
+        { text: '구분'},
+        { text: '등록자'},
+        { text: '수정요청/답변내용'},
+        { text: '변경 전'},
+        { text: '변경 후'},
+    ],
 } as const;

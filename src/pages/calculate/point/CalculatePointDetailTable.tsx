@@ -45,7 +45,7 @@ const CalculatePointDetailTable: FC<CalculatePointDetailTableProps> = ({ userInf
 
     // 테이블 상단 정보
     const initialTotalInfo = useMemo(() => {
-        return Object.values(POINT_TYPE).reduce((arr, cur, index) => {
+        return Object.values(POINT_TYPE).reduce((arr, cur) => {
             const key = POINT_TYPE_OPTION[cur].value;
             const totalTitle = POINT_TOTAL_TITLE[key];
             arr[key] = { title: totalTitle, sum: 0 };
@@ -54,8 +54,8 @@ const CalculatePointDetailTable: FC<CalculatePointDetailTableProps> = ({ userInf
     }, []);
 
     const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
-        titleFrom: Utils.converDateFormat(searchCondition.from, '-'),
-        titleTo: Utils.converDateFormat(searchCondition.to, '-'),
+        titleFrom: fromDate,
+        titleTo: toDate,
         totalInfo: initialTotalInfo,
     });
 
@@ -124,12 +124,10 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, initia
 
     const { currentPage, row } = pageInfo;
     const { searchOption, from, to, searchTrigger } = searchCondition;
-    const fromDate = Utils.converDateFormat(from, '-');
-    const toDate = Utils.converDateFormat(to, '-');
 
     // eslint-disable-next-line
-    const listQueryKey = useMemo(() => ['calculatePointDetail', JSON.stringify({ fCode, staffNo, fromDate, toDate })], [fCode, staffNo, searchTrigger]);
-    const { data: pointDetailList } = CALCULATE_SERVICE.useCalculatePointDetail(listQueryKey, fCode, staffNo, fromDate, toDate);
+    const listQueryKey = useMemo(() => ['calculatePointDetail', JSON.stringify({ fCode, staffNo, from, to })], [fCode, staffNo, searchTrigger]);
+    const { data: pointDetailList } = CALCULATE_SERVICE.useCalculatePointDetail(listQueryKey, fCode, staffNo, from, to);
 
     // Table render Node 필터링, 충전/잔돈 포인트 합계 계산
     const [renderTableList, totalInfoRes] = useMemo(() => {
@@ -179,7 +177,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, initia
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, titleFrom: fromDate, titleTo: toDate, totalInfo: totalInfoRes }));
+        setTableTopInfo(prev => ({ ...prev, titleFrom: from, titleTo: to, totalInfo: totalInfoRes }));
         // eslint-disable-next-line
     }, [setTableTopInfo, renderTableList]);
 

@@ -34,8 +34,8 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
     const { f_code, staff_no, f_code_name } = userInfo;
 
     // 검색 조건
-    const fromDate = format(subMonths(new Date(), 1), 'yyyy-MM-01');
-    const toDate = format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd');
+    const fromDate = format(subMonths(new Date(), 1), 'yyyy-MM');
+    const toDate = format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM');
     const [searchCondition, setSearchCondition] = useState<SearchCondition>({
         from: fromDate, // 달력 선택 정보
         to: toDate, // 달력 선택 정보
@@ -44,11 +44,12 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
     });
 
     const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
-        titleFrom: Utils.converDateFormat(searchCondition.from, '-'),
-        titleTo: Utils.converDateFormat(searchCondition.to, '-'),
+        titleFrom: fromDate,
+        titleTo: toDate,
         totalBilling: 0,
         totalConservation: 0,
     });
+    console.log(tableTopInfo.titleFrom, tableTopInfo.titleTo);
 
     const [pageInfo, setPageInfo] = useState({
         dataCnt: 0,
@@ -102,13 +103,14 @@ const TableTop: FC<TableTopProps> = ({ searchCondition, setSearchCondition, tabl
         <>
             <CalanderSearch
                 title={'상세내역'}
-                dateType={'yyyy-MM-dd'}
+                dateType={'yyyy-MM'}
                 searchInfo={searchCondition}
                 setSearchInfo={setSearchCondition}
                 optionType={'SELECT'}
                 selectOption={[ETC_TYPE]} // select로 나타날 옵션 정보
                 optionList={[Object.keys(ETC_TYPE)]} // option 맵핑할 때 사용  
                 handleSearch={() => { handleSearch() }}
+                showMonthYearPicker={true}
             />
             <div className="search-result-wrap">
                 {
@@ -117,7 +119,7 @@ const TableTop: FC<TableTopProps> = ({ searchCondition, setSearchCondition, tabl
                             <p>조회기간: {titleFrom} ~ {titleTo}</p>
                         </div>
                         <ul className="search-result">
-                            <li>청구 금액 합계<span className="colon"></span><span className="value">10,000원</span></li>
+                            <li>청구 금액 합계<span className="colon"></span><span className="value">-10,000원</span></li>
                             <li>보전 금액 합계<span className="colon"></span><span className="value">10,000원</span></li>
                             {/* <li>충전포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalChargePoint)}원</span></li>
                             <li>잔돈포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalPointChange)}원</span></li>
@@ -150,12 +152,10 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
 
     const { currentPage, row } = pageInfo;
     const { searchOption, from, to, searchTrigger } = searchCondition;
-    const fromDate = Utils.converDateFormat(from, '-');
-    const toDate = Utils.converDateFormat(to, '-');
 
     // eslint-disable-next-line
-    const listQueryKey = useMemo(() => ['calculateEtcDetail', JSON.stringify({ fCode, staffNo, fromDate, toDate })], [fCode, staffNo, searchTrigger]);
-    const { data: etcDetailList } = CALCULATE_SERVICE.useCalculateEtcDetail(listQueryKey, fCode, staffNo, fromDate, toDate);
+    const listQueryKey = useMemo(() => ['calculateEtcDetail', JSON.stringify({ fCode, staffNo, from, to })], [fCode, staffNo, searchTrigger]);
+    const { data: etcDetailList } = CALCULATE_SERVICE.useCalculateEtcDetail(listQueryKey, fCode, 0, from, to);
 
     // Table render Node 필터링, 충전/잔돈 포인트 합계 계산
     const [renderTableList, totalBilling, totalConservation] = useMemo(() => {
@@ -213,7 +213,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, titleFrom: fromDate, titleTo: toDate, totalBilling, totalConservation }));
+        setTableTopInfo(prev => ({ ...prev, titleFrom: from, titleTo: to, totalBilling, totalConservation }));
         // eslint-disable-next-line
     }, [setTableTopInfo, totalBilling, totalConservation]);
 
@@ -233,7 +233,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
 const TABLE_COLUMN_INFO = {
     width: ['128', '68', '*', '130', '130', '130'],
     thInfo: [
-        { text: '발행일시', rowSpan: 2, colSpan: 1, className: '' },
+        { text: '정산월', rowSpan: 2, colSpan: 1, className: '' },
         { text: '구분', rowSpan: 2, colSpan: 1, className: '' },
         { text: '내용', rowSpan: 2, colSpan: 1, className: '' },
         { text: '기타 정산 금액', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },

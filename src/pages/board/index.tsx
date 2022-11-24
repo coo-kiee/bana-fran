@@ -29,6 +29,7 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
     const boardType = Number(bType) as BoardInfo['type'] | 0;
     // 숫자이고, 0보다 크고, 현재 게시판 탭 그룹에 속해 있을때
     const isBoardGroupType = !Utils.strNumberCheck(bType) && boardType > 0 && Object.values(BOARD_GROUP[menuType]).filter((boardInfo) => boardInfo.type === boardType).length > 0;
+    const isBoardId = !Utils.strNumberCheck(bId) && Number(bId) > 0;
     
     // 게시판 타입이 아닐 시 이전페이지로 이동
     const navigation = useNavigate();
@@ -39,7 +40,6 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
     // 게시판 탭 변경 & 게시판 상세 이동
     useEffect(() => {
         const boardId = Number(bId);
-        const isBoardId = !Utils.strNumberCheck(bId) && boardId > 0;
 
         if (boardType === 0) { // 페이지 처음 로딩 시
             setListSearchParameter(prev => ({ ...prev, board_type: BOARD_GROUP[menuType][0].type })); // 게시판 첫번째 탭 type 입력
@@ -101,10 +101,10 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
                             <BoardTab menuType={menuType} boardType={board_type} detailInfo={detailInfo} />
                             <div id="tab1" className="tab-content active">
                                 {
-                                    isDetail ?
+                                    (isDetail || isBoardId) ?
                                         // 게시판 상세
                                         <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('detailError', e)}>
-                                            <Suspense fallback={<Loading marginTop={100} />}>
+                                            <Suspense fallback={<Loading marginTop={300} />}>
                                                 <BoardDetail menuType={menuType} boardId={boardId} staffNo={staff_no} fCode={f_code} setDetailInfo={setDetailInfo} />
                                             </Suspense>
                                         </ErrorBoundary>

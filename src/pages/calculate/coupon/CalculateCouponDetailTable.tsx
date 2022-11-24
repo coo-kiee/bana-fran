@@ -67,8 +67,8 @@ const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userI
 
     // 테이블 상단 정보
     const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
-        titleFrom: Utils.converDateFormat(searchCondition.from, '-'),
-        titleTo: Utils.converDateFormat(searchCondition.to, '-'),
+        titleFrom: fromDate,
+        titleTo: toDate,
         totalInfo: {},
     });
 
@@ -137,12 +137,10 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
 
     const { currentPage, row } = pageInfo;
     const { searchOption, from, to, searchTrigger } = searchCondition;
-    const fromDate = Utils.converDateFormat(from, '-');
-    const toDate = Utils.converDateFormat(to, '-');
 
     // eslint-disable-next-line
-    const listQueryKey = useMemo(() => ['calculateCouponDetail', JSON.stringify({ fCode, staffNo, fromDate, toDate })], [fCode, staffNo, searchTrigger]);
-    const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetail(listQueryKey, fCode, staffNo, fromDate, toDate);
+    const listQueryKey = useMemo(() => ['calculateCouponDetail', JSON.stringify({ fCode, staffNo, from, to })], [fCode, staffNo, searchTrigger]);
+    const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetail(listQueryKey, fCode, staffNo, from, to);
 
     // Table render Node 필터링, 쿠폰 사용금액 합계 계산
     const [renderTableList, totalSumObj = {}] = useMemo(() => {
@@ -201,7 +199,7 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, titleFrom: fromDate, titleTo: toDate, totalInfo: totalSumObj }));
+        setTableTopInfo(prev => ({ ...prev, titleFrom: from, titleTo: to, totalInfo: totalSumObj }));
         // eslint-disable-next-line
     }, [setTableTopInfo, renderTableList]);
 
