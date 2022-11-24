@@ -46,7 +46,7 @@ const CalculateDetailTableBottom = <T extends unknown>({ fCodeName, titleFrom, t
                 sheetName: '', // 시트이름, 필수 X
             };
 
-            const fileName = `${titleFrom}~${titleTo}_${fCodeName}_${excelFileName}`;
+            const fileName = `${fCodeName}_${excelFileName}(${titleFrom}~${titleTo})`;
 
             Utils.excelDownload(tableRef.current, options, fileName);
         };

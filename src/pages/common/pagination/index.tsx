@@ -34,6 +34,10 @@ const Pagination:FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, h
     // 페이지 번호 클릭
     const handlePage: MouseEventHandler<HTMLElement> = (e) => {
         const changePage = Number(e.currentTarget.innerText);
+        // const tables = document.getElementsByTagName('table');
+        // console.log(tables);
+        // if(tables) console.log(tables[0].getBoundingClientRect().top, tables[1].getBoundingClientRect().top, window.pageYOffset + tables[1].getBoundingClientRect().top)
+        window.scrollTo({ top: 0 }); // 페이지 최상단으로 스크롤 이동
         handlePageChange(changePage);
     };
     
@@ -54,7 +58,7 @@ const Pagination:FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, h
     };
 
     // 리스트 개수 선택
-    const rows = [3, 50, 100, 150, 200];
+    const rows = [3, 20, 30, 50, 100];
     const handleListRow:ChangeEventHandler<HTMLSelectElement> = (e) => {
         const row = Number(e.currentTarget.value);
         handlePageRow(row);

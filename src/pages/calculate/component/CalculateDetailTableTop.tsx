@@ -1,27 +1,28 @@
-import { FC, ReactNode } from "react";
+import { FC } from "react";
 
 // Type
 import { SearchInfoRadioType, SearchInfoSelectType, SearchInfoType } from "types/etc/etcType";
 
 // Component
 import CalanderSearch from "pages/common/calanderSearch";
+import Utils from "utils/Utils";
 
 interface CalculateDetailTableTopProps {
     calanderSearchOption: {
         title?: string,
         dateTitle?: string,
         optionType?: 'SELECT' | 'RADIO',
-        selectOption?: Array<{ [x: string | number]: { title: string, value: string | number } }>,
+        selectOption?: Array<{ [key: string | number]: { title: string, value: string | number } }>,
         optionList?: Array<any>,
         handleSearch?: () => void,
     },
     titleFrom: string,
     titleTo: string,
-    searchResult: ReactNode,
+    totalInfo: { [key: string | number]: { title: string, sum: number } },
     searchCondition: SearchInfoRadioType | SearchInfoSelectType | SearchInfoType,
     setSearchCondition: React.Dispatch<React.SetStateAction<any>>,
 };
-const CalculateDetailTableTop: FC<CalculateDetailTableTopProps> = ({ calanderSearchOption, titleFrom, titleTo, searchResult, searchCondition, setSearchCondition }) => {
+const CalculateDetailTableTop: FC<CalculateDetailTableTopProps> = ({ calanderSearchOption, titleFrom, titleTo, totalInfo, searchCondition, setSearchCondition }) => {
 
     const { title = '', dateTitle = '', optionType = undefined, selectOption = [], optionList = [], handleSearch } = calanderSearchOption;
 
@@ -42,13 +43,10 @@ const CalculateDetailTableTop: FC<CalculateDetailTableTopProps> = ({ calanderSea
                 {
                     <>
                         <div className="search-date">
-                            {/* <p>조회기간: {titleFrom} ~ {titleTo}</p> */}
+                            <p>조회기간: {titleFrom} ~ {titleTo}</p>
                         </div>
                         <ul className="search-result">
-                            {/* {searchResult} */}
-                            {/* <li>충전포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalChargePoint)}원</span></li>
-                            <li>잔돈포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalPointChange)}원</span></li>
-                            <li>유상(충전+잔돈)포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalChargePoint + totalPointChange)}원</span></li> */}
+                            {totalInfo && Object.values(totalInfo).map((total, index) => <li key={index}>{total.title} : <span className="value">{Utils.numberComma(total.sum)}원</span></li>)}
                         </ul>
                     </>
                 }

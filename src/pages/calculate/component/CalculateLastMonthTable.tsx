@@ -25,7 +25,7 @@ interface CalculateLastMonthTableProps {
 const CalculateLastMonthTable: FC<CalculateLastMonthTableProps> = ({ userInfo, caculateType }) => {
 
     // 사용자 정보
-    const { f_code, staff_no, f_code_name } = userInfo;
+    const { f_code, staff_no } = userInfo;
 
     const now = new Date();
     const year = now.getFullYear();

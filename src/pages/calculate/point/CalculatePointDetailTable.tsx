@@ -15,10 +15,11 @@ import { SearchInfoSelectType } from "types/etc/etcType";
 
 // Component
 import Loading from "pages/common/loading";
-import CalanderSearch from "pages/common/calanderSearch";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import NoData from "pages/common/noData";
 import CalculateDetailTableBottom from "../component/CalculateDetailTableBottom";
+import CalculateDetailTableTop from "../component/CalculateDetailTableTop";
+import CalculateTableHeader from "../component/CalculateTableHeader";
 
 interface CalculatePointDetailTableProps {
     userInfo: {
@@ -38,22 +39,24 @@ const CalculatePointDetailTable: FC<CalculatePointDetailTableProps> = ({ userInf
     const [searchCondition, setSearchCondition] = useState<SearchCondition>({
         from: fromDate, // 달력 선택 정보
         to: toDate, // 달력 선택 정보
-        searchOption: [POINT_TYPE.ALL, DEVICE_TYPE.ALL,], // 필터링 옵션
+        searchOption: [POINT_TYPE_OPTION[POINT_TYPE.ALL], DEVICE_TYPE_OPTION[DEVICE_TYPE.ALL],], // 필터링 옵션
         searchTrigger: false, // query trigger
     });
 
     // 테이블 상단 정보
+    const initialTotalInfo = useMemo(() => {
+        return Object.values(POINT_TYPE).reduce((arr, cur, index) => {
+            const key = POINT_TYPE_OPTION[cur].value;
+            const totalTitle = POINT_TOTAL_TITLE[key];
+            arr[key] = { title: totalTitle, sum: 0 };
+            return arr;
+        }, {} as TotalInfo);
+    }, []);
+
     const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
         titleFrom: Utils.converDateFormat(searchCondition.from, '-'),
         titleTo: Utils.converDateFormat(searchCondition.to, '-'),
-        totalChargePoint: 0, // 충전포인트 합계
-        totalPointChange: 0, // 잔돈포인트 합계
-    });
-
-    const [pageInfo, setPageInfo] = useState({
-        dataCnt: 0,
-        currentPage: 1,
-        row: 50,
+        totalInfo: initialTotalInfo,
     });
 
     // 테이블 상단 검색영역 파라미터
@@ -61,36 +64,36 @@ const CalculatePointDetailTable: FC<CalculatePointDetailTableProps> = ({ userInf
         title: '상세내역',
         dateType: 'yyyy-MM-dd',
         optionType: 'SELECT' as const,
-        selectOption: [POINT_TYPE, DEVICE_TYPE], // select로 나타날 옵션 정보
-        optionList: [Object.keys(POINT_TYPE), Object.keys(DEVICE_TYPE)], // option 맵핑할 때 사용  
+        selectOption: [POINT_TYPE_OPTION, DEVICE_TYPE_OPTION], // select로 나타날 옵션 정보
+        optionList: [Object.keys(POINT_TYPE_OPTION), Object.keys(DEVICE_TYPE_OPTION)], // option 맵핑할 때 사용  
         handleSearch: () => setSearchCondition(prev => ({ ...prev, searchTrigger: !prev.searchTrigger })),
-    }), [setSearchCondition, POINT_TYPE, DEVICE_TYPE]);
+    }), [setSearchCondition]);
+
+    // 페이지네이션 정보
+    const [pageInfo, setPageInfo] = useState({
+        dataCnt: 0,
+        currentPage: 1,
+        row: 50,
+    });
 
     const { width, thInfo, tdInfo } = TABLE_COLUMN_INFO;
-    const tableRef = useRef<HTMLTableElement | null>(null); // 엑셀 다운에 사용
+    const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
 
     return (
         <>
-            {/* <CalculateDetailTableTop calanderSearchOption={calanderSearchOption} titleFrom={tableTopInfo.titleFrom} titleTo={tableTopInfo.titleTo} searchResult={[]} searchCondition={searchCondition} setSearchCondition={setSearchCondition} /> */}
-            <TableTop searchCondition={searchCondition} setSearchCondition={setSearchCondition} tableTopInfo={tableTopInfo} />
+            <CalculateDetailTableTop calanderSearchOption={calanderSearchOption} titleFrom={tableTopInfo.titleFrom} titleTo={tableTopInfo.titleTo} totalInfo={tableTopInfo.totalInfo} searchCondition={searchCondition} setSearchCondition={setSearchCondition} />
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                {/* Column Width */}
-                <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
-                {/* Table Header  */}
-                <thead>
-                    <tr>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr>
-                    <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
-                </thead>
+                <CalculateTableHeader width={width} thInfo={thInfo} tdInfo={tdInfo} />
                 <tbody>
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
                         <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
-                            <TableList fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
+                            <TableList fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} initialTotalInfo={initialTotalInfo} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
             </table>
-            <CalculateDetailTableBottom fCodeName={f_code_name} tableRef={tableRef} titleFrom={tableTopInfo.titleFrom} titleTo={tableTopInfo.titleTo} colspan={width} pageInfo={pageInfo} setPageInfo={setPageInfo} excelFileName={'유상포인트_결제내역'} />
+            <CalculateDetailTableBottom fCodeName={f_code_name} tableRef={tableRef} titleFrom={tableTopInfo.titleFrom} titleTo={tableTopInfo.titleTo} colspan={width} pageInfo={pageInfo} setPageInfo={setPageInfo} excelFileName={'유상포인트 결제내역'} />
         </>
     );
 }
@@ -100,54 +103,11 @@ export default CalculatePointDetailTable;
 
 
 
-interface TableTopProps {
-    searchCondition: SearchCondition,
-    setSearchCondition: React.Dispatch<React.SetStateAction<SearchCondition>>,
-    tableTopInfo: TableTopInfo,
-};
-const TableTop: FC<TableTopProps> = ({ searchCondition, setSearchCondition, tableTopInfo }) => {
-
-    const { titleFrom, titleTo, totalChargePoint, totalPointChange } = tableTopInfo;
-
-    // 조회 버튼 클릭
-    const handleSearch = () => {
-        setSearchCondition(prev => ({ ...prev, searchTrigger: !prev.searchTrigger }));
-    };
-
-    return (
-        <>
-            <CalanderSearch
-                title={'상세내역'}
-                dateType={'yyyy-MM-dd'}
-                searchInfo={searchCondition}
-                setSearchInfo={setSearchCondition}
-                optionType={'SELECT'}
-                selectOption={[POINT_TYPE, DEVICE_TYPE]} // select로 나타날 옵션 정보
-                optionList={[Object.keys(POINT_TYPE), Object.keys(DEVICE_TYPE)]} // option 맵핑할 때 사용  
-                handleSearch={() => { handleSearch() }}
-            />
-            <div className="search-result-wrap">
-                {
-                    <>
-                        <div className="search-date">
-                            <p>조회기간: {titleFrom} ~ {titleTo}</p>
-                        </div>
-                        <ul className="search-result">
-                            <li>충전포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalChargePoint)}원</span></li>
-                            <li>잔돈포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalPointChange)}원</span></li>
-                            <li>유상(충전+잔돈)포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalChargePoint + totalPointChange)}원</span></li>
-                        </ul>
-                    </>
-                }
-            </div>
-        </>
-    )
-};
-
 interface TableListProps {
     fCode: number,
     staffNo: number,
     searchCondition: SearchCondition,
+    initialTotalInfo: TotalInfo,
     setTableTopInfo: React.Dispatch<React.SetStateAction<TableTopInfo>>,
     pageInfo: {
         dataCnt: number;
@@ -160,7 +120,7 @@ interface TableListProps {
         row: number;
     }>>,
 };
-const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTableTopInfo, pageInfo, setPageInfo }) => {
+const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, initialTotalInfo, setTableTopInfo, pageInfo, setPageInfo }) => {
 
     const { currentPage, row } = pageInfo;
     const { searchOption, from, to, searchTrigger } = searchCondition;
@@ -172,10 +132,9 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
     const { data: pointDetailList } = CALCULATE_SERVICE.useCalculatePointDetail(listQueryKey, fCode, staffNo, fromDate, toDate);
 
     // Table render Node 필터링, 충전/잔돈 포인트 합계 계산
-    const [renderTableList, totalChargePoint, totalPointChange] = useMemo(() => {
+    const [renderTableList, totalInfoRes] = useMemo(() => {
 
-        let ChargePointSum = 0; // 충전포인트 합계
-        let PointChangeSum = 0; // 잔돈포인트 합계
+        const totalObj = initialTotalInfo;
 
         // 필터링 된 Table List 생성
         const tableList = pointDetailList?.reduce((arr, pointDetail, index) => {
@@ -184,12 +143,12 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
             const [date] = rcp_date.split(' '); // [date, time]
 
             // 합계 계산
-            if (use_point_type === POINT_TYPE.CHARGE.value) ChargePointSum += total_amt;
-            else if (use_point_type === POINT_TYPE.CHANGE.value) PointChangeSum += total_amt;
+            totalObj[use_point_type as keyof TotalInfo].sum += total_amt;
+            totalObj.전체포인트.sum += total_amt;
 
             // 필터링 조건
-            const isPointType = searchOption[0].value === POINT_TYPE.ALL.value || searchOption[0].value === use_point_type;
-            const isDeviceType = searchOption[1].value === DEVICE_TYPE.ALL.value || searchOption[1].value === rcp_type;
+            const isPointType = searchOption[0].value === POINT_TYPE_OPTION[POINT_TYPE.ALL].value || searchOption[0].value === use_point_type;
+            const isDeviceType = searchOption[1].value === DEVICE_TYPE_OPTION[DEVICE_TYPE.ALL].value || searchOption[1].value === rcp_type;
 
             if (isPointType && isDeviceType) {
                 arr.push(
@@ -210,9 +169,8 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
             return arr;
         }, [] as ReactNode[]);
 
-        return [tableList, ChargePointSum, PointChangeSum];
-    }, [pointDetailList, searchOption, currentPage, row]);
-
+        return [tableList, totalObj];
+    }, [pointDetailList, searchOption, initialTotalInfo]);
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
     useEffect(() => {
@@ -221,9 +179,9 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, titleFrom: fromDate, titleTo: toDate, totalChargePoint, totalPointChange }));
+        setTableTopInfo(prev => ({ ...prev, titleFrom: fromDate, titleTo: toDate, totalInfo: totalInfoRes }));
         // eslint-disable-next-line
-    }, [setTableTopInfo, totalChargePoint, totalPointChange]);
+    }, [setTableTopInfo, renderTableList]);
 
     return (
         <>
@@ -233,18 +191,6 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
                 return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
             })}
             {renderTableList?.length === 0 && <NoData isTable={true} />}
-            <tr>
-                <td className="align-center">2022/12/31 12:30</td>
-                <td className="align-center">판매취소(폐기)</td>
-                <td className="align-center">3만원</td>
-                <td className="align-center">1장 (30,000)</td>
-                <td className="align-center">어플</td>
-                <td className="align-right">+10,000</td>
-                <td className="align-right">-10,000</td>
-                <td></td>
-                <td></td>
-                <td className="align-center">1장 (50,000)</td>
-            </tr>
         </>
     )
 };
@@ -265,17 +211,36 @@ const TABLE_COLUMN_INFO = {
     tdInfo: ['공급가', '부가세', '합계']
 } as const;
 
-// 포인트 타입 데이터 불러올 시 - CouponDetailTable.tsx 참고
 const POINT_TYPE = {
-    ALL: { title: '포인트 구분 전체', value: '포인트 구분 전체' },
-    CHARGE: { title: '충전포인트', value: '충전포인트' },
-    CHANGE: { title: '잔돈포인트', value: '잔돈포인트' },
+    CHARGE: '충전포인트',
+    CHANGE: '잔돈포인트',
+    ALL: '전체포인트',
 } as const;
 
+const POINT_TYPE_OPTION = {
+    [POINT_TYPE.ALL]: { title: '포인트 구분 전체', value: POINT_TYPE.ALL }, // Option default 값 전체로 오려면 ALL이 제일 위에 있어야함
+    [POINT_TYPE.CHARGE]: { title: '충전포인트', value: POINT_TYPE.CHARGE },
+    [POINT_TYPE.CHANGE]: { title: '잔돈포인트', value: POINT_TYPE.CHANGE },
+} as const;
+type PointType = typeof POINT_TYPE_OPTION[keyof typeof POINT_TYPE_OPTION];
+
+const POINT_TOTAL_TITLE = {
+    [POINT_TYPE.CHARGE]: '충전포인트 사용금액 합계',
+    [POINT_TYPE.CHANGE]: '잔돈포인트 사용금액 합계',
+    [POINT_TYPE.ALL]: '유상(충전+잔돈)포인트 사용금액 합계',
+} as const;
+type PointTotalTitle = typeof POINT_TOTAL_TITLE[keyof typeof POINT_TOTAL_TITLE];
+
 const DEVICE_TYPE = {
-    ALL: { title: '거래기기 전체', value: '거래기기 전체' },
-    KIOSK: { title: '키오스크', value: '키오스크' },
-    APP: { title: '어플', value: '어플' },
+    KIOSK: '키오스크',
+    APP: '어플',
+    ALL: '거래기기 전체',
+} as const;
+
+const DEVICE_TYPE_OPTION = {
+    [DEVICE_TYPE.ALL]: { title: '거래기기 전체', value: '거래기기 전체' },
+    [DEVICE_TYPE.KIOSK]: { title: '키오스크', value: '키오스크' },
+    [DEVICE_TYPE.APP]: { title: '어플', value: '어플' },
 } as const;
 
 interface SearchCondition extends SearchInfoSelectType {
@@ -285,6 +250,7 @@ interface SearchCondition extends SearchInfoSelectType {
 type TableTopInfo = {
     titleFrom: string,
     titleTo: string,
-    totalChargePoint: number,
-    totalPointChange: number,
+    totalInfo: TotalInfo,
 };
+
+type TotalInfo = { [key in PointType['value']]: { title: PointTotalTitle, sum: number } };

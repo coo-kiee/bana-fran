@@ -19,6 +19,7 @@ import CalanderSearch from "pages/common/calanderSearch";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import NoData from "pages/common/noData";
 import CalculateDetailTableBottom from "../component/CalculateDetailTableBottom";
+import CalculateTableHeader from "../component/CalculateTableHeader";
 
 interface CalculateEtcDetailTableProps {
     userInfo: {
@@ -62,13 +63,7 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
         <>
             <TableTop searchCondition={searchCondition} setSearchCondition={setSearchCondition} tableTopInfo={tableTopInfo} setTableTopInfo={setTableTopInfo} />
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                {/* Column Width */}
-                <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
-                {/* Table Header  */}
-                <thead>
-                    <tr>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr>
-                    <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>
-                </thead>
+                <CalculateTableHeader width={width} thInfo={thInfo} tdInfo={tdInfo} />
                 <tbody>
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
@@ -78,7 +73,7 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
                     </ErrorBoundary>
                 </tbody>
             </table>
-            <CalculateDetailTableBottom fCodeName={f_code_name} tableRef={tableRef} titleFrom={tableTopInfo.titleFrom} titleTo={tableTopInfo.titleTo} colspan={width} pageInfo={pageInfo} setPageInfo={setPageInfo} excelFileName={'기타_정산_내역'} />
+            <CalculateDetailTableBottom fCodeName={f_code_name} tableRef={tableRef} titleFrom={tableTopInfo.titleFrom} titleTo={tableTopInfo.titleTo} colspan={width} pageInfo={pageInfo} setPageInfo={setPageInfo} excelFileName={'기타 정산 내역'} />
         </>
     );
 }

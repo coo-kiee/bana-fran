@@ -23,27 +23,31 @@ const ChangeHistory: FC<ChangeHistoryProps> = ({ fCode, staffNo, calculateId, ha
     const closePopup = () => {
         handlePopup('changeHistory', false);
     };
-    
+
     useEventKeyCode(closePopup, 'Escape');
 
     return (
         <div className="alert-layer history-layer active" style={dataCnt >= 10 ? { paddingTop: '100px', paddingBottom: '100px' } : undefined}>
             <div className="msg-wrap">
                 <p className="title">수정요청/변경이력</p>
-                <table className="board-wrap" cellPadding="0" cellSpacing="0">
-                    {/* Column Width */}
-                    <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
-                    <tbody>
+                <div style={{ overflow: 'auto', maxHeight: '1000px' }}>
+                    <table className="board-wrap" cellPadding="0" cellSpacing="0">
+                        {/* Column Width */}
+                        <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
                         {/* Table Header  */}
-                        <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
-                        {/* List */}
-                        <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <tr><td rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ paddingTop: '40px' }}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} /></td></tr>} onError={(e) => console.log('changeHistory', e)}>
-                            <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={20} /></td></tr>}>
-                                <TableList staffNo={staffNo} fCode={fCode} calculateId={calculateId} setDataCnt={setDataCnt} />
-                            </Suspense>
-                        </ErrorBoundary>
-                    </tbody>
-                </table>
+                        <thead>
+                            <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
+                        </thead>
+                        <tbody>
+                            {/* List */}
+                            <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <tr><td rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ paddingTop: '40px' }}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} /></td></tr>} onError={(e) => console.log('changeHistory', e)}>
+                                <Suspense fallback={<tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} style={{ background: '#fff' }}><Loading height={80} width={80} marginTop={20} /></td></tr>}>
+                                    <TableList staffNo={staffNo} fCode={fCode} calculateId={calculateId} setDataCnt={setDataCnt} />
+                                </Suspense>
+                            </ErrorBoundary>
+                        </tbody>
+                    </table>
+                </div>
                 <button className="btn-close history-close" onClick={closePopup} ></button>
                 <button className="cta-btn" onClick={closePopup}>확인</button>
             </div>
@@ -63,7 +67,6 @@ interface TableListProps {
 };
 const TableList: FC<TableListProps> = ({ fCode, staffNo, calculateId, setDataCnt }) => {
 
-    console.log(calculateId);
     const { data: fixList } = CALCULATE_SERVICE.useCalculateFixList(['caculateFixList', JSON.stringify({ fCode, staffNo, calculateId })], fCode, staffNo, calculateId);
 
     // 리스트 개수에 따라 팝업 Padding Style 조정

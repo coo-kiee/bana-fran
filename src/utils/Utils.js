@@ -315,7 +315,7 @@ export default class Utils {
             
             // 엑셀 스타일 변경
             const isSellAddress  = /[A-Z]{1,3}\d{1,5}/;
-            const isAmount = /^([0-9]{1,3}(,[0-9]{3})*)$|^\+([0-9]{1,3})(,[0-9]{3})*$|^\-([0-9]{1,3})(,[0-9]{3})*$/;
+            const isAmount = /^[\+\-]?([0-9]{1,3}(,[0-9]{3})*)$/; // |^\+([0-9]{1,3})(,[0-9]{3})*$|^\-([0-9]{1,3})(,[0-9]{3})*$
             const checkAddLineHeader = addLineHeader.map(item => item?.replace('\n', ' ')); // 라인 추가할 헤더 체크값 변환
             Object.entries(workSheet).reduce((res, cur) => {
                 const key = cur[0];

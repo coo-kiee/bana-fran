@@ -1,4 +1,4 @@
-import { FC, Suspense, useEffect, useLayoutEffect, useState } from "react";
+import { FC, Suspense, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate, useParams } from "react-router-dom";
 import loadable from "@loadable/component";
