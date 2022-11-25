@@ -9,9 +9,6 @@ import { CALCULATE_TYPE, CLAIM_TAB_TYPE, TabType } from "types/calculate/calcula
 import { franState, loginState } from "state";
 import { useRecoilValue } from "recoil";
 
-// Util
-import Utils from "utils/Utils";
-
 // Component
 import CalculateHeader from "pages/calculate/component/CalculateHeader";
 import CalculatePrecautions from "pages/calculate/component/CalculatePrecautions";

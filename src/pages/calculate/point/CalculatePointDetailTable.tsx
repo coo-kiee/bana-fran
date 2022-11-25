@@ -44,19 +44,10 @@ const CalculatePointDetailTable: FC<CalculatePointDetailTableProps> = ({ userInf
     });
 
     // 테이블 상단 정보
-    const initialTotalInfo = useMemo(() => {
-        return Object.values(POINT_TYPE).reduce((arr, cur) => {
-            const key = POINT_TYPE_OPTION[cur].value;
-            const totalTitle = POINT_TOTAL_TITLE[key];
-            arr[key] = { title: totalTitle, sum: 0 };
-            return arr;
-        }, {} as TotalInfo);
-    }, []);
-
     const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
         titleFrom: fromDate,
         titleTo: toDate,
-        totalInfo: initialTotalInfo,
+        totalInfo: {} as TotalInfo,
     });
 
     // 테이블 상단 검색영역 파라미터
@@ -88,7 +79,7 @@ const CalculatePointDetailTable: FC<CalculatePointDetailTableProps> = ({ userInf
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
                         <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
-                            <TableList fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} initialTotalInfo={initialTotalInfo} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
+                            <TableList fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
@@ -107,7 +98,6 @@ interface TableListProps {
     fCode: number,
     staffNo: number,
     searchCondition: SearchCondition,
-    initialTotalInfo: TotalInfo,
     setTableTopInfo: React.Dispatch<React.SetStateAction<TableTopInfo>>,
     pageInfo: {
         dataCnt: number;
@@ -120,7 +110,7 @@ interface TableListProps {
         row: number;
     }>>,
 };
-const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, initialTotalInfo, setTableTopInfo, pageInfo, setPageInfo }) => {
+const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTableTopInfo, pageInfo, setPageInfo }) => {
 
     const { currentPage, row } = pageInfo;
     const { searchOption, from, to, searchTrigger } = searchCondition;
@@ -132,7 +122,12 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, initia
     // Table render Node 필터링, 충전/잔돈 포인트 합계 계산
     const [renderTableList, totalInfoRes] = useMemo(() => {
 
-        const totalObj = initialTotalInfo;
+        // 합계 계산 객체
+        const totalObj = Object.values(POINT_TYPE).reduce((arr, cur) => {
+            const totalTitle = POINT_TOTAL_TITLE[cur];
+            arr[cur] = { title: totalTitle, sum: 0 };
+            return arr;
+        }, {} as TotalInfo);
 
         // 필터링 된 Table List 생성
         const tableList = pointDetailList?.reduce((arr, pointDetail, index) => {
@@ -168,7 +163,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, initia
         }, [] as ReactNode[]);
 
         return [tableList, totalObj];
-    }, [pointDetailList, searchOption, initialTotalInfo]);
+    }, [pointDetailList, searchOption]);
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
     useEffect(() => {
@@ -214,13 +209,14 @@ const POINT_TYPE = {
     CHANGE: '잔돈포인트',
     ALL: '전체포인트',
 } as const;
+type PointType = typeof POINT_TYPE[keyof typeof POINT_TYPE];
 
 const POINT_TYPE_OPTION = {
     [POINT_TYPE.ALL]: { title: '포인트 구분 전체', value: POINT_TYPE.ALL }, // Option default 값 전체로 오려면 ALL이 제일 위에 있어야함
     [POINT_TYPE.CHARGE]: { title: '충전포인트', value: POINT_TYPE.CHARGE },
     [POINT_TYPE.CHANGE]: { title: '잔돈포인트', value: POINT_TYPE.CHANGE },
 } as const;
-type PointType = typeof POINT_TYPE_OPTION[keyof typeof POINT_TYPE_OPTION];
+
 
 const POINT_TOTAL_TITLE = {
     [POINT_TYPE.CHARGE]: '충전포인트 사용금액 합계',
@@ -251,4 +247,5 @@ type TableTopInfo = {
     totalInfo: TotalInfo,
 };
 
-type TotalInfo = { [key in PointType['value']]: { title: PointTotalTitle, sum: number } };
+// 포인트 타입 서버에서 가져올 시 CalculateCouponDetailTable 참조
+type TotalInfo = { [key in PointType]: { title: PointTotalTitle, sum: number } };

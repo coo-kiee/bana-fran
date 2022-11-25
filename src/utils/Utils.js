@@ -39,11 +39,10 @@ export default class Utils {
         return phoneRegExp.test(x.toString())
     }
 
-    // 숫자값 체크. (true : 숫자가 아닌값 포함됨.)
-    static strNumberCheck = (str) => {
+    // 숫자값 체크. 
+    static isNumber = (str) => {
         let regexp = /^[0-9]*$/
-        if (!regexp.test(str)) return true
-        return false
+        return regexp.test(str);
     }
 
     // 연속된 숫자, 같은 숫자 체크. 123456 OR 111111 (true: 연속된 숫자 및 반복된 숫자열)

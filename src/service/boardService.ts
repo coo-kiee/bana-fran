@@ -74,7 +74,7 @@ const useBoard = (queryKey: string | Array<string>, boardId: number, staffNo: nu
         refetchOnWindowFocus: false,
         retry: false,
         suspense: option.suspense ? option.suspense : true,
-        enabled: staffNo > 0,
+        enabled: staffNo > 0 && boardId > 0,
     });
 };
 

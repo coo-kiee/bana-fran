@@ -15,11 +15,12 @@ import { SearchInfoSelectType } from "types/etc/etcType";
 
 // Component
 import Loading from "pages/common/loading";
-import CalanderSearch from "pages/common/calanderSearch";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import NoData from "pages/common/noData";
 import CalculateDetailTableBottom from "../component/CalculateDetailTableBottom";
 import CalculateTableHeader from "../component/CalculateTableHeader";
+import CalculateDetailTableTop from "../component/CalculateDetailTableTop";
+import { EtcMultiplyKey, EtcType, ETC_MULTIPLY, ETC_TYPE } from "types/calculate/calculateType";
 
 interface CalculateEtcDetailTableProps {
     userInfo: {
@@ -39,18 +40,28 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
     const [searchCondition, setSearchCondition] = useState<SearchCondition>({
         from: fromDate, // 달력 선택 정보
         to: toDate, // 달력 선택 정보
-        searchOption: [ETC_TYPE.ALL],  // 필터링 옵션
+        searchOption: [ETC_TYPE_OPTION[ETC_TYPE.ALL]],  // 필터링 옵션
         searchTrigger: false, // query trigger
     });
 
+    // 테이블 상단 정보
     const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
         titleFrom: fromDate,
         titleTo: toDate,
-        totalBilling: 0,
-        totalConservation: 0,
+        totalInfo: {} as TotalInfo,
     });
-    console.log(tableTopInfo.titleFrom, tableTopInfo.titleTo);
 
+    // 테이블 상단 검색영역 파라미터
+    const calanderSearchOption = useMemo(() => ({
+        title: '상세내역',
+        dateType: 'yyyy-MM',
+        optionType: 'SELECT' as const,
+        selectOption: [ETC_TYPE_OPTION], // select로 나타날 옵션 정보
+        optionList: [Object.keys(ETC_TYPE_OPTION)], // option 맵핑할 때 사용  
+        handleSearch: () => setSearchCondition(prev => ({ ...prev, searchTrigger: !prev.searchTrigger })),
+    }), [setSearchCondition]);
+
+    // 페이지네이션 정보
     const [pageInfo, setPageInfo] = useState({
         dataCnt: 0,
         currentPage: 1,
@@ -62,7 +73,7 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
 
     return (
         <>
-            <TableTop searchCondition={searchCondition} setSearchCondition={setSearchCondition} tableTopInfo={tableTopInfo} setTableTopInfo={setTableTopInfo} />
+            <CalculateDetailTableTop calanderSearchOption={calanderSearchOption} titleFrom={tableTopInfo.titleFrom} titleTo={tableTopInfo.titleTo} totalInfo={tableTopInfo.totalInfo} searchCondition={searchCondition} setSearchCondition={setSearchCondition} />
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <CalculateTableHeader width={width} thInfo={thInfo} tdInfo={tdInfo} />
                 <tbody>
@@ -83,54 +94,6 @@ export default CalculateEtcDetailTable;
 
 
 
-
-interface TableTopProps {
-    searchCondition: SearchCondition,
-    setSearchCondition: React.Dispatch<React.SetStateAction<SearchCondition>>,
-    tableTopInfo: TableTopInfo,
-    setTableTopInfo: React.Dispatch<React.SetStateAction<TableTopInfo>>,
-};
-const TableTop: FC<TableTopProps> = ({ searchCondition, setSearchCondition, tableTopInfo, setTableTopInfo }) => {
-
-    const { titleFrom, titleTo, totalBilling, totalConservation } = tableTopInfo;
-
-    // 조회 버튼 클릭
-    const handleSearch = () => {
-        setSearchCondition(prev => ({ ...prev, searchTrigger: !prev.searchTrigger }));
-    };
-
-    return (
-        <>
-            <CalanderSearch
-                title={'상세내역'}
-                dateType={'yyyy-MM'}
-                searchInfo={searchCondition}
-                setSearchInfo={setSearchCondition}
-                optionType={'SELECT'}
-                selectOption={[ETC_TYPE]} // select로 나타날 옵션 정보
-                optionList={[Object.keys(ETC_TYPE)]} // option 맵핑할 때 사용  
-                handleSearch={() => { handleSearch() }}
-                showMonthYearPicker={true}
-            />
-            <div className="search-result-wrap">
-                {
-                    <>
-                        <div className="search-date">
-                            <p>조회기간: {titleFrom} ~ {titleTo}</p>
-                        </div>
-                        <ul className="search-result">
-                            <li>청구 금액 합계<span className="colon"></span><span className="value">-10,000원</span></li>
-                            <li>보전 금액 합계<span className="colon"></span><span className="value">10,000원</span></li>
-                            {/* <li>충전포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalChargePoint)}원</span></li>
-                            <li>잔돈포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalPointChange)}원</span></li>
-                            <li>유상(충전+잔돈)포인트 사용금액 합계 : <span className="value">{Utils.numberComma(totalChargePoint + totalPointChange)}원</span></li> */}
-                        </ul>
-                    </>
-                }
-            </div>
-        </>
-    )
-};
 
 interface TableListProps {
     fCode: number,
@@ -155,55 +118,46 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
 
     // eslint-disable-next-line
     const listQueryKey = useMemo(() => ['calculateEtcDetail', JSON.stringify({ fCode, staffNo, from, to })], [fCode, staffNo, searchTrigger]);
-    const { data: etcDetailList } = CALCULATE_SERVICE.useCalculateEtcDetail(listQueryKey, fCode, 0, from, to);
+    const { data: etcDetailList } = CALCULATE_SERVICE.useCalculateEtcDetail(listQueryKey, fCode, staffNo, Utils.converDateFormat(new Date(from), '-'), Utils.converDateFormat(lastDayOfMonth(new Date(to)), '-'));
 
     // Table render Node 필터링, 충전/잔돈 포인트 합계 계산
-    const [renderTableList, totalBilling, totalConservation] = useMemo(() => {
+    const [renderTableList, totalInfoRes] = useMemo(() => {
 
-        let billingSum = 0; // 충전포인트 합계
-        let conservationSum = 0; // 잔돈포인트 합계
+        // 합계 계산 객체
+        const totalObj = Object.values(ETC_TYPE).reduce((arr, cur) => {
+            const totalTitle = ETC_TOTAL_TITLE[cur];
+            if (totalTitle) arr[cur] = { title: totalTitle, sum: 0 };
+            return arr;
+        }, {} as TotalInfo);;
 
         // 필터링 된 Table List 생성
         const tableList = etcDetailList?.reduce((arr, etcDetail, index) => {
 
-            const { rcp_date, item_name, phone, nChargeTotal, total_amt, use_point_type, rcp_type, supply_amt, vat_amt } = etcDetail;
-            const [date] = rcp_date.split(' '); // [date, time]
+            const { std_month, calculate_type, item_detail, supply_amt, vat_amt, total_amt } = etcDetail;
+            const calculateType: EtcMultiplyKey = calculate_type as EtcMultiplyKey;
 
             // 합계 계산
-            if (use_point_type === ETC_TYPE.BILLING.value) billingSum += total_amt;
-            else if (use_point_type === ETC_TYPE.CONSERVATION.value) conservationSum += total_amt;
+            totalObj[calculateType].sum += (Number(total_amt) * ETC_MULTIPLY[calculateType]);
 
             // 필터링 조건
-            const isPointType = searchOption[0].value === ETC_TYPE.ALL.value || searchOption[0].value === use_point_type;
+            const isCaclulateType = searchOption[0].value === ETC_TYPE_OPTION[ETC_TYPE.ALL].value || searchOption[0].value === calculate_type;
 
-            if (isPointType) {
+            if (isCaclulateType) {
                 arr.push(
                     <>
-                        <td className="align-center">2022/03/01</td>
-                        <td className="align-center">청구</td>
-                        <td className="align-left">2022/1/1일에 발생한 고객 노트북 도난 사건에 대한 법률 지원 비용</td>
-                        <td className="align-right">130,000</td>
-                        <td className="align-right">130,000</td>
-                        <td className="align-right"><strong>130,000</strong></td>
+                        <td className="align-center">{std_month}</td>
+                        <td className="align-center">{calculate_type}</td>
+                        <td className="align-left">{item_detail}</td>
+                        <td className="align-right">{Utils.numberComma(supply_amt * ETC_MULTIPLY[calculateType])}</td>
+                        <td className="align-right">{Utils.numberComma(vat_amt * ETC_MULTIPLY[calculateType])}</td>
+                        <td className="align-right"><strong>{Utils.numberComma(total_amt * ETC_MULTIPLY[calculateType])}</strong></td>
                     </>
-                    // <tr key={index}>
-                    //     <td className="align-center">{date}</td>
-                    //     <td className="align-left">{item_name}</td>
-                    //     <td className="align-center">{phone}</td>
-                    //     <td className="align-right">{Utils.numberComma(nChargeTotal)}</td>
-                    //     <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                    //     <td className="align-center">{use_point_type}</td>
-                    //     <td className="align-center">{rcp_type}</td>
-                    //     <td className="align-right">{Utils.numberComma(supply_amt)}</td>
-                    //     <td className="align-right">{Utils.numberComma(vat_amt)}</td>
-                    //     <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                    // </tr>
                 )
             }
             return arr;
         }, [] as ReactNode[]);
 
-        return [tableList, billingSum, conservationSum];
+        return [tableList, totalObj];
     }, [etcDetailList, searchOption]);
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
@@ -213,9 +167,9 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, titleFrom: from, titleTo: to, totalBilling, totalConservation }));
+        setTableTopInfo(prev => ({ ...prev, titleFrom: from, titleTo: to, totalInfo: totalInfoRes }));
         // eslint-disable-next-line
-    }, [setTableTopInfo, totalBilling, totalConservation]);
+    }, [setTableTopInfo]);
 
     return (
         <>
@@ -241,12 +195,18 @@ const TABLE_COLUMN_INFO = {
     tdInfo: ['공급가', '부가세', '합계']
 } as const;
 
-// 기타 타입 데이터 불러올 시 - CouponDetailTable.tsx 참고
-const ETC_TYPE = {
-    ALL: { title: '구분 전체', value: '구분 전체' },
-    BILLING: { title: '청구', value: '청구' },
-    CONSERVATION: { title: '보전', value: '보전' },
+const ETC_TYPE_OPTION = {
+    [ETC_TYPE.ALL]: { title: '구분 전체', value: ETC_TYPE.ALL },
+    [ETC_TYPE.BILLING]: { title: '청구', value: ETC_TYPE.BILLING },
+    [ETC_TYPE.CONSERVATION]: { title: '보전', value: ETC_TYPE.CONSERVATION },
 } as const;
+
+const ETC_TOTAL_TITLE = {
+    [ETC_TYPE.BILLING]: '청구 금액 합계',
+    [ETC_TYPE.CONSERVATION]: '보전 금액 합계',
+    [ETC_TYPE.ALL]: '',
+} as const;
+type EtcTotalTitle = typeof ETC_TOTAL_TITLE[keyof typeof ETC_TOTAL_TITLE];
 
 interface SearchCondition extends SearchInfoSelectType {
     searchTrigger: boolean,
@@ -255,6 +215,8 @@ interface SearchCondition extends SearchInfoSelectType {
 type TableTopInfo = {
     titleFrom: string,
     titleTo: string,
-    totalBilling: number,
-    totalConservation: number,
+    totalInfo: TotalInfo,
 };
+
+// // 포인트 타입 서버에서 가져올 시 CalculateCouponDetailTable 참조
+type TotalInfo = { [key in EtcType]: { title: EtcTotalTitle, sum: number } };

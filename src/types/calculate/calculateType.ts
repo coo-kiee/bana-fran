@@ -93,11 +93,38 @@ const CLAIM_TAB_TYPE = {
 } as const;
 type TabType = typeof CLAIM_TAB_TYPE[keyof typeof CLAIM_TAB_TYPE];
 
+// 기타 정산 내역
+const ETC_TYPE = {
+    BILLING: '청구',
+    CONSERVATION: '보전',
+    ALL: '구분전체',
+} as const;
+type EtcType = typeof ETC_TYPE[keyof typeof ETC_TYPE];
+
+const ETC_MULTIPLY = {
+    [ETC_TYPE.CONSERVATION]: 1,
+    [ETC_TYPE.BILLING]: -1,
+} as const;
+type EtcMultiplyKey = keyof typeof ETC_MULTIPLY;
+
+
+// 기타 정산 내역 상세
+type CalculateEtcDetail = {
+    std_month: string, // 정산월
+    calculate_type: string, // 구분
+    item_detail: string, // 내용
+    supply_amt: number, // 기타 정산 금액 공급가
+    vat_amt: number, // 기타 정산 금액 부가세
+    total_amt: number, // 기타 정산 금액 합계
+};
+
+
 export {
-    CALCULATE_TYPE, CALCULATE_STATUS, CLAIM_TAB_TYPE
+    CALCULATE_TYPE, CALCULATE_STATUS, CLAIM_TAB_TYPE, ETC_TYPE, ETC_MULTIPLY
 };
 
 export type {
     CalculateType, CalculateDetail, CalculateDetailOut, CalculateStatusType, CalculateFixDetail,
-    CalculateDetailSum, CalculatePointDetail, CalculateCouponDetail, TabType
+    CalculateDetailSum, CalculatePointDetail, CalculateCouponDetail, TabType, 
+    EtcType, EtcMultiplyKey, CalculateEtcDetail
 };

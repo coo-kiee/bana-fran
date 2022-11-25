@@ -1,12 +1,9 @@
-import { FC, useEffect, } from "react";
+import { FC } from "react";
 import { saveAs } from 'file-saver';
 import { useNavigate } from "react-router-dom";
 
 // Hook
 import { queryFn } from "hooks/useQuery";
-
-// Css
-import 'assets/sass/notice_view.scss'
 
 // API
 import BOARD_SERVICE from "service/boardService";
@@ -35,10 +32,6 @@ const BoardDetail: FC<BoardDetailProps> = ({ menuType, boardId, staffNo, fCode, 
         navigation(`/${menuType}/${board_type}`);
     };
     
-    useEffect(() => { // 상세 데이터 없으면 이전 페이지로 이동
-        if(!boardDetail) navigation(-1);
-    }, [boardDetail, navigation]);
-
     return (
         <>
             {

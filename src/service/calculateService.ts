@@ -6,7 +6,7 @@ import { useQuery, useQueryClient, UseQueryResult } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 
 // Type
-import { CalculateCouponDetail, CalculateDetail, CalculateDetailOut, CalculateDetailSum, CalculateFixDetail, CalculatePointDetail } from 'types/calculate/calculateType';
+import { CalculateCouponDetail, CalculateDetail, CalculateDetailOut, CalculateDetailSum, CalculateEtcDetail, CalculateFixDetail, CalculatePointDetail } from 'types/calculate/calculateType';
 import { CALCULATE_CHARGE_TYPE } from 'pages/calculate/list/CalculateListTable';
 
 // 검색 월
@@ -278,12 +278,12 @@ type EtcDetailParameter = (
     from_date: string,
     to_date: string,
     option?: { [key: string]: any },
-) => UseQueryResult<CalculatePointDetail[], unknown>;
+) => UseQueryResult<CalculateEtcDetail[], unknown>;
 const useCalculateEtcDetail: EtcDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
 
     const data = {
         ws: "fprocess",
-        query: "6HURAKO83BCYD8ZXBORH", // web_fran_s_calculate_paid_point_list
+        query: "SBGCJDVEODLVS2XGQX1D", // web_fran_s_calculate_etc_list
         params: {
             f_code,
             from_date,
@@ -291,7 +291,7 @@ const useCalculateEtcDetail: EtcDetailParameter = (queryKey, f_code, staffNo, fr
         },
     };
 
-    return useQuery<any[]>(queryKey, () => queryFn.getDataList(data), {
+    return useQuery<CalculateEtcDetail[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,

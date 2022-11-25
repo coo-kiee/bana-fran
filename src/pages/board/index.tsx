@@ -1,4 +1,4 @@
-import { FC, Suspense, useEffect, useState } from "react";
+import { FC, Suspense, useEffect, useLayoutEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate, useParams } from "react-router-dom";
 import loadable from "@loadable/component";
@@ -13,7 +13,7 @@ import { franState, loginState } from "state";
 // Util
 import Utils from "utils/Utils";
 
-// component
+// Component
 import BoardTab from "./component/BoardTab";
 import BoardSearchCondition from "./component/BoardSearchCondition";
 import BoardTable from "./component/BoardTable";
@@ -25,35 +25,35 @@ const BoardDetail = loadable(() => import('pages/board/component/detail/BoardDet
 
 const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD }) => {
 
-    const { bType = "0", bId = "0" } = useParams();
-    const boardType = Number(bType) as BoardInfo['type'] | 0;
-    // 숫자이고, 0보다 크고, 현재 게시판 탭 그룹에 속해 있을때
-    const isBoardGroupType = !Utils.strNumberCheck(bType) && boardType > 0 && Object.values(BOARD_GROUP[menuType]).filter((boardInfo) => boardInfo.type === boardType).length > 0;
-    const isBoardId = !Utils.strNumberCheck(bId) && Number(bId) > 0;
+    const { bType, bId } = useParams();
+    const boardType = Number(bType) as BoardInfo['type'];
+    // 숫자이고, 현재 게시판 탭 그룹에 속해 있을때
+    const isBoardGroupType =  Utils.isNumber(bType) && Object.values(BOARD_GROUP[menuType]).filter((boardInfo) => boardInfo.type === boardType).length > 0;
+    const isBoardId = Utils.isNumber(bId) &&  Number(bId) > 0;
     
-    // 게시판 타입이 아닐 시 이전페이지로 이동
+    // Redirect
     const navigation = useNavigate();
     useEffect(() => {
-        if (boardType > 0 && !isBoardGroupType) navigation(-1);
-    }, [boardType, isBoardGroupType, navigation]);
+        if (bType !== undefined && !isBoardGroupType) navigation(-1);
+        if (bId !== undefined && !isBoardId) navigation(-1);
+    }, [bType, bId, isBoardGroupType, isBoardId, navigation]);
 
     // 게시판 탭 변경 & 게시판 상세 이동
-    useEffect(() => {
-        const boardId = Number(bId);
+    useLayoutEffect(() => {
 
-        if (boardType === 0) { // 페이지 처음 로딩 시
+        if (!boardType) { // 페이지 처음 로딩 시
             setListSearchParameter(prev => ({ ...prev, board_type: BOARD_GROUP[menuType][0].type })); // 게시판 첫번째 탭 type 입력
             setDetailInfo(prev => ({ ...prev, isDetail: false }));
         }
         else if (isBoardGroupType && isBoardId) { // 게시판 상세이동
             setListSearchParameter(prev => ({ ...prev, board_type: boardType }));
-            setDetailInfo(prev => ({ ...prev, [boardType]: boardId, isDetail: true }));
+            setDetailInfo(prev => ({ ...prev, [boardType]: Number(bId), isDetail: true }));
         }
         else if (isBoardGroupType) { // 게시판 탭 변경
             setListSearchParameter(prev => ({ ...prev, board_type: boardType }));
             setDetailInfo(prev => ({ ...prev, isDetail: false }));
         }
-    }, [menuType, boardType, bId, isBoardGroupType]);
+    }, [menuType, boardType, bId, isBoardGroupType, isBoardId]);
 
     const { userInfo } = useRecoilValue(loginState);
     const fCode = useRecoilValue(franState);
@@ -80,11 +80,10 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
     });
 
     const { board_type, search_category, search_text, staff_no, f_code } = listSearchParameter;
-
+    
     // 상세보기 정보 - 현재 메뉴 boardType들의 boardId + isDetail
     const initialDetail: DetailInfo = Object.values(BOARD_GROUP[menuType]).reduce((detailObj, boardInfo: BoardInfo) => {
-        const boardType = boardInfo.type;
-        const res = { ...detailObj, [boardType]: 0 };
+        const res = { ...detailObj, [boardInfo.type]: 0 };
         return res;
     }, { isDetail: false });
     const [detailInfo, setDetailInfo] = useState(initialDetail);
@@ -93,7 +92,7 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
     return (
         <>
             {
-                (board_type || isBoardGroupType) &&
+                (isBoardGroupType || bType === undefined) && (isBoardId || bId === undefined) &&
                 <section className="container">
                     <BoardHeader menuType={menuType} />
                     <section className={`contents-wrap ${isDetail ? `notice-view-wrap` : 'notice-wrap'}`}>
@@ -101,7 +100,7 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
                             <BoardTab menuType={menuType} boardType={board_type} detailInfo={detailInfo} />
                             <div id="tab1" className="tab-content active">
                                 {
-                                    (isDetail || isBoardId) ?
+                                    isDetail ?
                                         // 게시판 상세
                                         <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('detailError', e)}>
                                             <Suspense fallback={<Loading marginTop={300} />}>
