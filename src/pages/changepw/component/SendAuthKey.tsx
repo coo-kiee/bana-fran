@@ -66,8 +66,10 @@ const SendAuthKey:React.FC<Props> = (props) => {
                     <button className="resend" onClick={reSendAuthKey}>재발송</button>
                 </div>
                 <Timer endAuthTime={endAuthTime}/>
-                <button className="btn-modify" onClick={() => setPwAuthPage(false)}>취소</button>
-                <button className="btn-modify" onClick={checkPasswordAuthKey}>변경하기</button>
+                <div className="cta-btn-wrap pw_auth_number">
+                    <button className="btn-close" onClick={() => setPwAuthPage(false)}>취소</button>
+                    <button className="btn-check" onClick={checkPasswordAuthKey}>확인</button>
+                </div>
             </div>
         </section>
     )

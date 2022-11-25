@@ -120,6 +120,9 @@ select { @include select-style; }
 .msg-warning { padding: 15px 0px 0px 10px; font-size: 14px; color:#ff3a3a; }
 
 .cta-btn-wrap { display: flex; margin-top: 42px; justify-content: space-between;
+    &.pw_auth_number {
+        .btn-close { width: 220px; }
+    }
     .btn-close { 
         width: 172px; 
         height: 70px; 
