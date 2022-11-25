@@ -58,6 +58,7 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
         optionType: 'SELECT' as const,
         selectOption: [ETC_TYPE_OPTION], // select로 나타날 옵션 정보
         optionList: [Object.keys(ETC_TYPE_OPTION)], // option 맵핑할 때 사용  
+        showMonthYearPicker: true,
         handleSearch: () => setSearchCondition(prev => ({ ...prev, searchTrigger: !prev.searchTrigger })),
     }), [setSearchCondition]);
 
