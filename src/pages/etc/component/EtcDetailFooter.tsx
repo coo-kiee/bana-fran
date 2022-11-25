@@ -56,4 +56,4 @@ const EtcDetailFooter: FC<EtcDetailFooterProps> = (props) => {
     )
 }
 
-export default React.memo(EtcDetailFooter);
+export default EtcDetailFooter;

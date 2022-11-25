@@ -39,7 +39,7 @@ const useMembershipList = (params: EtcListParams) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        // suspense: true,
+        suspense: true,
         onError: (err: any) => {
             queryFn.axiosError(err);
         },

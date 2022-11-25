@@ -132,7 +132,7 @@ interface OrderDetailDetailProps extends Omit<DetailFallbackProps, 'detailPriceI
     searchInfo: SearchInfoType,
     handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
 }
-interface RoyaltyDetailProps extends Omit<DetailFallbackProps, 'detailPriceInfo'> {
+interface RoyaltyDetailProps extends DetailFallbackProps {
     title: string,
     searchInfo: SearchInfoType,
 }

@@ -89,7 +89,7 @@ const ExtraOverallData = () => {
     return (
         <tr>
             <td>{Utils.numberComma(extraOverallTotal.total_stamp_cnt)}</td>
-            <td>{Utils.numberComma(extraOverallTotal.total_coupon_cnt)}개</td>
+            <td>{Utils.numberComma(extraOverallTotal.convert_coupon_stamp_cnt)}개</td>
             <td>{Utils.numberComma(extraOverallTotal.expired_stamp_cnt)}개</td>
             <td className="point">{Utils.numberComma(extraOverallTotal.notyet_coupon_stamp_cnt)}개</td>
             <td>{Utils.numberComma(extraOverallTotal.total_coupon_cnt)}개<p>({Utils.numberComma(extraOverallTotal.total_coupon_amount)}원)</p></td>

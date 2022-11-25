@@ -22,7 +22,7 @@ const EtcSearchDetail: React.FC<EtcSearchDetailProps> = ({ searchDate, searchRes
             </ul>
             {priceInfo &&
                 <div className="price-info">
-                    {priceInfo && priceInfo.map((info, idx) => {
+                    {priceInfo.map((info, idx) => {
                         return info.length > 1 ?
                             <p key={`etc_search_detail_info_${idx}`} className="hyphen"><span>{info[0]}</span><span className="colon"></span>{info[1]}</p>
                             :
@@ -34,4 +34,4 @@ const EtcSearchDetail: React.FC<EtcSearchDetailProps> = ({ searchDate, searchRes
     )
 }
 
-export default React.memo(EtcSearchDetail);
+export default EtcSearchDetail;

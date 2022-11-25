@@ -19,7 +19,7 @@ const ExtraContainer = () => {
             { itemName: ['총 발급 수', '금액'], className: 'price-area height-63' },
             { itemName: ['총 사용 수', '금액'], className: 'price-area height-63' },
             { itemName: ['총 유효기간 소멸 수', '금액'], className: 'price-area height-63' },
-            { itemName: ['쿠폰 미전환 수', '금액'], className: 'price-area height-63' },
+            { itemName: ['미사용 쿠폰 수', '금액'], className: 'price-area height-63' },
             // 바나포인트
             { itemName: ['총 적립'], className: 'height-63' },
             { itemName: ['총 사용'], className: 'height-63' },

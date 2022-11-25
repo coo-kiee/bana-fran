@@ -117,8 +117,6 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
                 <tbody>
-                    {isLoading && <Loading width={100} height={100} isTable={true} />}
-                    {isError && <tr><td colSpan={10}>에러가 발생했습니다.</td></tr>}
                     {renderTableList?.map((item: any, index: number) => {
                         const isCurrentPage = (index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row);
                         return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);

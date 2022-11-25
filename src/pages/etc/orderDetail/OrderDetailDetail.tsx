@@ -1,31 +1,22 @@
-import React, { FC, useState, useRef, useCallback, useMemo, ReactNode } from "react";
+import { FC, useState, useRef, useMemo, ReactNode } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import Utils from "utils/Utils";
-import { useQueryClient, useQueryErrorResetBoundary } from "react-query";
-import { format, subMonths } from 'date-fns';
-import { ErrorBoundary } from 'react-error-boundary';
+import { format } from 'date-fns';
 
 // state
 import { franState, loginState, orderDetailModalState } from "state";
 
 // type
-import { EtcListParams, PageInfoType, SearchInfoType, OrderDetailDetailProps, OrderDetailListType } from "types/etc/etcType";
+import { EtcListParams, PageInfoType, OrderDetailDetailProps, OrderDetailListType } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from "service/etcService";
 
-// component  
-import EtcDetailTable from "pages/etc/component/EtcDetailTable";
-import { EtcDetailTableFallback, EtcDetailTableHead } from 'pages/etc/component/EtcDetailTableHeader'
-import EtcDetailFooter from "pages/etc/component/EtcDetailFooter";
-import CalanderSearch from "pages/common/calanderSearch";
-import EtcSearchDetail from "pages/etc/component/EtcSearchDetail";
+// component   
 import NoData from "pages/common/noData";
 import Pagination from "pages/common/pagination";
 
 const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo }) => {
-    const { reset } = useQueryErrorResetBoundary();
-    const queryClient = useQueryClient();
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
     const setOrderDetailmodalState = useSetRecoilState(orderDetailModalState);
@@ -42,14 +33,13 @@ const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, de
     const etcOrderDetailListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
     const { data: listData } = ETC_SERVICE.useOrderDetailList(etcOrderDetailListParam);
 
-    const [renderTableList, totalSumObj]: [ReactNode[], string[][]] = useMemo(() => {
+    const [renderTableList, totalSumObj]: [JSX.Element[], string[][]] = useMemo(() => {
         const tableList = listData?.reduce((arr: any, tbodyRow: any, index: number) => {
             const { nOrderID, insert_date, last_modify_date, cancel_date, staff_name, last_modify_staff, cacel_staff, state_name, order_count, first_item, amount } = tbodyRow as OrderDetailListType;
             const handlePopupOrderDetail = () => {
                 setOrderDetailmodalState((prevState) => ({ ...prevState, show: true, orderCode: nOrderID }));
             };
-            const isCurrentPage = (index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row);
-            //  style={{ display: isCurrentPage ? '' : 'none' }}
+
             arr.push(
                 <>
                     <td className='align-center'>{format(new Date(insert_date), 'yyyy/MM/dd hh:mm')}</td>
@@ -68,12 +58,10 @@ const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, de
         }, [] as ReactNode[]);
 
         const sumObj = [
-            ['총 발주금액 합계: ', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += cur.amount, 0))]
+            ['총 발주금액 합계: ', `${Utils.numberComma(listData?.reduce((acc, cur) => acc += cur.amount, 0))}원`]
         ];
-
         return [tableList, sumObj];
     }, [listData, setOrderDetailmodalState])
-    console.log(renderTableList)
 
     const handleExcelDownload = () => {
         if (tableRef.current) {
@@ -83,7 +71,7 @@ const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, de
                 colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X
-                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
+                addRowColor: { row: [1], color: ['d3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
             const fileName = `${searchInfo.from}~${searchInfo.to}_${f_list[0].f_code_name}_발주내역`;
             Utils.excelDownload(tableRef.current, options, fileName);
@@ -98,6 +86,7 @@ const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, de
 
     return (
         <>
+            {/* <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={totalSumObj} /> */}
             <div className="search-result-wrap">
                 <div className="search-date">
                     <p>조회기간: {searchInfo.from} ~ {searchInfo.to}</p>
@@ -105,11 +94,12 @@ const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, de
                 <ul className="search-result">
                     {totalSumObj.map((result, idx) => {
                         const [title, value] = result;
-                        return <li key={`etc_search_detail_result_${idx}`} className="hyphen">{title}<span className="colon"></span><span className="value">{value}원</span></li>
+                        return <li key={`etc_search_detail_result_${idx}`} className="hyphen">{title}<span className="colon"></span><span className="value">{value}</span></li>
                     })}
                 </ul>
             </div>
 
+            {/* <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={renderTableList} pageInfo={pageInfo} /> */}
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <colgroup>
                     {detailTableColGroup.map((el, idx) => <col key={`extra_overall_col_${idx}`} width={el} />)}
@@ -135,6 +125,7 @@ const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, de
                         const isCurrentPage = (index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row);
                         return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
                     })}
+                    {renderTableList.length === 0 && <NoData isTable={true} />}
                 </tbody>
             </table>
 
@@ -142,10 +133,10 @@ const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, de
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={renderTableList.length} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+                <Pagination dataCnt={renderTableList.length || 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div>
         </>
     )
 }
 
-export default React.memo(OrderDetailDetail);
+export default OrderDetailDetail;

@@ -15,7 +15,7 @@ const useEtcTotal = <T extends EtcTotalParams, U>(query: string, params: T, quer
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: false,
+        suspense: true,
         onError: (err: any) => {
             queryFn.axiosError(err);
         },

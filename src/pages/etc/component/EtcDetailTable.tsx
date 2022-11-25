@@ -8,7 +8,7 @@ import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import Sticky from "pages/common/sticky";
 
 // type
-import { PageInfoType, isMusicChargeDetailType, isOrderDetailListType, isVirtualAccListType, VirtualAccListType, TableHeadItemType } from "types/etc/etcType";
+import { PageInfoType, isMusicChargeDetailType, isOrderDetailListType, isVirtualAccListType, VirtualAccListType, TableHeadItemType, ETC_TAB_TYPE } from "types/etc/etcType";
 import { ExtraOverallTableRowItemType } from "types/membership/extraType";
 import NoData from "pages/common/noData";
 import { EtcDetailTableHead } from "./EtcDetailTableHeader";
@@ -52,4 +52,28 @@ const EtcDetailTable = forwardRef<HTMLTableElement, EtcDetailTableProps>(
     }
 )
 
-export default React.memo(EtcDetailTable); 
+export default EtcDetailTable;
+
+const tabList = {
+    [ETC_TAB_TYPE.DELIVERY]: {
+        detailInfo: [
+            ['주문금액', '배달비를 제외한 카드/현금/포인트/쿠폰 결제금액의 합계.'],
+            ['수수료 공급가', '주문금액의 2% (부가세 별도.)']
+        ],
+        colgroup: ['188', '*', '120', '120', '150', '190', '136', '150', '150', '150'],
+        tableHead: [
+            [{ itemName: '결제일시', rowSpan: 2 }, { itemName: '메뉴', rowSpan: 2 }, { itemName: '주문금액', rowSpan: 2 }, { itemName: '배달비', rowSpan: 2 }, { itemName: '결제방식', rowSpan: 2 }, { itemName: '결제수단', rowSpan: 2 }, { itemName: '주문자', rowSpan: 2 }, { itemName: '바나 딜리버리 수수료', colSpan: 3, className: 'price-area' }],
+            [{ itemName: '수수료 공급가 (2%)', className: "price-area" }, { itemName: '부가세 (0.2%)', className: "price-area" }, { itemName: '수수료 합계 (2.2%)', className: "price-area" },]
+        ],
+    },
+    [ETC_TAB_TYPE.MUSIC]: {
+    },
+    [ETC_TAB_TYPE.GIFTCARD]: {
+    },
+    [ETC_TAB_TYPE.ORDER]: {
+    },
+    [ETC_TAB_TYPE.ROYALTY]: {
+    },
+    [ETC_TAB_TYPE.ACCOUNT]: {
+    },
+};
