@@ -11,6 +11,7 @@ interface CalculateDetailTableTopProps {
     calanderSearchOption: {
         title?: string,
         dateTitle?: string,
+        dateType?: string,
         optionType?: 'SELECT' | 'RADIO',
         selectOption?: Array<{ [key: string | number]: { title: string, value: string | number } }>,
         optionList?: Array<any>,
@@ -25,14 +26,14 @@ interface CalculateDetailTableTopProps {
 };
 const CalculateDetailTableTop: FC<CalculateDetailTableTopProps> = ({ calanderSearchOption, titleFrom, titleTo, totalInfo, searchCondition, setSearchCondition }) => {
 
-    const { title = '', dateTitle = '', optionType = undefined, selectOption = [], optionList = [], showMonthYearPicker=false, handleSearch } = calanderSearchOption;
+    const { title = '', dateTitle = '', dateType = 'yyyy-MM-dd', optionType = undefined, selectOption = [], optionList = [], showMonthYearPicker = false, handleSearch } = calanderSearchOption;
 
     return (
         <>
             <CalanderSearch
                 title={title}
                 dateTitle={dateTitle}
-                dateType={'yyyy-MM-dd'}
+                dateType={dateType}
                 searchInfo={searchCondition}
                 setSearchInfo={setSearchCondition}
                 optionType={optionType}

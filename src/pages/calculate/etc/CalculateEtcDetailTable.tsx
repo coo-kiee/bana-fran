@@ -170,7 +170,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
     useEffect(() => {
         setTableTopInfo(prev => ({ ...prev, titleFrom: from, titleTo: to, totalInfo: totalInfoRes }));
         // eslint-disable-next-line
-    }, [setTableTopInfo]);
+    }, [setTableTopInfo, renderTableList]);
 
     return (
         <>
