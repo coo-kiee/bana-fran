@@ -5,7 +5,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import CALCULATE_SERVICE from "service/calculateService";
 
 // Type
-import { CalculateType, CALCULATE_TYPE, ETC_TYPE } from "types/calculate/calculateType";
+import { CalculateType, CALCULATE_TYPE, CALCULATE_CHARGE_TYPE, CALCULATE_CHARGE_MULTIPLY } from "types/calculate/calculateType";
 
 // Util
 import Utils from "utils/Utils";
@@ -76,8 +76,8 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, colSpan, caculateType }
                 calculateDetailSumList?.reduce((res, calculateDetailSum, index, arr) => {
                     const { from_date, to_date, calculate_type, item_name, supply_amt, vat_amt, total_amt } = calculateDetailSum;
 
-                    // 기타 정산 내역 - 청구 금액인 경우 음수, 그 외 정산 내역은 양수 처리
-                    const multiply = calculate_type && calculate_type === ETC_TYPE.BILLING ? -1 : 1;
+                    // 기타 정산 내역 - 금액 곱셈값
+                    const multiply = calculate_type && calculate_type === CALCULATE_CHARGE_TYPE.BILLING ? CALCULATE_CHARGE_MULTIPLY[CALCULATE_CHARGE_TYPE.BILLING] : CALCULATE_CHARGE_MULTIPLY[CALCULATE_CHARGE_TYPE.CONSERVATION];
                     const supplyAmt = supply_amt * multiply;
                     const vatAmt = vat_amt * multiply;
                     const totalAmt = total_amt * multiply;

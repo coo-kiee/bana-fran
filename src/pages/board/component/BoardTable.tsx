@@ -35,7 +35,7 @@ const BoardTable: FC<BoardTableProps> = ({ menuType, listSearchParameter, setLis
                     {/* Table Header  */}
                     <tr>{headerText.map((text) => <th key={text}>{text}</th>)}</tr>
                     {/* List */}
-                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <div style={{ paddingTop: '50px' }}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} /></div>} onError={(e) => console.log('listError', e)}>
+                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('listError', e)}>
                         <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
                             <TableList menuType={menuType} listSearchParameter={listSearchParameter} setDataCnt={setDataCnt} />
                         </Suspense>

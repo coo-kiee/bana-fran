@@ -10,13 +10,13 @@ import Utils from "utils/Utils";
 // Type
 import { SearchInfoType } from "types/etc/etcType";
 import { CLAIM_TAB_TYPE, TabType } from "types/calculate/calculateType";
+import { TabSearchDateInfo } from ".";
 
 // Component
 import Loading from "pages/common/loading";
 import CalanderSearch from "pages/common/calanderSearch";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import NoData from "pages/common/noData";
-import { TabSearchDateInfo } from ".";
 import CalculateDetailTableBottom from "pages/calculate/component/CalculateDetailTableBottom";
 import CalculateTableHeader from "../component/CalculateTableHeader";
 
@@ -44,10 +44,10 @@ const CalculateClaimDetailTable: FC<CalculateClaimDetailTableProps> = ({ tabType
     });
 
     // 테이블 상단 정보
-    const tableTopTotalObj = Object.values(SUM_LIST[tabType]).reduce((arr, cur: SumList[number]) => {
+    const tableTopTotalObj = Object.values(SUM_LIST).reduce((arr, cur: SumList[number]) => {
         if (cur.type) arr[cur.type] = { title: cur.title, sum: 0 };
         return arr;
-    }, {}) as TotalList;
+    }, {} as TotalList);
 
     const [tableTopInfo, setTableTopInfo] = useState<TableTopInfo>({
         titleFrom: Utils.converDateFormat(searchCondition.from, '-'),
@@ -271,15 +271,21 @@ type TableTopInfo = {
     totalObj: TotalList,
 };
 
-const SUM_LIST = {
-    [CLAIM_TAB_TYPE.CLAIM]: [
-        { title: '클레임 보상 쿠폰 발행금액 합계', type: '1' },
-        { title: '클레임 보상 쿠폰 만료금액 합계', type: '2' },
-        { title: '클레임 보상 쿠폰 사용금액 합계', type: '3' },
-    ],
-    [CLAIM_TAB_TYPE.CALCULATE]: [
-        { title: '', type: '' },
-    ],
-} as const;
-type SumList = typeof SUM_LIST[TabType];
+const SUM_LIST = [
+    { title: '클레임 보상 쿠폰 발행금액 합계', type: '1' },
+    { title: '클레임 보상 쿠폰 만료금액 합계', type: '2' },
+    { title: '클레임 보상 쿠폰 사용금액 합계', type: '3' },
+] as const;
+
+// const SUM_LIST = {
+//     [CLAIM_TAB_TYPE.CLAIM]: [
+//         { title: '클레임 보상 쿠폰 발행금액 합계', type: '1' },
+//         { title: '클레임 보상 쿠폰 만료금액 합계', type: '2' },
+//         { title: '클레임 보상 쿠폰 사용금액 합계', type: '3' },
+//     ],
+//     [CLAIM_TAB_TYPE.CALCULATE]: [
+//         { title: '', type: '' },
+//     ],
+// } as const;
+type SumList = typeof SUM_LIST;
 type TotalList = { [key in SumList[number]['type']]: { title: string, sum: number } };

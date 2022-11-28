@@ -3,7 +3,7 @@ import { FC, Suspense, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 
 // Type
-import { CalculateDetail, CalculateDetailOut, CalculateStatusType, CALCULATE_STATUS } from "types/calculate/calculateType";
+import { CalculateDetail, CalculateDetailOut, CalculateStatusType, CALCULATE_STATUS, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY } from "types/calculate/calculateType";
 import { Output } from ".";
 
 // API
@@ -171,9 +171,11 @@ const TableList: FC<TableListProps> = ({ listQuerykey, fCode, staffNo, searchDat
                 calculate_status && calculate_status !== CALCULATE_STATUS.DISTRIBUTE &&
                 caculateList.map(caculateData => {
                     const { from_date, to_date, calculate_type, item_type, item_detail, item_cnt, item_price, supply_amt, vat_amt, total_amt, etc, calculate_d_id } = caculateData;
-                    const supplyAmt = supply_amt * CALCULATE_CHARGE_TYPE[calculate_type as keyof typeof CALCULATE_CHARGE_TYPE];
-                    const vatAmt = vat_amt * CALCULATE_CHARGE_TYPE[calculate_type as keyof typeof CALCULATE_CHARGE_TYPE];
-                    const totalAmt = total_amt * CALCULATE_CHARGE_TYPE[calculate_type as keyof typeof CALCULATE_CHARGE_TYPE];
+
+                    const calculateType: CalculateChargeMultiplyKey = calculate_type as CalculateChargeMultiplyKey;
+                    const supplyAmt = supply_amt * CALCULATE_CHARGE_MULTIPLY[calculateType];
+                    const vatAmt = vat_amt * CALCULATE_CHARGE_MULTIPLY[calculateType];
+                    const totalAmt = total_amt * CALCULATE_CHARGE_MULTIPLY[calculateType];
 
                     return (
                         <tr key={calculate_d_id}>
@@ -263,9 +265,4 @@ const TABLE_COLUMN_INFO = {
         { text: '합계'},
         { text: '비고'},
     ],
-} as const;
-
-export const CALCULATE_CHARGE_TYPE = {
-    '청구': -1,
-    '보전': 1,
 } as const;

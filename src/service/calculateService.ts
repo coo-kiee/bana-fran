@@ -6,8 +6,7 @@ import { useQuery, useQueryClient, UseQueryResult } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 
 // Type
-import { CalculateCouponDetail, CalculateDetail, CalculateDetailOut, CalculateDetailSum, CalculateEtcDetail, CalculateFixDetail, CalculatePointDetail } from 'types/calculate/calculateType';
-import { CALCULATE_CHARGE_TYPE } from 'pages/calculate/list/CalculateListTable';
+import { CalculateCouponDetail, CalculateDetail, CalculateDetailOut, CalculateDetailSum, CalculateEtcDetail, CalculateFixDetail, CalculatePointDetail, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY } from 'types/calculate/calculateType';
 
 // 검색 월
 const useCalculateMonthList = (queryKey: string | Array<string>, f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
@@ -51,7 +50,7 @@ const useCalculateDetailList = (queryKey: string | Array<string>, f_code: number
             if (data.list.length > 0) {
                 let sum = 0;
                 for (const calculateData of data.list) {
-                    sum += calculateData.total_amt * CALCULATE_CHARGE_TYPE[calculateData.calculate_type as keyof typeof CALCULATE_CHARGE_TYPE];
+                    sum += calculateData.total_amt * CALCULATE_CHARGE_MULTIPLY[calculateData.calculate_type as CalculateChargeMultiplyKey];
                 };
                 data.sumAll = sum;
             };

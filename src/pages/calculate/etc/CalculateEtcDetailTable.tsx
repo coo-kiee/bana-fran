@@ -20,7 +20,7 @@ import NoData from "pages/common/noData";
 import CalculateDetailTableBottom from "../component/CalculateDetailTableBottom";
 import CalculateTableHeader from "../component/CalculateTableHeader";
 import CalculateDetailTableTop from "../component/CalculateDetailTableTop";
-import { EtcMultiplyKey, EtcType, ETC_MULTIPLY, ETC_TYPE } from "types/calculate/calculateType";
+import { CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY, CALCULATE_CHARGE_TYPE } from "types/calculate/calculateType";
 
 interface CalculateEtcDetailTableProps {
     userInfo: {
@@ -135,10 +135,10 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
         const tableList = etcDetailList?.reduce((arr, etcDetail, index) => {
 
             const { std_month, calculate_type, item_detail, supply_amt, vat_amt, total_amt } = etcDetail;
-            const calculateType: EtcMultiplyKey = calculate_type as EtcMultiplyKey;
+            const calculateType: CalculateChargeMultiplyKey = calculate_type as CalculateChargeMultiplyKey;
 
             // 합계 계산
-            totalObj[calculateType].sum += (Number(total_amt) * ETC_MULTIPLY[calculateType]);
+            totalObj[calculateType].sum += (Number(total_amt) * CALCULATE_CHARGE_MULTIPLY[calculateType]);
 
             // 필터링 조건
             const isCaclulateType = searchOption[0].value === ETC_TYPE_OPTION[ETC_TYPE.ALL].value || searchOption[0].value === calculate_type;
@@ -149,9 +149,9 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
                         <td className="align-center">{std_month}</td>
                         <td className="align-center">{calculate_type}</td>
                         <td className="align-left">{item_detail}</td>
-                        <td className="align-right">{Utils.numberComma(supply_amt * ETC_MULTIPLY[calculateType])}</td>
-                        <td className="align-right">{Utils.numberComma(vat_amt * ETC_MULTIPLY[calculateType])}</td>
-                        <td className="align-right"><strong>{Utils.numberComma(total_amt * ETC_MULTIPLY[calculateType])}</strong></td>
+                        <td className="align-right">{Utils.numberComma(supply_amt * CALCULATE_CHARGE_MULTIPLY[calculateType])}</td>
+                        <td className="align-right">{Utils.numberComma(vat_amt * CALCULATE_CHARGE_MULTIPLY[calculateType])}</td>
+                        <td className="align-right"><strong>{Utils.numberComma(total_amt * CALCULATE_CHARGE_MULTIPLY[calculateType])}</strong></td>
                     </>
                 )
             }
@@ -170,7 +170,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
     useEffect(() => {
         setTableTopInfo(prev => ({ ...prev, titleFrom: from, titleTo: to, totalInfo: totalInfoRes }));
         // eslint-disable-next-line
-    }, [setTableTopInfo, renderTableList]);
+    }, [setTableTopInfo, renderTableList, totalInfoRes]);
 
     return (
         <>
@@ -195,6 +195,12 @@ const TABLE_COLUMN_INFO = {
     ],
     tdInfo: ['공급가', '부가세', '합계']
 } as const;
+
+const ETC_TYPE = {
+    ...CALCULATE_CHARGE_TYPE,
+    ALL: '구분전체',
+} as const;
+type EtcType = typeof ETC_TYPE[keyof typeof ETC_TYPE];
 
 const ETC_TYPE_OPTION = {
     [ETC_TYPE.ALL]: { title: '구분 전체', value: ETC_TYPE.ALL },

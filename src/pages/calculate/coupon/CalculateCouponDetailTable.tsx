@@ -143,18 +143,18 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
     const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetail(listQueryKey, fCode, staffNo, from, to);
 
     // Table render Node 필터링, 쿠폰 사용금액 합계 계산
-    const [renderTableList, totalSumObj = {}] = useMemo(() => {
+    const [renderTableList, totalInfoRes = {}] = useMemo(() => {
 
         // 쿠폰 종류 데이터 fetched 안됐을 때
         if (Object.values(couponType).length < 2) return [];
 
         // 쿠폰 합계 객체 생성
-        const sumObj = Object.values(couponType).reduce((arr, cur) => {
+        const totalObj = Object.values(couponType).reduce((arr, cur) => {
             if (cur.value !== 0) arr[cur.value] = { title: cur.title, sum: 0 };
             return arr;
         }, {} as TotalInfo);
         // 쿠폰 사용 전체 금액 합계 렌더링할 때 맨 아래 위치시키기 위해서 999 키값 사용
-        sumObj[999] = { title: COUPON_TOTAL_TITLE[COUPON_TYPE.ALL], sum: 0 };
+        totalObj[999] = { title: COUPON_TOTAL_TITLE[COUPON_TYPE.ALL], sum: 0 };
 
         // 필터링 된 Table List 생성
         const tableList = couponDetailList?.reduce((arr, couponDetail, index) => {
@@ -163,8 +163,8 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
             const [date] = rcp_date.split(' '); // [date, time]
 
             // 합계 계산
-            sumObj[item_type_code].sum += total_amt;
-            sumObj[999].sum += total_amt;
+            totalObj[item_type_code].sum += total_amt;
+            totalObj[999].sum += total_amt;
 
             // 필터링 조건
             const showCoupon = Number(searchOption[0].value);
@@ -189,7 +189,7 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
             return arr;
         }, [] as ReactNode[]);
 
-        return [tableList, sumObj];
+        return [tableList, totalObj];
     }, [couponDetailList, searchOption, couponType]);
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
@@ -199,9 +199,9 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, titleFrom: from, titleTo: to, totalInfo: totalSumObj }));
+        setTableTopInfo(prev => ({ ...prev, titleFrom: from, titleTo: to, totalInfo: totalInfoRes }));
         // eslint-disable-next-line
-    }, [setTableTopInfo, renderTableList]);
+    }, [setTableTopInfo, renderTableList, totalInfoRes]);
 
     return (
         <>
