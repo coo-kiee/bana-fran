@@ -34,7 +34,7 @@ const Royalty = () => {
             <div className="board-date-wrap" >
                 <EtcTotalTable currTab={ETC_TAB_TYPE.ROYALTY} />
                 <RoyaltyOverallSearch handleSearchInfo={handleSearchInfo} />
-                <RoyaltyDetail searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} detailPriceInfo={detailPriceInfo} />
+                <RoyaltyDetail searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead}  />
             </div>
         </>
     )

@@ -3,7 +3,7 @@ import { format, subMonths, lastDayOfMonth } from 'date-fns';
 import { useQueryErrorResetBoundary } from 'react-query';
 
 // type
-import { EtcTotalParams, ETC_TAB_LIST, ETC_TAB_TYPE, TotalResultType } from 'types/etc/etcType';
+import { EtcTotalParams, ETC_TAB_TYPE, ChkGiftCardStockParams } from 'types/etc/etcType';
 import { ErrorBoundary } from 'react-error-boundary';
 import Loading from 'pages/common/loading';
 import { useRecoilValue } from 'recoil';
@@ -21,6 +21,12 @@ import ETC_SERVICE from 'service/etcService';
 const EtcTotalTable: FC<{ currTab: number, }> = ({ currTab }) => {
     const { reset } = useQueryErrorResetBoundary();
 
+    const handleTotalTableData = (currTab: number) => {
+        if(currTab === ETC_TAB_TYPE.ORDER) return <EtcOrderTotalTableData />
+        else if(currTab === ETC_TAB_TYPE.MUSIC) return <EtcMusicTotalTableData />
+        else if (currTab === ETC_TAB_TYPE.GIFTCARD) return <EtcGiftCardTotalTableData />
+        else return <EtcTotalTableData currTab={currTab} />
+    }
     return (
         <>
             <p className="title bullet">{tabList[currTab].title}</p>
@@ -36,11 +42,7 @@ const EtcTotalTable: FC<{ currTab: number, }> = ({ currTab }) => {
                 <tbody>
                     <React.Suspense fallback={<Loading width={50} height={50} isTable={true} />}>
                         <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />}>
-                            {currTab === ETC_TAB_TYPE.ORDER ?
-                                <EtcOrderTotalTableData currTab={currTab} />
-                                :
-                                <EtcTotalTableData currTab={currTab} />
-                            }
+                            {handleTotalTableData(currTab)} 
                         </ErrorBoundary>
                     </React.Suspense>
                 </tbody>
@@ -49,7 +51,9 @@ const EtcTotalTable: FC<{ currTab: number, }> = ({ currTab }) => {
     )
 }
 
-const EtcTotalTableData: FC<{ currTab: number, }> = ({ currTab }) => {
+export default EtcTotalTable;
+
+const EtcTotalTableData: FC<{ currTab: number }> = ({ currTab }) => {
     const franCode = useRecoilValue(franState);
 
     // 성공 후 데이터 가공 관련
@@ -80,46 +84,12 @@ const EtcTotalTableData: FC<{ currTab: number, }> = ({ currTab }) => {
         if (currTab === ETC_TAB_TYPE.DELIVERY) { // TODO: 바나 딜리버리 수수료
             tableBody = [
                 [
-                    { data: `${format(subMonths(new Date(), 1), 'yyyy/MM/01')}~${format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy/MM/dd')}` },
-                    { data: '바나 딜리버리 수수료(주문금액의 2%, VAT 별도)' },
-                    { data: `${totalData.suply_fee}` },
-                    { data: `${totalData.suply_fee_tax}` },
-                    { data: `${totalData.total_fee}` },
+                    { data: `${totalData.std_date}` },
+                    { data: `${totalData.item}` },
+                    { data: `${Utils.numberComma(totalData.supply_amt)}` },
+                    { data: `${Utils.numberComma(totalData.vat_amt)}` },
+                    { data: `${Utils.numberComma(totalData.total_amt)}` },
                 ]
-            ];
-        } else if (currTab === ETC_TAB_TYPE.MUSIC) { // TODO: 음악 서비스 이용료 페이지
-            tableBody = [
-                [
-                    { data: `${format(subMonths(new Date(), 1), 'yy/MM/01')}~${format(lastDayOfMonth(subMonths(new Date(), 1)), 'yy/MM/dd')}` },
-                    { data: '음악사용료' },
-                    { data: `${totalData.suply_fee}` },
-                    { data: `${totalData.suply_fee_tax}` },
-                    { data: `${totalData.total_fee}` }
-                ],
-                [
-                    { data: `${format(subMonths(new Date(), 1), 'yy/MM/01')}~${format(lastDayOfMonth(subMonths(new Date(), 1)), 'yy/MM/dd')}` },
-                    { data: '공연권료' },
-                    { data: `${totalData.suply_fee}` },
-                    { data: `${totalData.suply_fee_tax}` },
-                    { data: `${totalData.total_fee}` },
-                ]
-            ];
-        } else if (currTab === ETC_TAB_TYPE.GIFTCARD) { // TODO: 실물상품권 발주/판매 페이지
-            tableBody = [
-                [
-                    { data: `*매장 보유 재고`, className: 'align-center' },
-                    { data: `10장 (100,000원)`, className: 'align-center' },
-                    { data: `9장 (270,000원)`, className: 'align-center' },
-                    { data: `2장 (100,000원)`, className: 'align-center' },
-                    { data: `21장 (470,000원)`, className: 'align-center' },
-                ],
-                [
-                    { data: `본사DB 재고`, className: 'align-center' },
-                    { data: `10장 (100,000원)`, className: 'align-center' },
-                    { data: `9장 (270,000원)`, className: 'align-center' },
-                    { data: `2장 (100,000원)`, className: 'align-center' },
-                    { data: `21장 (470,000원)`, className: 'align-center' },
-                ],
             ];
         } else if (currTab === ETC_TAB_TYPE.ROYALTY) { // TODO: 로열티 페이지
             tableBody = [
@@ -158,7 +128,7 @@ const EtcTotalTableData: FC<{ currTab: number, }> = ({ currTab }) => {
     )
 }
 
-const EtcOrderTotalTableData: FC<{ currTab: number, }> = ({ currTab }) => {
+const EtcOrderTotalTableData = () => {
     const franCode = useRecoilValue(franState);
 
     let tableBody: any = []; // 프로시저 성공 후 업데이트
@@ -181,7 +151,71 @@ const EtcOrderTotalTableData: FC<{ currTab: number, }> = ({ currTab }) => {
     )
 }
 
-export default EtcTotalTable;
+const EtcMusicTotalTableData = () => {
+    const franCode = useRecoilValue(franState);
+
+    let tableBody: any = []; // 프로시저 성공 후 업데이트
+    const totalParam: EtcTotalParams = { fran_store: franCode };
+    const { data: totalData, isSuccess: totalSuccess } = ETC_SERVICE.useMusicTotal(totalParam);
+    if (totalSuccess) { 
+        tableBody = totalData;
+    }
+
+    return (
+        <>
+            {tableBody.map((tr: any, idx: number) => {
+                const {item, std_date, supply_amt, total_amt, vat_amt} = tr;
+                return (
+                    <tr key={`etc_table_td_${idx}`}>
+                        <td>{std_date}</td>   
+                        <td>{item}</td>   
+                        <td>{Utils.numberComma(supply_amt)}</td>   
+                        <td>{Utils.numberComma(vat_amt)}</td>   
+                        <td>{Utils.numberComma(total_amt)}</td>   
+                    </tr>
+                )
+            })}
+        </>
+    )
+}
+
+const EtcGiftCardTotalTableData = () => {
+    const franCode = useRecoilValue(franState);
+
+    let tableBody: any = []; // 프로시저 성공 후 업데이트
+    const totalParam: ChkGiftCardStockParams = { f_code: franCode };
+    const { data: totalData, isSuccess: totalSuccess } = ETC_SERVICE.useChkGiftCardStock(totalParam);
+    if (totalSuccess) { 
+        console.log(totalData)
+        tableBody = totalData;
+    }  
+
+    const handleClassName = (fran: number, hq:number) => {
+        if(fran !== hq) return 'negative-value'
+        else return ''
+    }
+
+    return (
+        <>
+            <tr>
+                <td>매장 보유 재고</td>
+                <td className={`align-center ${tableBody.cnt1_class}`}>{tableBody.fran_stock_cnt1}장 ({tableBody.fran_stock_amt1})</td>
+                <td className={`align-center ${tableBody.cnt3_class}`}>{tableBody.fran_stock_cnt3}장 ({tableBody.fran_stock_amt3})</td>
+                <td className={`align-center ${tableBody.cnt5_class}`}>{tableBody.fran_stock_cnt5}장 ({tableBody.fran_stock_amt5})</td>
+                {/* check */}
+                <td className={`align-center ${tableBody.total_class}`}>{tableBody.fran_stock_cnt_total}장 ({tableBody.fran_stock_amt_total})</td>
+            </tr>
+            <tr>
+                <td>본사DB 재고</td>
+                <td className={`align-center ${tableBody.cnt1_class}`}>{tableBody.hq_stock_cnt1}장 ({tableBody.hq_stock_amt1})</td>
+                <td className={`align-center ${tableBody.cnt3_class}`}>{tableBody.hq_stock_cnt3}장 ({tableBody.hq_stock_amt3})</td>
+                <td className={`align-center ${tableBody.cnt5_class}`}>{tableBody.hq_stock_cnt5}장 ({tableBody.hq_stock_amt5})</td>
+                {/* check */}
+                <td className={`align-center ${tableBody.total_class}`}>{tableBody.hq_stock_cnt_total}장 ({tableBody.hq_stock_amt_total})</td>
+            </tr>
+        </>
+    )
+}
 
 const tabList = {
     [ETC_TAB_TYPE.DELIVERY]: {
@@ -195,7 +229,7 @@ const tabList = {
         title: `${format(subMonths(new Date(), 1), `yyyy년 M월 음악 서비스 이용료`)}`,
         colgroup: ['188', '*', '150', '150', '150'],
         thead: ['기간', '품목', '공급가', '부가세', '수수료 합계 (2.2%)'],
-        query: '8WDCFLDHSNA7WRN9JCBS',
+        query: '',
         queryKey: 'etc_music_fee',
     },
     [ETC_TAB_TYPE.GIFTCARD]: {

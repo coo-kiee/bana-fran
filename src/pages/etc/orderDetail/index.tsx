@@ -1,21 +1,20 @@
-import React, { FC, Fragment, ReactNode, useEffect, useMemo, useState } from 'react';
-import { format, subDays, subMonths } from 'date-fns';
+import React, { FC, useEffect, useState } from 'react';
+import { format, subMonths } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 
 // type
-import { EtcListParams, ETC_TAB_TYPE, SearchInfoType } from "types/etc/etcType";
+import {  ETC_TAB_TYPE, SearchInfoType } from "types/etc/etcType";
 
 // component 
 import OrderDetailDetail from './OrderDetailDetail';
 import CalanderSearch from 'pages/common/calanderSearch';
-import { EtcDetailTableFallback } from '../component/EtcDetailTableHeader';
-import EtcTotalTable from '../component/EtcTotalTable';
+import { EtcDetailTableFallback } from '../component/EtcDetailTable';
+import EtcTotalTable from '../component/EtcTotalTable';  
 
-const OrderDetail = () => {
-    console.log(`OrderDetail`)
-    const { reset } = useQueryErrorResetBoundary();
-
+const OrderDetail = () => { 
+    const { reset } = useQueryErrorResetBoundary(); 
+    
     // TODO: 상태 관련
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
@@ -32,8 +31,7 @@ const OrderDetail = () => {
     const detailTableHead = [
         [{ itemName: '일시' }, { itemName: '최종수정일', }, { itemName: '취소일' }, { itemName: '접수자' }, { itemName: '최종수정자' }, { itemName: '취소자' }, { itemName: '상태' }, { itemName: '발주 건 수' }, { itemName: '품목 상세' }, { itemName: '발주 금액' }]
     ];
-
-    console.log("INDEX RENDER!") // 1번 찍힘
+ 
     return (
         <div className="board-date-wrap">
             <EtcTotalTable currTab={ETC_TAB_TYPE.ORDER} />
@@ -41,8 +39,7 @@ const OrderDetail = () => {
 
             <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
-                    <OrderDetailDetail searchInfo={searchInfo} handleSearchInfo={handleSearchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
-                    {/* <Test searchInfo={searchInfo} /> */}
+                    <OrderDetailDetail searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
                 </ErrorBoundary>
             </React.Suspense>
         </div>

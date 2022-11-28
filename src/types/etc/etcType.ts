@@ -46,6 +46,13 @@ interface OrderDetailListType {
     staff_name: string,
     state_name: string
 } // web_fran_s_etc_order_list 결과 타입
+interface RoyaltyDetailListType {
+    std_date: string,
+    state: string,
+    suply_amount: number,
+    tax_amount: number,
+    total_amount: number,
+} // web_fran_s_etc_royalty_list 결과 타입
 interface VirtualAccountTotalType {
     fran_name: string,
     balance: number,
@@ -80,6 +87,14 @@ interface OrderDetailModalItemType {
 interface EtcTotalParams {
     fran_store: number,
 }
+interface ChkGiftCardStockParams {
+    f_code: number
+}
+interface GiftCardListParams {
+    f_code: number,
+    from_date: string,
+    to_date: string,
+}
 interface EtcListParams {
     fran_store: number,
     from_date: string,
@@ -108,8 +123,7 @@ interface VirtualAccountOverallProps extends OverallFallbackProps {
 }
 
 // Detail props
-interface DetailFallbackProps {
-    detailPriceInfo?: string[][],
+interface DetailFallbackProps { 
     detailTableColGroup: string[],
     detailTableHead: TableHeadItemType[][],
 }
@@ -121,38 +135,24 @@ interface DeliveryChargeDetailProps extends DetailFallbackProps {
     handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
 }
 interface MusicChargeDetailProps extends DetailFallbackProps {
-    searchInfo: SearchInfoType,
-    handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
+    searchInfo: SearchInfoType, 
 }
 interface GiftcardDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoSelectType,
     handleSearchInfo: (currentTempSearchInfo: SearchInfoSelectType) => void,
 }
-interface OrderDetailDetailProps extends Omit<DetailFallbackProps, 'detailPriceInfo'> {
-    searchInfo: SearchInfoType,
-    handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
+interface OrderDetailDetailProps extends DetailFallbackProps {
+    searchInfo: SearchInfoType, 
 }
 interface RoyaltyDetailProps extends DetailFallbackProps {
     title: string,
     searchInfo: SearchInfoType,
 }
-interface VirtualAccountDetailProps extends Omit<DetailFallbackProps, 'detailPriceInfo'> {
+interface VirtualAccountDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoType,
 }
 
-/* Type Check */
-const isOrderDetailListType = (target: any): target is OrderDetailListType => {
-    return 'nOrderID' in target && 'first_item' in target ? true : false;
-}
-
-const isMusicChargeDetailType = (target: any): target is MusicChargeDetailType => {
-    return 'suply_amount' in target && 'tax_amount' in target && 'total_amount' in target && 'std_date' in target && 'state' in target;
-}
-
-const isVirtualAccListType = (target: any): target is VirtualAccListType => {
-    return 'log_date' in target && 'balance' in target ? true : false;
-}
-
+/* Type Check */ 
 const isSelect = (target: any): target is SearchInfoSelectType => {
     return 'searchOption' in target ? true : false;
 }
@@ -199,11 +199,12 @@ const ETC_DELIVERY_SEARCH_OPTION_LIST = [
 
 // etc 페이지 실물상품권 판매 검색 옵션 관련
 const ETC_GIFTCARD_SEARCH_CATEGORY_TYPE = {
-    CATEGORY_ALL: 'CATEGORY_ALL', // 구분 전체
+    CATEGORY_ALL: 'CATEGORY_ALL', // 포인트 구분 전체
     SELL: 'SELL', // 판매
     SELL_DELETE: 'SELL_DELETE', // 판매 취소(폐기)
     ADD: 'ADD', // 임의 추가
-    DELETE: 'DELETE' // 임의 폐기
+    DELETE: 'DELETE', // 임의 폐기
+    ELSE: 'ELSE' // N/A
 }; // 구분 관련
 const ETC_GIFTCARD_SEARCH_CARD_TYPE = {
     CARD_ALL: 'CARD_ALL', // 상품권종 전체
@@ -217,6 +218,7 @@ const ETC_GIFTCARD_SEARCH_DEVICE_TYPE = {
     APP: 'APP', // 어플
     KIOSK: 'KIOSK', // 키오스크
     POS: 'POS', // POS
+    ELSE: 'ELSE' // N/A
 }; // 처리기기 관련
 
 const ETC_GIFTCARD_SEARCH_CATEGORY_LIST = [
@@ -224,7 +226,8 @@ const ETC_GIFTCARD_SEARCH_CATEGORY_LIST = [
     ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL,
     ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL_DELETE,
     ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ADD,
-    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.DELETE
+    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.DELETE,
+    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ELSE,
 ]
 const ETC_GIFTCARD_SEARCH_CARD_LIST = [
     ETC_GIFTCARD_SEARCH_CARD_TYPE.CARD_ALL,
@@ -237,18 +240,19 @@ const ETC_GIFTCARD_SEARCH_DEVICE_LIST = [
     ETC_GIFTCARD_SEARCH_DEVICE_TYPE.BRANCH_APP,
     ETC_GIFTCARD_SEARCH_DEVICE_TYPE.APP,
     ETC_GIFTCARD_SEARCH_DEVICE_TYPE.KIOSK,
-    ETC_GIFTCARD_SEARCH_DEVICE_TYPE.POS
+    ETC_GIFTCARD_SEARCH_DEVICE_TYPE.POS,
+    ETC_GIFTCARD_SEARCH_DEVICE_TYPE.ELSE,
 ]
 
 export type {
     SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
-    TotalResultType, MusicChargeDetailType, OrderDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
-    EtcTotalParams, EtcListParams, OrderDetailModalParams,
+    TotalResultType, MusicChargeDetailType, OrderDetailListType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
+    EtcTotalParams, ChkGiftCardStockParams, GiftCardListParams, EtcListParams, OrderDetailModalParams,
     OverallFallbackProps, RoyaltyOverallProps, VirtualAccountOverallProps, OverallErrorFallbackProps, DetailErrorFallbackProps, RoyaltyDetailProps, VirtualAccountDetailProps,
     DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps, MusicChargeDetailProps, OrderDetailDetailProps,
 };
 export {
     ETC_TAB_TYPE, ETC_TAB_LIST, ETC_DELIVERY_SEARCH_OPTION_TYPE, ETC_DELIVERY_SEARCH_OPTION_LIST,
     ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_LIST,
-    isMusicChargeDetailType, isOrderDetailListType, isVirtualAccListType, isSelect, isRadio,
+    isSelect, isRadio,
 };

@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { format, subMonths, lastDayOfMonth } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 
 // type
 import { ETC_TAB_TYPE, SearchInfoType } from "types/etc/etcType";

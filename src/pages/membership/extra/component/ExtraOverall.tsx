@@ -23,37 +23,30 @@ const ExtraOverall: FC<{ tableHead: ExtraOverallTableRowItemType[][] }> = ({ tab
     const { reset } = useQueryErrorResetBoundary();
 
     return (
-        <>
-            <p className="title bullet">실시간 누적 현황
-                <span className="sub-title hyphen">무료음료쿠폰의 사용금액은 고객이 실제 결제 시 사용한 금액이므로 발급된 액면가보다 낮을 수 있습니다.</span>
-                <span className="sub-title hyphen point">월간랭킹보상쿠폰은 액면가 없는 무료음료쿠폰으로 실제 사용된 경우에만 금액에 합산됩니다.</span>
-            </p>
-            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
-                <thead>
-                    {tableHead.map((trData, idx1) => {
-                        return (
-                            <tr key={`extra_overall_table_row_${idx1}`}>
-                                {trData.map((tdData, idx2) => {
-                                    return (
-                                        <th key={`extra_overall_table_row_item_${idx2}`} rowSpan={tdData.rowSpan || undefined} colSpan={tdData.colSpan || undefined} className={tdData.className || ''}>
-                                            {tdData.itemName.length > 1 ? <>{tdData.itemName[0]}<p>({tdData.itemName[1]})</p></> : tdData.itemName[0]}
-                                        </th>
-                                    )
-                                })}
-                            </tr>
-                        )
-                    })}
-                </thead>
-                <tbody>
-                    <React.Suspense fallback={<Loading width={50} height={50} isTable={true} />}>
-                        <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />}>
-                            <ExtraOverallData />
-                        </ErrorBoundary>
-                    </React.Suspense>
-                </tbody>
-            </table>
-
-        </>
+        <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
+            <thead>
+                {tableHead.map((trData, idx1) => {
+                    return (
+                        <tr key={`extra_overall_table_row_${idx1}`}>
+                            {trData.map((tdData, idx2) => {
+                                return (
+                                    <th key={`extra_overall_table_row_item_${idx2}`} rowSpan={tdData.rowSpan || undefined} colSpan={tdData.colSpan || undefined} className={tdData.className || ''}>
+                                        {tdData.itemName.length > 1 ? <>{tdData.itemName[0]}<p>({tdData.itemName[1]})</p></> : tdData.itemName[0]}
+                                    </th>
+                                )
+                            })}
+                        </tr>
+                    )
+                })}
+            </thead>
+            <tbody>
+                <React.Suspense fallback={<Loading width={50} height={50} isTable={true} />}>
+                    <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />}>
+                        <ExtraOverallData />
+                    </ErrorBoundary>
+                </React.Suspense>
+            </tbody>
+        </table>
     )
 }
 

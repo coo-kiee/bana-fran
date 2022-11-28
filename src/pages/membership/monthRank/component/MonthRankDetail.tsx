@@ -1,8 +1,7 @@
 import React, { FC, useState, useRef, useMemo, ReactNode } from "react";
 import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
-import { format, isAfter, lastDayOfMonth, subMonths } from "date-fns";
-import Utils from "utils/Utils";
+import { format, isAfter, lastDayOfMonth, subMonths } from "date-fns"; 
 import { useRecoilValue } from "recoil";
 
 // type
@@ -12,7 +11,8 @@ import { MonthRankDetailProps, MonthRankDetailDataProps } from "types/membership
 // component
 import CalanderSearch from "pages/common/calanderSearch";
 import Sticky from "pages/common/sticky";
-import { EtcDetailTableHead, EtcDetailTableFallback } from 'pages/etc/component/EtcDetailTableHeader'
+import { EtcDetailTableHead, EtcDetailTableFallback} from "pages/etc/component/EtcDetailTable"; 
+
 import EtcDetailFooter from "pages/etc/component/EtcDetailFooter";
 import NoData from "pages/common/noData";
 
@@ -52,7 +52,7 @@ export default MonthRankDetail;
 const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
-    console.log(`MonthRankDetailData`)
+
     // TODO: state
     const tableRef = useRef<null | HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
@@ -63,17 +63,13 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailT
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
 
-    // TODO: 프로시저
-    let rankListData: any = [];
+    // TODO: 프로시저 
     const rankListParams: EtcListParams = {
         fran_store: franCode,
         from_date: searchInfo.from + '-01',
         to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
     };
-    const { data, isSuccess } = MEMBERSHIP_SERVICE.useRankList(rankListParams);
-    if (isSuccess) {
-        rankListData = data;
-    }
+    const { data } = MEMBERSHIP_SERVICE.useRankList(rankListParams);
 
     const renderTableList = useMemo(() => {
         return data?.reduce((arr: any, tbodyRow: any, index: number) => {
@@ -102,7 +98,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailT
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
                 <tbody>
-                    {renderTableList?.map((item: any, index: number) => {
+                    {renderTableList?.length > 0 && renderTableList.map((item: any, index: number) => {
                         const isCurrentPage = (index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row);
                         return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
                     })}
@@ -111,7 +107,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailT
             </table>
 
             <EtcDetailFooter
-                dataCnt={rankListData.length || 0}
+                dataCnt={renderTableList.length || 0}
                 pageInfo={pageInfo}
                 pageFn={setPageInfo}
                 tableRef={tableRef}

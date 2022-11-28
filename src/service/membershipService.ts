@@ -1,14 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
 import { AxiosError } from 'axios';
+import Utils from 'utils/Utils';
+import { format } from 'date-fns';
 
 // type
 import { RequestParams } from 'types/common';
 import { EtcTotalParams, EtcListParams } from 'types/etc/etcType';
 import { MembershipListType, MembershipTotalType } from 'types/membership/extraType';
 import { RankEditParams } from 'types/membership/monthRankType';
-import Utils from 'utils/Utils';
-import { format } from 'date-fns';
 
 // TODO: 직전월 스탬프/쿠폰/바나포인트 내역 
 const useMembershipTotal = (params: EtcTotalParams) => {
@@ -39,6 +39,7 @@ const useMembershipList = (params: EtcListParams) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
+        // suspense: false,
         suspense: true,
         onError: (err: any) => {
             queryFn.axiosError(err);

@@ -9,18 +9,17 @@ import { format, isAfter, lastDayOfMonth } from 'date-fns';
 import { franState, loginState } from 'state';
 
 // component
-import EtcDetailTable from "pages/etc/component/EtcDetailTable";
-import { EtcDetailTableFallback } from 'pages/etc/component/EtcDetailTableHeader'
-import EtcDetailFooter from 'pages/etc/component/EtcDetailFooter';
+import {  EtcDetailTable, EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 
 // api
 import ETC_SERVICE from 'service/etcService';
 
 // type
-import { PageInfoType, EtcListParams, VirtualAccountDetailProps, VirtualAccListType } from 'types/etc/etcType';
-import EtcSearchDetail from 'pages/etc/component/EtcSearchDetail';
-import NoData from 'pages/common/noData';
+import { PageInfoType, EtcListParams, VirtualAccountDetailProps, VirtualAccListType } from 'types/etc/etcType'  
 import Pagination from 'pages/common/pagination';
+import Sticky from 'pages/common/sticky'; 
+import Loading from 'pages/common/loading';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const VirtualAccountDetail: FC<VirtualAccountDetailProps> = (props) => {
     const { detailTableColGroup, detailTableHead } = props;
@@ -47,28 +46,27 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
     const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 관련
+    const thRef = useRef<HTMLTableRowElement>(null);
 
-    // 프로시저 
-    let detailTableBody: any = [];
+    // 프로시저  
+    let virtualAccTotalList: ReactNode[] = []; 
     const etcVirtualAccBalanceListParam: EtcListParams = {
         fran_store: franCode,
         from_date: searchInfo.from + '-01',
         to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
     };
-    const { data: listData } = ETC_SERVICE.useEtcList<EtcListParams>('CS4QOSEGOQGJ8QCALM7L', etcVirtualAccBalanceListParam, 'etc_virtual_acc_balance_total_list');
+    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useEtcList<EtcListParams, VirtualAccListType[]>('CS4QOSEGOQGJ8QCALM7L', etcVirtualAccBalanceListParam, 'etc_virtual_acc_balance_total_list');
 
-    const [renderTableList, totalSumObj]: [ReactNode[], string[][]] = useMemo(() => {
-        let deductTotal = 0;
-        let addTotal = 0;
-        const tableList = listData?.reduce((arr: any, tbodyRow: any, index: number) => {
-            const { balance, deposit, division, log_date, state } = tbodyRow;
-            if (division.includes('차감')) deductTotal += deposit;
-            else if (division.includes('충전')) addTotal += deposit;
+    // useMemo + suspense 관련
+    const [renderTableList, deductTotal, depositTotal]: [ReactNode[], number, number] = useMemo(() => {
+        const tableList = listData?.reduce((arr: any, tbodyRow: any) => {
+            const { balance, deposit, division, log_date, state } = tbodyRow; 
+
             arr.push(
                 <>
                     <td className='align-center'>{format(new Date(log_date), 'yyyy/MM/dd hh:mm')}</td>
                     <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{division}</td>
-                    <td className={`align-center ${deposit === '차감' ? `negative-value` : ''}`}>{Utils.numberComma(deposit)}</td>
+                    <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{Utils.numberComma(deposit)}</td>
                     <td className='align-center'>{state}</td>
                     <td className='balance'>{Utils.numberComma(balance)}</td>
                 </>
@@ -76,11 +74,10 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
             return arr;
         }, [] as ReactNode[]);
 
-        const sumObj = [
-            ['충전', `${Utils.numberComma(addTotal)}`], ['차감', `${Utils.numberComma(deductTotal)}`]
-        ];
+        const depositTotal = listData?.filter((el: any) => el.division === '충전').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0;
+        const deductTotal = listData?.filter((el: any) => el.division === '차감').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0;
 
-        return [tableList, sumObj];
+        return [tableList, depositTotal, deductTotal];
     }, [listData]);
 
     const handleExcelDownload = () => {
@@ -105,67 +102,35 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
     }
 
     return (
-        <>
-            {/* <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={totalSumObj} /> */}
+        <> 
             <div className="search-result-wrap">
                 <div className="search-date">
                     <p>조회기간: {searchInfo.from} ~ {searchInfo.to}</p>
                 </div>
                 <ul className="search-result">
-                    {totalSumObj.map((result, idx) => {
-                        const [title, value] = result;
-                        return <li key={`etc_search_detail_result_${idx}`} className="hyphen">{title}<span className="colon"></span><span className="value">{value}원</span></li>
-                    })}
+                    <li className="hyphen">충전<span className="colon"></span><span className="value">{Utils.numberComma(depositTotal)}원</span></li>
+                    <li className="hyphen">차감<span className="colon"></span><span className="value">{Utils.numberComma(deductTotal)}원</span></li>
                 </ul>
             </div>
 
-            {/* <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={renderTableList} pageInfo={pageInfo} ref={tableRef} /> */}
-            <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                <colgroup>
-                    {detailTableColGroup.map((el, idx) => <col key={`extra_overall_col_${idx}`} width={el} />)}
-                </colgroup>
-                <thead>
-                    {detailTableHead.map((trData, idx1) => {
-                        return (
-                            <tr key={`extra_overall_table_row_${idx1}`} >
-                                {trData.map((tdData, idx2) => {
-                                    return (
-                                        <th key={`extra_overall_table_row_item_${idx2}`} rowSpan={tdData.rowSpan || undefined} colSpan={tdData.colSpan || undefined} className={tdData.className || ''}>
-                                            {tdData.itemName}
-                                        </th>
-                                    )
-                                })}
-                            </tr>
-                        )
-                    })}
-                </thead>
+            <Sticky reference={thRef.current}>
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+            </Sticky>
 
-                <tbody>
-                    {renderTableList.map((item: any, index: number) => {
-                        const isCurrentPage = (index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row);
-                        return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
-                    })}
-                    {renderTableList.length === 0 && <NoData isTable={true} />}
-                </tbody>
+            <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
+                {/* <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />   */}
+                {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
+                {isLoading && <Loading isTable={true} />}
+                {isError && <SuspenseErrorPage isTable={true} />}
             </table>
 
             <div className="result-function-wrap">
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={renderTableList.length} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
-            </div>
-            {/* 
-            <EtcDetailFooter
-                dataCnt={detailTableBody.length || 0}
-                pageInfo={pageInfo}
-                pageFn={setPageInfo}
-                tableRef={tableRef}
-                detailTableColGroup={detailTableColGroup}
-                fCodeName={f_list[0].f_code_name}
-                searchDate={`${searchInfo.from}~${searchInfo.to}`}
-                excelFileName={`가상계좌내역`}
-            /> */}
+                <Pagination dataCnt={!!renderTableList? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+            </div> 
         </>
     )
 }

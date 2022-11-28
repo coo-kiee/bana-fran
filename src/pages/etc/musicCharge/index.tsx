@@ -21,8 +21,7 @@ const MusicCharge = () => {
         setSearchInfo((prevSearchInfo) => ({ ...prevSearchInfo, ...currentTempSearchInfo }));
     }; // tempSearchInfo -> searchInfo로 업데이트 (-> 자동으로 refetch역할)
 
-    // column 관련 데이터 
-    const detailPriceInfo = [['음악사용료/공연권료는 일할 계산되지 않습니다. (월 단위 요금 청구)']];
+    // column 관련 데이터  
     const detailTableColGroup = ['188', '*', '150', '150', '150'];
     const detailTableHead = [
         [{ itemName: '기간', rowSpan: 2 }, { itemName: '내용', rowSpan: 2 }, { itemName: 'BGM 서비스 이용료', colSpan: 3, className: 'price-area' }],
@@ -33,7 +32,7 @@ const MusicCharge = () => {
         <div className="board-date-wrap">
             <EtcTotalTable currTab={ETC_TAB_TYPE.MUSIC} />
             <MusicChargeDetailSearch handleSearchInfo={handleSearchInfo} />
-            <MusicChargeDetail searchInfo={searchInfo} detailPriceInfo={detailPriceInfo} handleSearchInfo={handleSearchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+            <MusicChargeDetail searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
         </div>
     )
 }
@@ -49,7 +48,7 @@ const MusicChargeDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: Se
     return (
         <CalanderSearch
             title={`상세내역`}
-            dateType={'yyyy-MM-dd'}
+            dateType={'yyyy-MM'}
             searchInfo={tempSearchInfo}
             setSearchInfo={setTempSearchInfo}
             handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn

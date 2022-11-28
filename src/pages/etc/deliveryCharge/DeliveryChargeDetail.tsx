@@ -1,27 +1,27 @@
 import React, { FC, useState, useRef, useMemo, ReactNode } from "react";
 import { useRecoilValue } from "recoil";
-import { useQueryErrorResetBoundary, useQueryClient } from 'react-query';
+import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
+import Utils from "utils/Utils";
 
 // state
 import { franState, loginState } from "state";
 
 // type
-import { EtcListParams, PageInfoType, DeliveryChargeDetailProps, ETC_DELIVERY_SEARCH_OPTION_TYPE, } from "types/etc/etcType";
+import { EtcListParams, PageInfoType, DeliveryChargeDetailProps, ETC_DELIVERY_SEARCH_OPTION_TYPE } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from 'service/etcService';
 
 // component   
-import EtcDetailTable from "pages/etc/component/EtcDetailTable";
-import { EtcDetailTableFallback } from 'pages/etc/component/EtcDetailTableHeader'
-import EtcDetailFooter from "pages/etc/component/EtcDetailFooter";
-import EtcSearchDetail from "pages/etc/component/EtcSearchDetail";
-import Pagination from "pages/common/pagination";
-import Utils from "utils/Utils";
-import NoData from "pages/common/noData";
+import  { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import Pagination from "pages/common/pagination"; 
+import Sticky from "pages/common/sticky"; 
+import Loading from "pages/common/loading";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import { format } from "date-fns";
 
-const DeliveryChargeDetail: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo, detailPriceInfo }) => {
+const DeliveryChargeDetail: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo }) => {
     const { reset } = useQueryErrorResetBoundary();
 
     return (
@@ -29,7 +29,6 @@ const DeliveryChargeDetail: FC<DeliveryChargeDetailProps> = ({ detailTableColGro
             <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
                 <DeliveryChargeDetailData
                     searchInfo={searchInfo}
-                    detailPriceInfo={detailPriceInfo}
                     handleSearchInfo={handleSearchInfo}
                     detailTableColGroup={detailTableColGroup}
                     detailTableHead={detailTableHead}
@@ -41,12 +40,13 @@ const DeliveryChargeDetail: FC<DeliveryChargeDetailProps> = ({ detailTableColGro
 
 export default DeliveryChargeDetail;
 
-const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo, detailPriceInfo }) => {
+const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
     // TODO: 상태
     const tableRef = useRef<HTMLTableElement>(null);
+    const thRef = useRef<HTMLTableRowElement>(null);
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
@@ -54,42 +54,43 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
 
     // TODO: 프로시저   
     const etcDeliveryListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
-    const { data: listData } = ETC_SERVICE.useEtcList<EtcListParams>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListParam, 'etc_delivery_list');
+    const { data: listData, isSuccess, isLoading, isError } = ETC_SERVICE.useEtcList<EtcListParams, {[key: string]: any}>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListParam, 'etc_delivery_list');
 
     // TODO: 프로시저 관련 변수 
-    const [renderTableList, totalSumObj]: [ReactNode[], string[][]] = useMemo(() => {
+    const [renderTableList, totalCharge, supplyTotal, taxTotal]: [ReactNode[], number, number, number] = useMemo(() => {
         const tableList = listData?.reduce((arr: any, tbodyRow: any, index: number) => {
-            const isCardType = searchInfo.searchOption[0].value === ETC_DELIVERY_SEARCH_OPTION_TYPE.CARD;
-            const isCashType = searchInfo.searchOption[0].value === ETC_DELIVERY_SEARCH_OPTION_TYPE.CASH;
-            const isAppType = searchInfo.searchOption[0].value === ETC_DELIVERY_SEARCH_OPTION_TYPE.APP;
+            const { dtRcp, nDeliveryCharge, nDeliveryChargePayType, nDeliveryPayType, nOrderID, sItem, sPhone, suply_fee, suply_fee_tax, total_charge, total_fee } = tbodyRow;
 
-            if (isCardType && isCashType && isAppType) {
+            // option filter
+            const paymentType = searchInfo.searchOption[0].value === ETC_DELIVERY_SEARCH_OPTION_TYPE.TOTAL ? true : searchInfo.searchOption[0].title === nDeliveryPayType;
+
+            if(paymentType){
                 arr.push(
                     <>
-                        <td className="align-center">22/06/01~22/06/30</td>
-                        <td className="align-left">아메리카노 외 1건</td>
-                        <td className="align-right">5,000</td>
-                        <td className="align-right">2,900</td>
-                        <td className="align-center">현장카드</td>
-                        <td className="align-center">카드, 바나포인트</td>
-                        <td className="align-center">0101234****</td>
-                        <td className="align-right">130,000</td>
-                        <td className="align-right">130,000</td>
-                        <td className="align-right"><strong>130,000</strong></td>
+                        <td className="align-center">{format(new Date(dtRcp), `yyyy-MM-dd hh:mm`)}</td>
+                        <td className="align-left">{sItem}</td>
+                        <td className="align-right">{Utils.numberComma(total_charge)}</td>
+                        <td className="align-right">{Utils.numberComma(nDeliveryCharge)}</td>
+                        <td className="align-center">{nDeliveryPayType}</td>
+                        <td className="align-center">{nDeliveryChargePayType}</td>
+                        <td className="align-center">{sPhone}</td>
+                        <td className="align-right">{Utils.numberComma(suply_fee)}</td>
+                        <td className="align-right">{Utils.numberComma(suply_fee_tax)}</td>
+                        <td className="align-right"><strong>{Utils.numberComma(total_fee)}</strong></td>
                     </>
                 )
             }
             return arr;
         }, [] as ReactNode[]);
+ 
+        const totalCharge = listData?.reduce((acc: any, cur: any) => acc += cur.total_charge, 0) || 0; // 바나 딜리버리 주문금액 합계
+        const supplyTotal = listData?.reduce((acc: any, cur: any) => acc += cur.suply_fee, 0) || 0; // 바나 딜리버스 수수료 공급가(주문금액*2%) 합계
+        const taxTotal = listData?.reduce((acc: any, cur: any) => acc += (cur.suply_fee + cur.suply_fee_tax), 0) || 0; // 바나 딜리버리 수수료(수수료 공급가+부가세) 합계
 
-        const sumObj = [
-            ['바나 딜리버리 주문금액 합계', `0`],
-            ['바나 딜리버스 수수료 공급가(주문금액*2%) 합계', `0`],
-            ['바나 딜리버리 수수료(수수료 공급가+부가세) 합계', `0`]
-        ];
-        return [tableList, sumObj];
-    }, [listData])
+        return [tableList, totalCharge, supplyTotal, taxTotal];
+    }, [listData, searchInfo.searchOption])
 
+    // 엑셀 다운로드, 페이지 이동 관련
     const handleExcelDownload = () => {
         if (tableRef.current) {
             const options = {
@@ -113,16 +114,14 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
 
     return (
         <>
-            {/* <EtcSearchDetail searchDate={`${searchInfo.from} ~ ${searchInfo.to}`} searchResult={totalSumObj} priceInfo={detailPriceInfo} /> */}
             <div className="search-result-wrap">
                 <div className="search-date">
                     <p>조회기간: {searchInfo.from} ~ {searchInfo.to}</p>
                 </div>
-                <ul className="search-result">
-                    {totalSumObj.map((result, idx) => {
-                        const [title, value] = result;
-                        return <li key={`etc_search_detail_result_${idx}`} className="hyphen">{title}<span className="colon"></span><span className="value">{value}원</span></li>
-                    })}
+                <ul className="search-result"> 
+                    <li className="hyphen">바나 딜리버리 주문금액 합계<span className="colon"></span><span className="value">{Utils.numberComma(totalCharge)}원</span></li>
+                    <li className="hyphen">바나 딜리버스 수수료 공급가(주문금액*2%) 합계<span className="colon"></span><span className="value">{Utils.numberComma(supplyTotal)}원</span></li>
+                    <li className="hyphen">바나 딜리버리 수수료(수수료 공급가+부가세) 합계<span className="colon"></span><span className="value">{Utils.numberComma(taxTotal)}원</span></li>
                 </ul>
                 <div className="price-info">
                     <p className="hyphen"><span>주문금액</span><span className="colon"></span>배달비를 제외한 카드/현금/포인트/쿠폰 결제금액의 합계.</p>
@@ -130,54 +129,23 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
                 </div>
             </div>
 
-            {/* <EtcDetailTable colGroup={detailTableColGroup} theadData={detailTableHead} tbodyData={renderTableList} pageInfo={pageInfo} /> */}
-            <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                <colgroup>
-                    {detailTableColGroup.map((el, idx) => <col key={`extra_overall_col_${idx}`} width={el} />)}
-                </colgroup>
-                <thead>
-                    {detailTableHead.map((trData, idx1) => {
-                        return (
-                            <tr key={`extra_overall_table_row_${idx1}`} >
-                                {trData.map((tdData, idx2) => {
-                                    return (
-                                        <th key={`extra_overall_table_row_item_${idx2}`} rowSpan={tdData.rowSpan || undefined} colSpan={tdData.colSpan || undefined} className={tdData.className || ''}>
-                                            {tdData.itemName}
-                                        </th>
-                                    )
-                                })}
-                            </tr>
-                        )
-                    })}
-                </thead>
-
-                <tbody>
-                    {renderTableList.map((item: any, index: number) => {
-                        const isCurrentPage = (index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row);
-                        return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
-                    })}
-                    {renderTableList.length === 0 && <NoData isTable={true} />}
-                </tbody>
+            <Sticky reference={thRef.current}> 
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
+            </Sticky>
+            <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}> 
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+                {/* <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />  */}
+                {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
+                {isLoading && <Loading isTable={true} />}
+                {isError && <SuspenseErrorPage isTable={true} />}
             </table>
 
             <div className="result-function-wrap">
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={renderTableList.length} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div>
-
-            {/* 엑셀다운, 페이징, 정렬  -> list 프로시저 관련 */}
-            {/* <EtcDetailFooter
-                dataCnt={renderTableList.length || 0}
-                pageInfo={pageInfo}
-                pageFn={setPageInfo}
-                tableRef={tableRef}
-                detailTableColGroup={detailTableColGroup}
-                fCodeName={f_list[0].f_code_name}
-                searchDate={`${searchInfo.from}~${searchInfo.to}`}
-                excelFileName={`딜리버리수수료내역`}
-            /> */}
         </>
     )
 }

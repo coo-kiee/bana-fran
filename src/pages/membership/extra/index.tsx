@@ -62,7 +62,12 @@ const ExtraContainer = () => {
                         <p>※ 매장의 스탬프, 무료음료쿠폰, 바나포인트의 적립/사용 현황을 조회할 수 있습니다. (최대 12개월 이내)</p>
                     </div>
                     <div className="board-date-wrap">
+                        <p className="title bullet">실시간 누적 현황
+                            <span className="sub-title hyphen">무료음료쿠폰의 사용금액은 고객이 실제 결제 시 사용한 금액이므로 발급된 액면가보다 낮을 수 있습니다.</span>
+                            <span className="sub-title hyphen point">월간랭킹보상쿠폰은 액면가 없는 무료음료쿠폰으로 실제 사용된 경우에만 금액에 합산됩니다.</span>
+                        </p>
                         <ExtraOverall tableHead={thead} />
+                        
                         <ExtraDetail detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
                     </div>
                 </div>

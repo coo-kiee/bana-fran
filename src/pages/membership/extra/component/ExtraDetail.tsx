@@ -1,27 +1,28 @@
 import React, { FC, useState, useRef, useMemo, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useQueryErrorResetBoundary } from 'react-query';
-import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns'
-import Utils from "utils/Utils";
+import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns' 
 import { useRecoilValue } from "recoil";
+import Utils from "utils/Utils";
 
 // component
-import CalanderSearch from "pages/common/calanderSearch";
-import { EtcDetailTableHead, EtcDetailTableFallback } from 'pages/etc/component/EtcDetailTableHeader'
-import EtcDetailFooter from "pages/etc/component/EtcDetailFooter";
+import CalanderSearch from "pages/common/calanderSearch"; 
+import { EtcDetailTableHead, EtcDetailTableFallback, EtcDetailTable} from "pages/etc/component/EtcDetailTable"; 
 import Sticky from "pages/common/sticky";
 import NoData from "pages/common/noData";
+import Pagination from "pages/common/pagination";
 
 // type 
 import { SearchInfoType, PageInfoType, EtcListParams } from 'types/etc/etcType';
-import { ExtraDetailProps, ExtraDetailDataProps, MembershipListType, MembershipTotalType } from "types/membership/extraType";
+import { ExtraDetailProps, ExtraDetailDataProps } from "types/membership/extraType";
 
 // service
 import MEMBERSHIP_SERVICE from "service/membershipService";
 
 // state
-import { franState, loginState } from "state";
+import { franState, loginState } from "state"; 
 import Loading from "pages/common/loading";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 const ExtraDetail: FC<ExtraDetailProps> = (props) => {
     const { detailTableColGroup, detailTableHead } = props;
@@ -71,17 +72,13 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
 
-    // TODO: 프로시저 
-    let membershipListData: MembershipListType[] = [];
+    // TODO: 프로시저  
     const membershipListParams: EtcListParams = {
         fran_store: franCode,
         from_date: searchInfo.from + '-01',
         to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
     }
-    const { data, isSuccess, isLoading, isError } = MEMBERSHIP_SERVICE.useMembershipList(membershipListParams);
-    if (isSuccess) {
-        membershipListData = [...membershipListData, ...data];
-    }
+    const { data, isError, isLoading, isSuccess } = MEMBERSHIP_SERVICE.useMembershipList(membershipListParams);
 
     const renderTableList = useMemo(() => {
         return data?.reduce((arr: any, tbodyRow: any, index: number) => {
@@ -104,37 +101,51 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
                     <td className={index === 0 ? 'total' : ''}>{expired_point}P</td>
                 </>
             )
-            return arr;
-        }, [] as ReactNode[]);
-    }, [data]);
 
+            return arr;
+        }, [] as ReactNode[]); 
+    }, [data]); 
+
+    const handleExcelDownload = () => {
+        if (tableRef.current) {
+            const options = {
+                type: 'table',
+                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
+                // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
+                sheetName: '', // 시트이름, 필수 X
+                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
+            };
+            const fileName = `${searchInfo.from}~${searchInfo.to}_${f_list[0].f_code_name}_멤버십누적내역`;
+            Utils.excelDownload(tableRef.current, options, fileName);
+        };
+    };
+    const handlePageChange = (changePage: number) => {
+        setPageInfo((prevPageInfo) => ({ ...prevPageInfo, currentPage: changePage }))
+    }
+    const handlePageRow = (row: number) => {
+        setPageInfo((prevPageInfo) => ({ ...prevPageInfo, row: row }))
+    }
+    
     return (
-        <>
+        <> 
             <Sticky reference={thRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
-                <tbody>
-                    {renderTableList?.map((item: any, index: number) => {
-                        const isCurrentPage = (index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row);
-                        return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
-                    })}
-                    {renderTableList?.length === 0 && <NoData isTable={true} />}
-                </tbody>
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} /> 
+                {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
+                {isLoading && <Loading isTable={true} />}
+                {isError && <SuspenseErrorPage isTable={true} />}
             </table>
 
-            <EtcDetailFooter
-                dataCnt={membershipListData.length || 0}
-                pageInfo={pageInfo}
-                pageFn={setPageInfo}
-                tableRef={tableRef}
-                detailTableColGroup={detailTableColGroup}
-                fCodeName={f_list[0].f_code_name}
-                searchDate={`${searchInfo.from}~${searchInfo.to}`}
-                excelFileName={`멤버십누적내역`}
-            />
+            <div className="result-function-wrap">
+                <div className="function">
+                    <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
+                </div>
+                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+            </div>
         </>
     )
 };

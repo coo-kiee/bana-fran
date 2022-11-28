@@ -42,16 +42,15 @@ const EtcContainer = () => {
                 <section className="contents-wrap etc-wrap">
                     <div className='contents'>
                         <ul className="tab-wrap"> {/* 탭메뉴 */}
-                            {ETC_TAB_LIST.map((type: number, idx: number) => {
+                             {ETC_TAB_LIST.map((type: number, idx: number) => {
                                 return <li key={`etc_tab_${idx}`} className={`tab ${currTab === idx && 'active'}`} data-tab={`tab${idx}`} onClick={() => setCurrTab((prevTab) => idx)}>{tabList[type].title}</li>
-                            })}
+                            })} 
                         </ul>
 
                         <div id={`${tabList[currTab].id}`} className="tab-content active">
                             <div className="info-wrap">
-                                {tabList[currTab].subtitle}
+                               {tabList[currTab].subtitle}
                             </div>
-
                             {tabList[currTab].component}
                         </div>
                     </div>

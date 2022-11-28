@@ -21,36 +21,28 @@ const MonthRankOverall: FC<MonthRankOverallProps> = ({ tableColGroup, tableHead,
     const { reset } = useQueryErrorResetBoundary();
 
     return (
-        <>
-            <p className="title bullet">랭킹 보상 설정
-                <span className="sub-title hyphen">월간랭킹 1~5위 고객에 대한 보상(바나포인트/무료음료쿠폰)을 등록할 수 있습니다.</span>
-                <span className="sub-title hyphen">설정된 보상은 익월 1일에 자동 지급됩니다.</span>
-                <span className="sub-title hyphen">월강랭킹보상 무료음료쿠폰은 최대금액 제한없이 모든 음료가 구매가능한 쿠폰입니다.</span>
-            </p>
-            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
-                <colgroup>
-                    {tableColGroup.map((el, idx) => <col key={`month_rank_colgroup_item_${idx}`} width={el} />)}
-                </colgroup>
-                <thead>
-                    <tr>
-                        {tableHead.map((el, idx) => <th key={`month_rank_table_head_item_${idx}`}>{el}</th>)}
-                    </tr>
-                </thead>
-                <tbody>
-                    <React.Suspense fallback={<Loading width={50} height={50} isTable={true} />}>
-                        <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />}>
-                            <MonthRankOverallData setPopupRankReward={setPopupRankReward} />
-                        </ErrorBoundary>
-                    </React.Suspense>
-                </tbody>
-            </table>
-        </>
+        <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
+            <colgroup>
+                {tableColGroup.map((el, idx) => <col key={`month_rank_colgroup_item_${idx}`} width={el} />)}
+            </colgroup>
+            <thead>
+                <tr>
+                    {tableHead.map((el, idx) => <th key={`month_rank_table_head_item_${idx}`}>{el}</th>)}
+                </tr>
+            </thead>
+            <tbody>
+                <React.Suspense fallback={<Loading width={50} height={50} isTable={true} />}>
+                    <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />}>
+                        <MonthRankOverallData setPopupRankReward={setPopupRankReward} />
+                    </ErrorBoundary>
+                </React.Suspense>
+            </tbody>
+        </table>
     )
 }
 
 const MonthRankOverallData: FC<{ setPopupRankReward: React.Dispatch<React.SetStateAction<boolean>> }> = ({ setPopupRankReward }) => {
     const franCode = useRecoilValue(franState);
-    console.log(`MonthRankOverallData`)
     // 프로시저
     let rewards: RankInfoItemType = {
         fran_name: '',
