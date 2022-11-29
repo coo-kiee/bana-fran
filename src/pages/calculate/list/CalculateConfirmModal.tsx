@@ -3,6 +3,9 @@ import { FC } from "react";
 // API
 import CALCULATE_SERVICE from 'service/calculateService';
 
+// Hook
+import { useEventKeyCode } from "hooks/useEventKeyCode";
+
 interface CalculateConfirmModalProps {
     staffNo:number,
     calculateId:number,
@@ -23,6 +26,8 @@ const CalculateConfirmModal: FC<CalculateConfirmModalProps> = ({ staffNo, calcul
         confirmList();
         closePopup();
     };
+
+    useEventKeyCode(closePopup, 'Escape');
 
     return (
         <div className="alert-layer modify-layer active">

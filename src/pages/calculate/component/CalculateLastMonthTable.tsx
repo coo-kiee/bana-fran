@@ -13,6 +13,7 @@ import Utils from "utils/Utils";
 // Component
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import NoData from "pages/common/noData";
 
 interface CalculateLastMonthTableProps {
     userInfo: {
@@ -115,7 +116,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, colSpan, caculateType }
                     return res;
                 }, [] as ReactNode[])
             }
-            {calculateDetailSumList?.length === 0 && <tr><td className="no-data" rowSpan={10} colSpan={colSpan} >No Data</td></tr>}
+            {calculateDetailSumList?.length === 0 && <NoData isTable={true} />}
         </>
     )
 };

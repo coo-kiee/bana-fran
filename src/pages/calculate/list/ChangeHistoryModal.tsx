@@ -5,12 +5,14 @@ import { ErrorBoundary } from "react-error-boundary";
 import Loading from "pages/common/loading";
 import CalculateTableHeader from "../component/CalculateTableHeader";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import NoData from "pages/common/noData";
 
 // API
 import CALCULATE_SERVICE from 'service/calculateService';
 
 // Hook
 import { useEventKeyCode } from "hooks/useEventKeyCode";
+
 
 interface ChangeHistoryModalProps {
     fCode: number,
@@ -92,7 +94,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, calculateId, setDataCnt
                     )
                 })
             }
-            {fixList && fixList.length === 0 && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >No Data</td></tr>}
+            {fixList && fixList.length === 0 && <NoData isTable={true} />}
         </>
     )
 };
