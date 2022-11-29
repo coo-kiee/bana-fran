@@ -1,7 +1,9 @@
-import { FC, useState, useRef, useMemo, ReactNode } from "react";
+import React, { FC, useState, useRef, useMemo, ReactNode, Suspense, Fragment } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import Utils from "utils/Utils";
 import { format } from 'date-fns';
+import { useQueryErrorResetBoundary } from "react-query";
+import { ErrorBoundary } from "react-error-boundary";
 
 // state
 import { franState, loginState, orderDetailModalState } from "state";
@@ -15,14 +17,28 @@ import ETC_SERVICE from "service/etcService";
 // component    
 import Pagination from "pages/common/pagination";
 import Sticky from "pages/common/sticky";
-import { EtcDetailTable, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import NoData from "pages/common/noData"; 
 
 const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo }) => {
+    const { reset } = useQueryErrorResetBoundary(); 
+
+    return (
+        <Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
+            <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
+                <OrderDetailDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+            </ErrorBoundary>
+        </Suspense>
+    )
+}
+
+const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
     const setOrderDetailmodalState = useSetRecoilState(orderDetailModalState);
+    console.log('OrderDetailDetailData')
 
     // 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
@@ -33,19 +49,21 @@ const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, de
     const thRef = useRef<HTMLTableRowElement>(null);
 
     // 프로시저  
-    const etcOrderDetailListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
-    // const { data: listData } = ETC_SERVICE.useOrderDetailList(etcOrderDetailListParam);
-    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useEtcList<EtcListParams, OrderDetailListType[]>('JNXWSFKFWJJD8DRH9OEU', etcOrderDetailListParam, 'etc_order_detail_list');
+    const etcOrderDetailListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to }; 
 
-    // suspense + useMemo 관련 
+    // suspense: false
+    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useDetailList(etcOrderDetailListParam);
+    // suspense: true
+    // const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useEtcList<EtcListParams, OrderDetailListType[]>('JNXWSFKFWJJD8DRH9OEU', etcOrderDetailListParam, 'etc_order_detail_list');
+
+    // suspense + useMemo 관련  
     const [renderTableList, totalSumObj]: [ReactNode[], number] = useMemo(() => { 
         const handlePopupOrderDetail = (nOrderID: number) => { 
             setOrderDetailmodalState((prevState) => ({ ...prevState, show: true, orderCode: nOrderID }));
         };
 
-        const tableList = listData?.reduce((arr: any, tbodyRow: any) => {
-            const { nOrderID, insert_date, last_modify_date, cancel_date, staff_name, last_modify_staff, cacel_staff, state_name, order_count, first_item, amount } = tbodyRow as OrderDetailListType;
-    
+        const tableList = listData?.reduce((arr: any, tbodyRow: any, index: number) => {
+            const { nOrderID, insert_date, last_modify_date, cancel_date, staff_name, last_modify_staff, cacel_staff, state_name, order_count, first_item, amount } = tbodyRow as OrderDetailListType; 
             arr.push(
                 <>
                     <td className='align-center'>{format(new Date(insert_date), 'yyyy/MM/dd hh:mm')}</td>
@@ -64,11 +82,10 @@ const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, de
             return arr;
         }, [] as ReactNode[])
 
-        let sumObj = listData?.reduce((acc: any, cur: any) => acc += cur.amount, 0) || 0;
-
+        let sumObj = listData?.reduce((acc: any, cur: any) => acc += cur.amount, 0) || 0; 
         return [tableList, sumObj];
     }, [listData, setOrderDetailmodalState]); 
- 
+
     const handleExcelDownload = () => {
         if (tableRef.current) {
             const options = {
@@ -100,16 +117,18 @@ const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, de
                     <li className="hyphen">총 발주금액 합계<span className="colon"></span><span className="value">{Utils.numberComma(totalSumObj)}원</span></li>
                 </ul>
             </div>
- 
+
             <Sticky reference={thRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
+                {/* <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> */}
+
                 {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
-                {isLoading && <Loading isTable={true} />}
-                {isError && <SuspenseErrorPage isTable={true} />}
+                {isLoading && <tbody><Loading isTable={true} /></tbody>}
+                {isError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 
             </table>
 
             <div className="result-function-wrap">

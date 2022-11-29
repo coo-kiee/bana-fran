@@ -9,7 +9,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { franState, loginState } from "state";
 
 // type
-import { EtcListParams, PageInfoType, GiftcardDetailProps, ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_TYPE, GiftCardListParams } from "types/etc/etcType";
+import { PageInfoType, GiftcardDetailProps, ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_TYPE, GiftCardListParams } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from "service/etcService";
@@ -58,7 +58,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
     };
     const { data: listData } = ETC_SERVICE.useGiftCardList(etcGiftcardListParam);
 
-    const [renderTableList, kioskAndPosTotal, appTotal, cancelTotal]: [ReactNode[], number, number, number] = useMemo(() => {
+    const [renderTableList, kioskAndPosTotal, appTotal, cancelTotal]: [ReactNode[], number, number, number] = useMemo(() => { 
         const tableList = listData?.reduce((arr: any, tbodyRow: any) => {
             const { account_amt, gubun, item_amt, item_cnt, item_name, menu_Item, rcp_type, std_date} = tbodyRow; 
 
@@ -77,7 +77,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
                         <td className="align-center">{item_name}</td>
                         <td className="align-center">{Utils.numberComma(item_cnt)}장 ({Utils.numberComma(item_amt)})</td>
                         <td className="align-center">{rcp_type}</td>
-                        <td className="align-right">{gubun}</td>
+                        <td className="align-center">{gubun}</td>
                         <td className={`align-center ${(menu_Item === 510 && account_amt < 0) ? 'negative-value' : ''}`}>{menu_Item === 510 ? `${Utils.numberComma(account_amt)}` : ''}</td>
                         <td className={`align-center ${(menu_Item === 511 && account_amt < 0) ? 'negative-value' : ''}`}>{menu_Item === 511 ? `${Utils.numberComma(account_amt)}` : ''}</td>
                         <td className={`align-center ${(menu_Item === 512 && account_amt < 0) ? 'negative-value' : ''}`}>{menu_Item === 512 ? `${Utils.numberComma(account_amt)}` : ''}</td>
@@ -133,21 +133,21 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
                     <p className="hyphen">판매취소된 상품권은 폐기되므로 재고에 반영되지 않습니다.</p>
                 </div>
             </div>
- 
+
             <Sticky reference={thRef.current}> 
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
-                <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />  
+                <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> 
             </table>
 
             <div className="result-function-wrap">
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+                <Pagination dataCnt={renderTableList.length || 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div>
         </>
     )

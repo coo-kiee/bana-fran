@@ -17,15 +17,13 @@ interface EtcDetailTableProps {
 // TODO: 상세 내역 테이블 관련 (.board-wrap 부분)
 const EtcDetailTable: FC<EtcDetailTableProps> = ({ tbodyData, pageInfo: { currentPage, row } }) => { 
     return (
-        <> 
-            <tbody>
-                {tbodyData?.length > 0 && tbodyData.map((item: any, index: number) => {
-                    const isCurrentPage = (index >= (currentPage - 1) * row && index < currentPage * row);
-                    return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
-                })}
-                {tbodyData?.length === 0 && <NoData isTable={true} />}
-            </tbody>
-        </>
+        <tbody>
+            {tbodyData?.length > 0 && tbodyData.map((item: any, index: number) => {
+                const isCurrentPage = (index >= (currentPage - 1) * row && index < currentPage * row);
+                return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
+            })}
+            {tbodyData?.length === 0 && <NoData isTable={true} />}
+        </tbody>
     )
 }
 

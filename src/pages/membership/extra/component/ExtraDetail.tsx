@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef, useMemo, ReactNode } from "react";
+import React, { FC, useState, useRef, useMemo, ReactNode, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useQueryErrorResetBoundary } from 'react-query';
 import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns' 
@@ -26,7 +26,7 @@ import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 const ExtraDetail: FC<ExtraDetailProps> = (props) => {
     const { detailTableColGroup, detailTableHead } = props;
-    const { reset } = useQueryErrorResetBoundary();
+    const { reset } = useQueryErrorResetBoundary(); 
 
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
@@ -61,12 +61,12 @@ export default ExtraDetail;
 const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
-
+    // console.log('ExtraDetailData')
+    
     // TODO: 상태
     const tableRef = useRef<null | HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
-
-    // const [showSticky, setShowSticky] = useState<boolean>(false); // sticky header display
+ 
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
@@ -80,8 +80,8 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
     }
     const { data, isError, isLoading, isSuccess } = MEMBERSHIP_SERVICE.useMembershipList(membershipListParams);
 
-    const renderTableList = useMemo(() => {
-        return data?.reduce((arr: any, tbodyRow: any, index: number) => {
+    const renderTableList: ReactNode[] = useMemo(() => {  
+        const tableList = data?.reduce((arr: any, tbodyRow: any, index: number) => { 
             const {
                 std_date, total_stamp_cnt, convert_coupon_stamp_cnt, expired_stamp_cnt, total_coupon_cnt, total_coupon_amount,
                 used_coupon_cnt, used_coupon_amount, expired_coupon_cnt, expired_coupon_amount, total_point, used_point, expired_point
@@ -100,11 +100,13 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
                     <td className={index === 0 ? 'total' : ''}>{used_point}P</td>
                     <td className={index === 0 ? 'total' : ''}>{expired_point}P</td>
                 </>
-            )
+            ) 
 
             return arr;
-        }, [] as ReactNode[]); 
-    }, [data]); 
+        }, [] as ReactNode[]) || [];   
+
+        return tableList
+    }, [data]);  
 
     const handleExcelDownload = () => {
         if (tableRef.current) {
@@ -135,16 +137,17 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} /> 
+                {/* <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> */}
                 {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
-                {isLoading && <Loading isTable={true} />}
-                {isError && <SuspenseErrorPage isTable={true} />}
+                {isLoading && <tbody><Loading isTable={true} /></tbody>}
+                {isError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 
             </table>
 
             <div className="result-function-wrap">
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+                <Pagination dataCnt={data?.length || 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div>
         </>
     )

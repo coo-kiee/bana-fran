@@ -1,7 +1,5 @@
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import { format, subMonths } from 'date-fns';
-import { ErrorBoundary } from 'react-error-boundary';
-import { useQueryErrorResetBoundary } from 'react-query';
 
 // type
 import {  ETC_TAB_TYPE, SearchInfoType } from "types/etc/etcType";
@@ -9,12 +7,9 @@ import {  ETC_TAB_TYPE, SearchInfoType } from "types/etc/etcType";
 // component 
 import OrderDetailDetail from './OrderDetailDetail';
 import CalanderSearch from 'pages/common/calanderSearch';
-import { EtcDetailTableFallback } from '../component/EtcDetailTable';
 import EtcTotalTable from '../component/EtcTotalTable';  
 
 const OrderDetail = () => { 
-    const { reset } = useQueryErrorResetBoundary(); 
-    
     // TODO: 상태 관련
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
@@ -36,12 +31,7 @@ const OrderDetail = () => {
         <div className="board-date-wrap">
             <EtcTotalTable currTab={ETC_TAB_TYPE.ORDER} />
             <OrderDetailDetailSearch handleSearchInfo={handleSearchInfo} />
-
-            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
-                    <OrderDetailDetail searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
-                </ErrorBoundary>
-            </React.Suspense>
+            <OrderDetailDetail searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
         </div>
     )
 }

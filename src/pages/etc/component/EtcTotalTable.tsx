@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { format, subMonths, lastDayOfMonth } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 import { useQueryErrorResetBoundary } from 'react-query';
 
 // type
@@ -91,14 +91,14 @@ const EtcTotalTableData: FC<{ currTab: number }> = ({ currTab }) => {
                     { data: `${Utils.numberComma(totalData.total_amt)}` },
                 ]
             ];
-        } else if (currTab === ETC_TAB_TYPE.ROYALTY) { // TODO: 로열티 페이지
+        } else if ( currTab === ETC_TAB_TYPE.ROYALTY) { // TODO: 로열티 페이지 상단 테이블
             tableBody = [
                 [
-                    { data: `${format(subMonths(new Date(), 1), 'yyyy/MM/01')}~${format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy/MM/dd')}` },
-                    { data: '로열티' },
-                    { data: '150,000' },
-                    { data: '150,000' },
-                    { data: '150,000', strong: true },
+                    { data: totalData.std_date },
+                    { data: totalData.item },
+                    { data: Utils.numberComma(totalData.supply_amt) },
+                    { data: Utils.numberComma(totalData.vat_amt) },
+                    { data: Utils.numberComma(totalData.total_amt), strong: true },
                 ]
             ];
         } else if (currTab === ETC_TAB_TYPE.ACCOUNT) { // TODO: 가상계좌 충전/차감 페이지
@@ -151,30 +151,34 @@ const EtcOrderTotalTableData = () => {
     )
 }
 
+// TODO: 음악 수수료, 로열티 페이지 상단 테이블
 const EtcMusicTotalTableData = () => {
     const franCode = useRecoilValue(franState);
 
     let tableBody: any = []; // 프로시저 성공 후 업데이트
     const totalParam: EtcTotalParams = { fran_store: franCode };
     const { data: totalData, isSuccess: totalSuccess } = ETC_SERVICE.useMusicTotal(totalParam);
-    if (totalSuccess) { 
-        tableBody = totalData;
+    if (totalSuccess) {
+        tableBody = totalData.map((item: any) => {
+            return [
+                {data: item.std_date },
+                {data: item.item },
+                {data: Utils.numberComma(item.supply_amt)},
+                {data: Utils.numberComma(item.vat_amt)},
+                {data: Utils.numberComma(item.total_amt)},
+            ]
+        });
     }
 
     return (
         <>
             {tableBody.map((tr: any, idx: number) => {
-                const {item, std_date, supply_amt, total_amt, vat_amt} = tr;
                 return (
-                    <tr key={`etc_table_td_${idx}`}>
-                        <td>{std_date}</td>   
-                        <td>{item}</td>   
-                        <td>{Utils.numberComma(supply_amt)}</td>   
-                        <td>{Utils.numberComma(vat_amt)}</td>   
-                        <td>{Utils.numberComma(total_amt)}</td>   
+                    <tr key={`etc_table_tr_${idx}`}>
+                        {tr.map((td: any, idx: number) => <td key={`etc_table_td_${idx}`}>{td.data}</td>)}
                     </tr>
                 )
-            })}
+            })} 
         </>
     )
 }
@@ -185,15 +189,9 @@ const EtcGiftCardTotalTableData = () => {
     let tableBody: any = []; // 프로시저 성공 후 업데이트
     const totalParam: ChkGiftCardStockParams = { f_code: franCode };
     const { data: totalData, isSuccess: totalSuccess } = ETC_SERVICE.useChkGiftCardStock(totalParam);
-    if (totalSuccess) { 
-        console.log(totalData)
+    if (totalSuccess) {  
         tableBody = totalData;
     }  
-
-    const handleClassName = (fran: number, hq:number) => {
-        if(fran !== hq) return 'negative-value'
-        else return ''
-    }
 
     return (
         <>
@@ -229,14 +227,14 @@ const tabList = {
         title: `${format(subMonths(new Date(), 1), `yyyy년 M월 음악 서비스 이용료`)}`,
         colgroup: ['188', '*', '150', '150', '150'],
         thead: ['기간', '품목', '공급가', '부가세', '수수료 합계 (2.2%)'],
-        query: '',
+        query: '', // 개별 프로시저
         queryKey: 'etc_music_fee',
     },
     [ETC_TAB_TYPE.GIFTCARD]: {
         title: `실물 상품권 재고 현황`,
         colgroup: ['20%', '20%', '20%', '20%', '20%'],
         thead: ['재고 구분', '1만원권', '3만원권', '5만원권', '합계'],
-        query: '',
+        query: '', // 개별 프로시저
         queryKey: 'etc_giftcard_statistic',
     },
     [ETC_TAB_TYPE.ORDER]: {

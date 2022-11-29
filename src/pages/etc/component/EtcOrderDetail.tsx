@@ -1,6 +1,8 @@
+import React, { Suspense } from 'react';
 import { useRecoilState } from 'recoil';
-import React from 'react';
 import Utils from 'utils/Utils';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useQueryErrorResetBoundary } from 'react-query';
 
 // type
 import { OrderDetailModalParams, OrderDetailModalItemType } from 'types/etc/etcType';
@@ -16,18 +18,35 @@ import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const EtcOrderDetail = () => {
-    const [modalState, setModalState] = useRecoilState(orderDetailModalState);
+    const { reset } = useQueryErrorResetBoundary();  
+    return (
+        <div className="alert-layer order-layer active" style={{position: 'fixed'}}>
+            <div className="msg-wrap">
+                <p className="title">발주 품목 상세</p>
+                <Suspense fallback={<div style={{ width: 900, height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}><Loading /></div>}>
+                    <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <div style={{ width: 900, height: 200, display: 'flex', justifyContent: 'center', alignItems: 'center' }}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary}/></div>} >
+                        <EtcOrderDetailData />
+                    </ErrorBoundary>
+                </Suspense>
+            </div>
+        </div>
+    )
+}
 
-    // TODO: EtcTable 내부 데이터 관련 
+const EtcOrderDetailData = () => {
+    const [modalState, setModalState] = useRecoilState(orderDetailModalState);
     const colGroup = ['226', '100', '100', '100', '100', '100', '191'];
     const thead = [
         ['품목', '단가', '수량', '공급가', '부가세', '합계(발주금액)', '특이사항'],
     ];
 
-    // TODO: 프로시저
+    const handleModalClose = () => {
+        setModalState((prev) => ({ ...prev, show: false })); // 끄기
+    };
+
+    // 프로시저
     let tbody: Array<OrderDetailModalItemType> = [];
     let total: Array<OrderDetailModalItemType> = [];
-
     const orderDetailModalParams: OrderDetailModalParams = { order_code: modalState.orderCode };
     const { data, isSuccess, isLoading, isError } = ETC_SERVICE.useOrderDetailModal(orderDetailModalParams);
     if (isSuccess) {
@@ -35,19 +54,9 @@ const EtcOrderDetail = () => {
         total = [...total, data[data.length - 1]];
     };
 
-    const handleModalClose = () => {
-        setModalState((prev) => ({ ...prev, show: false })); // 끄기
-    };
-
     return (
-        <div className="alert-layer order-layer active">
-            <div className="msg-wrap">
-                <p className="title">발주 품목 상세</p>
-                {isLoading ?
-                    <div style={{ width: 900, height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}><Loading /></div>
-                    :
-                    <>
-                        <div style={{ 'overflowY': 'auto', 'maxHeight': 500 }}>
+        <>
+        <div style={{ 'overflowY': 'auto', 'maxHeight': 500 }}>
                             <table className="board-wrap" cellPadding="0" cellSpacing="0">
                                 <colgroup>
                                     {colGroup.map((col, idx) => <col key={`etc_order_detail_table_col_${idx}`} width={col} />)}
@@ -82,13 +91,9 @@ const EtcOrderDetail = () => {
                         </div>
                         <button className="btn-close order-close" onClick={handleModalClose}></button>
                         <button className="cta-btn" onClick={handleModalClose}>확인</button>
-                    </>
-                }
-            </div>
-        </div>
+        </>
     )
 }
-
 const EtcOrderDetailItem: React.FC<OrderDetailModalItemType> = (props) => {
     const { fOrderCount, fran_price, nEAPerPack, sDeliveryUnit, sEtc, sGroup, sItemShort, suply_amount, tax_amount, total_amount, volume } = props;
 

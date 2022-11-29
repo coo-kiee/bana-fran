@@ -32,7 +32,7 @@ const useMembershipList = (params: EtcListParams) => {
         query: 'KFVDLH7FKG9QKBVTK8TL',
         params: params,
     }; // web_fran_s_membership_list
-    return useQuery<MembershipListType[], AxiosError>(['membership_extra_list', params.fran_store, params.from_date, params.to_date], () => queryFn.getDataList(reqData), {
+    return useQuery<MembershipListType[], AxiosError>(['membership_extra_list', params.from_date, params.to_date, params.fran_store], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -51,8 +51,7 @@ const useMembershipList = (params: EtcListParams) => {
                     else tempData[key] = Utils.numberComma(value); // 단위 처리
                 });
                 return tempData;
-            });
-            // console.log(tempData === data) // false
+            }); 
             return tempData;
         }
     });

@@ -9,7 +9,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { franState, loginState } from "state";
 
 // type
-import { EtcListParams, PageInfoType, SearchInfoType, MusicChargeDetailProps, MusicChargeDetailType } from "types/etc/etcType";
+import { EtcListParams, PageInfoType, MusicChargeDetailProps, MusicChargeDetailType } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from 'service/etcService';
@@ -18,8 +18,6 @@ import ETC_SERVICE from 'service/etcService';
 import { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";  
 import Pagination from "pages/common/pagination"; 
 import Sticky from "pages/common/sticky"; 
-import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 const MusicChargeDetail: FC<MusicChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo  }) => {
     const { reset } = useQueryErrorResetBoundary();
@@ -58,7 +56,7 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailTableColGroup
     };
     const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useEtcList<EtcListParams, MusicChargeDetailType[]>('VK4WML6GW9077BKEWP3O', etcMusicListParam, 'etc_music_list');
     const [renderTableList, musicTotal, feeTotal]: [ReactNode[], number, number] = useMemo(() => { 
-        const tableList = listData?.reduce((arr: any, tbodyRow: any) => {
+        const tableList = listData?.reduce((arr: any, tbodyRow: any, index: number) => {
             const { std_date, state, suply_amount, tax_amount, total_amount } = tbodyRow; 
             arr.push(
                 <>
@@ -75,6 +73,7 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailTableColGroup
         const musicTotal = listData?.filter((el: any) => el.state.includes('음악')).reduce((acc: any, cur: any) => acc+= cur.total_amount,0);
         const feeTotal = listData?.filter((el: any) => el.state.includes('공연')).reduce((acc: any, cur: any) => acc+= cur.total_amount,0);
 
+        console.log('tableList: ', tableList)  
         return [tableList, musicTotal, feeTotal];
     }, [listData])
 
@@ -113,23 +112,20 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailTableColGroup
                     <p className="hyphen">음악사용료/공연권료는 일할 계산되지 않습니다. (월 단위 요금 청구)</p>
                 </div>
             </div>
- 
+
             <Sticky reference={thRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
-                {/* <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />   */}
-                {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
-                {isLoading && <Loading isTable={true} />}
-                {isError && <SuspenseErrorPage isTable={true} />}
+                <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> 
             </table>
             
             <div className="result-function-wrap">
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={!!renderTableList? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+                <Pagination dataCnt={renderTableList.length || 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div>
         </>
     )

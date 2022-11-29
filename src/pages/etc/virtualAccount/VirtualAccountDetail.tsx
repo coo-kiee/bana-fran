@@ -20,6 +20,7 @@ import Pagination from 'pages/common/pagination';
 import Sticky from 'pages/common/sticky'; 
 import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+import NoData from 'pages/common/noData';
 
 const VirtualAccountDetail: FC<VirtualAccountDetailProps> = (props) => {
     const { detailTableColGroup, detailTableHead } = props;
@@ -48,14 +49,14 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
     const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 관련
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // 프로시저  
-    let virtualAccTotalList: ReactNode[] = []; 
+    // 프로시저   
     const etcVirtualAccBalanceListParam: EtcListParams = {
         fran_store: franCode,
         from_date: searchInfo.from + '-01',
         to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
     };
-    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useEtcList<EtcListParams, VirtualAccListType[]>('CS4QOSEGOQGJ8QCALM7L', etcVirtualAccBalanceListParam, 'etc_virtual_acc_balance_total_list');
+    // const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useEtcList<EtcListParams, VirtualAccListType[]>('CS4QOSEGOQGJ8QCALM7L', etcVirtualAccBalanceListParam, 'etc_virtual_acc_balance_total_list');
+    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListParam);
 
     // useMemo + suspense 관련
     const [renderTableList, deductTotal, depositTotal]: [ReactNode[], number, number] = useMemo(() => {
@@ -119,17 +120,18 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
-                {/* <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />   */}
+                {/* <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />  */}
+
                 {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
-                {isLoading && <Loading isTable={true} />}
-                {isError && <SuspenseErrorPage isTable={true} />}
+                {isLoading && <tbody><Loading isTable={true} /></tbody>}
+                {isError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 
             </table>
 
             <div className="result-function-wrap">
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={!!renderTableList? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div> 
         </>
     )

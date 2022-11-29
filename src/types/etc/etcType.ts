@@ -26,13 +26,25 @@ interface TableHeadItemType {
 interface TotalResultType {
     [key: string]: number;
 }
+interface DeliveryDetailListType{
+    delivery_pay_type: string,
+    dtRcp: string,
+    nDeliveryCharge: number,
+    payment_type: string,
+    sItem: string,
+    sPhone: string,
+    suply_fee: number,
+    suply_fee_tax: number,
+    total_charge: number,
+    total_fee: number
+} // web_fran_s_etc_delivery_list 결과 타입
 interface MusicChargeDetailType {
     state: string,
     std_date: string,
     suply_amount: number,
     tax_amount: number,
     total_amount: number
-} // web_fran_s_etc_delivery_list 결과 타입 (음악 서비스 이용료, 로열티에서 사용)
+} // web_fran_s_etc_music_fee_list 결과 타입 (음악 서비스 이용료, 로열티에서 사용)
 interface OrderDetailListType {
     amount: number,
     cacel_staff: string,
@@ -246,7 +258,7 @@ const ETC_GIFTCARD_SEARCH_DEVICE_LIST = [
 
 export type {
     SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
-    TotalResultType, MusicChargeDetailType, OrderDetailListType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
+    TotalResultType, DeliveryDetailListType, MusicChargeDetailType, OrderDetailListType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
     EtcTotalParams, ChkGiftCardStockParams, GiftCardListParams, EtcListParams, OrderDetailModalParams,
     OverallFallbackProps, RoyaltyOverallProps, VirtualAccountOverallProps, OverallErrorFallbackProps, DetailErrorFallbackProps, RoyaltyDetailProps, VirtualAccountDetailProps,
     DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps, MusicChargeDetailProps, OrderDetailDetailProps,

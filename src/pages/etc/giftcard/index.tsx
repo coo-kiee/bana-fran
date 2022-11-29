@@ -1,5 +1,5 @@
-import { FC, useEffect, useState } from 'react';
-import { format, subMonths, lastDayOfMonth, isAfter } from 'date-fns';
+import { FC, useState } from 'react';
+import { format, subMonths } from 'date-fns';
 
 // type
 import { SearchInfoSelectType, ETC_TAB_TYPE, ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_TYPE, ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST } from "types/etc/etcType";
@@ -60,8 +60,8 @@ const GiftCardDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: Searc
             [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL]: { title: '포인트 구분 전체', value: 'CATEGORY_ALL' },
             [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL]: { title: '판매', value: '판매' },
             [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL_DELETE]: { title: '판매 취소(폐기)', value: '판매 취소(폐기)' },
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ADD]: { title: '임의 추가', value: '임의 추가' },    
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.DELETE]: { title: '임의 폐기', value: '임의 폐기' },
+            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ADD]: { title: '임의추가', value: '임의추가' },    
+            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.DELETE]: { title: '임의폐기', value: '임의폐기' },
             [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ELSE]: { title: 'N/A', value: 'N/A' },
         },
         {

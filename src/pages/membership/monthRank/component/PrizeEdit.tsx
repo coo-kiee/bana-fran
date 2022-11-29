@@ -1,4 +1,4 @@
-import React, { useState, FC, useMemo } from 'react'
+import React, { useState, FC, useMemo, useEffect } from 'react'
 import { useRecoilValue } from 'recoil'
 import { useQueryClient } from 'react-query'
 
@@ -47,14 +47,17 @@ const PrizeEdit: FC<{ setPopupRankReward: React.Dispatch<React.SetStateAction<bo
         reward5: handleRewardInfo(data.rank_reward_5),
     }); // 입력값 관련 
 
+    useEffect(() => {
+        console.log(rewardValue)
+    }, [rewardValue]);
+
     // 상태 관련
     const handleRewardValue = (keyName: string, target: { [key in keyof RewardEditItemType]?: RewardEditItemType[key] }) => {
         const [key, value] = Object.entries(target)[0];
         if ((key === 'coupon' || key === 'point') && isNaN(Number(value))) {
             alert('숫자만 입력해주세요.'); // 숫자가 아닌 문자 넣은 경우 alert
-        } else {
-            // 업데이트
-            setRewardValue((prev) => {
+        } else { 
+            setRewardValue((prev) => { 
                 return { ...prev, [keyName]: { none: 'notChecked', coupon: 0, point: 0, ...target } };
             });
         }
@@ -93,7 +96,6 @@ const PrizeEdit: FC<{ setPopupRankReward: React.Dispatch<React.SetStateAction<bo
         <div className="alert-layer setting-layer active">
             <div className="msg-wrap">
                 <p className="title">{data.fran_name} 보상등록</p>
-
                 <table className="board-wrap" cellPadding="0" cellSpacing="0">
                     <colgroup>
                         {colGroup.map((col, idx) => <col key={`month_rank_edit_col_${idx}`} width={col} />)}
@@ -116,20 +118,20 @@ const PrizeEdit: FC<{ setPopupRankReward: React.Dispatch<React.SetStateAction<bo
 export default PrizeEdit;
 
 
-const PrizeEditData: FC<RewardEditDataProps> = ({ idx, title, value: { none, point, coupon }, handleRewardValue }) => {
+const PrizeEditData: FC<RewardEditDataProps> = ({ idx, title, value: { none, point, coupon }, handleRewardValue }) => { 
     return (
         <tr>
             <td className="rank">{idx + 1}위</td>
             <td>
                 <div className="contents none" onChange={(e) => handleRewardValue(title, { none: 'checked' })}>
-                    <input className="radio" type="radio" name={`row${idx}`} value={none ? 'checked' : 'notChecked'} id={`none${idx}`} defaultChecked={none === 'checked' ? true : false} onChange={(e) => handleRewardValue(title, { none: none === 'checked' ? 'notChecked' : 'checked' })} />
+                    <input className="radio" type="radio" name={`row${idx}`} value={none ? 'checked' : 'notChecked'} id={`none${idx}`} checked={none === 'checked' ? true : false} onChange={(e) => handleRewardValue(title, { none: none === 'checked' ? 'notChecked' : 'checked' })} />
                     <label htmlFor={`none${idx}`}>없음</label>
                 </div>
             </td>
             <td>
                 <div className="contents point">
                     <div onChange={(e) => handleRewardValue(title, { point: 1 })}>
-                        <input className="radio" type="radio" name={`row${idx}`} value={point} id={`point${idx}`} defaultChecked={!!point} readOnly />
+                        <input className="radio" type="radio" name={`row${idx}`} value={point} id={`point${idx}`} checked={!!point} readOnly />
                         <label htmlFor={`point${idx}`}>바나포인트</label>
                     </div>
                     <div>
@@ -141,12 +143,12 @@ const PrizeEditData: FC<RewardEditDataProps> = ({ idx, title, value: { none, poi
             <td>
                 <div className="contents coupon">
                     <div onChange={(e) => handleRewardValue(title, { coupon: 1 })}>
-                        <input className="radio" type="radio" name={`row${idx}`} value={coupon} id={`coupon${idx}`} defaultChecked={!!coupon} readOnly />
+                        <input className="radio" type="radio" name={`row${idx}`} value={coupon} id={`coupon${idx}`} checked={!!coupon} readOnly />
                         <label htmlFor={`coupon${idx}`}>음료무료쿠폰</label>
                     </div>
                     <div>
                         <input type="text" value={coupon} onChange={(e) => handleRewardValue(title, { coupon: Number(e.target.value) })} />
-                        <span>점</span>
+                        <span>장</span>
                     </div>
                 </div>
             </td>
