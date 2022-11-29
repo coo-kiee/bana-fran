@@ -1,9 +1,9 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import Utils from 'utils/Utils';
 import LOGIN_SERVICE from 'service/loginService';
 
 import { useLogin } from 'hooks/useLogin';
-import { useEventKeyCode } from 'hooks/useEventKeyCode';
+// import { useEventKeyCode } from 'hooks/useEventKeyCode';
 import SendAuthKey from './component/SendAuthKey';
 import ResetPassword from './component/ResetPassword';
 
@@ -17,7 +17,7 @@ type LoginInfoType = {
 }
 
 const Login:React.FC = () => {
-    const {login, authLogin} = useLogin()
+    const {login, logout, getToken, authLogin} = useLogin()
 
     const [loginInfo, setLoginInfo] = useState<LoginInfoType>({
         loginID : "",
@@ -48,6 +48,18 @@ const Login:React.FC = () => {
             //     sIP : "@ip",
             // }
             // login(params)
+        }
+
+        // 강제 접속 시 token이 있으면 로그아웃 처리.
+        if(getToken() !== null){
+            const params = {
+                'sID' : "logout",
+                'sPW' : "logout",
+                'btoken' : 0,	         
+                'sCToken' : getToken(),       
+                'sIP' : '@ip'
+            }
+            logout(params);
         }
     },[])
 
@@ -141,7 +153,14 @@ const Login:React.FC = () => {
         login(params)
     }, [login, loginInfo])
 
-    useEventKeyCode(handleSendAuthKey, 'Enter');
+    // useEventKeyCode(handleSendAuthKey, 'Enter');
+
+    // EnterKey 로그인 처리.
+    const handleEnterKeyLogin = (e:KeyboardEvent<HTMLInputElement>) => {
+        if(e.key === 'Enter'){
+            handleSendAuthKey()
+        }
+    }
 
     return (
         <article>
@@ -153,8 +172,8 @@ const Login:React.FC = () => {
                     { authKeyPage ? <SendAuthKey handleSendAuthKey={handleSendAuthKey} handleLoginAuth={handleLoginAuth} setAuthKeyPage={setAuthKeyPage}/>
                        :
                     <section className="input-wrap">
-                        <input className="input login" type="text" placeholder="전화번호" name="loginID" value={loginInfo.loginID} onChange={handleChangeData} />
-                        <input className="input password" type="password" placeholder="비밀번호" name="loginPW" value={loginInfo.loginPW} onChange={handleChangeData}/>
+                        <input className="input login" type="text" placeholder="전화번호" name="loginID" value={loginInfo.loginID} onChange={handleChangeData} onKeyPress={handleEnterKeyLogin} />
+                        <input className="input password" type="password" placeholder="비밀번호" name="loginPW" value={loginInfo.loginPW} onChange={handleChangeData} onKeyPress={handleEnterKeyLogin}/>
                         <div className="sub-wrap">
                             <div className="id-storage">
                                 <input className="check" type="checkbox" name="chkSaveID" id="id" onChange={handleChangeData} checked={loginInfo.chkSaveID}/>

@@ -19,8 +19,11 @@ const defalutQueryOption:QueryClientConfig = {
                 const axiosError = error as AxiosError;
                 console.log('defaultError', error);
                 if(axiosError && axiosError.response?.status === 600 && (axiosError.response.data as string).includes('로그인')) {
+                    alert("세션이 만료 되었습니다.");
                     window.location.replace('/index');
-                };
+                }else{
+                    alert("[ERROR_" + axiosError.response?.status + "]" + axiosError?.response?.data);
+                }
             }
         }
     }
