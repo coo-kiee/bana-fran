@@ -29,7 +29,7 @@ interface CalculateListTableProps {
         staff_no: number
     },
     outPut: Output,
-    handlePopup: (key: string, value: boolean) => void,
+    handlePopup: (key: string, value: boolean, listQueryKey?: string[]) => void,
     setOutput: React.Dispatch<React.SetStateAction<Output>>,
     setIsPDF: React.Dispatch<React.SetStateAction<boolean>>,
     isPDF?: boolean,
@@ -43,7 +43,7 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
     // 정산 데이터
     const stdMonth = (Utils.converDateFormat(subMonths(new Date(), 1), '-') as string).substring(0, 7);
     const [searchDate, setSearchDate] = useState(stdMonth);
-    const listQuerykey = ['caculateDetailList', JSON.stringify({ f_code, staff_no, searchDate })];
+    const listQueryKey = ['caculateDetailList', JSON.stringify({ f_code, staff_no, searchDate })];
 
     // Table
     const tableRef = useRef<null | HTMLTableElement>(null);
@@ -76,14 +76,14 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
     return (
         <div ref={pdfRef}>
             {isPDF && <div style={{ textAlign: 'center', fontSize: '30px', marginBottom: '30px' }}><span style={{ fontWeight: 'bold', color: '#f1658a' }}>{searchDate.replace('-', '년 ')}월</span> {f_code_name} 정산내역 확인</div>}
-            {!isPDF && <TableTop listQuerykey={listQuerykey} calculateStatus={calculateStatus} calculateId={calculateId} fCode={f_code} staffNo={staff_no} searchDate={searchDate} handlePopup={handlePopup} setSearchDate={setSearchDate} />}
+            {!isPDF && <TableTop listQueryKey={listQueryKey} calculateStatus={calculateStatus} fCode={f_code} staffNo={staff_no} searchDate={searchDate} handlePopup={handlePopup} setSearchDate={setSearchDate} />}
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <CalculateTableHeader width={width} thInfo={thInfo} />
                 <tbody>
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => setOutput(prev => ({ ...prev, calculateStatus: -1, sumAll: undefined }))}>
                         <Suspense fallback={<Loading height={80} width={80} marginTop={-68} isTable={true} />}>
-                            <TableList listQuerykey={listQuerykey} fCode={f_code} staffNo={staff_no} searchDate={searchDate} setOutput={setOutput} />
+                            <TableList listQueryKey={listQueryKey} fCode={f_code} staffNo={staff_no} searchDate={searchDate} setOutput={setOutput} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
@@ -99,21 +99,18 @@ export default CalculateListTable;
 
 
 interface TableTopProps {
-    listQuerykey: string[],
-    calculateId: number
+    listQueryKey: string[],
     calculateStatus: CalculateStatusType,
     fCode: number,
     staffNo: number,
     searchDate: string,
-    handlePopup: (key: string, value: boolean) => void,
+    handlePopup: (key: string, value: boolean, listQueryKey?: string[]) => void,
     setSearchDate: React.Dispatch<React.SetStateAction<string>>,
 };
-const TableTop: FC<TableTopProps> = ({ listQuerykey, calculateId, calculateStatus, fCode, staffNo, searchDate, handlePopup, setSearchDate }) => {
+const TableTop: FC<TableTopProps> = ({ listQueryKey, calculateStatus, fCode, staffNo, searchDate, handlePopup, setSearchDate }) => {
 
     const isError = calculateStatus === CALCULATE_STATUS.ERROR;
     const isInactive = !calculateStatus || calculateStatus === CALCULATE_STATUS.CONFIRM || isError;
-    const confirmList = CALCULATE_SERVICE.useCalculateConfirmList(staffNo, calculateId, listQuerykey);
-
     const { data: monthList } = CALCULATE_SERVICE.useCalculateMonthList(['calculateMonthList', JSON.stringify({ fCode, staffNo })], fCode, staffNo);
 
     const queryClient = useQueryClient();
@@ -128,11 +125,11 @@ const TableTop: FC<TableTopProps> = ({ listQuerykey, calculateId, calculateStatu
                                 {monthList?.map((item, index) => <option key={index} value={item.std_month}>{item.std_month}</option>)}
                                 {monthList?.length === 0 && <option value={searchDate}>{searchDate}</option>}
                             </select>
-                            <button className="goast-btn" onClick={() => queryClient.refetchQueries(listQuerykey)}>선택</button>
+                            <button className="goast-btn" onClick={() => queryClient.refetchQueries(listQueryKey)}>선택</button>
                         </div>
                     </div>
                     <div className="btn-wrap">
-                        <button className={`btn-check ${isInactive ? 'inactive' : ''}`} onClick={isInactive ? undefined : confirmList} >정산확인</button>
+                        <button className={`btn-check ${isInactive ? 'inactive' : ''}`} onClick={isInactive ? undefined : () => handlePopup('calculateConfirm', true, listQueryKey)} >정산확인</button>
                         <button className={`btn-modify-request modify-view ${isInactive ? 'inactive' : ''}`} onClick={isInactive ? undefined : () => handlePopup('requestModify', true)} >수정요청</button>
                         <button className={`btn-modify-history history-view ${isError ? 'inactive' : ''}`} onClick={isError ? undefined : () => handlePopup('changeHistory', true)} >수정요청/변경이력</button>
                     </div>
@@ -146,15 +143,15 @@ const TableTop: FC<TableTopProps> = ({ listQuerykey, calculateId, calculateStatu
 };
 
 interface TableListProps {
-    listQuerykey: string[],
+    listQueryKey: string[],
     fCode: number,
     staffNo: number,
     searchDate: string,
     setOutput: React.Dispatch<React.SetStateAction<Output>>,
 };
-const TableList: FC<TableListProps> = ({ listQuerykey, fCode, staffNo, searchDate, setOutput }) => {
+const TableList: FC<TableListProps> = ({ listQueryKey, fCode, staffNo, searchDate, setOutput }) => {
 
-    const { data } = CALCULATE_SERVICE.useCalculateDetailList(listQuerykey, fCode, staffNo, searchDate);
+    const { data } = CALCULATE_SERVICE.useCalculateDetailList(listQueryKey, fCode, staffNo, searchDate);
 
     const caculateList = data?.list as CalculateDetail[];
     const { calculate_status, calculate_id, error_msg } = data?.out as CalculateDetailOut || {};
@@ -254,15 +251,15 @@ const TableBottom: FC<TableBottomProps> = ({ calculateStatus, sumAll, tableRef, 
 const TABLE_COLUMN_INFO = {
     width: ['188', '70', '130', '*', '130', '130', '130', '130', '130', '130'],
     thInfo: [
-        { text: '정산기간'},
-        { text: '구분'},
-        { text: '품목'},
-        { text: '상세내역'},
-        { text: '수량'},
-        { text: '단가'},
-        { text: '공급가액'},
-        { text: '부가세'},
-        { text: '합계'},
-        { text: '비고'},
+        { text: '정산기간' },
+        { text: '구분' },
+        { text: '품목' },
+        { text: '상세내역' },
+        { text: '수량' },
+        { text: '단가' },
+        { text: '공급가액' },
+        { text: '부가세' },
+        { text: '합계' },
+        { text: '비고' },
     ],
 } as const;

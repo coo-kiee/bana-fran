@@ -12,13 +12,13 @@ import CALCULATE_SERVICE from 'service/calculateService';
 // Hook
 import { useEventKeyCode } from "hooks/useEventKeyCode";
 
-interface ChangeHistoryProps {
+interface ChangeHistoryModalProps {
     fCode: number,
     staffNo: number,
     calculateId: number,
     handlePopup: (key: string, value: boolean) => void
 };
-const ChangeHistory: FC<ChangeHistoryProps> = ({ fCode, staffNo, calculateId, handlePopup }) => {
+const ChangeHistoryModal: FC<ChangeHistoryModalProps> = ({ fCode, staffNo, calculateId, handlePopup }) => {
 
     const [dataCnt, setDataCnt] = useState(0);
     const { width, thInfo } = TABLE_COLUMN_INFO;
@@ -53,7 +53,7 @@ const ChangeHistory: FC<ChangeHistoryProps> = ({ fCode, staffNo, calculateId, ha
     );
 }
 
-export default ChangeHistory;
+export default ChangeHistoryModal;
 
 
 

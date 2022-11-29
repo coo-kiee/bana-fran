@@ -14,8 +14,9 @@ import CalculateListTable from "./CalculateListTable";
 import CalculatePrecautions from "../component/CalculatePrecautions";
 import Loading from "pages/common/loading";
 
-const ChangeHistory = loadable(() => import('pages/calculate/list/ChangeHistory'));
-const RequestModify = loadable(() => import('pages/calculate/list/RequestModify'));
+const CalculateConfirmModal = loadable(() => import('pages/calculate/list/CalculateConfirmModal'));
+const RequestModifyModal = loadable(() => import('pages/calculate/list/RequestModifyModal'));
+const ChangeHistoryModal = loadable(() => import('pages/calculate/list/ChangeHistoryModal'));
 
 const CalculateList: FC = () => {
 
@@ -28,10 +29,10 @@ const CalculateList: FC = () => {
     const staff_no = userInfo?.staff_no || 0;
 
     // 수정요청, 수정요청/변경이력 팝업
-    const [popupInfo, setPopupInfo] = useState({ requestModify: false, changeHistory: false });
-    const {requestModify, changeHistory} = popupInfo;
-    const handlePopup = (key: string, value: boolean) => {
-        setPopupInfo(prev => ({ ...prev, [key]: value }));
+    const [popupInfo, setPopupInfo] = useState<PopupInfo>({ calculateConfirm: false, requestModify: false, changeHistory: false, listQueryKey: undefined });
+    const {calculateConfirm, requestModify, changeHistory, listQueryKey} = popupInfo;
+    const handlePopup = (key: string, value: boolean, listQueryKey?: string[]) => {
+        setPopupInfo(prev => ({ ...prev, [key]: value, listQueryKey }));
     };
 
     // list 조회 후 outPut 데이터
@@ -53,8 +54,9 @@ const CalculateList: FC = () => {
                     </div>
                 </section>
             </section>
-            { requestModify && <RequestModify staffNo={staff_no} calculateId={outPut.calculateId} handlePopup={handlePopup} />}
-            { changeHistory && <ChangeHistory staffNo={staff_no} fCode={f_code} calculateId={outPut.calculateId}  handlePopup={handlePopup} />}
+            { calculateConfirm && <CalculateConfirmModal staffNo={staff_no} calculateId={outPut.calculateId} handlePopup={handlePopup} listQueryKey={listQueryKey} />}
+            { requestModify && <RequestModifyModal staffNo={staff_no} calculateId={outPut.calculateId} handlePopup={handlePopup} />}
+            { changeHistory && <ChangeHistoryModal staffNo={staff_no} fCode={f_code} calculateId={outPut.calculateId}  handlePopup={handlePopup} />}
         </>
     );
 }
@@ -68,4 +70,11 @@ export type Output = {
     sumAll: number | undefined;
     calculateStatus: CalculateStatusType;
     calculateId: number;
+};
+
+type PopupInfo = {
+    calculateConfirm: boolean,
+    requestModify: boolean,
+    changeHistory: boolean,
+    listQueryKey: string[] | undefined
 };

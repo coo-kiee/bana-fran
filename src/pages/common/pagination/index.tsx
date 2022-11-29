@@ -58,7 +58,7 @@ const Pagination:FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, h
     };
 
     // 리스트 개수 선택
-    const rows = [3, 20, 30, 50, 100];
+    const rows = [20, 30, 50, 100];
     const handleListRow:ChangeEventHandler<HTMLSelectElement> = (e) => {
         const row = Number(e.currentTarget.value);
         handlePageRow(row);

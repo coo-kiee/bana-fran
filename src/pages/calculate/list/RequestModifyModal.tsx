@@ -3,12 +3,12 @@ import { ChangeEventHandler, FC, useState } from "react";
 // API
 import CALCULATE_SERVICE from 'service/calculateService';
 
-interface RequestModifyProps {
+interface RequestModifyModalProps {
     staffNo:number,
     calculateId:number,
     handlePopup: (key: string, value: boolean) => void
 };
-const RequestModify: FC<RequestModifyProps> = ({ staffNo, calculateId, handlePopup }) => {
+const RequestModifyModal: FC<RequestModifyModalProps> = ({ staffNo, calculateId, handlePopup }) => {
 
     // 수정내용
     const [comment, setComment] = useState('');
@@ -36,4 +36,4 @@ const RequestModify: FC<RequestModifyProps> = ({ staffNo, calculateId, handlePop
     );
 }
 
-export default RequestModify;
+export default RequestModifyModal;

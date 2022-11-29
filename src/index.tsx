@@ -7,11 +7,26 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 import { RecoilRoot } from 'recoil';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientConfig, QueryClientProvider } from 'react-query';
 
 import { ReactQueryDevtools } from 'react-query/devtools';
+import { AxiosError } from 'axios';
 
-const queryClient = new QueryClient();
+const defalutQueryOption:QueryClientConfig = {
+    defaultOptions: {
+        queries: {
+            onError(error) {
+                const axiosError = error as AxiosError;
+                console.log('defaultError', error);
+                if(axiosError && axiosError.response?.status === 600 && (axiosError.response.data as string).includes('로그인')) {
+                    window.location.replace('/index');
+                };
+            }
+        }
+    }
+};
+
+const queryClient = new QueryClient(defalutQueryOption);
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 

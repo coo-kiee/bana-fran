@@ -22,9 +22,6 @@ const useMembershipTotal = (params: EtcTotalParams) => {
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,
-        onError: (err: any) => {
-            queryFn.axiosError(err);
-        }
     });
 };
 
@@ -41,9 +38,6 @@ const useMembershipList = (params: EtcListParams) => {
         retry: false,
         // suspense: false,
         suspense: true,
-        onError: (err: any) => {
-            queryFn.axiosError(err);
-        },
         select: (data: MembershipListType[]) => {
             const tempData = data.map((el, idx) => {
                 let tempData: any = {}
@@ -71,9 +65,6 @@ const useRankInfo = (params: EtcTotalParams) => {
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,
-        onError: (err: any) => {
-            queryFn.axiosError(err);
-        }
     });
 }; // web_fran_s_membership_rank_info
 
@@ -122,9 +113,6 @@ const useRankList = (params: EtcListParams) => {
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,
-        onError: (err: any) => {
-            queryFn.axiosError(err);
-        }
     });
 }; // web_fran_s_membership_rank_list
 

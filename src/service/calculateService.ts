@@ -73,10 +73,10 @@ const useCalculateConfirmList = (staffNo: number, calculate_id: number, listQuer
         },
     };
 
-    const confirmList = () => {
+    const confirmList = async () => {
         try {
-            queryFn.axiosPost('/query', data);
-            queryClient.refetchQueries(listQuerykey);
+            await queryFn.axiosPost('/query', data);
+            await queryClient.refetchQueries(listQuerykey);
             alert('정산확인을 했습니다.');
         }
         catch (error) {
@@ -85,7 +85,7 @@ const useCalculateConfirmList = (staffNo: number, calculate_id: number, listQuer
         };
     };
 
-    return confirmList;
+    return () => confirmList();
 };
 
 
