@@ -16,9 +16,6 @@ const useSalesOrderList = (params: SalesOrderParams) => {
         refetchOnWindowFocus: false,
         retry: false,
         // suspense: true,
-        onError : (err:any) => {
-            queryFn.axiosError(err);
-        }
     });
 };
 
@@ -34,9 +31,6 @@ const useSalesStatistic = (params: SalesStatisticParams) => {
         refetchOnWindowFocus: false,
         retry: false,
         // suspense: true,
-        onError : (err:any) => {
-            queryFn.axiosError(err);
-        }
     });
 };
 

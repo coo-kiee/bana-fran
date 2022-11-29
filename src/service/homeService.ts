@@ -17,9 +17,6 @@ const useBoardList = (params: BoardListParams) => {
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,
-        onError : (err:any) => {
-            queryFn.axiosError(err);
-        }
     });
 };
 
@@ -35,9 +32,6 @@ const useMembershipInfo = (params: CommonParams) => {
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,
-        onError : (err:any) => {
-            queryFn.axiosError(err);
-        }
     });
 };
 
@@ -53,9 +47,6 @@ const useSalesToday = (params: CommonParams) => {
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,
-        onError : (err:any) => {
-            queryFn.axiosError(err);
-        }
     });
 };
 
@@ -71,9 +62,6 @@ const useSalesTerms = (params: SalesTermsParams) => {
         refetchOnWindowFocus: false,
         retry: false,
         // suspense: true,
-        onError : (err:any) => {
-            queryFn.axiosError(err);
-        }
     });
 };
 
@@ -89,9 +77,6 @@ const useMonthlyOrderList = (params: CommonParams) => {
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,
-        onError : (err:any) => {
-            queryFn.axiosError(err);
-        }
     });
 };
 
@@ -107,9 +92,6 @@ const useHomeCalculateList = (params: CommonParams) => {
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,
-        onError : (err:any) => {
-            queryFn.axiosError(err);
-        }
     });
 };
 
