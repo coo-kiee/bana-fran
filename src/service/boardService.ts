@@ -13,7 +13,7 @@ const useCategoryList = (queryKey: string | Array<string>, boardType: BoardInfo[
 
     const data = {
         ws: "fprocess",
-        query: "LX9H2OMNZZ3P6FOYJUOH1", // web_bana_franchisee_board_code_list
+        query: "LX9H2OMNZZ3P6FOYJUOH", // web_bana_franchisee_board_code_list
         params: {
             nFCode: fCode,
             grp_code: boardType * 10
