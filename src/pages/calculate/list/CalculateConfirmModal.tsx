@@ -35,7 +35,7 @@ const CalculateConfirmModal: FC<CalculateConfirmModalProps> = ({ staffNo, calcul
                 <p className="title">정산확인 하시겠습니까?</p>
                 <button className="btn-close modify-close" onClick={closePopup} ></button>
                 <button className="cta-btn" style={{background: '#3a3a4d'}} onClick={closePopup}>취 소</button>&nbsp;&nbsp;
-                <button className="cta-btn" style={{width:'153.22px', padding: '19px'}} onClick={calculateConfirm}>등록하기</button>
+                <button className="cta-btn" onClick={calculateConfirm}>확 인</button>
             </div>
         </div>
     );
