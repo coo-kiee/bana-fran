@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef, useMemo, ReactNode, useEffect } from "react";
+import React, { FC, useState, useRef, useMemo, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useQueryErrorResetBoundary } from 'react-query';
 import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns' 
@@ -7,10 +7,11 @@ import Utils from "utils/Utils";
 
 // component
 import CalanderSearch from "pages/common/calanderSearch"; 
-import { EtcDetailTableHead, EtcDetailTableFallback, EtcDetailTable} from "pages/etc/component/EtcDetailTable"; 
-import Sticky from "pages/common/sticky";
-import NoData from "pages/common/noData";
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import Sticky from "pages/common/sticky"; 
 import Pagination from "pages/common/pagination";
+import Loading from "pages/common/loading";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 // type 
 import { SearchInfoType, PageInfoType, EtcListParams } from 'types/etc/etcType';
@@ -21,8 +22,6 @@ import MEMBERSHIP_SERVICE from "service/membershipService";
 
 // state
 import { franState, loginState } from "state"; 
-import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 const ExtraDetail: FC<ExtraDetailProps> = (props) => {
     const { detailTableColGroup, detailTableHead } = props;
@@ -60,19 +59,17 @@ export default ExtraDetail;
 
 const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
-    const { userInfo: { f_list } } = useRecoilValue(loginState);
-    // console.log('ExtraDetailData')
+    const { userInfo: { f_list } } = useRecoilValue(loginState); 
     
     // TODO: 상태
     const tableRef = useRef<null | HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
- 
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
-
-    // TODO: 프로시저  
+ 
+    // TODO: 데이터
     const membershipListParams: EtcListParams = {
         fran_store: franCode,
         from_date: searchInfo.from + '-01',
@@ -108,6 +105,7 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
         return tableList
     }, [data]);  
 
+    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         if (tableRef.current) {
             const options = {
@@ -137,7 +135,6 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} /> 
-                {/* <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> */}
                 {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
                 {isLoading && <tbody><Loading isTable={true} /></tbody>}
                 {isError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 

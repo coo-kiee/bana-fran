@@ -16,6 +16,7 @@ import ETC_SERVICE from 'service/etcService';
 // component
 import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+import{EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
 
 const EtcOrderDetail = () => {
     const { reset } = useQueryErrorResetBoundary();  
@@ -37,7 +38,7 @@ const EtcOrderDetailData = () => {
     const [modalState, setModalState] = useRecoilState(orderDetailModalState);
     const colGroup = ['226', '100', '100', '100', '100', '100', '191'];
     const thead = [
-        ['품목', '단가', '수량', '공급가', '부가세', '합계(발주금액)', '특이사항'],
+        [{itemName: '품목'}, {itemName: '단가'}, {itemName: '수량'}, {itemName: '공급가'}, {itemName: '부가세'}, {itemName: '합계(발주금액)'}, {itemName: '특이사항'}],
     ];
 
     const handleModalClose = () => {
@@ -48,7 +49,7 @@ const EtcOrderDetailData = () => {
     let tbody: Array<OrderDetailModalItemType> = [];
     let total: Array<OrderDetailModalItemType> = [];
     const orderDetailModalParams: OrderDetailModalParams = { order_code: modalState.orderCode };
-    const { data, isSuccess, isLoading, isError } = ETC_SERVICE.useOrderDetailModal(orderDetailModalParams);
+    const { data, isSuccess } = ETC_SERVICE.useOrderDetailModal(orderDetailModalParams);
     if (isSuccess) {
         tbody = [...tbody, ...data.slice(0, data.length - 1)];
         total = [...total, data[data.length - 1]];
@@ -57,40 +58,24 @@ const EtcOrderDetailData = () => {
     return (
         <>
         <div style={{ 'overflowY': 'auto', 'maxHeight': 500 }}>
-                            <table className="board-wrap" cellPadding="0" cellSpacing="0">
-                                <colgroup>
-                                    {colGroup.map((col, idx) => <col key={`etc_order_detail_table_col_${idx}`} width={col} />)}
-                                </colgroup>
-                                <thead>
-                                    {thead.map((trData, idx1) => {
-                                        return (
-                                            <tr key={`etc_order_detail_table_head_${idx1}`}>
-                                                {trData.map((thData, idx2) => <th key={`etc_order_detail_table_headitem_${idx2}`} >{thData}</th>)}
-                                            </tr>
-                                        )
-                                    })}
-                                </thead>
-                                <tbody>
-                                    {isError && <SuspenseErrorPage isTable={true} />}
-                                    {isSuccess &&
-                                        <>
-                                            {tbody.map((el, idx) => <EtcOrderDetailItem key={`etc_order_detail_item_${idx}`} {...el} />)}
-                                            {total.map((el, idx) => {
-                                                return (
-                                                    <tr key={`etc_order_detail_item_total_${idx}`}>
-                                                        <td className="result total etc-total" colSpan={5}><strong>합계</strong></td>
-                                                        <td className="point result total etc-total"><strong>{Utils.numberComma(el.total_amount)}</strong></td>
-                                                        <td className="result total etc-total"></td>
-                                                    </tr>
-                                                )
-                                            })}
-                                        </>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        <button className="btn-close order-close" onClick={handleModalClose}></button>
-                        <button className="cta-btn" onClick={handleModalClose}>확인</button>
+            <table className="board-wrap" cellPadding="0" cellSpacing="0">
+                <EtcDetailTableHead detailTableColGroup={colGroup} detailTableHead={thead}/>
+                <tbody> 
+                    {tbody.map((el, idx) => <EtcOrderDetailItem key={`etc_order_detail_item_${idx}`} {...el} />)}
+                    {total.map((el, idx) => {
+                        return (
+                            <tr key={`etc_order_detail_item_total_${idx}`}>
+                                <td className="result total etc-total" colSpan={5}><strong>합계</strong></td>
+                                <td className="point result total etc-total"><strong>{Utils.numberComma(el.total_amount)}</strong></td>
+                                <td className="result total etc-total"></td>
+                            </tr>
+                        )
+                    })}
+                </tbody>
+            </table>
+            </div>
+            <button className="btn-close order-close" onClick={handleModalClose}></button>
+            <button className="cta-btn" onClick={handleModalClose}>확인</button>
         </>
     )
 }

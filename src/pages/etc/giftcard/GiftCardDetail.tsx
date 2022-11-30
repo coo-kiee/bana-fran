@@ -15,7 +15,7 @@ import { PageInfoType, GiftcardDetailProps, ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, E
 import ETC_SERVICE from "service/etcService";
 
 // component 
-import { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import Pagination from "pages/common/pagination";
 import Sticky from "pages/common/sticky";
 
@@ -46,11 +46,11 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
-    }) // etcDetailFooter 관련 내용 
+    });
     const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 관련 
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // 프로시저 
+    // TODO: 데이터
     const etcGiftcardListParam: GiftCardListParams = {
         f_code: franCode,
         from_date: searchInfo.from + '-01',
@@ -58,8 +58,8 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
     };
     const { data: listData } = ETC_SERVICE.useGiftCardList(etcGiftcardListParam);
 
-    const [renderTableList, kioskAndPosTotal, appTotal, cancelTotal]: [ReactNode[], number, number, number] = useMemo(() => { 
-        const tableList = listData?.reduce((arr: any, tbodyRow: any) => {
+    const [renderTableList, kioskAndPosTotal, appTotal, cancelTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => { 
+        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { account_amt, gubun, item_amt, item_cnt, item_name, menu_Item, rcp_type, std_date} = tbodyRow; 
 
             const pointType = searchInfo.searchOption[0].value === ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL ?  
@@ -95,6 +95,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
         return [tableList, kioskAndPosTotal, appTotal, cancelTotal];
     }, [listData, searchInfo.searchOption ])
 
+    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         if (tableRef.current) {
             const options = {
@@ -147,7 +148,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={renderTableList.length || 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div>
         </>
     )

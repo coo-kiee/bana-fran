@@ -43,7 +43,8 @@ const MonthRankOverall: FC<MonthRankOverallProps> = ({ tableColGroup, tableHead,
 
 const MonthRankOverallData: FC<{ setPopupRankReward: React.Dispatch<React.SetStateAction<boolean>> }> = ({ setPopupRankReward }) => {
     const franCode = useRecoilValue(franState);
-    // 프로시저
+    
+    // TODO: 데이터
     let rewards: RankInfoItemType = {
         fran_name: '',
         rank_reward_1: '',
@@ -59,10 +60,9 @@ const MonthRankOverallData: FC<{ setPopupRankReward: React.Dispatch<React.SetSta
     };
 
     const handleRankInfoText = (rankInfo: string) => {// rankInfo = '음료무료쿠폰 (1장)' | '없음' | '바나포인트 (20,000점)'
-        // TODO: 보상으로 포인트 들어오는 경우 확인 필요
         if (rankInfo === '없음') return rankInfo;
         else {
-            const [reward, quantity] = rankInfo.split(' '); // ' ' 기준으로 나눠주기
+            const [reward, quantity] = rankInfo.split(' '); 
             return <>{reward}<p>{quantity}</p></>
         };
     };

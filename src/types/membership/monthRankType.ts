@@ -14,6 +14,15 @@ interface RankInfoItemType {
     rank_reward_5: string,
 }// useRankInfo 결과 값 타입
 
+interface RankListItemType {
+    gift: string,
+    nRank: number,
+    nickname: string,
+    sDate: string,
+    sName: string,
+    sPhone: string,
+} // useRankList 결과 값 타입
+
 interface RewardEditItemType {
     none: string,
     coupon: number,
@@ -70,7 +79,7 @@ const RANK_REWARD_LIST = [
 ] as const;
 
 export type {
-    PopupOrderDetailType, RewardEditItemType, RankInfoItemType, RankEditParams,
+    PopupOrderDetailType, RewardEditItemType, RankInfoItemType, RankListItemType, RankEditParams, 
     MonthRankOverallProps, MonthRankDetailProps, MonthRankDetailDataProps, RewardEditDataProps,
 }
 

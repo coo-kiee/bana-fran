@@ -45,6 +45,16 @@ interface MusicChargeDetailType {
     tax_amount: number,
     total_amount: number
 } // web_fran_s_etc_music_fee_list 결과 타입 (음악 서비스 이용료, 로열티에서 사용)
+interface GiftCardDetailType {
+    account_amt: number,
+    gubun: string,
+    item_amt: number,
+    item_cnt: number,
+    item_name: string,
+    menu_Item: number,
+    rcp_type: string,
+    std_date: string
+} // web_fran_s_etc_gift_cert_detail_list 결과 타입
 interface OrderDetailListType {
     amount: number,
     cacel_staff: string,
@@ -258,7 +268,7 @@ const ETC_GIFTCARD_SEARCH_DEVICE_LIST = [
 
 export type {
     SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
-    TotalResultType, DeliveryDetailListType, MusicChargeDetailType, OrderDetailListType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
+    TotalResultType, DeliveryDetailListType, MusicChargeDetailType, GiftCardDetailType, OrderDetailListType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
     EtcTotalParams, ChkGiftCardStockParams, GiftCardListParams, EtcListParams, OrderDetailModalParams,
     OverallFallbackProps, RoyaltyOverallProps, VirtualAccountOverallProps, OverallErrorFallbackProps, DetailErrorFallbackProps, RoyaltyDetailProps, VirtualAccountDetailProps,
     DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps, MusicChargeDetailProps, OrderDetailDetailProps,

@@ -15,7 +15,7 @@ import { EtcListParams, PageInfoType, MusicChargeDetailProps, MusicChargeDetailT
 import ETC_SERVICE from 'service/etcService';
 
 // component 
-import { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
 import Pagination from "pages/common/pagination"; 
 import Sticky from "pages/common/sticky"; 
 
@@ -44,19 +44,19 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailTableColGroup
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
-    }) // etcDetailFooter 관련 내용 
-    const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 관련
+    });
+    const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // 프로시저 
+    // TODO: 데이터
     const etcMusicListParam: EtcListParams = {
         fran_store: franCode,
         from_date: searchInfo.from + '-01',
         to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
     };
-    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useEtcList<EtcListParams, MusicChargeDetailType[]>('VK4WML6GW9077BKEWP3O', etcMusicListParam, 'etc_music_list');
-    const [renderTableList, musicTotal, feeTotal]: [ReactNode[], number, number] = useMemo(() => { 
-        const tableList = listData?.reduce((arr: any, tbodyRow: any, index: number) => {
+    const { data: listData } = ETC_SERVICE.useEtcList<EtcListParams, MusicChargeDetailType[]>('VK4WML6GW9077BKEWP3O', etcMusicListParam, 'etc_music_list');
+    const [renderTableList, musicTotal, feeTotal]: [ReactNode[] | undefined, number, number] = useMemo(() => { 
+        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow,) => {
             const { std_date, state, suply_amount, tax_amount, total_amount } = tbodyRow; 
             arr.push(
                 <>
@@ -73,10 +73,10 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailTableColGroup
         const musicTotal = listData?.filter((el: any) => el.state.includes('음악')).reduce((acc: any, cur: any) => acc+= cur.total_amount,0);
         const feeTotal = listData?.filter((el: any) => el.state.includes('공연')).reduce((acc: any, cur: any) => acc+= cur.total_amount,0);
 
-        console.log('tableList: ', tableList)  
         return [tableList, musicTotal, feeTotal];
     }, [listData])
 
+    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         if (tableRef.current) {
             const options = {
@@ -125,7 +125,7 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailTableColGroup
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={renderTableList.length || 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div>
         </>
     )

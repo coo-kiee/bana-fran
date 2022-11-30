@@ -1,7 +1,6 @@
-import React, { FC, useState, useRef, useMemo, ReactNode, Suspense, Fragment } from "react";
+import { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import Utils from "utils/Utils";
-import { format } from 'date-fns';
+import Utils from "utils/Utils"; 
 import { useQueryErrorResetBoundary } from "react-query";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -9,7 +8,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { franState, loginState, orderDetailModalState } from "state";
 
 // type
-import { EtcListParams, PageInfoType, OrderDetailDetailProps, OrderDetailListType } from "types/etc/etcType";
+import { EtcListParams, PageInfoType, OrderDetailDetailProps } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from "service/etcService";
@@ -17,10 +16,9 @@ import ETC_SERVICE from "service/etcService";
 // component    
 import Pagination from "pages/common/pagination";
 import Sticky from "pages/common/sticky";
-import { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
-import NoData from "pages/common/noData"; 
+import SuspenseErrorPage from "pages/common/suspenseErrorPage"; 
 
 const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo }) => {
     const { reset } = useQueryErrorResetBoundary(); 
@@ -38,54 +36,51 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
     const setOrderDetailmodalState = useSetRecoilState(orderDetailModalState);
-    console.log('OrderDetailDetailData')
 
     // 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
-    }) // etcDetailFooter 관련 내용
-    const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 관련  
+    });
+    const tableRef = useRef<HTMLTableElement>(null);  
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // 프로시저  
+    // TODO: 데이터  
     const etcOrderDetailListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to }; 
+    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useDetailList(etcOrderDetailListParam); 
 
-    // suspense: false
-    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useDetailList(etcOrderDetailListParam);
-    // suspense: true
-    // const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useEtcList<EtcListParams, OrderDetailListType[]>('JNXWSFKFWJJD8DRH9OEU', etcOrderDetailListParam, 'etc_order_detail_list');
-
-    // suspense + useMemo 관련  
-    const [renderTableList, totalSumObj]: [ReactNode[], number] = useMemo(() => { 
+    const [renderTableList, totalSumObj]: [ReactNode[] | undefined, number] = useMemo(() => { 
         const handlePopupOrderDetail = (nOrderID: number) => { 
             setOrderDetailmodalState((prevState) => ({ ...prevState, show: true, orderCode: nOrderID }));
         };
 
-        const tableList = listData?.reduce((arr: any, tbodyRow: any, index: number) => {
-            const { nOrderID, insert_date, last_modify_date, cancel_date, staff_name, last_modify_staff, cacel_staff, state_name, order_count, first_item, amount } = tbodyRow as OrderDetailListType; 
+        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
+            const { nOrderID, insert_date, last_modify_date, cancel_date, staff_name, last_modify_staff, cacel_staff, state_name, order_count, first_item, amount } = tbodyRow; 
+
             arr.push(
                 <>
-                    <td className='align-center'>{format(new Date(insert_date), 'yyyy/MM/dd hh:mm')}</td>
-                    <td className='align-center'>{format(new Date(last_modify_date), 'yyyy/MM/dd hh:mm')}</td>
-                    <td className='align-center'>{format(new Date(cancel_date), 'yyyy/MM/dd hh:mm')}</td>
+                    <td className='align-center'>{insert_date}</td>
+                    <td className='align-center'>{last_modify_date}</td>
+                    <td className='align-center'>{cancel_date}</td> 
                     <td className='align-center'>{staff_name}</td>
                     <td className='align-center'>{last_modify_staff}</td>
-                    <td className='align-center'>{cacel_staff}</td>
-                    <td className='align-center'>{state_name}</td>
+                    <td className='align-center'>{cacel_staff}</td> 
+                    <td className='align-center'>{state_name}</td> 
                     <td className='align-right'>{Utils.numberComma(order_count)}</td>
                     <td className='align-left order-view' onClick={() => handlePopupOrderDetail(nOrderID)}>{order_count > 1 ? `${first_item} 외 ${order_count - 1}건` : first_item}</td>
                     <td className='align-right'>{`${Utils.numberComma(amount)}원`}</td>
                 </>
             )
-    
+
             return arr;
         }, [] as ReactNode[])
 
         let sumObj = listData?.reduce((acc: any, cur: any) => acc += cur.amount, 0) || 0; 
+
         return [tableList, sumObj];
     }, [listData, setOrderDetailmodalState]); 
 
+    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         if (tableRef.current) {
             const options = {
@@ -124,8 +119,6 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
-                {/* <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> */}
-
                 {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
                 {isLoading && <tbody><Loading isTable={true} /></tbody>}
                 {isError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 

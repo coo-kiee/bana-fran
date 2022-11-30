@@ -11,7 +11,7 @@ import { MonthRankDetailProps, MonthRankDetailDataProps } from "types/membership
 // component
 import CalanderSearch from "pages/common/calanderSearch";
 import Sticky from "pages/common/sticky";
-import { EtcDetailTableHead, EtcDetailTableFallback, EtcDetailTable} from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
 
 // service
 import MEMBERSHIP_SERVICE from "service/membershipService";
@@ -52,17 +52,15 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailT
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
-    // TODO: state
+    // TODO: 상태
     const tableRef = useRef<null | HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
-
-    // const [showSticky, setShowSticky] = useState<boolean>(false); // sticky header display
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
 
-    // TODO: 프로시저 
+    // TODO: 데이터
     const rankListParams: EtcListParams = {
         fran_store: franCode,
         from_date: searchInfo.from + '-01',
@@ -70,7 +68,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailT
     };
     const { data } = MEMBERSHIP_SERVICE.useRankList(rankListParams);
     const renderTableList = useMemo(() => {
-        return data?.reduce((arr: any, tbodyRow: any, index: number) => {
+        return data?.reduce((arr: ReactNode[], tbodyRow) => {
             const { sDate, sName, nRank, sPhone, nickname } = tbodyRow;
             const [rewardType, rewardAmount] = tbodyRow.gift.split(' ');
 
@@ -87,6 +85,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailT
         }, [] as ReactNode[]);
     }, [data]);
 
+    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         if (tableRef.current) {
             const options = {
@@ -123,7 +122,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo, detailT
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={renderTableList?.length || 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+                <Pagination dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div>
         </>
     )

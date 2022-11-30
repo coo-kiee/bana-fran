@@ -62,6 +62,7 @@ const EtcTotalTableData: FC<{ currTab: number }> = ({ currTab }) => {
         else if (idx === 1) return 'align-left';
         else return 'align-right';
     };
+    
     const handleAccount = (accNum: string) => {
         if (accNum.length === 14) {
             return [accNum.slice(0, 6), accNum.slice(6, 8), accNum.slice(8)].join('-');
@@ -161,11 +162,11 @@ const EtcMusicTotalTableData = () => {
     if (totalSuccess) {
         tableBody = totalData.map((item: any) => {
             return [
-                {data: item.std_date },
-                {data: item.item },
-                {data: Utils.numberComma(item.supply_amt)},
-                {data: Utils.numberComma(item.vat_amt)},
-                {data: Utils.numberComma(item.total_amt)},
+                {data: item.std_date, className:'align-center'},
+                {data: item.item, className:'align-left' },
+                {data: Utils.numberComma(item.supply_amt), className:'align-center'},
+                {data: Utils.numberComma(item.vat_amt), className:'align-center'},
+                {data: Utils.numberComma(item.total_amt), className:'align-center'},
             ]
         });
     }
@@ -175,7 +176,7 @@ const EtcMusicTotalTableData = () => {
             {tableBody.map((tr: any, idx: number) => {
                 return (
                     <tr key={`etc_table_tr_${idx}`}>
-                        {tr.map((td: any, idx: number) => <td key={`etc_table_td_${idx}`}>{td.data}</td>)}
+                        {tr.map((td: any, idx: number) => <td className={td.className} key={`etc_table_td_${idx}`}>{td.data}</td>)}
                     </tr>
                 )
             })} 

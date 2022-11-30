@@ -20,9 +20,6 @@ const Royalty = () => {
         setSearchInfo((prevSearchInfo) => ({ ...prevSearchInfo, ...currentTempSearchInfo }));
     }; // tempSearchInfo -> searchInfo로 업데이트 (-> 자동으로 refetch역할) 
 
-    // TODO: EtcSearchDetail 관련 데이터 
-    const detailPriceInfo = [['로열티는 일할 계산되지 않습니다. (월 단위 요금 청구)']];
-
     // TODO: EtcDetailTable 관련 데이터    
     const detailTableColGroup = ['225', '*', '150', '150', '150'];
     const detailTableHead = [

@@ -9,18 +9,17 @@ import { format, isAfter, lastDayOfMonth } from 'date-fns';
 import { franState, loginState } from 'state';
 
 // component
-import {  EtcDetailTable, EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
 
 // api
 import ETC_SERVICE from 'service/etcService';
 
 // type
-import { PageInfoType, EtcListParams, VirtualAccountDetailProps, VirtualAccListType } from 'types/etc/etcType'  
+import { PageInfoType, EtcListParams, VirtualAccountDetailProps } from 'types/etc/etcType'  
 import Pagination from 'pages/common/pagination';
 import Sticky from 'pages/common/sticky'; 
 import Loading from 'pages/common/loading';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
-import NoData from 'pages/common/noData';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage'; 
 
 const VirtualAccountDetail: FC<VirtualAccountDetailProps> = (props) => {
     const { detailTableColGroup, detailTableHead } = props;
@@ -41,26 +40,24 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
-    // 상태
+    // TODO: 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
-    const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 관련
+    const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // 프로시저   
+    // TODO: 데이터   
     const etcVirtualAccBalanceListParam: EtcListParams = {
         fran_store: franCode,
         from_date: searchInfo.from + '-01',
         to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
     };
-    // const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useEtcList<EtcListParams, VirtualAccListType[]>('CS4QOSEGOQGJ8QCALM7L', etcVirtualAccBalanceListParam, 'etc_virtual_acc_balance_total_list');
     const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListParam);
 
-    // useMemo + suspense 관련
-    const [renderTableList, deductTotal, depositTotal]: [ReactNode[], number, number] = useMemo(() => {
-        const tableList = listData?.reduce((arr: any, tbodyRow: any) => {
+    const [renderTableList, deductTotal, depositTotal]: [ReactNode[] | undefined, number, number] = useMemo(() => {
+        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { balance, deposit, division, log_date, state } = tbodyRow; 
 
             arr.push(
@@ -81,6 +78,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
         return [tableList, depositTotal, deductTotal];
     }, [listData]);
 
+    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         if (tableRef.current) {
             const options = {
@@ -119,9 +117,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
             </Sticky>
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
-                {/* <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />  */}
-
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
                 {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
                 {isLoading && <tbody><Loading isTable={true} /></tbody>}
                 {isError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 

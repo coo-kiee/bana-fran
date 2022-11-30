@@ -8,9 +8,10 @@ import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import { PageInfoType, TableHeadItemType } from "types/etc/etcType";
 import { ExtraOverallTableRowItemType } from "types/membership/extraType";
 import NoData from "pages/common/noData"; 
+import React from "react";
 
 interface EtcDetailTableProps {
-    tbodyData: ReactNode[], // ? 프로시저 데이터 확인하기
+    tbodyData: ReactNode[] | undefined, // ? 프로시저 데이터 확인하기
     pageInfo: PageInfoType, // 페이지네이션 관련 정보 
 }
 
@@ -18,11 +19,11 @@ interface EtcDetailTableProps {
 const EtcDetailTable: FC<EtcDetailTableProps> = ({ tbodyData, pageInfo: { currentPage, row } }) => { 
     return (
         <tbody>
-            {tbodyData?.length > 0 && tbodyData.map((item: any, index: number) => {
+            {(!!tbodyData && tbodyData.length > 0) && tbodyData.map((item: any, index: number) => {
                 const isCurrentPage = (index >= (currentPage - 1) * row && index < currentPage * row);
                 return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
             })}
-            {tbodyData?.length === 0 && <NoData isTable={true} />}
+            {!!tbodyData && tbodyData?.length === 0 && <NoData isTable={true} />}
         </tbody>
     )
 }
@@ -83,4 +84,5 @@ const EtcDetailTableFallback: FC<EtcDetailTableFallbackProps> = ({ colGroup, the
     )
 }
 
-export { EtcDetailTable, EtcDetailTableHead, EtcDetailTableFallback};
+export default React.memo(EtcDetailTable);
+export { EtcDetailTableHead, EtcDetailTableFallback};

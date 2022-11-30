@@ -53,7 +53,6 @@ const ExtraOverall: FC<{ tableHead: ExtraOverallTableRowItemType[][] }> = ({ tab
 const ExtraOverallData = () => {
     const franCode = useRecoilValue(franState);
 
-    // 프로시저
     let extraOverallTotal: MembershipTotalType = {
         convert_coupon_stamp_cnt: 0,
         expired_coupon_amount: 0,
@@ -76,7 +75,7 @@ const ExtraOverallData = () => {
     const { data, isSuccess } = MEMBERSHIP_SERVICE.useMembershipTotal(membershipTotalParams)
 
     if (isSuccess) {
-        extraOverallTotal = { ...data }
+        extraOverallTotal = data;
     }
 
     return (

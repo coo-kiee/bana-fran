@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef, useMemo, ReactNode, useCallback } from "react";
+import React, { FC, useState, useRef, useMemo, ReactNode } from "react";
 import { useRecoilValue } from "recoil";
 import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -15,7 +15,7 @@ import { EtcListParams, PageInfoType, DeliveryChargeDetailProps, ETC_DELIVERY_SE
 import ETC_SERVICE from 'service/etcService';
 
 // component   
-import  { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import Pagination from "pages/common/pagination"; 
 import Sticky from "pages/common/sticky";  
 
@@ -50,13 +50,11 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용 
 
-    // TODO: 프로시저   
+    // TODO: 데이터  
     const etcDeliveryListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
-    const { data: listData, isSuccess, isLoading, isError } = ETC_SERVICE.useEtcList<EtcListParams, DeliveryDetailListType[]>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListParam, 'etc_delivery_list');
-
-    // TODO: 프로시저 관련 변수 
-    const [renderTableList, totalCharge, supplyTotal, taxTotal]: [ReactNode[], number, number, number] = useMemo(() => {
-        const tableList = listData?.reduce((arr: any, tbodyRow, index: number) => {
+    const { data: listData } = ETC_SERVICE.useEtcList<EtcListParams, DeliveryDetailListType[]>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListParam, 'etc_delivery_list');
+    const [renderTableList, totalCharge, supplyTotal, taxTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => {
+        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
             const { delivery_pay_type, dtRcp, nDeliveryCharge, payment_type, sItem, sPhone, suply_fee, suply_fee_tax, total_charge, total_fee} = tbodyRow;
 
             // option filter
@@ -84,11 +82,13 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
         const totalCharge = listData?.reduce((acc: any, cur: any) => acc += cur.total_charge, 0) || 0; // 바나 딜리버리 주문금액 합계
         const supplyTotal = listData?.reduce((acc: any, cur: any) => acc += cur.suply_fee, 0) || 0; // 바나 딜리버스 수수료 공급가(주문금액*2%) 합계
         const taxTotal = listData?.reduce((acc: any, cur: any) => acc += (cur.suply_fee + cur.suply_fee_tax), 0) || 0; // 바나 딜리버리 수수료(수수료 공급가+부가세) 합계
+        
+        setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
 
         return [tableList, totalCharge, supplyTotal, taxTotal];
     }, [listData, searchInfo.searchOption])
 
-    // 엑셀 다운로드, 페이지 이동 관련
+    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         if (tableRef.current) {
             const options = {
@@ -128,10 +128,10 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
             </div>
 
             <Sticky reference={thRef.current}> 
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}> 
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
                 <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> 
             </table>
 
@@ -139,7 +139,7 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={renderTableList.length || 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div>
         </>
     )

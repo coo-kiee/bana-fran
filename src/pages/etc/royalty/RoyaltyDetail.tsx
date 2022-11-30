@@ -9,7 +9,7 @@ import { format, isAfter, lastDayOfMonth } from 'date-fns';
 import { franState, loginState } from 'state';
 
 // component  
-import  { EtcDetailTable, EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable"; 
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
 
 // api
 import ETC_SERVICE from 'service/etcService';
@@ -39,23 +39,23 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
-    // 상태
+    // TODO: 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 3, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
-    const tableRef = useRef<null | HTMLTableElement>(null); // 엑셀 다운로드 관련
+    const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // 프로시저   
+    // TODO: 데이터   
     const etcRoyaltyListParam: EtcListParams = {
         fran_store: franCode,
         from_date: searchInfo.from + '-01',
         to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
     };
-    const { data: listData, isSuccess, isLoading, isError } = ETC_SERVICE.useEtcList<EtcListParams, RoyaltyDetailListType[]>('YGQA4CREHNZCZIXPF2AH', etcRoyaltyListParam, 'etc_royalty_list');
-    const [renderTableList, royaltyTotal, stageTotal ]: [ReactNode[], number, number] = useMemo(() => { 
-        const tableList = listData?.reduce((arr: any, tbodyRow:any) => {
+    const { data: listData } = ETC_SERVICE.useEtcList<EtcListParams, RoyaltyDetailListType[]>('YGQA4CREHNZCZIXPF2AH', etcRoyaltyListParam, 'etc_royalty_list');
+    const [renderTableList, royaltyTotal, stageTotal ]: [ReactNode[] | undefined, number, number] = useMemo(() => { 
+        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { std_date, state, suply_amount, tax_amount, total_amount } = tbodyRow; 
             arr.push(
                 <>
@@ -74,7 +74,8 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
 
         return [tableList, royaltyTotal, stageTotal];
     }, [listData]);
- 
+
+    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         if (tableRef.current) {
             const options = {
@@ -124,7 +125,7 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
                 </div>
-                <Pagination dataCnt={renderTableList.length || 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
+                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div> 
         </>
     )
