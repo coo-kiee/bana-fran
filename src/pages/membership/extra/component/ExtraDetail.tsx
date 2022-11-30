@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef, useMemo, ReactNode } from "react";
+import { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useQueryErrorResetBoundary } from 'react-query';
 import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns' 
@@ -7,14 +7,14 @@ import Utils from "utils/Utils";
 
 // component
 import CalanderSearch from "pages/common/calanderSearch"; 
-import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import Sticky from "pages/common/sticky"; 
 import Pagination from "pages/common/pagination";
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 // type 
-import { SearchInfoType, PageInfoType, EtcListParams } from 'types/etc/etcType';
+import { SearchInfoType, PageInfoType } from 'types/etc/etcType';
 import { ExtraDetailProps, ExtraDetailDataProps } from "types/membership/extraType";
 
 // service
@@ -30,34 +30,30 @@ const ExtraDetail: FC<ExtraDetailProps> = (props) => {
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
         to: format(new Date(), 'yyyy-MM'), // 2022-11  
+        searchTrigger: false,
     }); // 실제 쿼리에서 사용될 날짜, 옵션값
-
-    // 상태 관련 함수
-    const handleSearchInfo = (currentTempSearchInfo: SearchInfoType) => {
-        setSearchInfo((prevSearchInfo) => ({ ...prevSearchInfo, ...currentTempSearchInfo }));
-    }; // tempSearchInfo -> searchInfo로 업데이트 (-> 자동으로 refetch역할)
 
     return (
         <>
-            <ExtraDetailSearch handleSearchInfo={handleSearchInfo} />
+            <ExtraDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
             <div className="search-result-wrap">
                 <div className="search-date">
                     <p>조회기간: {searchInfo.from} ~ {searchInfo.to}</p>
                 </div>
             </div>
 
-            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
+            <Suspense fallback={<Loading marginTop={120} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
                     <ExtraDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
                 </ErrorBoundary>
-            </React.Suspense>
+            </Suspense>
         </>
     )
 }
 
 export default ExtraDetail;
 
-const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColGroup, detailTableHead }) => {
+const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, searchTrigger }, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState); 
     
@@ -66,16 +62,17 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
     const thRef = useRef<HTMLTableRowElement>(null);
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
-        row: 3, // 한 페이지에 나오는 리스트 개수 
+        row: 20, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
- 
+
     // TODO: 데이터
-    const membershipListParams: EtcListParams = {
-        fran_store: franCode,
-        from_date: searchInfo.from + '-01',
-        to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
-    }
-    const { data, isError, isLoading, isSuccess } = MEMBERSHIP_SERVICE.useMembershipList(membershipListParams);
+    // eslint-disable-next-line
+    const membershipListKey = useMemo(() => ['membership_extra_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
+    const { data, isError, isLoading, isSuccess } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [
+        franCode, 
+        from + '-01' ,
+        isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
+    ]);
 
     const renderTableList: ReactNode[] = useMemo(() => {  
         const tableList = data?.reduce((arr: any, tbodyRow: any, index: number) => { 
@@ -116,7 +113,7 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
-            const fileName = `${searchInfo.from}~${searchInfo.to}_${f_list[0].f_code_name}_멤버십누적내역`;
+            const fileName = `${from}~${to}_${f_list[0].f_code_name}_멤버십누적내역`;
             Utils.excelDownload(tableRef.current, options, fileName);
         };
     };
@@ -150,20 +147,18 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo, detailTableColG
     )
 };
 
-const ExtraDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void }> = ({ handleSearchInfo }) => {
-    // state
-    const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
-        to: format(new Date(), 'yyyy-MM'), // 2022-11   
-    }); // 실제 쿼리에서 사용될 날짜, 옵션값
+const ExtraDetailSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>> }> = ({ searchInfo, setSearchInfo }) => {
+    const handleRefetch = () => {
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
+    };
 
     return (
         <CalanderSearch
             title={`상세내역`}
             dateType={'yyyy-MM'}
-            searchInfo={tempSearchInfo}
-            setSearchInfo={setTempSearchInfo}
-            handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
+            searchInfo={searchInfo}
+            setSearchInfo={setSearchInfo}
+            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
             showMonthYearPicker={true}
         />
     )

@@ -5,7 +5,7 @@ import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage"; 
 
 // type
-import { PageInfoType, TableHeadItemType } from "types/etc/etcType";
+import { PageInfoType, SearchInfoSelectType, SearchInfoType, TableHeadItemType } from "types/etc/etcType";
 import { ExtraOverallTableRowItemType } from "types/membership/extraType";
 import NoData from "pages/common/noData"; 
 import React from "react";
@@ -67,6 +67,7 @@ const EtcDetailTableHead = forwardRef<HTMLTableRowElement | null, EtcDetailTable
 })
 
 interface EtcDetailTableFallbackProps {
+    // searchInfo: SearchInfoType | SearchInfoSelectType ,
     colGroup: Array<string>,
     theadData: TableHeadItemType[][] | ExtraOverallTableRowItemType[][],
     type?: 'LOADING' | 'ERROR',
@@ -74,13 +75,15 @@ interface EtcDetailTableFallbackProps {
 }
 const EtcDetailTableFallback: FC<EtcDetailTableFallbackProps> = ({ colGroup, theadData, type, resetErrorBoundary }) => {
     return (
-        <table className="board-wrap" cellPadding="0" cellSpacing="0">
-            <EtcDetailTableHead detailTableColGroup={colGroup} detailTableHead={theadData} />
-            <tbody>
-                {type === 'LOADING' && <Loading width={100} height={100} isTable={true} />}
-                {type === 'ERROR' && !!resetErrorBoundary && <SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />}
-            </tbody>
-        </table>
+        <> 
+            <table className="board-wrap" cellPadding="0" cellSpacing="0">
+                <EtcDetailTableHead detailTableColGroup={colGroup} detailTableHead={theadData} />
+                <tbody>
+                    {type === 'LOADING' && <Loading width={100} height={100} isTable={true} />}
+                    {type === 'ERROR' && !!resetErrorBoundary && <SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />}
+                </tbody>
+            </table>
+        </>
     )
 }
 

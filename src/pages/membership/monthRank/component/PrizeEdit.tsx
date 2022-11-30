@@ -108,7 +108,7 @@ const PrizeEdit: FC<{ setPopupRankReward: React.Dispatch<React.SetStateAction<bo
                     </tbody>
                 </table>
                 <button className="btn-close setting-close" onClick={() => setPopupRankReward((prev) => false)}></button>
-                <button className="close-btn" onClick={() => setPopupRankReward((prev) => false)}>닫기</button>
+                <button className="close-btn" style={{marginRight: '5px'}} onClick={() => setPopupRankReward((prev) => false)}>닫기</button>
                 <button className="cta-btn" onClick={handleEditSave}>저장</button>
             </div>
         </div>

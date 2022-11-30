@@ -10,8 +10,7 @@ import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 // state
 import { franState } from 'state';
 
-// type
-import { EtcTotalParams } from 'types/etc/etcType';
+// type 
 import { RankInfoItemType, MonthRankOverallProps } from 'types/membership/monthRankType';
 
 // service
@@ -53,7 +52,7 @@ const MonthRankOverallData: FC<{ setPopupRankReward: React.Dispatch<React.SetSta
         rank_reward_4: '',
         rank_reward_5: '',
     }
-    const rankInfoParams: EtcTotalParams = { fran_store: franCode };
+    const rankInfoParams: { fran_store: number } = { fran_store: franCode };
     const { data, isSuccess } = MEMBERSHIP_SERVICE.useRankInfo(rankInfoParams);
     if (isSuccess) {
         rewards = { ...rewards, ...data };

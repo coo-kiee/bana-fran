@@ -1,27 +1,11 @@
-import { FC, useState } from "react";
-import { format, subMonths, lastDayOfMonth } from 'date-fns';
-
 // component   
 import DeliveryChargeDetail from "./DeliveryChargeDetail";
 
 // type
-import { SearchInfoType, SearchInfoSelectType, TableHeadItemType, ETC_DELIVERY_SEARCH_OPTION_TYPE, ETC_DELIVERY_SEARCH_OPTION_LIST, ETC_TAB_TYPE } from "types/etc/etcType";
-import CalanderSearch from "pages/common/calanderSearch";
+import { TableHeadItemType, ETC_TAB_TYPE } from "types/etc/etcType"; 
 import EtcTotalTable from "../component/EtcTotalTable"; 
 
-const DeliveryCharge = () => {
-    // 상태 관련
-    const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
-        to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
-        searchOption: [{ value: 'TOTAL', title: '구분 전체' }]
-    }); // 실제 쿼리에서 사용될 날짜, 옵션값
-
-    // 상태 관련 함수
-    const handleSearchInfo = (currentTempSearchInfo: SearchInfoType) => {
-        setSearchInfo((prevSearchInfo) => ({ ...prevSearchInfo, ...currentTempSearchInfo }));
-    }; // tempSearchInfo -> searchInfo로 업데이트 (-> 자동으로 refetch역할)
-
+const DeliveryCharge = () => { 
     // column 관련 데이터  
     const detailTableColGroup = ['188', '*', '120', '120', '150', '190', '136', '150', '150', '150'];
     const detailTableHead: TableHeadItemType[][] = [
@@ -32,40 +16,9 @@ const DeliveryCharge = () => {
     return (
         <div className="board-date-wrap">
             <EtcTotalTable currTab={ETC_TAB_TYPE.DELIVERY} />
-            <DeliveryChargeDetailSearch handleSearchInfo={handleSearchInfo} />
-            <DeliveryChargeDetail searchInfo={searchInfo} handleSearchInfo={handleSearchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+            <DeliveryChargeDetail detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
         </div>
     )
 }
 
 export default DeliveryCharge;
-
-const DeliveryChargeDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void }> = ({ handleSearchInfo }) => {
-    const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoSelectType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-01'), // 2022-10-01
-        to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'), // 2022-10-31
-        searchOption: [{ value: 'SEARCH_0', title: '구분 전체' }],
-    }); // etcSearch 내부 검색 날짜 관련 보여질 state
-
-    const searchOptionList = [
-        {
-            [ETC_DELIVERY_SEARCH_OPTION_TYPE.TOTAL]: { title: '구분 전체', value: 'TOTAL' },
-            [ETC_DELIVERY_SEARCH_OPTION_TYPE.CARD]: { title: '현장카드', value: 'CARD' },
-            [ETC_DELIVERY_SEARCH_OPTION_TYPE.CASH]: { title: '현장현금', value: 'CASH' },
-            [ETC_DELIVERY_SEARCH_OPTION_TYPE.APP]: { title: '어플선결제', value: 'APP' },
-        }
-    ];
-
-    return (
-        // 검색 -> 관련 X 
-        <CalanderSearch
-            title={`상세내역`}
-            dateType={'yyyy-MM-dd'}
-            searchInfo={tempSearchInfo}
-            setSearchInfo={setTempSearchInfo}
-            selectOption={searchOptionList}
-            optionList={ETC_DELIVERY_SEARCH_OPTION_LIST}
-            handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
-        />
-    )
-}

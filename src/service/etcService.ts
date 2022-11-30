@@ -5,11 +5,11 @@ import { format, subMonths } from 'date-fns';
 
 // type
 import { RequestParams } from 'types/common';
-import { EtcTotalParams, EtcListParams, OrderDetailModalParams, OrderDetailModalItemType, ChkGiftCardStockParams, GiftCardListParams, OrderDetailListType, GiftCardDetailType, VirtualAccListType } from 'types/etc/etcType';
+import { OrderDetailModalParams, OrderDetailModalItemType, ChkGiftCardStockParams, GiftCardListParams, OrderDetailListType, GiftCardDetailType, VirtualAccListType } from 'types/etc/etcType';
 import Utils from 'utils/Utils';
 
 // TODO: 수수료 내역 (*_total 프로시저 공통 함수)
-const useEtcTotal = <T extends EtcTotalParams, U>(query: string, params: T, queryKey: string, option: { [key: string]: any } = {}): UseQueryResult<U, AxiosError<unknown, any>> => {
+const useEtcTotal = <T extends { fran_store: number }, U>(query: string, params: T, queryKey: string, option: { [key: string]: any } = {}): UseQueryResult<U, AxiosError<unknown, any>> => {
     // paramType, resultType, query, params, queryKey
     const reqData: RequestParams<T> = { ws: 'fprocess', query, params };
     return useQuery<U, AxiosError>([queryKey, params.fran_store], () => queryFn.getData(reqData), {
@@ -20,8 +20,8 @@ const useEtcTotal = <T extends EtcTotalParams, U>(query: string, params: T, quer
     });
 };
 
-const useMusicTotal = (params: EtcTotalParams) => {
-    const reqData: RequestParams<EtcTotalParams> = { ws: 'fprocess', query: '8WDCFLDHSNA7WRN9JCBS', params };
+const useMusicTotal = (params: { fran_store: number }) => {
+    const reqData: RequestParams<{ fran_store: number }> = { ws: 'fprocess', query: '8WDCFLDHSNA7WRN9JCBS', params };
     return useQuery<any, AxiosError>(['etc_music_fee', params.fran_store], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
@@ -68,8 +68,8 @@ const useChkGiftCardStock = (params: ChkGiftCardStockParams) => {
     });
 } // web_fran_s_etc_gift_cert_stock
 
-const useOrderDetailStatistic = (params: EtcTotalParams, option: { [key: string]: any } = {}) => {
-    const reqData: RequestParams<EtcTotalParams> = {
+const useOrderDetailStatistic = (params: { fran_store: number }, option: { [key: string]: any } = {}) => {
+    const reqData: RequestParams<{ fran_store: number }> = {
         ws: 'fprocess', query: '2Q65LKD2JBSZ3OWKWTWY', params
     };
 
@@ -77,7 +77,7 @@ const useOrderDetailStatistic = (params: EtcTotalParams, option: { [key: string]
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        // suspense: false,
+        // suspense: false, 
         suspense: true, 
         select: (data: any) => { 
             let previousMonths: { [key: string]: any }[] = [];
@@ -96,19 +96,27 @@ const useOrderDetailStatistic = (params: EtcTotalParams, option: { [key: string]
 }
 
 // TODO: 상세 내역 
-const useEtcList = <T extends EtcListParams, U>(query: string, params: T, queryKey: string, option: { [key: string]: any } = {}): UseQueryResult<U, AxiosError<unknown, any>> => {
-    const reqData: RequestParams<T> = { ws: 'fprocess', query, params };
-    return useQuery<U, AxiosError>([queryKey, params.from_date, params.to_date, params.fran_store], () => queryFn.getDataList(reqData), {
+const useEtcList = <T>(query: string, queryKey: string[], params: [number, string, string], option: { [key: string]: any } = {}): UseQueryResult<T, AxiosError<unknown, any>> => {
+    const [ franCode, from, to ] = params;
+    const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = { ws: 'fprocess', query, params: { fran_store: franCode, from_date: from, to_date: to} };
+    return useQuery<T, AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: true,   
+        suspense: true,    
     });
 }; // *_list 프로시저 공통 함수
 
-const useGiftCardList = (params: GiftCardListParams) => {
-    const reqData: RequestParams<GiftCardListParams> = { ws: 'fprocess', query:'B2XZPTGEAIHS14XICOKT', params};
-    return useQuery<GiftCardDetailType[], AxiosError>(['etc_gift_card_list', params.f_code], () => queryFn.getDataList(reqData), {
+const useGiftCardList = (queryKey: string[], params: [number, string, string]) => {
+    const [ franCode, from, to ] = params;
+
+    const reqData: RequestParams<GiftCardListParams> = { ws: 'fprocess', query:'B2XZPTGEAIHS14XICOKT', params: {
+        f_code: franCode,
+        from_date: from,
+        to_date: to
+    }};
+
+    return useQuery<GiftCardDetailType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -116,10 +124,11 @@ const useGiftCardList = (params: GiftCardListParams) => {
     });
 } // web_fran_s_etc_gift_cert_detail_list
 
-const useDetailList = (params: EtcListParams) => { 
-    const reqData: RequestParams<EtcListParams> = { ws: 'fprocess', query: 'JNXWSFKFWJJD8DRH9OEU', params};
+const useDetailList = (queryKey: string[], params: [number, string, string]) => {  
+    const [ franCode, from, to ] = params;
+    const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = { ws: 'fprocess', query:'JNXWSFKFWJJD8DRH9OEU', params: { fran_store: franCode, from_date: from, to_date: to} };
 
-    return useQuery<OrderDetailListType[], AxiosError>(['etc_order_detail_list', params.from_date, params.to_date, params.fran_store], () => queryFn.getDataList(reqData), {
+    return useQuery<OrderDetailListType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -127,10 +136,11 @@ const useDetailList = (params: EtcListParams) => {
     });
 } // 발주내역 (suspense 때문에 따로 분리 + 테스트)
 
-const useVirtualAccList = (params: EtcListParams) => {
-    const reqData: RequestParams<EtcListParams> = { ws: 'fprocess', query: 'CS4QOSEGOQGJ8QCALM7L', params};
+const useVirtualAccList = (queryKey: string[], params: [number, string, string]) => {
+    const [ franCode, from, to ] = params;
+    const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = { ws: 'fprocess', query: 'CS4QOSEGOQGJ8QCALM7L',  params: { fran_store: franCode, from_date: from, to_date: to}};
 
-    return useQuery<VirtualAccListType[], AxiosError>(['etc_order_detail_list', params.from_date, params.to_date, params.fran_store], () => queryFn.getDataList(reqData), {
+    return useQuery<VirtualAccListType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false, 
