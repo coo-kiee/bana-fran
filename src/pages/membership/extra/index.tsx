@@ -67,7 +67,6 @@ const ExtraContainer = () => {
                             <span className="sub-title hyphen point">월간랭킹보상쿠폰은 액면가 없는 무료음료쿠폰으로 실제 사용된 경우에만 금액에 합산됩니다.</span>
                         </p>
                         <ExtraOverall tableHead={thead} />
-                        
                         <ExtraDetail detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
                     </div>
                 </div>

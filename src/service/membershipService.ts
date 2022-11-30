@@ -5,14 +5,13 @@ import Utils from 'utils/Utils';
 import { format } from 'date-fns';
 
 // type
-import { RequestParams } from 'types/common';
-import { EtcTotalParams, EtcListParams } from 'types/etc/etcType';
+import { RequestParams } from 'types/common'; 
 import { MembershipListType, MembershipTotalType } from 'types/membership/extraType';
 import { RankEditParams, RankInfoItemType, RankListItemType } from 'types/membership/monthRankType';
 
 // TODO: 직전월 스탬프/쿠폰/바나포인트 내역 
-const useMembershipTotal = (params: EtcTotalParams) => {
-    const reqData: RequestParams<EtcTotalParams> = {
+const useMembershipTotal = (params: { fran_store: number }) => {
+    const reqData: RequestParams<{ fran_store: number }> = {
         ws: 'fprocess',
         query: 'MASFCWHJIICQKQGQFWMM',
         params: params,
@@ -26,13 +25,13 @@ const useMembershipTotal = (params: EtcTotalParams) => {
 };
 
 // TODO: 스탬프/쿠폰/바나포인트 상세 내역
-const useMembershipList = (params: EtcListParams) => {
-    const reqData: RequestParams<EtcListParams> = {
+const useMembershipList = (queryKey: string[], [ franCode, from, to ]: [number, string, string]) => {
+    const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = {
         ws: 'fprocess',
         query: 'KFVDLH7FKG9QKBVTK8TL',
-        params: params,
+        params: { fran_store: franCode, from_date: from, to_date: to} 
     }; 
-    return useQuery<MembershipListType[], AxiosError>(['membership_extra_list', params.from_date, params.to_date, params.fran_store], () => queryFn.getDataList(reqData), {
+    return useQuery<MembershipListType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -57,8 +56,8 @@ const useMembershipList = (params: EtcListParams) => {
 }; // web_fran_s_membership_list
 
 // TODO: 현재 설정된 랭킹 보상 내역
-const useRankInfo = (params: EtcTotalParams) => {
-    const reqData: RequestParams<EtcTotalParams> = { ws: 'fprocess', query: 'PEEMIRR3J2XENHVL2HAE', params };
+const useRankInfo = (params: { fran_store: number }) => {
+    const reqData: RequestParams<{ fran_store: number }> = { ws: 'fprocess', query: 'PEEMIRR3J2XENHVL2HAE', params };
     return useQuery<RankInfoItemType, AxiosError>(['membership_rank_info', params.fran_store], () => queryFn.getData(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
@@ -106,10 +105,10 @@ const useRankEditList = (data: RankEditParams[]) => {
 }; // web_fran_u_membership_rank_info -> useMutations 만들기
 
 // TODO: 월간랭킹현황
-const useRankList = (params: EtcListParams) => {
-    const reqData: RequestParams<EtcListParams> = { ws: 'fprocess', query: 'KUUM9RON9HGD55IBRLQB', params };
+const useRankList = (queryKey: string[], [ franCode, from, to ]: [number, string, string]) => {
+    const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = { ws: 'fprocess', query: 'KUUM9RON9HGD55IBRLQB', params: { fran_store: franCode, from_date: from, to_date: to}};
 
-    return useQuery<RankListItemType[], AxiosError>(['membership_rank_list', params.fran_store, params.from_date, params.to_date], () => queryFn.getDataList(reqData), {
+    return useQuery<RankListItemType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,

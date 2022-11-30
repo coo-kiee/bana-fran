@@ -1,62 +1,70 @@
-import React, { FC, useState, useRef, useMemo, ReactNode } from 'react';
+import { FC, useState, useRef, useMemo, ReactNode, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 import { useRecoilValue } from 'recoil';
 import Utils from 'utils/Utils';
-import { format, isAfter, lastDayOfMonth } from 'date-fns';
+import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns';
 
 // state
 import { franState, loginState } from 'state';
 
 // component
-import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
+import EtcDetailTable, { EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
 
 // api
 import ETC_SERVICE from 'service/etcService';
 
 // type
-import { PageInfoType, EtcListParams, VirtualAccountDetailProps } from 'types/etc/etcType'  
+import { PageInfoType, VirtualAccountDetailProps, SearchInfoType } from 'types/etc/etcType'  
 import Pagination from 'pages/common/pagination';
 import Sticky from 'pages/common/sticky'; 
 import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage'; 
+import CalanderSearch from 'pages/common/calanderSearch';
 
-const VirtualAccountDetail: FC<VirtualAccountDetailProps> = (props) => {
-    const { detailTableColGroup, detailTableHead } = props;
-
-    // 게시판 + 엑셀다운, 페이징, 정렬
+const VirtualAccountDetail: FC<Omit<VirtualAccountDetailProps, 'searchInfo'>> = (props) => { 
     const { reset } = useQueryErrorResetBoundary();
+    
+    const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
+        to: format(new Date(), 'yyyy-MM'), // 2022-11  
+        searchTrigger: false,
+    }); // etcSearch 내부 검색 날짜
 
     return (
-        <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
-            <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
-                <VirtualAccountDetailData {...props} />
-            </ErrorBoundary>
-        </React.Suspense>
+        <>
+            <VirtualAccountSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
+            <Suspense fallback={<Loading marginTop={120} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
+                    <VirtualAccountDetailData searchInfo={searchInfo} {...props} />
+                </ErrorBoundary>
+            </Suspense>
+        </>
     )
 }
 
-const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo }) => {
+const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: {from, to, searchTrigger} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
     // TODO: 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
-        row: 3, // 한 페이지에 나오는 리스트 개수 
+        row: 20, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
     const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
 
     // TODO: 데이터   
-    const etcVirtualAccBalanceListParam: EtcListParams = {
-        fran_store: franCode,
-        from_date: searchInfo.from + '-01',
-        to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
-    };
-    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListParam);
+    // eslint-disable-next-line
+    const etcVirtualAccBalanceListKey = useMemo(() => ['etc_order_detail_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
+    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [
+        franCode,
+        from + '-01',
+        isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
+    ]);
 
-    const [renderTableList, deductTotal, depositTotal]: [ReactNode[] | undefined, number, number] = useMemo(() => {
+    const [renderTableList, depositTotal, deductTotal]: [ReactNode[] | undefined, number, number] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { balance, deposit, division, log_date, state } = tbodyRow; 
 
@@ -72,8 +80,8 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
             return arr;
         }, [] as ReactNode[]);
 
-        const depositTotal = listData?.filter((el: any) => el.division === '충전').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0;
-        const deductTotal = listData?.filter((el: any) => el.division === '차감').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0;
+        const depositTotal = listData?.filter((el: any) => el.division === '충전').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0; // 총 충전 금액
+        const deductTotal = listData?.filter((el: any) => el.division === '차감').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0; // 총 차감 금액
 
         return [tableList, depositTotal, deductTotal];
     }, [listData]);
@@ -89,7 +97,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1], color: ['d3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
-            const fileName = `${searchInfo.from}~${searchInfo.to}_${f_list[0].f_code_name}_발주내역`;
+            const fileName = `${from}~${to}_${f_list[0].f_code_name}_발주내역`;
             Utils.excelDownload(tableRef.current, options, fileName);
         };
     };
@@ -104,7 +112,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
         <> 
             <div className="search-result-wrap">
                 <div className="search-date">
-                    <p>조회기간: {searchInfo.from} ~ {searchInfo.to}</p>
+                    <p>조회기간: {from} ~ {to}</p>
                 </div>
                 <ul className="search-result">
                     <li className="hyphen">충전<span className="colon"></span><span className="value">{Utils.numberComma(depositTotal)}원</span></li>
@@ -134,3 +142,20 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
 }
 
 export default VirtualAccountDetail;
+
+const VirtualAccountSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>>}> = ({  searchInfo, setSearchInfo  }) => {
+    const handleRefetch = () => {
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
+    };
+
+    return (
+        <CalanderSearch
+            title={`상세내역`}
+            dateType={'yyyy-MM'}
+            searchInfo={searchInfo}
+            setSearchInfo={setSearchInfo}
+            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+            showMonthYearPicker={true}
+        />
+    )
+}

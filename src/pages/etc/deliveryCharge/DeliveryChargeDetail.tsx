@@ -1,64 +1,77 @@
-import React, { FC, useState, useRef, useMemo, ReactNode } from "react";
+import { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
 import { useRecoilValue } from "recoil";
 import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import Utils from "utils/Utils";
-import { format } from "date-fns";
+import { format, lastDayOfMonth, subMonths } from "date-fns";
 
 // state
 import { franState, loginState } from "state";
 
 // type
-import { EtcListParams, PageInfoType, DeliveryChargeDetailProps, ETC_DELIVERY_SEARCH_OPTION_TYPE, DeliveryDetailListType } from "types/etc/etcType";
+import { PageInfoType, DeliveryChargeDetailProps, ETC_DELIVERY_SEARCH_OPTION_TYPE, DeliveryDetailListType, SearchInfoSelectType, ETC_DELIVERY_SEARCH_OPTION_LIST } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from 'service/etcService';
 
 // component   
-import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import Pagination from "pages/common/pagination"; 
 import Sticky from "pages/common/sticky";  
+import CalanderSearch from "pages/common/calanderSearch";
+import Loading from "pages/common/loading";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
-const DeliveryChargeDetail: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo, handleSearchInfo }) => {
+const DeliveryChargeDetail: FC<Omit<DeliveryChargeDetailProps, 'searchInfo' | 'setSearchInfo'>> = ({ detailTableColGroup, detailTableHead }) => {
     const { reset } = useQueryErrorResetBoundary();
+    const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
+        from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
+        to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
+        searchOption: [{ value: 'TOTAL', title: '구분 전체' }],
+        searchTrigger: false,
+    }); // 실제 쿼리에서 사용될 날짜, 옵션값
 
     return (
-        <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
-            <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
-                <DeliveryChargeDetailData
-                    searchInfo={searchInfo}
-                    handleSearchInfo={handleSearchInfo}
-                    detailTableColGroup={detailTableColGroup}
-                    detailTableHead={detailTableHead}
-                />
-            </ErrorBoundary>
-        </React.Suspense>
+        <>
+            <DeliveryChargeDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo}/> 
+
+            <Suspense fallback={<Loading marginTop={120} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
+                    <DeliveryChargeDetailData 
+                        searchInfo={searchInfo} 
+                        detailTableColGroup={detailTableColGroup}
+                        detailTableHead={detailTableHead}
+                    />
+                </ErrorBoundary>
+            </Suspense>
+        </>
     )
 }
 
 export default DeliveryChargeDetail; 
 
-const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo }) => {
+const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: { from, to, searchOption, searchTrigger} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
     // TODO: 상태
     const tableRef = useRef<HTMLTableElement>(null);
-    const thRef = useRef<HTMLTableRowElement>(null);
+    const thRef = useRef<HTMLTableRowElement>(null); 
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, // 현재 페이지
-        row: 3, // 한 페이지에 나오는 리스트 개수 
+        currentPage: 1, // 현재 페이지tempSearchInfo
+        row: 20, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용 
 
     // TODO: 데이터  
-    const etcDeliveryListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to };
-    const { data: listData } = ETC_SERVICE.useEtcList<EtcListParams, DeliveryDetailListType[]>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListParam, 'etc_delivery_list');
+    // eslint-disable-next-line
+    const etcdDeliveryListKey = useMemo(() => ['etc_delivery_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
+    const { data: listData } = ETC_SERVICE.useEtcList<DeliveryDetailListType[]>('YOCYKBCBC6MTUH9AXBM7', etcdDeliveryListKey, [franCode, from, to] );
     const [renderTableList, totalCharge, supplyTotal, taxTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
             const { delivery_pay_type, dtRcp, nDeliveryCharge, payment_type, sItem, sPhone, suply_fee, suply_fee_tax, total_charge, total_fee} = tbodyRow;
 
             // option filter
-            const paymentType = searchInfo.searchOption[0].value === ETC_DELIVERY_SEARCH_OPTION_TYPE.TOTAL ? true : searchInfo.searchOption[0].title === delivery_pay_type;
+            const paymentType = searchOption[0].value === ETC_DELIVERY_SEARCH_OPTION_TYPE.TOTAL ? true : searchOption[0].title === delivery_pay_type;
 
             if(paymentType){
                 arr.push(
@@ -86,7 +99,7 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
         setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
 
         return [tableList, totalCharge, supplyTotal, taxTotal];
-    }, [listData, searchInfo.searchOption])
+    }, [listData, searchOption]) 
 
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
@@ -99,7 +112,7 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
-            const fileName = `${searchInfo.from}~${searchInfo.to}_${f_list[0].f_code_name}_딜리버리수수료내역`;
+            const fileName = `${from}~${to}_${f_list[0].f_code_name}_딜리버리수수료내역`;
             Utils.excelDownload(tableRef.current, options, fileName);
         };
     };
@@ -111,10 +124,10 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
     }
 
     return (
-        <>
+        <> 
             <div className="search-result-wrap">
                 <div className="search-date">
-                    <p>조회기간: {searchInfo.from} ~ {searchInfo.to}</p>
+                    <p>조회기간: {from} ~ {to}</p>
                 </div>
                 <ul className="search-result"> 
                     <li className="hyphen">바나 딜리버리 주문금액 합계<span className="colon"></span><span className="value">{Utils.numberComma(totalCharge)}원</span></li>
@@ -143,5 +156,31 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
             </div>
         </>
     )
-}
+};
 
+const DeliveryChargeDetailSearch: FC<{searchInfo:SearchInfoSelectType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoSelectType>> }> = ({ searchInfo, setSearchInfo }) => { 
+    const searchOptionList = [
+        {
+            [ETC_DELIVERY_SEARCH_OPTION_TYPE.TOTAL]: { title: '구분 전체', value: 'TOTAL' },
+            [ETC_DELIVERY_SEARCH_OPTION_TYPE.CARD]: { title: '현장카드', value: 'CARD' },
+            [ETC_DELIVERY_SEARCH_OPTION_TYPE.CASH]: { title: '현장현금', value: 'CASH' },
+            [ETC_DELIVERY_SEARCH_OPTION_TYPE.APP]: { title: '어플선결제', value: 'APP' },
+        }
+    ];
+    const handleRefetch = () => {
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
+    };
+
+    return (
+        // 검색 -> 관련 X 
+        <CalanderSearch
+            title={`상세내역`}
+            dateType={'yyyy-MM-dd'}
+            searchInfo={searchInfo}
+            setSearchInfo={setSearchInfo}
+            selectOption={searchOptionList}
+            optionList={ETC_DELIVERY_SEARCH_OPTION_LIST}
+            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+        />
+    )
+}

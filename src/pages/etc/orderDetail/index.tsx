@@ -1,26 +1,11 @@
-import { FC, useState } from 'react';
-import { format, subMonths } from 'date-fns';
-
 // type
-import {  ETC_TAB_TYPE, SearchInfoType } from "types/etc/etcType";
+import {  ETC_TAB_TYPE } from "types/etc/etcType";
 
 // component 
-import OrderDetailDetail from './OrderDetailDetail';
-import CalanderSearch from 'pages/common/calanderSearch';
+import OrderDetailDetail from './OrderDetailDetail'; 
 import EtcTotalTable from '../component/EtcTotalTable';  
 
-const OrderDetail = () => { 
-    // TODO: 상태 관련
-    const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
-        to: format(new Date(), 'yyyy-MM-dd')
-    }); // etcSearch 내부 검색 날짜 
-
-    // 상태 관련 함수
-    const handleSearchInfo = (currentTempSearchInfo: SearchInfoType) => {
-        setSearchInfo((prevSearchInfo) => ({ ...prevSearchInfo, ...currentTempSearchInfo }));
-    }; // tempSearchInfo -> searchInfo로 업데이트 (-> 자동으로 refetch역할)
-
+const OrderDetail = () => {  
     // TODO: EtcDetailTable 관련 데이터  
     const detailTableColGroup = ['170', '170', '170', '84', '104', '84', '98', '98', '*', '150'];
     const detailTableHead = [
@@ -29,28 +14,10 @@ const OrderDetail = () => {
  
     return (
         <div className="board-date-wrap">
-            <EtcTotalTable currTab={ETC_TAB_TYPE.ORDER} />
-            <OrderDetailDetailSearch handleSearchInfo={handleSearchInfo} />
-            <OrderDetailDetail searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+            <EtcTotalTable currTab={ETC_TAB_TYPE.ORDER} /> 
+            <OrderDetailDetail detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
         </div>
     )
 }
 
 export default OrderDetail;
-
-const OrderDetailDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void }> = ({ handleSearchInfo }) => {
-    const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'), // 2022-10-18
-        to: format(new Date(), 'yyyy-MM-dd') // 2022-11-18
-    }); // etcSearch 내부 검색 날짜 관련 보여질 state 
-
-    return (
-        <CalanderSearch
-            title={`상세내역`}
-            dateType={'yyyy-MM-dd'}
-            searchInfo={tempSearchInfo}
-            setSearchInfo={setTempSearchInfo}
-            handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
-        />
-    )
-}

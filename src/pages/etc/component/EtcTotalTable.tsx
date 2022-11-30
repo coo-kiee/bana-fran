@@ -3,7 +3,7 @@ import { format, subMonths } from 'date-fns';
 import { useQueryErrorResetBoundary } from 'react-query';
 
 // type
-import { EtcTotalParams, ETC_TAB_TYPE, ChkGiftCardStockParams } from 'types/etc/etcType';
+import { ETC_TAB_TYPE, ChkGiftCardStockParams } from 'types/etc/etcType';
 import { ErrorBoundary } from 'react-error-boundary';
 import Loading from 'pages/common/loading';
 import { useRecoilValue } from 'recoil';
@@ -79,8 +79,8 @@ const EtcTotalTableData: FC<{ currTab: number }> = ({ currTab }) => {
 
     // TODO: 프로시저 
     let tableBody: any = []; // 프로시저 성공 후 업데이트
-    const totalParam: EtcTotalParams = { fran_store: franCode };
-    const { data: totalData, isSuccess: totalSuccess } = ETC_SERVICE.useEtcTotal<EtcTotalParams, any>(tabList[currTab].query, totalParam, tabList[currTab].queryKey);
+    const totalParam: { fran_store: number } = { fran_store: franCode };
+    const { data: totalData, isSuccess: totalSuccess } = ETC_SERVICE.useEtcTotal<{ fran_store: number }, any>(tabList[currTab].query, totalParam, tabList[currTab].queryKey);
     if (totalSuccess) {
         if (currTab === ETC_TAB_TYPE.DELIVERY) { // TODO: 바나 딜리버리 수수료
             tableBody = [
@@ -133,7 +133,7 @@ const EtcOrderTotalTableData = () => {
     const franCode = useRecoilValue(franState);
 
     let tableBody: any = []; // 프로시저 성공 후 업데이트
-    const totalParam: EtcTotalParams = { fran_store: franCode };
+    const totalParam: { fran_store: number } = { fran_store: franCode };
     const { data: totalData, isSuccess: totalSuccess } = ETC_SERVICE.useOrderDetailStatistic(totalParam);
     if (totalSuccess) {
         tableBody = [totalData.map((el: any) => ({ data: Utils.numberComma(el.amount), className: 'align-right' }))];
@@ -157,7 +157,7 @@ const EtcMusicTotalTableData = () => {
     const franCode = useRecoilValue(franState);
 
     let tableBody: any = []; // 프로시저 성공 후 업데이트
-    const totalParam: EtcTotalParams = { fran_store: franCode };
+    const totalParam: { fran_store: number } = { fran_store: franCode };
     const { data: totalData, isSuccess: totalSuccess } = ETC_SERVICE.useMusicTotal(totalParam);
     if (totalSuccess) {
         tableBody = totalData.map((item: any) => {

@@ -1,60 +1,72 @@
-import React, { FC, useState, useRef, useMemo, ReactNode } from "react";
+import React, { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
 import { useQueryErrorResetBoundary } from "react-query";
-import { format, isAfter, lastDayOfMonth } from 'date-fns';
+import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
 
 // state
 import { franState, loginState } from "state";
 
 // type
-import { EtcListParams, PageInfoType, MusicChargeDetailProps, MusicChargeDetailType } from "types/etc/etcType";
+import { PageInfoType, MusicChargeDetailProps, MusicChargeDetailType, SearchInfoType } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from 'service/etcService';
 
 // component 
-import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
+import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
 import Pagination from "pages/common/pagination"; 
 import Sticky from "pages/common/sticky"; 
+import CalanderSearch from "pages/common/calanderSearch";
+import Loading from "pages/common/loading";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
-const MusicChargeDetail: FC<MusicChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo  }) => {
+const MusicChargeDetail: FC<Omit<MusicChargeDetailProps, 'searchInfo'>> = ({ detailTableColGroup, detailTableHead  }) => {
     const { reset } = useQueryErrorResetBoundary();
+    const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10
+        to: format(new Date(), 'yyyy-MM'), // 2022-11
+        searchTrigger: false,
+    }); // etcSearch 내부 검색 날짜
 
     return (
-        <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
-            <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
-                <MusicChargeDetailData
-                    searchInfo={searchInfo}  
-                    detailTableColGroup={detailTableColGroup}
-                    detailTableHead={detailTableHead} />
-            </ErrorBoundary>
-        </React.Suspense>
+        <>
+            <MusicChargeDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} /> 
+            <Suspense fallback={<Loading marginTop={120} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
+                    <MusicChargeDetailData 
+                        searchInfo={searchInfo}
+                        detailTableColGroup={detailTableColGroup}
+                        detailTableHead={detailTableHead} />
+                </ErrorBoundary>
+            </Suspense>
+        </>
     )
 }
 
 export default MusicChargeDetail;
 
-const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo }) => {
+const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from, to, searchTrigger }, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
     // 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
-        row: 3, // 한 페이지에 나오는 리스트 개수 
+        row: 20, // 한 페이지에 나오는 리스트 개수 
     });
     const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
 
     // TODO: 데이터
-    const etcMusicListParam: EtcListParams = {
-        fran_store: franCode,
-        from_date: searchInfo.from + '-01',
-        to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
-    };
-    const { data: listData } = ETC_SERVICE.useEtcList<EtcListParams, MusicChargeDetailType[]>('VK4WML6GW9077BKEWP3O', etcMusicListParam, 'etc_music_list');
+    // eslint-disable-next-line
+    const etcMusicListKey = useMemo(() => ['etc_music_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
+    const { data: listData } = ETC_SERVICE.useEtcList<MusicChargeDetailType[]>('VK4WML6GW9077BKEWP3O', etcMusicListKey, [
+        franCode, 
+        from + '-01' ,
+        isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
+    ]);
     const [renderTableList, musicTotal, feeTotal]: [ReactNode[] | undefined, number, number] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow,) => {
             const { std_date, state, suply_amount, tax_amount, total_amount } = tbodyRow; 
@@ -87,7 +99,7 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailTableColGroup
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
-            const fileName = `${searchInfo.from}~${searchInfo.to}_${f_list[0].f_code_name}_음악서비스내역`;
+            const fileName = `${from}~${to}_${f_list[0].f_code_name}_음악서비스내역`;
             Utils.excelDownload(tableRef.current, options, fileName);
         };
     };
@@ -96,13 +108,13 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailTableColGroup
     }
     const handlePageRow = (row: number) => {
         setPageInfo((prevPageInfo) => ({ ...prevPageInfo, row: row }))
-    }
-
+    } 
+    
     return (
-        <> 
+        <>  
             <div className="search-result-wrap">
                 <div className="search-date">
-                    <p>조회기간: {searchInfo.from} ~ {searchInfo.to}</p>
+                    <p>조회기간: {from} ~ {to}</p>
                 </div>
                 <ul className="search-result"> 
                     <li className="hyphen">음악 사용료 합계<span className="colon"></span><span className="value">{Utils.numberComma(musicTotal)}원</span></li>
@@ -130,3 +142,20 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ detailTableColGroup
         </>
     )
 } 
+
+const MusicChargeDetailSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>> }> = ({ searchInfo, setSearchInfo }) => {
+    const handleRefetch = () => {
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
+    };
+
+    return (
+        <CalanderSearch
+            title={`상세내역`}
+            dateType={'yyyy-MM'}
+            searchInfo={searchInfo}
+            setSearchInfo={setSearchInfo}
+            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+            showMonthYearPicker={true}
+        />
+    )
+}

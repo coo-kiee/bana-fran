@@ -2,6 +2,7 @@
 interface SearchInfoType {
     from: string,
     to: string,
+    searchTrigger? : boolean,
 }; // 검색 날짜만 필요한 경우
 interface SearchInfoSelectType extends SearchInfoType {
     searchOption: { value: string | number, title: string }[], // Select
@@ -22,10 +23,7 @@ interface TableHeadItemType {
     className?: string, // className 필요한 경우 사용
 } // EtcDetailTable에 넘겨줄 데이터 타입
 
-// 쿼리 결과값 관련 type
-interface TotalResultType {
-    [key: string]: number;
-}
+// 쿼리 결과값 관련 type 
 interface DeliveryDetailListType{
     delivery_pay_type: string,
     dtRcp: string,
@@ -105,10 +103,7 @@ interface OrderDetailModalItemType {
     volume: string
 }// web_fran_s_etc_order_detail 결과 타입
 
-// param
-interface EtcTotalParams {
-    fran_store: number,
-}
+// param 
 interface ChkGiftCardStockParams {
     f_code: number
 }
@@ -116,58 +111,29 @@ interface GiftCardListParams {
     f_code: number,
     from_date: string,
     to_date: string,
-}
-interface EtcListParams {
-    fran_store: number,
-    from_date: string,
-    to_date: string
-}
+} 
 interface OrderDetailModalParams {
     order_code: number,
-}
-
-// Overall props
-interface OverallFallbackProps {
-    title: string,
-    tableHead: string[],
-    tableColGroup: string[],
-}
-interface OverallErrorFallbackProps extends OverallFallbackProps {
-    resetErrorBoundary: () => void,
-}
-interface RoyaltyOverallProps extends VirtualAccountOverallProps {
-    searchInfo: SearchInfoType,
-    detailPriceInfo: string[][],
-}
-interface VirtualAccountOverallProps extends OverallFallbackProps {
-    searchInfo: SearchInfoType,
-    handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
 }
 
 // Detail props
 interface DetailFallbackProps { 
     detailTableColGroup: string[],
     detailTableHead: TableHeadItemType[][],
-}
-interface DetailErrorFallbackProps extends DetailFallbackProps {
-    resetErrorBoundary: () => void,
-}
+} 
 interface DeliveryChargeDetailProps extends DetailFallbackProps {
-    searchInfo: SearchInfoSelectType,
-    handleSearchInfo: (currentTempSearchInfo: SearchInfoType) => void,
+    searchInfo: SearchInfoSelectType, 
 }
 interface MusicChargeDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoType, 
 }
 interface GiftcardDetailProps extends DetailFallbackProps {
-    searchInfo: SearchInfoSelectType,
-    handleSearchInfo: (currentTempSearchInfo: SearchInfoSelectType) => void,
+    searchInfo: SearchInfoSelectType, 
 }
 interface OrderDetailDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoType, 
 }
-interface RoyaltyDetailProps extends DetailFallbackProps {
-    title: string,
+interface RoyaltyDetailProps extends DetailFallbackProps { 
     searchInfo: SearchInfoType,
 }
 interface VirtualAccountDetailProps extends DetailFallbackProps {
@@ -268,10 +234,9 @@ const ETC_GIFTCARD_SEARCH_DEVICE_LIST = [
 
 export type {
     SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
-    TotalResultType, DeliveryDetailListType, MusicChargeDetailType, GiftCardDetailType, OrderDetailListType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
-    EtcTotalParams, ChkGiftCardStockParams, GiftCardListParams, EtcListParams, OrderDetailModalParams,
-    OverallFallbackProps, RoyaltyOverallProps, VirtualAccountOverallProps, OverallErrorFallbackProps, DetailErrorFallbackProps, RoyaltyDetailProps, VirtualAccountDetailProps,
-    DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps, MusicChargeDetailProps, OrderDetailDetailProps,
+    DeliveryDetailListType, MusicChargeDetailType, GiftCardDetailType, OrderDetailListType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
+    ChkGiftCardStockParams, GiftCardListParams, OrderDetailModalParams,
+    DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps, MusicChargeDetailProps, OrderDetailDetailProps, RoyaltyDetailProps, VirtualAccountDetailProps,
 };
 export {
     ETC_TAB_TYPE, ETC_TAB_LIST, ETC_DELIVERY_SEARCH_OPTION_TYPE, ETC_DELIVERY_SEARCH_OPTION_LIST,

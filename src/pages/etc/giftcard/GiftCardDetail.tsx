@@ -1,73 +1,94 @@
-import React, { FC, useState, useRef, ReactNode, useMemo } from "react";
+import { FC, Suspense, useState, useRef, ReactNode, useMemo } from "react";
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
 import { useQueryErrorResetBoundary } from "react-query";
-import { format, isAfter, lastDayOfMonth } from 'date-fns';
+import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
 
 // state
 import { franState, loginState } from "state";
 
 // type
-import { PageInfoType, GiftcardDetailProps, ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_TYPE, GiftCardListParams } from "types/etc/etcType";
+import { 
+    PageInfoType, GiftcardDetailProps, SearchInfoSelectType, 
+    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_TYPE,
+    ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST 
+} from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from "service/etcService";
 
 // component 
-import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import Pagination from "pages/common/pagination";
 import Sticky from "pages/common/sticky";
+import CalanderSearch from "pages/common/calanderSearch";
+import Loading from "pages/common/loading";
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
-const GiftCardDetail: FC<GiftcardDetailProps> = ({ detailTableHead, detailTableColGroup, searchInfo, handleSearchInfo }) => {
+const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo'>> = ({ detailTableHead, detailTableColGroup }) => {
     const { reset } = useQueryErrorResetBoundary();
+
+    const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
+        to: format(new Date(), 'yyyy-MM'), // 2022-10 
+        searchTrigger: false,
+        searchOption: [
+            { value: 'CATEGORY_ALL', title: '포인트 구분 전체' },
+            { value: 'CARD_ALL', title: '상품권종 전체' },
+            { value: 'DEVICE_ALL', title: '처리기기 전체' },
+        ],
+    }); // etcSearch 내부 검색 날짜 
 
     return (
         <>
-            <React.Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
+            <GiftCardDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
+            <Suspense fallback={<Loading marginTop={120} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
                     <GiftCardDetailData
                         searchInfo={searchInfo}
                         detailTableColGroup={detailTableColGroup}
                         detailTableHead={detailTableHead} />
                 </ErrorBoundary>
-            </React.Suspense>
+            </Suspense>
         </>
     )
 }
 
 export default GiftCardDetail
 
-const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({ detailTableHead, detailTableColGroup, searchInfo }) => {
+const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({ detailTableHead, detailTableColGroup, searchInfo: {from, to, searchTrigger, searchOption} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
     // 상태 
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
-        row: 3, // 한 페이지에 나오는 리스트 개수 
+        row: 20, // 한 페이지에 나오는 리스트 개수 
     });
-    const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 관련 
+    const tableRef = useRef<HTMLTableElement>(null); 
     const thRef = useRef<HTMLTableRowElement>(null);
 
     // TODO: 데이터
-    const etcGiftcardListParam: GiftCardListParams = {
-        f_code: franCode,
-        from_date: searchInfo.from + '-01',
-        to_date: isAfter(lastDayOfMonth(new Date(searchInfo.to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(searchInfo.to)), 'yyyy-MM-dd')
-    };
-    const { data: listData } = ETC_SERVICE.useGiftCardList(etcGiftcardListParam);
+    // eslint-disable-next-line
+    const etcGiftcardListKey = useMemo(() => ['etc_gift_card_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
+    const { data: listData } = ETC_SERVICE.useGiftCardList(etcGiftcardListKey, [
+        franCode, 
+        from + '-01' ,
+        isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
+    ]);
 
+    // etc_gift_card_list
     const [renderTableList, kioskAndPosTotal, appTotal, cancelTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { account_amt, gubun, item_amt, item_cnt, item_name, menu_Item, rcp_type, std_date} = tbodyRow; 
 
-            const pointType = searchInfo.searchOption[0].value === ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL ?  
-                true : searchInfo.searchOption[0].value === gubun; // 포인트 구분 필터
-            const cardType = searchInfo.searchOption[1].value === ETC_GIFTCARD_SEARCH_CARD_TYPE.CARD_ALL ?
-                true : Number(searchInfo.searchOption[1].value) === menu_Item; // 상품권종 관련 필터
-            const deviceType = searchInfo.searchOption[2].value === ETC_GIFTCARD_SEARCH_DEVICE_TYPE.DEVICE_ALL ? 
-                true : searchInfo.searchOption[2].value === rcp_type; // 처리기기 관련 필터
+            const pointType = searchOption[0].value === ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL ?  
+                true : searchOption[0].value === gubun; // 포인트 구분 필터
+            const cardType = searchOption[1].value === ETC_GIFTCARD_SEARCH_CARD_TYPE.CARD_ALL ?
+                true : Number(searchOption[1].value) === menu_Item; // 상품권종 관련 필터
+            const deviceType = searchOption[2].value === ETC_GIFTCARD_SEARCH_DEVICE_TYPE.DEVICE_ALL ? 
+                true : searchOption[2].value === rcp_type; // 처리기기 관련 필터
 
             if( pointType && cardType && deviceType ){
                 arr.push(
@@ -93,7 +114,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
 
         setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
         return [tableList, kioskAndPosTotal, appTotal, cancelTotal];
-    }, [listData, searchInfo.searchOption ])
+    }, [listData, searchOption ])
 
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
@@ -106,7 +127,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
-            const fileName = `${searchInfo.from}~${searchInfo.to}_${f_list[0].f_code_name}_상품권내역`;
+            const fileName = `${from}~${to}_${f_list[0].f_code_name}_상품권내역`;
             Utils.excelDownload(tableRef.current, options, fileName);
         };
     };
@@ -121,7 +142,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
         <> 
             <div className="search-result-wrap">
                 <div className="search-date">
-                    <p>조회기간: {searchInfo.from} ~ {searchInfo.to}</p>
+                    <p>조회기간: {from} ~ {to}</p>
                 </div>
                 <ul className="search-result"> 
                     <li className="hyphen">키오스크/POS 판매금액 합계<span className="colon"></span><span className="value">{Utils.numberComma(kioskAndPosTotal)}원</span></li>
@@ -151,5 +172,48 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
                 <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
             </div>
         </>
+    )
+}
+
+const GiftCardDetailSearch: FC<{searchInfo:SearchInfoSelectType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoSelectType>> }> = ({ searchInfo, setSearchInfo }) => { 
+    const searchOptionList = [
+        {
+            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL]: { title: '포인트 구분 전체', value: 'CATEGORY_ALL' },
+            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL]: { title: '판매', value: '판매' },
+            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL_DELETE]: { title: '판매 취소(폐기)', value: '판매 취소(폐기)' },
+            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ADD]: { title: '임의추가', value: '임의추가' },    
+            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.DELETE]: { title: '임의폐기', value: '임의폐기' },
+            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ELSE]: { title: 'N/A', value: 'N/A' },
+        },
+        {
+            [ETC_GIFTCARD_SEARCH_CARD_TYPE.CARD_ALL]: { title: '상품권종 전체', value: 'CARD_ALL' },
+            [ETC_GIFTCARD_SEARCH_CARD_TYPE.TEN]: { title: '1만원권', value: 510 },
+            [ETC_GIFTCARD_SEARCH_CARD_TYPE.THIRTY]: { title: '3만원권', value: 511 },
+            [ETC_GIFTCARD_SEARCH_CARD_TYPE.FIFTY]: { title: '5만원권', value: 512 },
+        },
+        {
+            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.DEVICE_ALL]: { title: '처리기기 전체', value: 'DEVICE_ALL' },
+            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.BRANCH_APP]: { title: '매장앱', value: '매장앱' },
+            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.APP]: { title: '어플', value: '어플' },
+            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.KIOSK]: { title: '키오스크', value: '키오스크' },
+            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.POS]: { title: 'POS', value: 'POS' },
+            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.ELSE]: {title: 'N/A', value: 'N/A'}
+        },
+    ];
+    const handleRefetch = () => {
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
+    };
+
+    return ( 
+        <CalanderSearch
+            title={`상세내역`}
+            dateType={'yyyy-MM'}
+            searchInfo={searchInfo}
+            setSearchInfo={setSearchInfo}
+            selectOption={searchOptionList}
+            optionList={[ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST]}
+            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+            showMonthYearPicker={true}
+        />
     )
 }

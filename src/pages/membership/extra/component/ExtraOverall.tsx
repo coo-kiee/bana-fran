@@ -9,8 +9,7 @@ import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 // type 
-import { ExtraOverallTableRowItemType } from 'types/membership/extraType'
-import { EtcTotalParams } from "types/etc/etcType";
+import { ExtraOverallTableRowItemType } from 'types/membership/extraType' 
 import { MembershipTotalType } from 'types/membership/extraType'
 
 // state
@@ -71,7 +70,7 @@ const ExtraOverallData = () => {
         used_coupon_cnt: 0,
         used_point: 0
     };
-    const membershipTotalParams: EtcTotalParams = { fran_store: franCode };
+    const membershipTotalParams: { fran_store: number } = { fran_store: franCode };
     const { data, isSuccess } = MEMBERSHIP_SERVICE.useMembershipTotal(membershipTotalParams)
 
     if (isSuccess) {

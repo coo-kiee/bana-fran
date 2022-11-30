@@ -1,31 +1,11 @@
-import { FC, useState } from 'react';
-import { format, subMonths } from 'date-fns';
-
 // type
-import { SearchInfoSelectType, ETC_TAB_TYPE, ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_TYPE, ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST } from "types/etc/etcType";
+import { ETC_TAB_TYPE } from "types/etc/etcType";
 
 // component 
 import GiftCardDetail from './GiftCardDetail';
-import EtcTotalTable from '../component/EtcTotalTable';
-import CalanderSearch from 'pages/common/calanderSearch';
+import EtcTotalTable from '../component/EtcTotalTable'; 
 
 const GiftCard = () => {
-    // TODO: 상태 관련
-    const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
-        to: format(new Date(), 'yyyy-MM'), // 2022-10 
-        searchOption: [
-            { value: 'CATEGORY_ALL', title: '포인트 구분 전체' },
-            { value: 'CARD_ALL', title: '상품권종 전체' },
-            { value: 'DEVICE_ALL', title: '처리기기 전체' },
-        ],
-    }); // etcSearch 내부 검색 날짜 
-    
-    // 상태 관련 함수
-    const handleSearchInfo = (currentTempSearchInfo: SearchInfoSelectType) => {
-        setSearchInfo((prevSearchInfo) => ({ ...prevSearchInfo, ...currentTempSearchInfo }));
-    };
-
     // TODO: EtcDetailTable 관련 데이터 
     const detailTableColGroup = ['195', '195', '195', '195', '195', '195', '150', '150', '150'];
     const detailTableHead = [
@@ -35,61 +15,10 @@ const GiftCard = () => {
 
     return (
         <div className="board-date-wrap">
-            <EtcTotalTable currTab={ETC_TAB_TYPE.GIFTCARD} />
-            <GiftCardDetailSearch handleSearchInfo={handleSearchInfo} />
-            <GiftCardDetail searchInfo={searchInfo} handleSearchInfo={handleSearchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+            <EtcTotalTable currTab={ETC_TAB_TYPE.GIFTCARD} /> 
+            <GiftCardDetail detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
         </div>
     )
 }
 
 export default GiftCard;
-
-const GiftCardDetailSearch: FC<{ handleSearchInfo: (currentTempSearchInfo: SearchInfoSelectType) => void }> = ({ handleSearchInfo }) => {
-    const [tempSearchInfo, setTempSearchInfo] = useState<SearchInfoSelectType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
-        to: format(new Date(), 'yyyy-MM'), // 2022-10 
-        searchOption: [
-            { value: 'CATEGORY_ALL', title: '포인트 구분 전체' },
-            { value: 'CARD_ALL', title: '상품권종 전체' },
-            { value: 'DEVICE_ALL', title: '처리기기 전체' },
-        ],
-    }); // etcSearch 내부 검색 날짜 관련 보여질 state
-     
-    const searchOptionList = [
-        {
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL]: { title: '포인트 구분 전체', value: 'CATEGORY_ALL' },
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL]: { title: '판매', value: '판매' },
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL_DELETE]: { title: '판매 취소(폐기)', value: '판매 취소(폐기)' },
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ADD]: { title: '임의추가', value: '임의추가' },    
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.DELETE]: { title: '임의폐기', value: '임의폐기' },
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ELSE]: { title: 'N/A', value: 'N/A' },
-        },
-        {
-            [ETC_GIFTCARD_SEARCH_CARD_TYPE.CARD_ALL]: { title: '상품권종 전체', value: 'CARD_ALL' },
-            [ETC_GIFTCARD_SEARCH_CARD_TYPE.TEN]: { title: '1만원권', value: 510 },
-            [ETC_GIFTCARD_SEARCH_CARD_TYPE.THIRTY]: { title: '3만원권', value: 511 },
-            [ETC_GIFTCARD_SEARCH_CARD_TYPE.FIFTY]: { title: '5만원권', value: 512 },
-        },
-        {
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.DEVICE_ALL]: { title: '처리기기 전체', value: 'DEVICE_ALL' },
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.BRANCH_APP]: { title: '매장앱', value: '매장앱' },
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.APP]: { title: '어플', value: '어플' },
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.KIOSK]: { title: '키오스크', value: '키오스크' },
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.POS]: { title: 'POS', value: 'POS' },
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.ELSE]: {title: 'N/A', value: 'N/A'}
-        },
-    ];
-
-    return (
-        <CalanderSearch
-            title={`상세내역`}
-            dateType={'yyyy-MM'}
-            searchInfo={tempSearchInfo}
-            setSearchInfo={setTempSearchInfo}
-            selectOption={searchOptionList}
-            optionList={[ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST]}
-            handleSearch={() => handleSearchInfo(tempSearchInfo)} // 조회 버튼에 필요한 fn
-            showMonthYearPicker={true}
-        />
-    )
-}

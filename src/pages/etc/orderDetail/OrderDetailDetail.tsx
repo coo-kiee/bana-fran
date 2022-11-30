@@ -3,12 +3,13 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import Utils from "utils/Utils"; 
 import { useQueryErrorResetBoundary } from "react-query";
 import { ErrorBoundary } from "react-error-boundary";
+import { format, isAfter, lastDayOfMonth, subMonths } from "date-fns";
 
 // state
 import { franState, loginState, orderDetailModalState } from "state";
 
 // type
-import { EtcListParams, PageInfoType, OrderDetailDetailProps } from "types/etc/etcType";
+import { PageInfoType, OrderDetailDetailProps, SearchInfoType } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from "service/etcService";
@@ -16,23 +17,32 @@ import ETC_SERVICE from "service/etcService";
 // component    
 import Pagination from "pages/common/pagination";
 import Sticky from "pages/common/sticky";
-import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import CalanderSearch from "pages/common/calanderSearch";
 import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage"; 
+import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
-const OrderDetailDetail: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo }) => {
+const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ({ detailTableColGroup, detailTableHead }) => {
     const { reset } = useQueryErrorResetBoundary(); 
+    const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10
+        to: format(new Date(), 'yyyy-MM'), // 2022-11
+        searchTrigger: false,
+    }); // etcSearch 내부 검색 날짜
 
     return (
-        <Suspense fallback={<EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`LOADING`} />}>
-            <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback colGroup={detailTableColGroup} theadData={detailTableHead} type={`ERROR`} resetErrorBoundary={resetErrorBoundary} />} >
-                <OrderDetailDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
-            </ErrorBoundary>
-        </Suspense>
+        <>
+            <OrderDetailDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
+            <Suspense fallback={<Loading marginTop={120} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
+                    <OrderDetailDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+                </ErrorBoundary>
+            </Suspense>
+        </>
     )
 }
 
-const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo }) => {
+const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: { from, to, searchTrigger} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
     const setOrderDetailmodalState = useSetRecoilState(orderDetailModalState);
@@ -40,14 +50,19 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
     // 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
-        row: 3, // 한 페이지에 나오는 리스트 개수 
+        row: 20, // 한 페이지에 나오는 리스트 개수 
     });
     const tableRef = useRef<HTMLTableElement>(null);  
     const thRef = useRef<HTMLTableRowElement>(null);
 
     // TODO: 데이터  
-    const etcOrderDetailListParam: EtcListParams = { fran_store: franCode, from_date: searchInfo.from, to_date: searchInfo.to }; 
-    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useDetailList(etcOrderDetailListParam); 
+    // eslint-disable-next-line
+    const etcOrderDetailListKey = useMemo(() => ['etc_music_list', JSON.stringify({ franCode, from, to }) ], [ franCode, searchTrigger ]);
+    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [
+        franCode, 
+        from + '-01' ,
+        isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
+    ]);
 
     const [renderTableList, totalSumObj]: [ReactNode[] | undefined, number] = useMemo(() => { 
         const handlePopupOrderDetail = (nOrderID: number) => { 
@@ -91,7 +106,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1], color: ['d3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
-            const fileName = `${searchInfo.from}~${searchInfo.to}_${f_list[0].f_code_name}_발주내역`;
+            const fileName = `${from}~${to}_${f_list[0].f_code_name}_발주내역`;
             Utils.excelDownload(tableRef.current, options, fileName);
         };
     };
@@ -106,7 +121,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
         <> 
             <div className="search-result-wrap">
                 <div className="search-date">
-                    <p>조회기간: {searchInfo.from} ~ {searchInfo.to}</p>
+                    <p>조회기간: {from} ~ {to}</p>
                 </div>
                 <ul className="search-result">
                     <li className="hyphen">총 발주금액 합계<span className="colon"></span><span className="value">{Utils.numberComma(totalSumObj)}원</span></li>
@@ -135,3 +150,20 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
 }
 
 export default OrderDetailDetail;
+
+const OrderDetailDetailSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>> }> = ({ searchInfo, setSearchInfo }) => {
+    const handleRefetch = () => {
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
+    };
+
+    return (
+        <CalanderSearch
+            title={`상세내역`}
+            dateType={'yyyy-MM'}
+            searchInfo={searchInfo}
+            setSearchInfo={setSearchInfo}
+            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+            showMonthYearPicker={true}
+        />
+    )
+}
