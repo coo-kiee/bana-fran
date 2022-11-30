@@ -73,7 +73,7 @@ const CalculateClaimDetailTable: FC<CalculateClaimDetailTableProps> = ({ tabType
     const [pageInfo, setPageInfo] = useState({
         dataCnt: 0,
         currentPage: 1,
-        row: 50,
+        row: 20,
     });
 
     const { width, thInfo, tdInfo } = TABLE_COLUMN_INFO;

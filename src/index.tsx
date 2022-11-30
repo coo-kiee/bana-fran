@@ -12,16 +12,20 @@ import { QueryClient, QueryClientConfig, QueryClientProvider } from 'react-query
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { AxiosError } from 'axios';
 
-const defalutQueryOption:QueryClientConfig = {
+const defalutQueryOption: QueryClientConfig = {
     defaultOptions: {
         queries: {
             onError(error) {
                 const axiosError = error as AxiosError;
                 console.log('defaultError', error);
-                if(axiosError && axiosError.response?.status === 600 && (axiosError.response.data as string).includes('로그인')) {
-                    alert("세션이 만료 되었습니다.");
+                if (axiosError && axiosError.response?.status === 600 && (axiosError.response.data as string).includes('로그인')) {
+                    const errorQuerries = queryClient.getQueryCache().getAll().filter(query => query.state.status === "error");
+                    const firstQueryError = errorQuerries[errorQuerries.length - 1].state.error as AxiosError;
+
+                    if (JSON.parse(firstQueryError.response?.config.data).query === JSON.parse(axiosError.response?.config.data).query) alert("세션이 만료 되었습니다.");
+
                     window.location.replace('/index');
-                }else{
+                } else {
                     alert("[ERROR_" + axiosError.response?.status + "]" + axiosError?.response?.data);
                 }
             }

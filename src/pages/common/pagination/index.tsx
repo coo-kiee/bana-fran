@@ -13,7 +13,7 @@ interface PaginationProps {
 
 const Pagination:FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, handlePageRow }) => {
 
-    const { row = 50, currentPage, boundaryRange = 10 } = pageInfo;
+    const { row = 20, currentPage, boundaryRange = 10 } = pageInfo;
     
     // 페이지 계산
     const paginate = (dataCnt: number) => {

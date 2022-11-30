@@ -76,7 +76,7 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
         search_category: initialSearchCategory,
         search_text: initialSearchText,
         page_idx: 1,
-        page_size: 50,
+        page_size: 20,
     });
 
     const { board_type, search_category, search_text, staff_no, f_code } = listSearchParameter;

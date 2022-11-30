@@ -47,7 +47,7 @@ const SalesHistory = () => {
 
 	// pagination
 	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [rowPerPage, setRowPerPage] = useState<number>(50);
+	const [rowPerPage, setRowPerPage] = useState<number>(20);
 
 	// query
 	const { data, isLoading, isRefetching, refetch } = SALES_SERVICE.useSalesOrderList({ from_date: historySearch.from, to_date: historySearch.to, f_code: fCode });

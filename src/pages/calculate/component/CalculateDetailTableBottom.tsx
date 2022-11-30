@@ -25,7 +25,7 @@ interface CalculateDetailTableBottomProps<T> {
 
 const CalculateDetailTableBottom = <T extends unknown>({ fCodeName, titleFrom, titleTo, colspan, tableRef, pageInfo, setPageInfo, excelFileName }: CalculateDetailTableBottomProps<T>) => {
 
-    const { dataCnt = 1, currentPage = 1, row = 50 } = pageInfo;
+    const { dataCnt = 1, currentPage = 1, row = 20 } = pageInfo;
     const handlePageChange = (changePage: number) => {
         setPageInfo(prev => ({ ...prev, currentPage: changePage }));
     };

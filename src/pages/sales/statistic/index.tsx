@@ -34,7 +34,7 @@ const SalesStatistic = () => {
 
 	// pagination
 	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [rowPerPage, setRowPerPage] = useState<number>(50);
+	const [rowPerPage, setRowPerPage] = useState<number>(20);
 
 	// query
 	// 월별 검색(M)이면 from/to에 -01 string 추가 M: yy-MM, D: yy-MM-dd 포멧
