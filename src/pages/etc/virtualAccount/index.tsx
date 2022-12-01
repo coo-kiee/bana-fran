@@ -1,13 +1,9 @@
-import { FC, useState } from 'react';
-import { format, subMonths } from 'date-fns';
-
 // type
-import { ETC_TAB_TYPE, SearchInfoType } from "types/etc/etcType";
+import { ETC_TAB_TYPE } from "types/etc/etcType";
 
 // component 
 import VirtualAccountDetail from './VirtualAccountDetail';
 import EtcTotalTable from '../component/EtcTotalTable';
-import CalanderSearch from 'pages/common/calanderSearch';
 
 const VirtualAccount = () => { 
     // TODO: EtcDetailTable 관련 데이터     

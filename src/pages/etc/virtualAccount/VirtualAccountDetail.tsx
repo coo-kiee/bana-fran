@@ -57,7 +57,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
 
     // TODO: 데이터   
     // eslint-disable-next-line
-    const etcVirtualAccBalanceListKey = useMemo(() => ['etc_order_detail_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
+    const etcVirtualAccBalanceListKey = useMemo(() => ['etc_virtual_acc_detail_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
     const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [
         franCode,
         from + '-01',

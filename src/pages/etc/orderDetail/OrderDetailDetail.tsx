@@ -57,7 +57,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
 
     // TODO: 데이터  
     // eslint-disable-next-line
-    const etcOrderDetailListKey = useMemo(() => ['etc_music_list', JSON.stringify({ franCode, from, to }) ], [ franCode, searchTrigger ]);
+    const etcOrderDetailListKey = useMemo(() => ['etc_order_detail_list', JSON.stringify({ franCode, from, to }) ], [ franCode, searchTrigger ]);
     const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [
         franCode, 
         from + '-01' ,
