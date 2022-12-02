@@ -19,10 +19,14 @@ const defalutQueryOption: QueryClientConfig = {
                 const axiosError = error as AxiosError;
                 console.log('defaultError', error);
                 if (axiosError && axiosError.response?.status === 600 && (axiosError.response.data as string).includes('로그인')) {
-                    const errorQuerries = queryClient.getQueryCache().getAll().filter(query => query.state.status === "error");
-                    const firstQueryError = errorQuerries[errorQuerries.length - 1].state.error as AxiosError;
+                    // console.log(queryClient.getQueryCache().getAll().filter(query => query.state.error));
+                    const errorQuerries = queryClient.getQueryCache().getAll().filter(query => query.state.error).map((errorQuery: any) => JSON.parse(errorQuery.state.error.response.config.data).query).sort();
+                    const firstErrorQueryKey = errorQuerries.length > 0 ? errorQuerries[1] : errorQuerries[0];
+                    const currentErrorQueryKey = JSON.parse(axiosError.response?.config.data).query;
+                    // console.log('errorQuerries', errorQuerries);
+                    // console.log(firstErrorQueryKey, currentErrorQueryKey);
 
-                    if (JSON.parse(firstQueryError.response?.config.data).query === JSON.parse(axiosError.response?.config.data).query) alert("세션이 만료 되었습니다.");
+                    if (firstErrorQueryKey === currentErrorQueryKey) alert("세션이 만료 되었습니다.");
 
                     window.location.replace('/index');
                 } else {

@@ -38,7 +38,7 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
     // 사용자 정보
     const { f_code, staff_no, f_code_name } = userInfo;
     // Output
-    const { sumAll, calculateStatus, calculateId } = outPut;
+    const { sumAll, calculateStatus } = outPut;
 
     // 정산 데이터
     const stdMonth = (Utils.converDateFormat(subMonths(new Date(), 1), '-') as string).substring(0, 7);
