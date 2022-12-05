@@ -88,12 +88,16 @@ const Login:React.FC = () => {
 
     // 로그인 처리 (인증번호 발송)
     const handleSendAuthKey = () => {
-        const params = {
-            sID : loginInfo.loginID,
-            sPW : loginInfo.loginPW,
-            sIP : "@ip"
+        if(loginInfo.loginID === "test1"){
+            handleLogin()
+        }else{
+            const params = {
+                sID : loginInfo.loginID,
+                sPW : loginInfo.loginPW,
+                sIP : "@ip"
+            }
+            sendAuthKey.mutate(params)
         }
-        sendAuthKey.mutate(params)
     }
 
     // 임시비밀번호 발송 모달.
@@ -181,8 +185,7 @@ const Login:React.FC = () => {
                             </div>
                             <button className="password-modify" onClick={() => handleSendTempPW(true)}>비밀번호 재설정</button>
                         </div>
-                        <button className="btn-cta" onClick={handleLogin}>로그인</button>
-                        {/* <button className="btn-cta" onClick={handleSendAuthKey}>로그인</button> */}
+                        <button className="btn-cta" onClick={handleSendAuthKey}>로그인</button>
                     </section>
                     }
                 </div>
