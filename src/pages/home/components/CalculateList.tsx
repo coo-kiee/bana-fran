@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useRecoilValue } from 'recoil';
 
 // global states
@@ -8,11 +10,32 @@ import HOME_SERVICE from 'service/homeService';
 import Utils from 'utils/Utils';
 // Components
 import Board from 'pages/home/components/board/Board';
+import Loading from 'pages/common/loading';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const CalculateList = () => {
 	const fCode = useRecoilValue(franState);
 	const { data } = HOME_SERVICE.useHomeCalculateList({ f_code: fCode });
 
+	return (
+		<>
+			{data?.map((settlement: any, idx: number) => {
+				const { std_month, receive_charge, send_charge, total_send_charge, status, status_name } = settlement;
+				return (
+					<tr key={String(std_month) + idx}>
+						<td className={status === 10 ? 'point' : ''}>{std_month}</td>
+						<td className={status === 10 ? 'point' : ''}>{Utils.numberComma(send_charge)}</td>
+						<td className={status === 10 ? 'point' : ''}>{Utils.numberComma(receive_charge)}</td>
+						<td className={status === 10 ? 'point point-text' : ''}>{Utils.numberComma(total_send_charge)}</td>
+						<td className={status === 10 ? 'point' : ''}>{status_name}</td>
+					</tr>
+				);
+			})}
+		</>
+	);
+};
+
+const CalculateListContainer = () => {
 	return (
 		<Board boardClass='status' title='최근 정산 현황' url='/calculate/list'>
 			<table className='contents-list' cellPadding='0' cellSpacing='0'>
@@ -33,22 +56,14 @@ const CalculateList = () => {
 					</tr>
 				</thead>
 				<tbody>
-					{data?.map((settlement: any, idx: number) => {
-						const { std_month, receive_charge, send_charge, total_send_charge, status, status_name } = settlement;
-						return (
-							<tr key={String(std_month) + idx}>
-								<td className={status === 10 ? 'point' : ''}>{std_month}</td>
-								<td className={status === 10 ? 'point' : ''}>{Utils.numberComma(send_charge)}</td>
-								<td className={status === 10 ? 'point' : ''}>{Utils.numberComma(receive_charge)}</td>
-								<td className={status === 10 ? 'point point-text' : ''}>{Utils.numberComma(total_send_charge)}</td>
-								<td className={status === 10 ? 'point' : ''}>{status_name}</td>
-							</tr>
-						);
-					})}
+					<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on CalculateList(최근 정산 현황): ', e)}>
+						<Suspense fallback={<Loading width={50} height={50} marginTop={15} isTable={true} />}>	
+							<CalculateList />
+						</Suspense>
+					</ErrorBoundary>
 				</tbody>
 			</table>
 		</Board>
-	);
-};
-
-export default CalculateList;
+	)
+}
+export default CalculateListContainer;

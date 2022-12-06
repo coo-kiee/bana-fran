@@ -61,7 +61,7 @@ const useSalesTerms = (params: SalesTermsParams) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        // suspense: true,
+        suspense: true,
     });
 };
 

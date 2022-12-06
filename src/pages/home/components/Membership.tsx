@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useRecoilValue } from 'recoil';
 // global state
 import { franState } from 'state';
@@ -7,12 +9,36 @@ import HOME_SERVICE from 'service/homeService';
 import Utils from 'utils/Utils';
 // Components
 import Board from 'pages/home/components/board/Board';
+import Loading from 'pages/common/loading';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const Membership = () => {
 	const fCode = useRecoilValue(franState);
-
 	const { data } = HOME_SERVICE.useMembershipInfo({ f_code: fCode });
 
+	return (
+		<>
+			<tr>
+				<td className='sortation'>미사용 바나포인트(P)</td>
+				<td className='align-right'>-</td>
+				<td className='align-right'>{data && Utils.numberComma(data[0].bana_point)}P</td>
+			</tr>
+			<tr>
+				<td className='sortation'>미사용 무료쿠폰(스탬프적립)</td>
+				<td className='align-right'>{data && Utils.numberComma(data[0].stamp_coupon_cnt)}</td>
+				<td className='align-right'>{data && Utils.numberComma(data[0].stamp_coupon_amt)}원</td>
+			</tr>
+			<tr>
+				<td className='sortation'>미사용 무료쿠폰(월간랭킹)</td>
+				<td className='align-right'>{data && Utils.numberComma(data[0].month_coupon_cnt)}</td>
+				<td className='align-right'>-</td>
+			</tr>
+		</>
+	);
+};
+
+
+const MembershipContainer = () => {
 	return (
 		<Board boardClass='membership' title='멤버십 적립 현황' url='/membership/extra' suffix='누적'>
 			<table className='contents-list' cellPadding='0' cellSpacing='0'>
@@ -29,25 +55,15 @@ const Membership = () => {
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td className='sortation'>미사용 바나포인트(P)</td>
-						<td className='align-right'>-</td>
-						<td className='align-right'>{data && Utils.numberComma(data[0].bana_point)}P</td>
-					</tr>
-					<tr>
-						<td className='sortation'>미사용 무료쿠폰(스탬프적립)</td>
-						<td className='align-right'>{data && Utils.numberComma(data[0].stamp_coupon_cnt)}</td>
-						<td className='align-right'>{data && Utils.numberComma(data[0].stamp_coupon_amt)}원</td>
-					</tr>
-					<tr>
-						<td className='sortation'>미사용 무료쿠폰(월간랭킹)</td>
-						<td className='align-right'>{data && Utils.numberComma(data[0].month_coupon_cnt)}</td>
-						<td className='align-right'>-</td>
-					</tr>
+					<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Membership(멤버십 적립 현황): ', e)}>
+						<Suspense fallback={<tr><td rowSpan={3} colSpan={3}><Loading width={50} height={50} marginTop={15} /></td></tr>}>
+							<Membership />
+						</Suspense>
+					</ErrorBoundary>
 				</tbody>
 			</table>
 		</Board>
-	);
-};
+	)
+}
 
-export default Membership;
+export default MembershipContainer;

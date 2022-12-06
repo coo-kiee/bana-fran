@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useRecoilValue } from 'recoil';
 
 // global state
@@ -9,6 +10,8 @@ import HOME_SERVICE from 'service/homeService';
 import Utils from 'utils/Utils';
 // Components
 import Board from 'pages/home/components/board/Board';
+import Loading from 'pages/common/loading';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const Today = () => {
 	const fCode = useRecoilValue(franState);
@@ -21,6 +24,44 @@ const Today = () => {
 	const paidSales = useMemo(() => {return data[0].card_charge + data[0].cash_charge + data[0].paid_point + data[0].hd_coupon_charge}, [data]); // 유상 매출
 	const totalSales = useMemo(() => {return freeService + paidSales}, [freeService, paidSales]);	// 총 매출
 	
+	return (
+		<tr>
+			<td className='point'>{Utils.numberComma(totalSales)}원</td>
+			<td>
+				{Utils.numberComma(delivery_charge || 0)}원<span className='percentage'>({(100 * delivery_charge/totalSales).toFixed(1) || 0}%)</span>
+			</td>
+			<td className='point'>
+				{Utils.numberComma(paidSales)}원<span className='percentage'>({(100 * paidSales/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+			<td>
+				{Utils.numberComma(card_charge || 0)}원<span className='percentage'>({(100 * card_charge/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+			<td>
+				{Utils.numberComma(cash_charge || 0)}원<span className='percentage'>({(100 * cash_charge/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+			<td>
+				{Utils.numberComma(paid_point || 0)}원<span className='percentage'>({(100 * paid_point/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+			<td>
+				{Utils.numberComma(hd_coupon_charge || 0)}원<span className='percentage'>({(100 * hd_coupon_charge/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+			<td>
+				{Utils.numberComma(etc_delivery_charge)}원<span className='percentage'>({(100 * etc_delivery_charge/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+			<td className='point'>
+				{Utils.numberComma(fran_coupon_charge + bana_point)}원<span className='percentage'>({(100 * freeService/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+			<td>
+				{Utils.numberComma(fran_coupon_charge || 0)}원<span className='percentage'>({(100 * fran_coupon_charge/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+			<td>
+				{Utils.numberComma(bana_point || 0)}원<span className='percentage'>({(100 * bana_point/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+		</tr>
+	);
+};
+
+const TodayContainer = () => {
 	return (
 		<Board boardClass='today' title='Today' url='/sales/statistic' suffix='총 매출'>
 			<table className='contents-list' cellPadding='0' cellSpacing='0'>
@@ -57,39 +98,11 @@ const Today = () => {
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td className='point'>{Utils.numberComma(totalSales)}원</td>
-						<td>
-							{Utils.numberComma(delivery_charge || 0)}원<span className='percentage'>({(100 * delivery_charge/totalSales).toFixed(1) || 0}%)</span>
-						</td>
-						<td className='point'>
-							{Utils.numberComma(paidSales)}원<span className='percentage'>({(100 * paidSales/totalSales || 0).toFixed(1)}%)</span>
-						</td>
-						<td>
-							{Utils.numberComma(card_charge || 0)}원<span className='percentage'>({(100 * card_charge/totalSales || 0).toFixed(1)}%)</span>
-						</td>
-						<td>
-							{Utils.numberComma(cash_charge || 0)}원<span className='percentage'>({(100 * cash_charge/totalSales || 0).toFixed(1)}%)</span>
-						</td>
-						<td>
-							{Utils.numberComma(paid_point || 0)}원<span className='percentage'>({(100 * paid_point/totalSales || 0).toFixed(1)}%)</span>
-						</td>
-						<td>
-							{Utils.numberComma(hd_coupon_charge || 0)}원<span className='percentage'>({(100 * hd_coupon_charge/totalSales || 0).toFixed(1)}%)</span>
-						</td>
-						<td>
-							{Utils.numberComma(etc_delivery_charge)}원<span className='percentage'>({(100 * etc_delivery_charge/totalSales || 0).toFixed(1)}%)</span>
-						</td>
-						<td className='point'>
-							{Utils.numberComma(fran_coupon_charge + bana_point)}원<span className='percentage'>({(100 * freeService/totalSales || 0).toFixed(1)}%)</span>
-						</td>
-						<td>
-							{Utils.numberComma(fran_coupon_charge || 0)}원<span className='percentage'>({(100 * fran_coupon_charge/totalSales || 0).toFixed(1)}%)</span>
-						</td>
-						<td>
-							{Utils.numberComma(bana_point || 0)}원<span className='percentage'>({(100 * bana_point/totalSales || 0).toFixed(1)}%)</span>
-						</td>
-					</tr>
+					<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Today: ', e)}>
+						<Suspense fallback={<Loading width={50} height={50} marginTop={15} isTable={true} />}>
+							<Today />
+						</Suspense>
+					</ErrorBoundary>
 				</tbody>
 			</table>
 			<div className='description'>
@@ -99,6 +112,5 @@ const Today = () => {
 			</div>
 		</Board>
 	);
-};
-
-export default Today;
+}
+export default TodayContainer;
