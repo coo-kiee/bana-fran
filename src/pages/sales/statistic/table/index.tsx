@@ -32,22 +32,22 @@ const SalesStatisticTable = forwardRef(({ data, isLoading, rowPerPage, currentPa
 	};
 	
 	/* sticky 기준 ref */
-	const trRef = useRef<HTMLTableRowElement>(null);
+	const stickyRef = useRef<HTMLTableRowElement>(null);
 	
 	return (
 		<>
-			<Sticky reference={trRef.current}>
+			<Sticky reference={stickyRef.current}>
 				<TableColGroup />
 				<TableHead />
 			</Sticky>
 
 			<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={forwardRef}>
 				<TableColGroup />
-				<TableHead ref={trRef} />
+				<TableHead ref={stickyRef} />
 				<tbody>
 					{
 						isLoading ?
-						<Loading width={100} height={100} marginTop={20} isTable={true} /> :
+						<Loading width={100} height={100} marginTop={16} isTable={true} /> :
 						<>
 							<tr>
 								<td className='total'>합계</td>

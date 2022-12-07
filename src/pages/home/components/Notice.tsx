@@ -46,7 +46,7 @@ const Notice = () => {
 const NoticeContainer = () => {
 	return (
 		<Board title='공지사항' boardClass='notice' url='/notice'>
-			<ul className='contents-list' style={{ minHeight: '210px' }}>
+			<ul className='contents-list' style={{ height: '210px' }}>
 				<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Notice(공지사항): ', e)}>
 					<Suspense fallback={<Loading width={50} height={50} marginTop={80} />}>
 						<Notice />

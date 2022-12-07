@@ -3,13 +3,14 @@ import React from "react";
 interface Props {
     resetErrorBoundary?: () => void,
     isTable?: boolean;
+    paddingTop?: string;
 }
 
 // Component
-const SuspenseErrorPage: React.FC<Props> = ({ isTable }) => {
+const SuspenseErrorPage: React.FC<Props> = ({ isTable, paddingTop = '30px' }) => {
 
     return (
-        isTable ? <tr><td rowSpan={10} colSpan={25} style={{ paddingTop: '30px' }}><ErrorPage /></td></tr> : <ErrorPage />
+        isTable ? <tr><td rowSpan={10} colSpan={25} style={{ paddingTop }}><ErrorPage /></td></tr> : <ErrorPage />
     )
 }
 

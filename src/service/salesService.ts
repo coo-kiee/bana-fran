@@ -5,17 +5,17 @@ import { RequestParams } from 'types/common';
 import { SalesOrderParams, SalesStatisticParams } from 'types/sales/salesType';
 
 // 주문 내역 조회
-const useSalesOrderList = (params: SalesOrderParams) => {
+const useSalesOrderList = (params: SalesOrderParams, queryKey: number) => {
     const reqData: RequestParams<SalesOrderParams> = {
         ws: 'fprocess',
         query: 'KTBKHHVNSBCJHXUADDII',
         params: params,
     }; // web_fran_s_sales_order_list
-    return useQuery(['sales_order_list', params.f_code], () => queryFn.getDataList(reqData), {
+    return useQuery(['sales_order_list', params.f_code, queryKey], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        // suspense: true,
+        suspense: true,
     });
 };
 
@@ -30,7 +30,6 @@ const useSalesStatistic = (params: SalesStatisticParams) => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        // suspense: true,
     });
 };
 

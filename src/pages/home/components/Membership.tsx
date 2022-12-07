@@ -55,7 +55,7 @@ const MembershipContainer = () => {
 					</tr>
 				</thead>
 				<tbody>
-					<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Membership(멤버십 적립 현황): ', e)}>
+					<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} paddingTop='0px' resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Membership(멤버십 적립 현황): ', e)}>
 						<Suspense fallback={<tr><td rowSpan={3} colSpan={3}><Loading width={50} height={50} marginTop={15} /></td></tr>}>
 							<Membership />
 						</Suspense>

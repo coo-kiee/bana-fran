@@ -30,7 +30,6 @@ interface SalesStatisticParams extends SalesOrderParams {
 /* option value에 사용할 값 관련 타입들 */
 
 // history option types
-
 // 주문유형(ORDER_TYPE)
 const HISTORY_ORDER_TYPE = {
 	TOTAL: 'total',
@@ -134,6 +133,17 @@ interface PrefixSumProps {
 	data: any;
 }
 
+interface SalesHistoryProps {
+    queryKey: number; // queryKey for react query
+	historyData: any[]; // historyData
+	setHistoryData: React.Dispatch<React.SetStateAction<any[]>>;
+	historySearch: SalesHistorySearch; // 검색조건(filter)
+	isCancelShow: 0 | 1; // 취소 주문 표시
+	isExcludeCouBae: 0 | 1; // 쿠팡/배민 주문 제외
+	currentPage: number; // 현재 페이지
+	rowPerPage: number; //페이지 당 컨텐츠 수
+}
+
 // statistics
 interface SalesStatisticSearch {
     searchType: SearchType;
@@ -160,6 +170,7 @@ export type {
 	SalesStatisticParams,
     SalesHistorySearch, 
     PrefixSumProps, 
+	SalesHistoryProps,
     SalesStatisticSearch, 
     FilterChart, 
     SalesLineChartProps, 

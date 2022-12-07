@@ -98,7 +98,7 @@ const TodayContainer = () => {
 					</tr>
 				</thead>
 				<tbody>
-					<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Today: ', e)}>
+					<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} paddingTop='0px' resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Today: ', e)}>
 						<Suspense fallback={<Loading width={50} height={50} marginTop={15} isTable={true} />}>
 							<Today />
 						</Suspense>

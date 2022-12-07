@@ -45,7 +45,7 @@ const Archive = () => {
 const ArchiveContainer = () => {
 	return (		
 		<Board title='자료실' boardClass='dataroom' url='/board'>
-			<ul className='contents-list' style={{ minHeight: '210px' }}>
+			<ul className='contents-list' style={{ height: '210px' }}>
 				<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Archive(자료실): ', e)}>
 					<Suspense fallback={<Loading width={50} height={50} marginTop={80} />}>		
 						<Archive />
