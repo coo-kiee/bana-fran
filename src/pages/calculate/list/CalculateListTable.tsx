@@ -114,7 +114,7 @@ const TableTop: FC<TableTopProps> = ({ listRefetchFn, calculateStatus, fCode, st
                 <div className="function-wrap">
                     <div className="select-wrap">
                         <div className="search-wrap">
-                            <select name="" id="" value={searchDate} onChange={(e) => setSearchDate(prev => e.currentTarget.value)}>
+                            <select name="" id="" value={searchDate} onChange={(e) => setSearchDate(prev => e.target.value)}>
                                 {monthList?.map((item, index) => <option key={index} value={item.std_month}>{item.std_month}</option>)}
                                 {monthList?.length === 0 && <option value={searchDate}>{searchDate}</option>}
                             </select>
