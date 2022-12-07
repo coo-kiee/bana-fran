@@ -37,11 +37,14 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
     // 검색 조건
     const fromDate = format(subMonths(new Date(), 1), 'yyyy-MM');
     const toDate = format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM');
-    const [searchCondition, setSearchCondition] = useState<SearchCondition>({
+    const [searchCondition, setSearchCondition] = useState<SearchInfoSelectType>({
         from: fromDate, // 달력 선택 정보
         to: toDate, // 달력 선택 정보
         searchOption: [ETC_TYPE_OPTION[ETC_TYPE.ALL]],  // 필터링 옵션
-        searchTrigger: false, // query trigger
+    });
+    const [queryTriggerDate, setQueryTriggerDate] = useState({
+        queryFromDate: searchCondition.from,
+        queryToDate: searchCondition.to,
     });
 
     // 테이블 상단 정보
@@ -59,8 +62,8 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
         selectOption: [ETC_TYPE_OPTION], // select로 나타날 옵션 정보
         optionList: [Object.keys(ETC_TYPE_OPTION)], // option 맵핑할 때 사용  
         showMonthYearPicker: true,
-        handleSearch: () => setSearchCondition(prev => ({ ...prev, searchTrigger: !prev.searchTrigger })),
-    }), [setSearchCondition]);
+        handleSearch: () => setQueryTriggerDate(prev => ({ queryFromDate: searchCondition.from, queryToDate: searchCondition.to, })),
+    }), [setQueryTriggerDate, searchCondition]);
 
     // 페이지네이션 정보
     const [pageInfo, setPageInfo] = useState({
@@ -81,7 +84,7 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
                         <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
-                            <TableList fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
+                            <TableList fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} queryTriggerDate={queryTriggerDate} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
@@ -99,7 +102,11 @@ export default CalculateEtcDetailTable;
 interface TableListProps {
     fCode: number,
     staffNo: number,
-    searchCondition: SearchCondition,
+    searchCondition: SearchInfoSelectType,
+    queryTriggerDate: {
+        queryFromDate: string;
+        queryToDate: string;
+    },
     setTableTopInfo: React.Dispatch<React.SetStateAction<TableTopInfo>>,
     pageInfo: {
         dataCnt: number;
@@ -112,14 +119,13 @@ interface TableListProps {
         row: number;
     }>>,
 };
-const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTableTopInfo, pageInfo, setPageInfo }) => {
+const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, queryTriggerDate, setTableTopInfo, pageInfo, setPageInfo }) => {
 
     const { currentPage, row } = pageInfo;
-    const { searchOption, from, to, searchTrigger } = searchCondition;
+    const { searchOption } = searchCondition;
+    const { queryFromDate, queryToDate } = queryTriggerDate;
 
-    // eslint-disable-next-line
-    const listQueryKey = useMemo(() => ['calculateEtcDetail', JSON.stringify({ fCode, staffNo, from, to })], [fCode, staffNo, searchTrigger]);
-    const { data: etcDetailList } = CALCULATE_SERVICE.useCalculateEtcDetail(listQueryKey, fCode, staffNo, Utils.converDateFormat(new Date(from), '-'), Utils.converDateFormat(lastDayOfMonth(new Date(to)), '-'));
+    const { data: etcDetailList } = CALCULATE_SERVICE.useCalculateEtcDetail(fCode, staffNo, queryFromDate, queryToDate);
 
     // Table render Node 필터링, 충전/잔돈 포인트 합계 계산
     const [renderTableList, totalInfoRes] = useMemo(() => {
@@ -168,9 +174,8 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, setTab
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, titleFrom: from, titleTo: to, totalInfo: totalInfoRes }));
-        // eslint-disable-next-line
-    }, [setTableTopInfo, renderTableList, totalInfoRes]);
+        setTableTopInfo(prev => ({ ...prev, titleFrom: queryFromDate, titleTo: queryToDate, totalInfo: totalInfoRes }));
+    }, [setTableTopInfo, renderTableList, totalInfoRes, queryFromDate, queryToDate]);
 
     return (
         <>
@@ -214,10 +219,6 @@ const ETC_TOTAL_TITLE = {
     [ETC_TYPE.ALL]: '',
 } as const;
 type EtcTotalTitle = typeof ETC_TOTAL_TITLE[keyof typeof ETC_TOTAL_TITLE];
-
-interface SearchCondition extends SearchInfoSelectType {
-    searchTrigger: boolean,
-};
 
 type TableTopInfo = {
     titleFrom: string,

@@ -38,7 +38,7 @@ const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userI
         // { {key: CouponType}: {title: string, value: CouponType} }
         [COUPON_TYPE.ALL]: COUPON_TYPE_OPTION[COUPON_TYPE.ALL], // 0: { title: '쿠폰 전체', value: 0 },
     });
-    const { data: couponList } = CALCULATE_SERVICE.useCalculateCouponType(['couponList', JSON.stringify({ f_code, staff_no })], f_code, staff_no);
+    const { data: couponList } = CALCULATE_SERVICE.useCalculateCouponType(f_code, staff_no);
     useEffect(() => {
         if (couponList) {
             // initialTotalInfo - { {key: CouponType}: {title: string, sum: number} }
@@ -58,11 +58,14 @@ const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userI
     // 검색 조건
     const fromDate = format(subMonths(new Date(), 1), 'yyyy-MM-01');
     const toDate = format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd');
-    const [searchCondition, setSearchCondition] = useState<SearchCondition>({
+    const [searchCondition, setSearchCondition] = useState<SearchInfoSelectType>({
         from: fromDate, // 달력 선택 정보
         to: toDate, // 달력 선택 정보
         searchOption: [couponType[COUPON_TYPE.ALL], DEVICE_TYPE_OPTION[DEVICE_TYPE.ALL]], // 필터링 옵션
-        searchTrigger: false, // query trigger
+    });
+    const [queryTriggerDate, setQueryTriggerDate] = useState({
+        queryFromDate: searchCondition.from,
+        queryToDate: searchCondition.to,
     });
 
     // 테이블 상단 정보
@@ -79,8 +82,8 @@ const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userI
         optionType: 'SELECT' as const,
         selectOption: [couponType, DEVICE_TYPE_OPTION], // select로 나타날 옵션 정보
         optionList: [Object.keys(couponType), Object.keys(DEVICE_TYPE_OPTION)], // option 맵핑할 때 사용  
-        handleSearch: () => setSearchCondition(prev => ({ ...prev, searchTrigger: !prev.searchTrigger })),
-    }), [setSearchCondition, couponType]);
+        handleSearch: () => setQueryTriggerDate(prev => ({ queryFromDate: searchCondition.from, queryToDate: searchCondition.to, })),
+    }), [setQueryTriggerDate, couponType, searchCondition]);
 
     // 페이지네이션 정보
     const [pageInfo, setPageInfo] = useState({
@@ -101,7 +104,7 @@ const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userI
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
                         <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
-                            <TableList couponType={couponType} fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
+                            <TableList couponType={couponType} fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} queryTriggerDate={queryTriggerDate} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
@@ -120,7 +123,11 @@ interface TableListProps {
     couponType: CouponType,
     fCode: number,
     staffNo: number,
-    searchCondition: SearchCondition,
+    searchCondition: SearchInfoSelectType,
+    queryTriggerDate: {
+        queryFromDate: string;
+        queryToDate: string;
+    },
     setTableTopInfo: React.Dispatch<React.SetStateAction<TableTopInfo>>,
     pageInfo: {
         dataCnt: number;
@@ -133,14 +140,13 @@ interface TableListProps {
         row: number;
     }>>,
 };
-const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondition, setTableTopInfo, pageInfo, setPageInfo }) => {
+const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondition, queryTriggerDate, setTableTopInfo, pageInfo, setPageInfo }) => {
 
     const { currentPage, row } = pageInfo;
-    const { searchOption, from, to, searchTrigger } = searchCondition;
+    const { searchOption } = searchCondition;
+    const { queryFromDate, queryToDate } = queryTriggerDate;
 
-    // eslint-disable-next-line
-    const listQueryKey = useMemo(() => ['calculateCouponDetail', JSON.stringify({ fCode, staffNo, from, to })], [fCode, staffNo, searchTrigger]);
-    const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetail(listQueryKey, fCode, staffNo, from, to);
+    const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetail(fCode, staffNo, queryFromDate, queryToDate);
 
     // Table render Node 필터링, 쿠폰 사용금액 합계 계산
     const [renderTableList, totalInfoRes = {}] = useMemo(() => {
@@ -199,9 +205,8 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
-        setTableTopInfo(prev => ({ ...prev, titleFrom: from, titleTo: to, totalInfo: totalInfoRes }));
-        // eslint-disable-next-line
-    }, [setTableTopInfo, renderTableList, totalInfoRes]);
+        setTableTopInfo(prev => ({ ...prev, titleFrom: queryFromDate, titleTo: queryToDate, totalInfo: totalInfoRes }));
+    }, [setTableTopInfo, renderTableList, totalInfoRes, queryFromDate, queryToDate]);
 
     return (
         <>
@@ -253,10 +258,6 @@ const DEVICE_TYPE_OPTION = {
     [DEVICE_TYPE.KIOSK]: { title: '키오스크', value: '키오스크' },
     [DEVICE_TYPE.APP]: { title: '어플', value: '어플' },
 } as const;
-
-interface SearchCondition extends SearchInfoSelectType {
-    searchTrigger: boolean,
-};
 
 type CouponType = {
     [key: number]: { title: string, value: number }

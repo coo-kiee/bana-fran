@@ -9,8 +9,9 @@ import { queryFn } from 'hooks/useQuery';
 import { BoardListResult, BoardInfo, Category, BoardDetailType, FileType } from 'types/board/boardType';
 
 // 게시판 카테고리 가져오기
-const useCategoryList = (queryKey: string | Array<string>, boardType: BoardInfo['type'], fCode:number, staffNo: number, option: { [key: string]: any } = {}) => {
+const useCategoryList = (boardType: BoardInfo['type'], fCode:number, staffNo: number, option: { [key: string]: any } = {}) => {
 
+    const queryKey = ['boardCategory', JSON.stringify({ boardType, staffNo })];
     const data = {
         ws: "fprocess",
         query: "LX9H2OMNZZ3P6FOYJUOH", // web_bana_franchisee_board_code_list
@@ -39,8 +40,9 @@ type BoardListParams = {
     page_idx: number, // 조회할 페이지
     page_size: number, // 조회할 건수
 };
-const useBoardList = (queryKey: string | Array<string>, params: BoardListParams, option: { [key: string]: any } = {}) => {
+const useBoardList = (params: BoardListParams, option: { [key: string]: any } = {}) => {
 
+    const queryKey = ['boardList', JSON.stringify(params)];
     const data = {
         ws: "fprocess",
         query: "D6MYCRZIGBVCL9AAULSD", // web_fran_s_board_list
@@ -57,8 +59,9 @@ const useBoardList = (queryKey: string | Array<string>, params: BoardListParams,
 };
 
 // 게시판 상세보기
-const useBoard = (queryKey: string | Array<string>, boardId: number, staffNo: number, fCode: number, option: { [key: string]: any } = {}) => {
+const useBoard = (boardId: number, staffNo: number, fCode: number, option: { [key: string]: any } = {}) => {
 
+    const queryKey = ['boardDetail', JSON.stringify({ boardId, staffNo, fCode })];
     const data = {
         ws: "fprocess",
         query: "UMBVZRVADKA13KGG9YBF", // web_fran_s_board_select
@@ -79,8 +82,10 @@ const useBoard = (queryKey: string | Array<string>, boardId: number, staffNo: nu
 };
 
 // 게시판 상세 내용 가져오기
-const useBoardContent = (queryKey: string | Array<string>, url: string) => {
+const useBoardContent = (url: string) => {
     
+    const queryKey = ['boardContent', url];
+
     return useQuery<string>(queryKey, () => queryFn.axiosGet(url), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
@@ -90,8 +95,9 @@ const useBoardContent = (queryKey: string | Array<string>, url: string) => {
 };
 
 // 게시판 상세 파일첨부
-const useBoardAttachList = (queryKey: string | Array<string>, boardId: number, option: { [key: string]: any } = {}) => {
+const useBoardAttachList = (boardId: number, option: { [key: string]: any } = {}) => {
 
+    const queryKey = ['boardFile', boardId.toString()];
     const data = {
         ws: "fprocess",
         query: "HX0FUMTRIQP1THBAON9J", // web_fran_s_board_attach_list

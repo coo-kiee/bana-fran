@@ -68,7 +68,7 @@ interface TableListProps {
 };
 const TableList: FC<TableListProps> = ({ fCode, staffNo, colSpan, caculateType }) => {
 
-    const { data: calculateDetailSumList } = CALCULATE_SERVICE.useCalculateDetailSum(['calculateDetailSum', JSON.stringify({ fCode, staffNo, caculateType })], fCode, staffNo, caculateType);
+    const { data: calculateDetailSumList } = CALCULATE_SERVICE.useCalculateDetailSum(fCode, staffNo, caculateType);
     const totalInfo = (caculateType === CALCULATE_TYPE.ETC) ? { text: '합계', colSpan: 2, supply: 0, vat: 0, total: 0, } : {};
     
     return (

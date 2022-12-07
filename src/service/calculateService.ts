@@ -1,6 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 
-import { useQuery, useQueryClient, UseQueryResult } from 'react-query';
+import { useMutation, useQuery, UseQueryResult } from 'react-query';
 
 // Hook
 import { queryFn } from 'hooks/useQuery';
@@ -9,8 +9,9 @@ import { queryFn } from 'hooks/useQuery';
 import { CalculateCouponDetail, CalculateDetail, CalculateDetailOut, CalculateDetailSum, CalculateEtcDetail, CalculateFixDetail, CalculatePointDetail, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY } from 'types/calculate/calculateType';
 
 // 검색 월
-const useCalculateMonthList = (queryKey: string | Array<string>, f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
+const useCalculateMonthList = (f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
 
+    const queryKey = ['calculateMonthList', JSON.stringify({ f_code, staffNo })];
     const data = {
         ws: "fprocess",
         query: "YQULRZGJLB30OII4CFCJ", // web_fran_s_calculate_month_list
@@ -29,8 +30,9 @@ const useCalculateMonthList = (queryKey: string | Array<string>, f_code: number,
 };
 
 // 정산내역 확인 - 리스트 가져오기
-const useCalculateDetailList = (queryKey: string | Array<string>, f_code: number, staffNo: number, std_month: string, option: { [key: string]: any } = {}) => {
+const useCalculateDetailList = (f_code: number, staffNo: number, std_month: string, option: { [key: string]: any } = {}) => {
 
+    const queryKey = ['caculateDetailList', JSON.stringify({ f_code, staffNo, std_month })];
     const data = {
         ws: "fprocess",
         query: "LHXFJMM3PJSB5YVRUFLS", // web_fran_s_calculate_detail_list
@@ -60,9 +62,7 @@ const useCalculateDetailList = (queryKey: string | Array<string>, f_code: number
 };
 
 // 정산내역 확인 - 정산 확인
-const useCalculateConfirmList = (staffNo: number, calculate_id: number, listQuerykey: string[]) => {
-
-    const queryClient = useQueryClient();
+const useCalculateConfirmList = (staffNo: number, calculate_id: number, listRefetchFn: () => Promise<void>, closePopup: () => void) => {
 
     const data = {
         ws: "fprocess",
@@ -73,24 +73,20 @@ const useCalculateConfirmList = (staffNo: number, calculate_id: number, listQuer
         },
     };
 
-    const confirmList = async () => {
-        try {
-            await queryFn.axiosPost('/query', data);
-            await queryClient.refetchQueries(listQuerykey);
+    return useMutation({
+        mutationFn: () => queryFn.axiosPost('/query', data),
+        onSuccess: async () => {
+            await listRefetchFn();
+            closePopup();
             alert('정산확인을 했습니다.');
-        }
-        catch (error) {
-            // console.log(error);
-            alert('정산확인 요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.')
-        };
-    };
-
-    return () => confirmList();
+        },
+        onError: () => alert('정산확인 요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.'),
+    });
 };
 
 
 // 정산내역 확인 - 수정요청
-const useCalculateRequestFix = (staffNo: number, calculate_id: number, comment: string) => {
+const useCalculateRequestFix = (staffNo: number, calculate_id: number, comment: string, closePopup: () => void) => {
 
     const data = {
         ws: "fprocess",
@@ -102,25 +98,20 @@ const useCalculateRequestFix = (staffNo: number, calculate_id: number, comment: 
         },
     };
 
-    const requestFix = () => {
-        try {
-            queryFn.axiosPost('/query', data);
+    return useMutation({
+        mutationFn: () => queryFn.axiosPost('/query', data),
+        onSuccess: () => {
+            closePopup();
             alert('수정요청을 완료했습니다.');
-            return true;
-        }
-        catch (error) {
-            // console.log(error);
-            alert('수정요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.');
-            return false;
-        };
-    };
-
-    return requestFix;
+        },
+        onError: () => alert('수정요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.'),
+    });
 };
 
 // 정산내역 확인 - 수정요청/변경이력 조회
-const useCalculateFixList = (queryKey: string | Array<string>, nFCode: number, staffNo: number, calculate_id: number, option: { [key: string]: any } = {}) => {
+const useCalculateFixList = (nFCode: number, staffNo: number, calculate_id: number, option: { [key: string]: any } = {}) => {
 
+    const queryKey = ['caculateFixList', JSON.stringify({ nFCode, staffNo, calculate_id })];
     const data = {
         ws: "fprocess",
         query: "BPXPHMQ8I53JRD2FVYGX", // web_bana_fran_calculate_log_list
@@ -140,8 +131,9 @@ const useCalculateFixList = (queryKey: string | Array<string>, nFCode: number, s
 };
 
 // 포인트/쿠폰/클레임/기타 전월 내역 합계
-const useCalculateDetailSum = (queryKey: string | Array<string>, f_code: number, staffNo: number, search_item_type: number, option: { [key: string]: any } = {}) => {
+const useCalculateDetailSum = (f_code: number, staffNo: number, search_item_type: number, option: { [key: string]: any } = {}) => {
 
+    const queryKey = ['calculateDetailSum', JSON.stringify({ f_code, staffNo, search_item_type })];
     const data = {
         ws: "fprocess",
         query: "3ABXWMJURCDQJPLVBJJW", // web_fran_s_calculate_detail_item
@@ -162,15 +154,15 @@ const useCalculateDetailSum = (queryKey: string | Array<string>, f_code: number,
 
 // 유상포인트 결제내역 상세
 type PointDetailParameter = (
-    queryKey: string | Array<string>,
     f_code: number,
     staffNo: number,
     from_date: string,
     to_date: string,
     option?: { [key: string]: any },
 ) => UseQueryResult<CalculatePointDetail[], unknown>;
-const useCalculatePointDetail: PointDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
+const useCalculatePointDetail: PointDetailParameter = (f_code, staffNo, from_date, to_date, option = {}) => {
 
+    const queryKey = ['calculatePointDetail', JSON.stringify({ f_code, staffNo, from_date, to_date })];
     const data = {
         ws: "fprocess",
         query: "6HURAKO83BCYD8ZXBORH", // web_fran_s_calculate_paid_point_list
@@ -191,7 +183,9 @@ const useCalculatePointDetail: PointDetailParameter = (queryKey, f_code, staffNo
 };
 
 // 본사 쿠폰 결제내역 상세 - 쿠폰 리스트
-const useCalculateCouponType = (queryKey: string | Array<string>, f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
+const useCalculateCouponType = (f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
+
+    const queryKey = ['couponList', JSON.stringify({ f_code, staffNo })];
     const data = {
         ws: "fprocess",
         query: "1ERHH8TI5ER8Z2SNLA5K", // web_fran_s_calculate_hq_coupon_code
@@ -211,15 +205,15 @@ const useCalculateCouponType = (queryKey: string | Array<string>, f_code: number
 
 // 본사 쿠폰 결제내역 상세
 type CouponDetailParameter = (
-    queryKey: string | Array<string>,
     f_code: number,
     staffNo: number,
     from_date: string,
     to_date: string,
     option?: { [key: string]: any },
 ) => UseQueryResult<CalculateCouponDetail[], unknown>;
-const useCalculateCouponDetail: CouponDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
+const useCalculateCouponDetail: CouponDetailParameter = (f_code, staffNo, from_date, to_date, option = {}) => {
 
+    const queryKey = ['calculateCouponDetail', JSON.stringify({ f_code, staffNo, from_date, to_date })];
     const data = {
         ws: "fprocess",
         query: "NQSZNEAMQLUNQXDTAD70", // web_fran_s_calculate_hq_coupon_list
@@ -271,15 +265,15 @@ const useCalculateClaimDetail: ClaimDetailParameter = (queryKey, f_code, staffNo
 
 // 기타 정산 내역 상세
 type EtcDetailParameter = (
-    queryKey: string | Array<string>,
     f_code: number,
     staffNo: number,
     from_date: string,
     to_date: string,
     option?: { [key: string]: any },
 ) => UseQueryResult<CalculateEtcDetail[], unknown>;
-const useCalculateEtcDetail: EtcDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
+const useCalculateEtcDetail: EtcDetailParameter = (f_code, staffNo, from_date, to_date, option = {}) => {
 
+    const queryKey = ['calculateEtcDetail', JSON.stringify({ f_code, staffNo, from_date, to_date })];
     const data = {
         ws: "fprocess",
         query: "SBGCJDVEODLVS2XGQX1D", // web_fran_s_calculate_etc_list

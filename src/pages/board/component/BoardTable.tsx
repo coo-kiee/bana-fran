@@ -63,7 +63,7 @@ const TableList: FC<TableListProps> = ({ menuType, listSearchParameter, setDataC
     const { search_category, search_text, board_type } = listSearchParameter;
     const params = { ...listSearchParameter, search_category: search_category[board_type], search_text: search_text[board_type] };
 
-    const { data: boardList } = BOARD_SERVICE.useBoardList(['boardList', JSON.stringify(params)], params);
+    const { data: boardList } = BOARD_SERVICE.useBoardList(params);
     const { list, out: pageInfo } = boardList || {};
     const totalCnt = pageInfo?.total_cnt || 0;
 

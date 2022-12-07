@@ -1,6 +1,4 @@
-import { FC, Suspense, useEffect, useRef, useState } from "react";
-
-import { useQueryClient } from "react-query";
+import { FC, Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 // Type
 import { CalculateDetail, CalculateDetailOut, CalculateStatusType, CALCULATE_STATUS, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY } from "types/calculate/calculateType";
@@ -29,12 +27,14 @@ interface CalculateListTableProps {
         staff_no: number
     },
     outPut: Output,
-    handlePopup: (key: string, value: boolean, listQueryKey?: string[]) => void,
+    handlePopup: (key: string, value: boolean) => void,
     setOutput: React.Dispatch<React.SetStateAction<Output>>,
-    setIsPDF: React.Dispatch<React.SetStateAction<boolean>>,
+    listRefetchFn?: () => Promise<void>
+    setListRefetchFn?: React.Dispatch<React.SetStateAction<() => Promise<void>>>
     isPDF?: boolean,
+    setIsPDF: React.Dispatch<React.SetStateAction<boolean>>,
 };
-const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, handlePopup, setOutput, isPDF, setIsPDF }) => {
+const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, handlePopup, setOutput, isPDF, setIsPDF, listRefetchFn, setListRefetchFn }) => {
     // 사용자 정보
     const { f_code, staff_no, f_code_name } = userInfo;
     // Output
@@ -43,7 +43,6 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
     // 정산 데이터
     const stdMonth = (Utils.converDateFormat(subMonths(new Date(), 1), '-') as string).substring(0, 7);
     const [searchDate, setSearchDate] = useState(stdMonth);
-    const listQueryKey = ['caculateDetailList', JSON.stringify({ f_code, staff_no, searchDate })];
 
     // Table
     const tableRef = useRef<null | HTMLTableElement>(null);
@@ -76,14 +75,14 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
     return (
         <div ref={pdfRef}>
             {isPDF && <div style={{ textAlign: 'center', fontSize: '30px', marginBottom: '30px' }}><span style={{ fontWeight: 'bold', color: '#f1658a' }}>{searchDate.replace('-', '년 ')}월</span> {f_code_name} 정산내역 확인</div>}
-            {!isPDF && <TableTop listQueryKey={listQueryKey} calculateStatus={calculateStatus} fCode={f_code} staffNo={staff_no} searchDate={searchDate} handlePopup={handlePopup} setSearchDate={setSearchDate} />}
+            {!isPDF && <TableTop listRefetchFn={listRefetchFn} calculateStatus={calculateStatus} fCode={f_code} staffNo={staff_no} searchDate={searchDate} handlePopup={handlePopup} setSearchDate={setSearchDate} />}
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <CalculateTableHeader width={width} thInfo={thInfo} />
                 <tbody>
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => setOutput(prev => ({ ...prev, calculateStatus: -1, sumAll: undefined }))}>
                         <Suspense fallback={<Loading height={80} width={80} marginTop={-68} isTable={true} />}>
-                            <TableList listQueryKey={listQueryKey} fCode={f_code} staffNo={staff_no} searchDate={searchDate} setOutput={setOutput} />
+                            <TableList fCode={f_code} staffNo={staff_no} searchDate={searchDate} setOutput={setOutput} setListRefetchFn={setListRefetchFn} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
@@ -99,21 +98,19 @@ export default CalculateListTable;
 
 
 interface TableTopProps {
-    listQueryKey: string[],
+    listRefetchFn: (() => Promise<void>) | undefined,
     calculateStatus: CalculateStatusType,
     fCode: number,
     staffNo: number,
     searchDate: string,
-    handlePopup: (key: string, value: boolean, listQueryKey?: string[]) => void,
+    handlePopup: (key: string, value: boolean) => void,
     setSearchDate: React.Dispatch<React.SetStateAction<string>>,
 };
-const TableTop: FC<TableTopProps> = ({ listQueryKey, calculateStatus, fCode, staffNo, searchDate, handlePopup, setSearchDate }) => {
+const TableTop: FC<TableTopProps> = ({ listRefetchFn, calculateStatus, fCode, staffNo, searchDate, handlePopup, setSearchDate }) => {
 
     const isError = calculateStatus === CALCULATE_STATUS.ERROR;
     const isInactive = !calculateStatus || calculateStatus === CALCULATE_STATUS.CONFIRM || isError;
-    const { data: monthList } = CALCULATE_SERVICE.useCalculateMonthList(['calculateMonthList', JSON.stringify({ fCode, staffNo })], fCode, staffNo);
-
-    const queryClient = useQueryClient();
+    const { data: monthList } = CALCULATE_SERVICE.useCalculateMonthList(fCode, staffNo);
 
     return (
         <>
@@ -125,11 +122,11 @@ const TableTop: FC<TableTopProps> = ({ listQueryKey, calculateStatus, fCode, sta
                                 {monthList?.map((item, index) => <option key={index} value={item.std_month}>{item.std_month}</option>)}
                                 {monthList?.length === 0 && <option value={searchDate}>{searchDate}</option>}
                             </select>
-                            <button className="goast-btn" onClick={() => queryClient.refetchQueries(listQueryKey)}>선택</button>
+                            <button className="goast-btn" onClick={() => listRefetchFn && listRefetchFn()}>선택</button>
                         </div>
                     </div>
                     <div className="btn-wrap">
-                        <button className={`btn-check ${isInactive ? 'inactive' : ''}`} onClick={isInactive ? undefined : () => handlePopup('calculateConfirm', true, listQueryKey)} >정산확인</button>
+                        <button className={`btn-check ${isInactive ? 'inactive' : ''}`} onClick={isInactive ? undefined : () => handlePopup('calculateConfirm', true)} >정산확인</button>
                         <button className={`btn-modify-request modify-view ${isInactive ? 'inactive' : ''}`} onClick={isInactive ? undefined : () => handlePopup('requestModify', true)} >수정요청</button>
                         <button className={`btn-modify-history history-view ${isError ? 'inactive' : ''}`} onClick={isError ? undefined : () => handlePopup('changeHistory', true)} >수정요청/변경이력</button>
                     </div>
@@ -143,24 +140,32 @@ const TableTop: FC<TableTopProps> = ({ listQueryKey, calculateStatus, fCode, sta
 };
 
 interface TableListProps {
-    listQueryKey: string[],
     fCode: number,
     staffNo: number,
     searchDate: string,
     setOutput: React.Dispatch<React.SetStateAction<Output>>,
+    setListRefetchFn: React.Dispatch<React.SetStateAction<() => Promise<void>>> | undefined
 };
-const TableList: FC<TableListProps> = ({ listQueryKey, fCode, staffNo, searchDate, setOutput }) => {
+const TableList: FC<TableListProps> = ({fCode, staffNo, searchDate, setOutput, setListRefetchFn }) => {
 
-    const { data } = CALCULATE_SERVICE.useCalculateDetailList(listQueryKey, fCode, staffNo, searchDate);
+    const { data:calculateDetailList, refetch:listRefetchFn } = CALCULATE_SERVICE.useCalculateDetailList(fCode, staffNo, searchDate);
 
-    const caculateList = data?.list as CalculateDetail[];
-    const { calculate_status, calculate_id, error_msg } = data?.out as CalculateDetailOut || {};
-    const sumAll = data?.sumAll as number;
+    const caculateList = calculateDetailList?.list as CalculateDetail[];
+    const { calculate_status, calculate_id, error_msg } = calculateDetailList?.out as CalculateDetailOut || {};
+    const sumAll = calculateDetailList?.sumAll as number;
 
     useEffect(() => {
         if (calculate_id && calculate_status && sumAll) setOutput(prev => ({ ...prev, sumAll, calculateStatus: calculate_status, calculateId: calculate_id }));
         else setOutput(prev => ({ ...prev, sumAll: 0, calculateStatus: CALCULATE_STATUS.ERROR, calculateId: 0 }));
     }, [sumAll, calculate_status, calculate_id, setOutput]);
+
+    // 정산내역 데이터 다시 불러오기
+    const handleListRefetch = useCallback(async () => {
+        await listRefetchFn();
+    }, [listRefetchFn]);
+    useEffect(() => {
+        if(setListRefetchFn) setListRefetchFn(prev => handleListRefetch);
+    },[setListRefetchFn, handleListRefetch]);
 
     return (
         <>

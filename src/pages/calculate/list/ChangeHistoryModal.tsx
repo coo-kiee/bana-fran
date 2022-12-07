@@ -67,7 +67,7 @@ interface TableListProps {
 };
 const TableList: FC<TableListProps> = ({ fCode, staffNo, calculateId, setDataCnt }) => {
 
-    const { data: fixList } = CALCULATE_SERVICE.useCalculateFixList(['caculateFixList', JSON.stringify({ fCode, staffNo, calculateId })], fCode, staffNo, calculateId);
+    const { data: fixList } = CALCULATE_SERVICE.useCalculateFixList(fCode, staffNo, calculateId);
 
     // 리스트 개수에 따라 팝업 Padding Style 조정
     useEffect(() => {

@@ -21,7 +21,7 @@ const ChangeHistoryModal = loadable(() => import('pages/calculate/list/ChangeHis
 const CalculateList: FC = () => {
 
     const caculateType = CALCULATE_TYPE.LIST;
-    
+
     // 사용자 정보
     const { userInfo } = useRecoilValue(loginState);
     const f_code = useRecoilValue(franState);
@@ -29,14 +29,17 @@ const CalculateList: FC = () => {
     const staff_no = userInfo?.staff_no || 0;
 
     // 수정요청, 수정요청/변경이력 팝업
-    const [popupInfo, setPopupInfo] = useState<PopupInfo>({ calculateConfirm: false, requestModify: false, changeHistory: false, listQueryKey: undefined });
-    const {calculateConfirm, requestModify, changeHistory, listQueryKey} = popupInfo;
-    const handlePopup = (key: string, value: boolean, listQueryKey?: string[]) => {
-        setPopupInfo(prev => ({ ...prev, [key]: value, listQueryKey }));
+    const [popupInfo, setPopupInfo] = useState<PopupInfo>({ calculateConfirm: false, requestModify: false, changeHistory: false });
+    const { calculateConfirm, requestModify, changeHistory } = popupInfo;
+    const handlePopup = (key: string, value: boolean) => {
+        setPopupInfo(prev => ({ ...prev, [key]: value }));
     };
 
     // list 조회 후 outPut 데이터
     const [outPut, setOutput] = useState<Output>({ sumAll: undefined, calculateStatus: -1, calculateId: 0 });
+
+    // listRefetchFn
+    const [listRefetchFn, setListRefetchFn] = useState<() => Promise<void>>(async () => undefined);
 
     // PDF 다운로드
     const [isPDF, setIsPDF] = useState(false);
@@ -48,15 +51,15 @@ const CalculateList: FC = () => {
                 <section className="contents-wrap calculate-wrap">
                     <div className="contents">
                         <CalculatePrecautions caculateType={caculateType} />
-                        {isPDF && <div style={{ position: 'absolute', zIndex: 100, width: '100%', height: '100%', display: 'flex', paddingTop:'300px' }}><Loading /></div>}
-                        <CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} setIsPDF={setIsPDF} />
-                        {isPDF && <div style={{ opacity: 0, width:'2270px' }}><CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} isPDF={true} setIsPDF={setIsPDF} /></div>}
+                        {isPDF && <div style={{ position: 'absolute', zIndex: 100, width: '100%', height: '100%', display: 'flex', paddingTop: '300px' }}><Loading /></div>}
+                        <CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} setIsPDF={setIsPDF} listRefetchFn={listRefetchFn} setListRefetchFn={setListRefetchFn} />
+                        {isPDF && <div style={{ opacity: 0, width: '2270px' }}><CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} isPDF={true} setIsPDF={setIsPDF}/></div>}
                     </div>
                 </section>
             </section>
-            { calculateConfirm && <CalculateConfirmModal staffNo={staff_no} calculateId={outPut.calculateId} handlePopup={handlePopup} listQueryKey={listQueryKey} />}
-            { requestModify && <RequestModifyModal staffNo={staff_no} calculateId={outPut.calculateId} handlePopup={handlePopup} />}
-            { changeHistory && <ChangeHistoryModal staffNo={staff_no} fCode={f_code} calculateId={outPut.calculateId}  handlePopup={handlePopup} />}
+            {calculateConfirm && <CalculateConfirmModal staffNo={staff_no} calculateId={outPut.calculateId} handlePopup={handlePopup} listRefetchFn={listRefetchFn} />}
+            {requestModify && <RequestModifyModal staffNo={staff_no} calculateId={outPut.calculateId} handlePopup={handlePopup} />}
+            {changeHistory && <ChangeHistoryModal staffNo={staff_no} fCode={f_code} calculateId={outPut.calculateId} handlePopup={handlePopup} />}
         </>
     );
 }
@@ -76,5 +79,4 @@ type PopupInfo = {
     calculateConfirm: boolean,
     requestModify: boolean,
     changeHistory: boolean,
-    listQueryKey: string[] | undefined
 };
