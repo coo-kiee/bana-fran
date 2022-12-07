@@ -8,6 +8,9 @@ import { CalculateStatusType, CALCULATE_TYPE } from "types/calculate/calculateTy
 import { useRecoilValue } from "recoil";
 import { franState, loginState } from "state";
 
+// Date
+import { format, subMonths } from "date-fns";
+
 // Component
 import CalculateHeader from "pages/calculate/component/CalculateHeader";
 import CalculateListTable from "./CalculateListTable";
@@ -35,6 +38,10 @@ const CalculateList: FC = () => {
         setPopupInfo(prev => ({ ...prev, [key]: value }));
     };
 
+    // list 조회 월
+    const stdMonth = format(subMonths(new Date(), 1), 'yyyy-MM');
+    const [searchDate, setSearchDate] = useState(stdMonth);
+    
     // list 조회 후 outPut 데이터
     const [outPut, setOutput] = useState<Output>({ sumAll: undefined, calculateStatus: -1, calculateId: 0 });
 
@@ -52,8 +59,8 @@ const CalculateList: FC = () => {
                     <div className="contents">
                         <CalculatePrecautions caculateType={caculateType} />
                         {isPDF && <div style={{ position: 'absolute', zIndex: 100, width: '100%', height: '100%', display: 'flex', paddingTop: '300px' }}><Loading /></div>}
-                        <CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} setIsPDF={setIsPDF} listRefetchFn={listRefetchFn} setListRefetchFn={setListRefetchFn} />
-                        {isPDF && <div style={{ opacity: 0, width: '2270px' }}><CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} isPDF={true} setIsPDF={setIsPDF}/></div>}
+                        <CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} searchDate={searchDate} setSearchDate={setSearchDate} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} setIsPDF={setIsPDF} listRefetchFn={listRefetchFn} setListRefetchFn={setListRefetchFn} />
+                        {isPDF && <div style={{ opacity: 0, width: '2270px' }}><CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} searchDate={searchDate} setSearchDate={setSearchDate} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} isPDF={true} setIsPDF={setIsPDF}/></div>}
                     </div>
                 </section>
             </section>

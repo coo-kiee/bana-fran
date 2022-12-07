@@ -1,4 +1,4 @@
-import { FC, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { FC, Suspense, useCallback, useEffect, useRef } from "react";
 
 // Type
 import { CalculateDetail, CalculateDetailOut, CalculateStatusType, CALCULATE_STATUS, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY } from "types/calculate/calculateType";
@@ -9,9 +9,6 @@ import CALCULATE_SERVICE from 'service/calculateService';
 
 // Utils
 import Utils from "utils/Utils";
-
-// Date
-import { subMonths } from "date-fns";
 
 // Component
 import { ErrorBoundary } from "react-error-boundary";
@@ -26,6 +23,8 @@ interface CalculateListTableProps {
         f_code_name: string,
         staff_no: number
     },
+    searchDate: string,
+    setSearchDate: React.Dispatch<React.SetStateAction<string>>,
     outPut: Output,
     handlePopup: (key: string, value: boolean) => void,
     setOutput: React.Dispatch<React.SetStateAction<Output>>,
@@ -34,15 +33,13 @@ interface CalculateListTableProps {
     isPDF?: boolean,
     setIsPDF: React.Dispatch<React.SetStateAction<boolean>>,
 };
-const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, handlePopup, setOutput, isPDF, setIsPDF, listRefetchFn, setListRefetchFn }) => {
+const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, searchDate, setSearchDate, handlePopup, setOutput, isPDF, setIsPDF, listRefetchFn, setListRefetchFn }) => {
+    
     // 사용자 정보
     const { f_code, staff_no, f_code_name } = userInfo;
+
     // Output
     const { sumAll, calculateStatus } = outPut;
-
-    // 정산 데이터
-    const stdMonth = (Utils.converDateFormat(subMonths(new Date(), 1), '-') as string).substring(0, 7);
-    const [searchDate, setSearchDate] = useState(stdMonth);
 
     // Table
     const tableRef = useRef<null | HTMLTableElement>(null);
@@ -69,8 +66,7 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, han
                 document.body.style.overflowY = prevScroll; // 스크롤 상태 원상복귀
             };
         }
-        // eslint-disable-next-line
-    }, []);
+    }, [f_code_name, searchDate, isPDF, setIsPDF]);
 
     return (
         <div ref={pdfRef}>
