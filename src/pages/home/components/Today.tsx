@@ -21,7 +21,7 @@ const Today = () => {
 	let { delivery_charge, card_charge, cash_charge, paid_point, hd_coupon_charge, etc_delivery_charge, fran_coupon_charge, bana_point } = data[0];
 	
 	const freeService = useMemo(() => {return data[0].fran_coupon_charge + data[0].bana_point}, [data]); // 무상서비스
-	const paidSales = useMemo(() => {return data[0].card_charge + data[0].cash_charge + data[0].paid_point + data[0].hd_coupon_charge}, [data]); // 유상 매출
+	const paidSales = useMemo(() => {return data[0].card_charge + data[0].cash_charge + data[0].paid_point + data[0].hd_coupon_charge + data[0].etc_delivery_charge}, [data]); // 유상 매출
 	const totalSales = useMemo(() => {return freeService + paidSales}, [freeService, paidSales]);	// 총 매출
 	
 	return (
