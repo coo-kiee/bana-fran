@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useRecoilValue } from 'recoil';
 
-// global states
+// global state
 import { franState } from 'state';
 // API
 import HOME_SERVICE from 'service/homeService';

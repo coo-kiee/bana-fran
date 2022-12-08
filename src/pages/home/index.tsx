@@ -1,18 +1,17 @@
-import { lazy } from 'react';
 import { useRecoilValue } from 'recoil';
 
 // global state
 import { franState, loginState } from 'state';
 
-// lazy components
-const Notice = lazy(() => import('./components/Notice'));
-const Archive = lazy(() => import('./components/Archive'));
-const Membership = lazy(() => import('./components/Membership'));
-const TodaySales = lazy(() => import('./components/Today'));
-const WeeklySales = lazy(() => import('./components/WeeklySales'));
-const MonthlySales = lazy(() => import('./components/MonthlySales'));
-const MonthlyOrder = lazy(() => import('./components/MonthlyOrder'));
-const CalculateList = lazy(() => import('./components/CalculateList'));
+// Components
+import Archive from 'pages/home/components/Archive';
+import CalculateList from 'pages/home/components/CalculateList';
+import Membership from 'pages/home/components/Membership';
+import MonthlyOrder from 'pages/home/components/MonthlyOrder';
+import MonthlySales from 'pages/home/components/MonthlySales';
+import Notice from 'pages/home/components/Notice';
+import Today from 'pages/home/components/Today';
+import WeeklySales from 'pages/home/components/WeeklySales';
 
 const HomeContainer: React.FC = () => {
 	const fCode = useRecoilValue(franState);
@@ -38,7 +37,7 @@ const HomeContainer: React.FC = () => {
 					<Membership />
 				</div>
 				<div className='board-wrap'>
-					<TodaySales />
+					<Today />
 				</div>
 				<div className='board-wrap'>
 					<WeeklySales />

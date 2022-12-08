@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { format, isBefore, subDays, subMonths } from "date-fns";
 
-// global states
+// global state
 import { franState, loginState } from "state";
 
 // API
@@ -20,7 +20,7 @@ import SalesStatisticTable from "pages/sales/statistic/table";
 import NoData from 'pages/common/noData';
 
 const SalesStatistic = () => {
-	// global states
+	// global state
 	const { userInfo } = useRecoilValue(loginState);
 	const fCode = useRecoilValue(franState);
 	const selectedFran = userInfo?.f_list.filter((info: any) => { return (info.f_code === fCode) });

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
+// global state
 import { franState } from "state";
 
 // API
@@ -11,7 +12,7 @@ import { SalesHistoryProps, HISTORY_ORDER_TYPE, HISTORY_ORDER_STATE, HISTORY_RCP
 import TableBody from "./table/TableBody";
 
 const SalesHistory = ({ queryKey, historySearch, isCancelShow, isExcludeCouBae, historyData, setHistoryData, currentPage, rowPerPage}: SalesHistoryProps) => {
-	// global states
+	// global state
 	const fCode = useRecoilValue(franState); // franCode
 	// query
 	const { data, isSuccess } = SALES_SERVICE.useSalesOrderList({ from_date: historySearch.from, to_date: historySearch.to, f_code: fCode }, queryKey);
