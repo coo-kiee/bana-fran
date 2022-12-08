@@ -17,7 +17,7 @@ import Utils from "utils/Utils";
 import BoardTab from "./component/BoardTab";
 import BoardSearchCondition from "./component/BoardSearchCondition";
 import BoardTable from "./component/BoardTable";
-import BoardHeader from "./component/BoardHeader";
+import BoardSection from "./component/BoardSection";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 const Loading = loadable(() => import('pages/common/loading'));
@@ -28,9 +28,9 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
     const { bType, bId } = useParams();
     const boardType = Number(bType) as BoardInfo['type'];
     // 숫자이고, 현재 게시판 탭 그룹에 속해 있을때
-    const isBoardGroupType =  Utils.isNumber(bType) && Object.values(BOARD_GROUP[menuType]).filter((boardInfo) => boardInfo.type === boardType).length > 0;
-    const isBoardId = Utils.isNumber(bId) &&  Number(bId) > 0;
-    
+    const isBoardGroupType = Utils.isNumber(bType) && Object.values(BOARD_GROUP[menuType]).filter((boardInfo) => boardInfo.type === boardType).length > 0;
+    const isBoardId = Utils.isNumber(bId) && Number(bId) > 0;
+
     // Redirect
     const navigation = useNavigate();
     useEffect(() => {
@@ -67,7 +67,7 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
         arr[1][cur.type] = '';
         return arr;
     }, [{}, {}] as [ListSearchParameter['search_category'], ListSearchParameter['search_text']]);
-    
+
     // 리스트 조회에 필요한 파라미터
     const [listSearchParameter, setListSearchParameter] = useState<ListSearchParameter>({
         f_code: fCode,
@@ -80,7 +80,7 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
     });
 
     const { board_type, search_category, search_text, staff_no, f_code } = listSearchParameter;
-    
+
     // 상세보기 정보 - 현재 메뉴 boardType들의 boardId + isDetail
     const initialDetail: DetailInfo = Object.values(BOARD_GROUP[menuType]).reduce((detailObj, boardInfo: BoardInfo) => {
         const res = { ...detailObj, [boardInfo.type]: 0 };
@@ -93,31 +93,26 @@ const BoardContainer: FC<{ menuType: MenuType }> = ({ menuType = MENU_TYPE.BOARD
         <>
             {
                 (isBoardGroupType || bType === undefined) && (isBoardId || bId === undefined) &&
-                <section className="container">
-                    <BoardHeader menuType={menuType} />
-                    <section className={`contents-wrap ${isDetail ? `notice-view-wrap` : 'notice-wrap'}`}>
-                        <div className="contents">
-                            <BoardTab menuType={menuType} boardType={board_type} detailInfo={detailInfo} />
-                            <div id="tab1" className="tab-content active">
-                                {
-                                    isDetail ?
-                                        // 게시판 상세
-                                        <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('detailError', e)}>
-                                            <Suspense fallback={<Loading marginTop={300} />}>
-                                                <BoardDetail menuType={menuType} boardId={boardId} staffNo={staff_no} fCode={f_code} setDetailInfo={setDetailInfo} />
-                                            </Suspense>
-                                        </ErrorBoundary>
-                                        :
-                                        // 게시판 리스트
-                                        <>
-                                            <BoardSearchCondition boardType={board_type} staffNo={staff_no} fCode={f_code} searchCategory={search_category} searchText={search_text} setListSearchParameter={setListSearchParameter} />
-                                            <BoardTable menuType={menuType} listSearchParameter={listSearchParameter} setListSearchParameter={setListSearchParameter} />
-                                        </>
-                                }
-                            </div>
-                        </div>
-                    </section>
-                </section>
+                <BoardSection menuType={menuType} isDetail={isDetail} >
+                    <BoardTab menuType={menuType} boardType={board_type} detailInfo={detailInfo} />
+                    <div id="tab1" className="tab-content active">
+                        {
+                            isDetail ?
+                                // 게시판 상세
+                                <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('detailError', e)}>
+                                    <Suspense fallback={<Loading marginTop={300} />}>
+                                        <BoardDetail menuType={menuType} boardId={boardId} staffNo={staff_no} fCode={f_code} setDetailInfo={setDetailInfo} />
+                                    </Suspense>
+                                </ErrorBoundary>
+                                :
+                                // 게시판 리스트
+                                <>
+                                    <BoardSearchCondition boardType={board_type} staffNo={staff_no} fCode={f_code} searchCategory={search_category} searchText={search_text} setListSearchParameter={setListSearchParameter} />
+                                    <BoardTable menuType={menuType} listSearchParameter={listSearchParameter} setListSearchParameter={setListSearchParameter} />
+                                </>
+                        }
+                    </div>
+                </BoardSection>
             }
         </>
     );

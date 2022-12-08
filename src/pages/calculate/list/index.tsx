@@ -1,8 +1,8 @@
 import loadable from "@loadable/component";
-import { FC, useState } from "react";
+import { FC, useRef, useState } from "react";
 
 // Type
-import { CalculateStatusType, CALCULATE_TYPE } from "types/calculate/calculateType";
+import { CalculateLastMonthOutput, CalculateLastMonthTotalQueryResult, CALCULATE_TYPE } from "types/calculate/calculateType";
 
 // State
 import { useRecoilValue } from "recoil";
@@ -12,14 +12,16 @@ import { franState, loginState } from "state";
 import { format, subMonths } from "date-fns";
 
 // Component
-import CalculateHeader from "pages/calculate/component/CalculateHeader";
+import CalculateSection from "pages/calculate/component/CalculateSection";
 import CalculateListTable from "./CalculateListTable";
 import CalculatePrecautions from "../component/CalculatePrecautions";
-import Loading from "pages/common/loading";
+import PDFCalculateListTable from "./PDFCalculateListTable";
+import CalculateListTableTop from "./CalculateListTableTop";
+import CalculateListTableBotton from "./CalculateListTableBotton";
 
-const CalculateConfirmModal = loadable(() => import('pages/calculate/list/CalculateConfirmModal'));
-const RequestModifyModal = loadable(() => import('pages/calculate/list/RequestModifyModal'));
-const ChangeHistoryModal = loadable(() => import('pages/calculate/list/ChangeHistoryModal'));
+const CalculateConfirmModal = loadable(() => import('pages/calculate/list/modal/CalculateConfirmModal'));
+const RequestModifyModal = loadable(() => import('pages/calculate/list/modal/RequestModifyModal'));
+const ChangeHistoryModal = loadable(() => import('pages/calculate/list/modal/ChangeHistoryModal'));
 
 const CalculateList: FC = () => {
 
@@ -41,9 +43,14 @@ const CalculateList: FC = () => {
     // list 조회 월
     const stdMonth = format(subMonths(new Date(), 1), 'yyyy-MM');
     const [searchDate, setSearchDate] = useState(stdMonth);
-    
+
     // list 조회 후 outPut 데이터
-    const [outPut, setOutput] = useState<Output>({ sumAll: undefined, calculateStatus: -1, calculateId: 0 });
+    const [outPut, setOutput] = useState<Pick<CalculateLastMonthTotalQueryResult, 'sumAll'> & Omit<CalculateLastMonthOutput, 'error_msg'>>({
+        sumAll: 0,
+        calculate_status: -1,
+        calculate_id: 0,
+    });
+    const { calculate_id, calculate_status, sumAll } = outPut;
 
     // listRefetchFn
     const [listRefetchFn, setListRefetchFn] = useState<() => Promise<void>>(async () => undefined);
@@ -51,22 +58,21 @@ const CalculateList: FC = () => {
     // PDF 다운로드
     const [isPDF, setIsPDF] = useState(false);
 
+    // Table
+    const tableRef = useRef<null | HTMLTableElement>(null);
+
     return (
         <>
-            <section className="container">
-                <CalculateHeader caculateType={caculateType} />
-                <section className="contents-wrap calculate-wrap">
-                    <div className="contents">
-                        <CalculatePrecautions caculateType={caculateType} />
-                        {isPDF && <div style={{ position: 'absolute', zIndex: 100, width: '100%', height: '100%', display: 'flex', paddingTop: '300px' }}><Loading /></div>}
-                        <CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} searchDate={searchDate} setSearchDate={setSearchDate} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} setIsPDF={setIsPDF} listRefetchFn={listRefetchFn} setListRefetchFn={setListRefetchFn} />
-                        {isPDF && <div style={{ opacity: 0, width: '2270px' }}><CalculateListTable userInfo={{ f_code, f_code_name, staff_no }} searchDate={searchDate} setSearchDate={setSearchDate} outPut={outPut} setOutput={setOutput} handlePopup={handlePopup} isPDF={true} setIsPDF={setIsPDF}/></div>}
-                    </div>
-                </section>
-            </section>
-            {calculateConfirm && <CalculateConfirmModal staffNo={staff_no} calculateId={outPut.calculateId} handlePopup={handlePopup} listRefetchFn={listRefetchFn} />}
-            {requestModify && <RequestModifyModal staffNo={staff_no} calculateId={outPut.calculateId} handlePopup={handlePopup} />}
-            {changeHistory && <ChangeHistoryModal staffNo={staff_no} fCode={f_code} calculateId={outPut.calculateId} handlePopup={handlePopup} />}
+            <CalculateSection caculateType={caculateType} >
+                <CalculatePrecautions caculateType={caculateType} />
+                <CalculateListTableTop listRefetchFn={listRefetchFn} calculateStatus={calculate_status} fCode={f_code} staffNo={staff_no} searchDate={searchDate} handlePopup={handlePopup} setSearchDate={setSearchDate} />
+                <CalculateListTable tableRef={tableRef} userInfo={{ f_code, f_code_name, staff_no }} searchDate={searchDate} setOutput={setOutput} setListRefetchFn={setListRefetchFn} />
+                <CalculateListTableBotton calculateStatus={calculate_status} sumAll={sumAll} tableRef={tableRef} searchDate={searchDate} fCodeName={f_code_name} setIsPDF={setIsPDF} />
+                {isPDF && <PDFCalculateListTable userInfo={{ f_code, f_code_name, staff_no }} searchDate={searchDate} outPut={outPut} isPDF={true} setIsPDF={setIsPDF} />}
+            </CalculateSection>
+            {calculateConfirm && <CalculateConfirmModal staffNo={staff_no} calculateId={calculate_id} handlePopup={handlePopup} listRefetchFn={listRefetchFn} />}
+            {requestModify && <RequestModifyModal staffNo={staff_no} calculateId={calculate_id} handlePopup={handlePopup} />}
+            {changeHistory && <ChangeHistoryModal staffNo={staff_no} fCode={f_code} calculateId={calculate_id} handlePopup={handlePopup} />}
         </>
     );
 }
@@ -76,12 +82,6 @@ export default CalculateList;
 
 
 // Component Type
-export type Output = {
-    sumAll: number | undefined;
-    calculateStatus: CalculateStatusType;
-    calculateId: number;
-};
-
 type PopupInfo = {
     calculateConfirm: boolean,
     requestModify: boolean,

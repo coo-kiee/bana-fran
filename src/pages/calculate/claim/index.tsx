@@ -10,7 +10,7 @@ import { franState, loginState } from "state";
 import { useRecoilValue } from "recoil";
 
 // Component
-import CalculateHeader from "pages/calculate/component/CalculateHeader";
+import CalculateSection from "pages/calculate/component/CalculateSection";
 import CalculatePrecautions from "pages/calculate/component/CalculatePrecautions";
 import CalculateClaimDetailTable from "./CalculateClaimDetailTable";
 import CalculateLastMonthTable from "pages/calculate/component/CalculateLastMonthTable";
@@ -33,27 +33,20 @@ const CalculateClaim: FC = () => {
         arr[cur] = { fromDate, toDate };
         return arr
     }, {} as TabSearchDateInfo);
-    
+
     const [tabSearchDateInfo, setTabSearchDateInfo] = useState<TabSearchDateInfo>(initialSearchDate);
 
     return (
-        <>
-            <section className="container">
-                <CalculateHeader caculateType={caculateType} />
-                <section className="contents-wrap claim-wrap">
-                    <div className="contents">
-                        <CalculatePrecautions caculateType={caculateType} />
-                        <div className="board-date-wrap">
-                            <CalculateLastMonthTable userInfo={{ f_code, f_code_name, staff_no }} caculateType={caculateType} />
-                            <div id="tab1" className="tab-content active">
-                                <CalculateClaimTab tabType={tabType} setTabType={setTabType}/>
-                                <CalculateClaimDetailTable tabType={tabType} userInfo={{ f_code, f_code_name, staff_no }} tabSearchDateInfo={tabSearchDateInfo} setTabSearchDateInfo={setTabSearchDateInfo} />
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </section>
-        </>
+        <CalculateSection caculateType={caculateType} >
+            <CalculatePrecautions caculateType={caculateType} />
+            <div className="board-date-wrap">
+                <CalculateLastMonthTable userInfo={{ f_code, f_code_name, staff_no }} caculateType={caculateType} />
+                <div id="tab1" className="tab-content active">
+                    <CalculateClaimTab tabType={tabType} setTabType={setTabType} />
+                    <CalculateClaimDetailTable tabType={tabType} userInfo={{ f_code, f_code_name, staff_no }} tabSearchDateInfo={tabSearchDateInfo} setTabSearchDateInfo={setTabSearchDateInfo} />
+                </div>
+            </div>
+        </CalculateSection>
     );
 }
 

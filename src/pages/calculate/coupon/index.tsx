@@ -9,7 +9,7 @@ import { franState, loginState } from "state";
 import { useRecoilValue } from "recoil";
 
 // Component
-import CalculateHeader from "pages/calculate/component/CalculateHeader";
+import CalculateSection from "pages/calculate/component/CalculateSection";
 import CalculatePrecautions from "pages/calculate/component/CalculatePrecautions";
 import CalculateCouponDetailTable from "./CalculateCouponDetailTable";
 import CalculateLastMonthTable from "pages/calculate/component/CalculateLastMonthTable";
@@ -25,20 +25,13 @@ const CalculateCoupon: FC = () => {
     const staff_no = userInfo?.staff_no || 0;
 
     return (
-        <>
-            <section className="container">
-                <CalculateHeader caculateType={caculateType} />
-                <section className="contents-wrap paid-point-wrap">
-                    <div className="contents">
-                        <CalculatePrecautions caculateType={caculateType} />
-                        <div className="fixed-paid-point-wrap">
-                            <CalculateLastMonthTable userInfo={{ f_code, f_code_name, staff_no }} caculateType={caculateType} />
-                            <CalculateCouponDetailTable userInfo={{ f_code, f_code_name, staff_no }} />
-                        </div>
-                    </div>
-                </section>
-            </section>
-        </>
+        <CalculateSection caculateType={caculateType} >
+            <CalculatePrecautions caculateType={caculateType} />
+            <div className="fixed-paid-point-wrap">
+                <CalculateLastMonthTable userInfo={{ f_code, f_code_name, staff_no }} caculateType={caculateType} />
+                <CalculateCouponDetailTable userInfo={{ f_code, f_code_name, staff_no }} />
+            </div>
+        </CalculateSection>
     );
 }
 

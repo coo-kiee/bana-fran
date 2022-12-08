@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Outlet, useNavigate } from "react-router-dom";
 import { useLogin } from 'hooks/useLogin';
 import { useRecoilValue } from 'recoil';
@@ -11,7 +11,7 @@ const Layout: React.FC = () => {
     const { login, chkToken, getToken, removeToken } = useLogin()
 
     // 새로고침 로그인 처리.
-    const loginCheck = async () => {
+    const loginCheck = useCallback(async () => {
         if (!loginInfo.isLogin) {
             if (chkToken()) {
                 try {
@@ -32,12 +32,12 @@ const Layout: React.FC = () => {
                 navigate("/")
             }
         }
-    }
+    },[navigate, login, chkToken, getToken, removeToken, loginInfo]);
 
     // 로그인 체크.
     useEffect(() => {
         loginCheck()
-    }, [])
+    }, [loginCheck])
 
     return (
         <article>

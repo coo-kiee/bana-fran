@@ -36,7 +36,7 @@ const Login:React.FC = () => {
         const saveID = localStorage.getItem("sUserID")||"";
         console.log(saveID)
         if(saveID !== ""){
-            setLoginInfo({...loginInfo, loginID : saveID, chkSaveID : true})
+            setLoginInfo(prev => ({ ...prev, loginID: saveID, chkSaveID: true }));
         }
         //토큰값이 있는경우 자동로그인 시도
         if(Utils.chkToken() === true) {	 
@@ -61,7 +61,7 @@ const Login:React.FC = () => {
             }
             logout(params);
         }
-    },[])
+    },[getToken, logout])
 
     // 데이터 변경.
     const handleChangeData = (e:ChangeEvent<HTMLInputElement>) => {

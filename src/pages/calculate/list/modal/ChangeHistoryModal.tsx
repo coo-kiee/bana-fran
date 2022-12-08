@@ -3,7 +3,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 // Component
 import Loading from "pages/common/loading";
-import CalculateTableHeader from "../component/CalculateTableHeader";
+import CalculateTableHeader from "../../component/CalculateTableHeader";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import NoData from "pages/common/noData";
 
