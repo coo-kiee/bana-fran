@@ -125,7 +125,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, queryT
     const { searchOption } = searchCondition;
     const { queryFromDate, queryToDate } = queryTriggerDate;
 
-    const { data: etcDetailList } = CALCULATE_SERVICE.useCalculateEtcDetail(fCode, staffNo, queryFromDate, queryToDate);
+    const { data: etcDetailList } = CALCULATE_SERVICE.useCalculateEtcDetailList(fCode, staffNo, queryFromDate, queryToDate);
 
     // Table render Node 필터링, 충전/잔돈 포인트 합계 계산
     const [renderTableList, totalInfoRes] = useMemo(() => {

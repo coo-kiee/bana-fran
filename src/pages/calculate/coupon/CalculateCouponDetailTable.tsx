@@ -38,11 +38,11 @@ const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userI
         // { {key: CouponType}: {title: string, value: CouponType} }
         [COUPON_TYPE.ALL]: COUPON_TYPE_OPTION[COUPON_TYPE.ALL], // 0: { title: '쿠폰 전체', value: 0 },
     });
-    const { data: couponList } = CALCULATE_SERVICE.useCalculateCouponType(f_code, staff_no);
+    const { data: useCalculateCouponList } = CALCULATE_SERVICE.useCalculateCouponList(f_code, staff_no);
     useEffect(() => {
-        if (couponList) {
+        if (useCalculateCouponList) {
             // initialTotalInfo - { {key: CouponType}: {title: string, sum: number} }
-            const [couponObj, initialTotalInfo] = couponList.reduce((res, cur) => {
+            const [couponObj, initialTotalInfo] = useCalculateCouponList.reduce((res, cur) => {
                 const title = cur.code_name;
                 const value = cur.code;
                 res[0][value] = { title, value }; // couponObj
@@ -53,7 +53,7 @@ const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userI
             setCouponType(prev => ({ ...prev, ...couponObj }));
             setTableTopInfo(prev => ({ ...prev, totalInfo: initialTotalInfo }));
         };
-    }, [couponList]);
+    }, [useCalculateCouponList]);
 
     // 검색 조건
     const fromDate = format(subMonths(new Date(), 1), 'yyyy-MM-01');
@@ -146,7 +146,7 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
     const { searchOption } = searchCondition;
     const { queryFromDate, queryToDate } = queryTriggerDate;
 
-    const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetail(fCode, staffNo, queryFromDate, queryToDate);
+    const { data: couponDetailList } = CALCULATE_SERVICE.useCalculateCouponDetailList(fCode, staffNo, queryFromDate, queryToDate);
 
     // Table render Node 필터링, 쿠폰 사용금액 합계 계산
     const [renderTableList, totalInfoRes = {}] = useMemo(() => {

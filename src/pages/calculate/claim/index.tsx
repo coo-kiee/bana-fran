@@ -23,7 +23,7 @@ const CalculateClaim: FC = () => {
     // 사용자 정보
     const { userInfo } = useRecoilValue(loginState);
     const f_code = useRecoilValue(franState);
-    const f_code_name = userInfo?.f_list[0]?.f_code_name || '';
+    const f_code_name = userInfo?.f_list.length > 0 ? Object.values(userInfo?.f_list).filter((item: any) => item.f_code === f_code)[0]?.f_code_name : '';
     const staff_no = userInfo?.staff_no || 0;
 
     const [tabType, setTabType] = useState<TabType>(CLAIM_TAB_TYPE.CLAIM);

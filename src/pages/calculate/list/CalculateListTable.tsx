@@ -1,7 +1,7 @@
 import { FC, Suspense, useCallback, useEffect, useRef } from "react";
 
 // Type
-import { CalculateDetail, CalculateDetailOut, CalculateStatusType, CALCULATE_STATUS, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY } from "types/calculate/calculateType";
+import { CalculateStatusType, CALCULATE_STATUS, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY } from "types/calculate/calculateType";
 import { Output } from ".";
 
 // API
@@ -34,7 +34,7 @@ interface CalculateListTableProps {
     setIsPDF: React.Dispatch<React.SetStateAction<boolean>>,
 };
 const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, searchDate, setSearchDate, handlePopup, setOutput, isPDF, setIsPDF, listRefetchFn, setListRefetchFn }) => {
-    
+
     // 사용자 정보
     const { f_code, staff_no, f_code_name } = userInfo;
 
@@ -78,7 +78,7 @@ const CalculateListTable: FC<CalculateListTableProps> = ({ outPut, userInfo, sea
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => setOutput(prev => ({ ...prev, calculateStatus: -1, sumAll: undefined }))}>
                         <Suspense fallback={<Loading height={80} width={80} marginTop={-68} isTable={true} />}>
-                            <TableList fCode={f_code} staffNo={staff_no} searchDate={searchDate} setOutput={setOutput} setListRefetchFn={setListRefetchFn} />
+                            <TableList fCode={f_code} staffNo={staff_no} isPDF={isPDF} searchDate={searchDate} setOutput={setOutput} setListRefetchFn={setListRefetchFn} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
@@ -140,16 +140,19 @@ interface TableListProps {
     staffNo: number,
     searchDate: string,
     setOutput: React.Dispatch<React.SetStateAction<Output>>,
-    setListRefetchFn: React.Dispatch<React.SetStateAction<() => Promise<void>>> | undefined
+    setListRefetchFn: React.Dispatch<React.SetStateAction<() => Promise<void>>> | undefined,
+    isPDF?: boolean,
 };
-const TableList: FC<TableListProps> = ({fCode, staffNo, searchDate, setOutput, setListRefetchFn }) => {
+const TableList: FC<TableListProps> = ({ fCode, staffNo, searchDate, setOutput, setListRefetchFn, isPDF = false }) => {
 
-    const { data:calculateDetailList, refetch:listRefetchFn } = CALCULATE_SERVICE.useCalculateDetailList(fCode, staffNo, searchDate);
+    // 데이터 가져오기 - isPDF true면 X
+    const { data: calculateLastMonthTotalQueryResult, refetch: listRefetchFn } = CALCULATE_SERVICE.useCalculateLastMonthTotal(fCode, staffNo, searchDate, isPDF);
 
-    const caculateList = calculateDetailList?.list as CalculateDetail[];
-    const { calculate_status, calculate_id, error_msg } = calculateDetailList?.out as CalculateDetailOut || {};
-    const sumAll = calculateDetailList?.sumAll as number;
+    // 데이터 가공
+    const { list: calculateDetailList, out: outputData, sumAll } = calculateLastMonthTotalQueryResult || {};
+    const { calculate_status, calculate_id, error_msg } = outputData || {};
 
+    // 상위 컴포넌트 outPut Data 갱신
     useEffect(() => {
         if (calculate_id && calculate_status && sumAll) setOutput(prev => ({ ...prev, sumAll, calculateStatus: calculate_status, calculateId: calculate_id }));
         else setOutput(prev => ({ ...prev, sumAll: 0, calculateStatus: CALCULATE_STATUS.ERROR, calculateId: 0 }));
@@ -159,15 +162,16 @@ const TableList: FC<TableListProps> = ({fCode, staffNo, searchDate, setOutput, s
     const handleListRefetch = useCallback(async () => {
         await listRefetchFn();
     }, [listRefetchFn]);
+
+    // 정산확인 후 refetch 하기위해서 초기 렌더링시 상위 컴포넌트 refetch state 갱신
     useEffect(() => {
-        if(setListRefetchFn) setListRefetchFn(prev => handleListRefetch);
-    },[setListRefetchFn, handleListRefetch]);
+        if (setListRefetchFn) setListRefetchFn(prev => handleListRefetch);
+    }, [setListRefetchFn, handleListRefetch]);
 
     return (
         <>
             {
-                calculate_status && calculate_status !== CALCULATE_STATUS.DISTRIBUTE &&
-                caculateList.map(caculateData => {
+                calculateDetailList?.map(caculateData => {
                     const { from_date, to_date, calculate_type, item_type, item_detail, item_cnt, item_price, supply_amt, vat_amt, total_amt, etc, calculate_d_id } = caculateData;
 
                     const calculateType: CalculateChargeMultiplyKey = calculate_type as CalculateChargeMultiplyKey;
@@ -191,8 +195,8 @@ const TableList: FC<TableListProps> = ({fCode, staffNo, searchDate, setOutput, s
                     )
                 })
             }
-            {calculate_status && calculate_status === CALCULATE_STATUS.DISTRIBUTE && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >{error_msg}</td></tr>}
-            {!calculate_status && <NoData isTable={true} />}
+            {calculate_status === CALCULATE_STATUS.DISTRIBUTE && <tr><td className="no-data" rowSpan={10} colSpan={TABLE_COLUMN_INFO.width.length} >{error_msg}</td></tr>}
+            {calculate_status !== CALCULATE_STATUS.DISTRIBUTE && !!!calculateDetailList?.length && <NoData isTable={true} />}
         </>
     )
 };
@@ -231,7 +235,7 @@ const TableBottom: FC<TableBottomProps> = ({ calculateStatus, sumAll, tableRef, 
             {calculateStatus !== CALCULATE_STATUS.ERROR && calculateStatus !== CALCULATE_STATUS.DISTRIBUTE &&
                 <div className="result-function-wrap" >
                     <div className="function">
-                        {
+                        {   // PDF 다운로드 일때는 버튼 안보이기
                             !isPDF &&
                             <>
                                 <button className="goast-btn" onClick={excelDownload}>엑셀다운</button>&nbsp;

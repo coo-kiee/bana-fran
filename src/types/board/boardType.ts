@@ -1,3 +1,18 @@
+type BoardListQueryParams = {
+    f_code: number, // 가맹지점 코드
+    staff_no: number, // 직원번호
+    board_type: BoardInfo['type'], // 1 : 공지사항, 2 : 운영 매뉴얼, 3 : 교육자료실, 4 : 레시피자료실, 5 : 규정 및 가이드, 6 : 정산관련 공지 )
+    search_category: number, // 게시판 별카테고리 0 : 전체, 1 : 메뉴얼, 2: 규정...
+    search_text: string, // 검색 키워드
+    page_idx: number, // 조회할 페이지
+    page_size: number, // 조회할 건수
+};
+
+type BoardListQueryResult = {
+    list: Board[],
+    out: { active_page_idx: number, total_cnt: number }
+};
+
 type Board = {
     attach_cnt: number, // 첨부파일 개수
     board_id: number, // 게시판 Id
@@ -22,12 +37,12 @@ type Board = {
     title: string, // 게시판 제목
 };
 
-type Category = {
+type BoardCategoryListQueryResult = {
     code: number,
     code_name: string,
 };
 
-type BoardDetailType = {
+type BoardDetailQueryResult = {
     attach_cnt: number,
     board_id: number,
     board_type: number,
@@ -49,7 +64,7 @@ type BoardDetailType = {
     title: string,
 };
 
-type FileType = {
+type BoardAttachListQueryResult = {
     attach_id: number,
     board_id: number,
     file_size: string,
@@ -81,13 +96,7 @@ const BOARD_GROUP = {
     [MENU_TYPE.BOARD]: [BOARD_INFO.MANAGEMENT, BOARD_INFO.EDUCATION, BOARD_INFO.RECIPE, BOARD_INFO.RULE],
 } as const;
 
-
-type BoardListResult = {
-    list: Board[],
-    out: { active_page_idx: number, total_cnt: number }
-};
-
 export { MENU_TYPE, BOARD_INFO, BOARD_GROUP };
 export type {
-    Board, Category, BoardDetailType, FileType, MenuType, BoardInfo, BoardListResult,
+    BoardListQueryParams, BoardListQueryResult, Board, BoardCategoryListQueryResult, BoardDetailQueryResult, BoardAttachListQueryResult, MenuType, BoardInfo, 
 };

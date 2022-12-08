@@ -8,8 +8,11 @@ const enum CALCULATE_TYPE {
 
 type CalculateType = typeof CALCULATE_TYPE[keyof typeof CALCULATE_TYPE];
 
+// 정산내역 확인 쿼리 결과
+type CalculateLastMonthTotalQueryResult = { list: CalculateLastMonthTotalDetail[], out: CalculateLastMonthOutput, sumAll: number };
+
 // 정산내역 확인 데이터
-type CalculateDetail = {
+type CalculateLastMonthTotalDetail = {
     calculate_id: number, // 정산내역 리스트 id
     calculate_d_id: number, // 정산내역 데이터 1개 id
     from_date: string, // 정산기간
@@ -26,7 +29,7 @@ type CalculateDetail = {
 };
 
 // 정산내역 확인 Output
-type CalculateDetailOut = { calculate_id: number, calculate_status: CalculateStatusType, error_msg: string };
+type CalculateLastMonthOutput = { calculate_id: number, calculate_status: CalculateStatusType, error_msg: string };
 
 // 정산내역 확인 정산상태
 const CALCULATE_STATUS = {
@@ -39,7 +42,7 @@ const CALCULATE_STATUS = {
 type CalculateStatusType = typeof CALCULATE_STATUS[keyof typeof CALCULATE_STATUS];
 
 // 정산내역 확인 수정요청/변경이력 데이터
-type CalculateFixDetail = {
+type CalculateFixListQueryResult = {
     log_date: string, // 일시
     log_type: string, // 구분
     insert_staff_no: number, 
@@ -50,7 +53,7 @@ type CalculateFixDetail = {
 };
 
 // 포인트, 쿠폰 ,클레임, 기타 전월 결제내역
-type CalculateDetailSum = {
+type CalculateLastMonthEachQueryResult = {
     from_date: string, // 정산기간
     to_date:string, // 정산기간
     calculate_type?:string, // 기타 - 구분
@@ -61,7 +64,7 @@ type CalculateDetailSum = {
 };
 
 // 유상포인트 결제내역 상세
-type CalculatePointDetail = {
+type CalculatePointDetailListQueryResult = {
     rcp_date: string, // 결제일시
     item_name: string, // 주문 메뉴
     phone: string, // 주문자
@@ -74,7 +77,7 @@ type CalculatePointDetail = {
 };
 
 // 본사 쿠폰 결제내역 상세
-type CalculateCouponDetail = {
+type CalculateCouponDetailListQueryResult = {
     rcp_date: string, // 결제일시
     item_type: string, // 쿠폰
     item_type_code: number,
@@ -109,7 +112,7 @@ type CalculateChargeMultiplyKey = keyof typeof CALCULATE_CHARGE_MULTIPLY;
 
 
 // 기타 정산 내역 상세
-type CalculateEtcDetail = {
+type CalculateEtcDetailListQueryResult = {
     std_month: string, // 정산월
     calculate_type: string, // 구분
     item_detail: string, // 내용
@@ -124,7 +127,7 @@ export {
 };
 
 export type {
-    CalculateType, CalculateDetail, CalculateDetailOut, CalculateStatusType, CalculateFixDetail,
-    CalculateDetailSum, CalculatePointDetail, CalculateCouponDetail, TabType, 
-    CalculateChargeType, CalculateChargeMultiplyKey, CalculateEtcDetail
+    CalculateType, CalculateLastMonthTotalQueryResult, CalculateLastMonthTotalDetail, CalculateLastMonthOutput, CalculateStatusType, CalculateFixListQueryResult,
+    CalculateLastMonthEachQueryResult, CalculatePointDetailListQueryResult, CalculateCouponDetailListQueryResult, TabType, 
+    CalculateChargeType, CalculateChargeMultiplyKey, CalculateEtcDetailListQueryResult
 };

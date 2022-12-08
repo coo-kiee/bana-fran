@@ -55,7 +55,7 @@ interface TableListProps {
     menuType: MenuType,
     listSearchParameter: ListSearchParameter,
     setDataCnt: React.Dispatch<React.SetStateAction<number>>,
-    // boardList: BoardListResult,
+    // boardList: BoardListQueryResult,
     // boardType: number,
 };
 const TableList: FC<TableListProps> = ({ menuType, listSearchParameter, setDataCnt }) => {

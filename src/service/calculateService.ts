@@ -6,12 +6,12 @@ import { useMutation, useQuery, UseQueryResult } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 
 // Type
-import { CalculateCouponDetail, CalculateDetail, CalculateDetailOut, CalculateDetailSum, CalculateEtcDetail, CalculateFixDetail, CalculatePointDetail, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY } from 'types/calculate/calculateType';
+import { CalculateCouponDetailListQueryResult, CalculateLastMonthEachQueryResult, CalculateEtcDetailListQueryResult, CalculateFixListQueryResult, CalculatePointDetailListQueryResult, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY, CalculateLastMonthTotalQueryResult } from 'types/calculate/calculateType';
 
 // 검색 월
 const useCalculateMonthList = (f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
 
-    const queryKey = ['calculateMonthList', JSON.stringify({ f_code, staffNo })];
+    const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_MONTH_LIST, f_code, staffNo];
     const data = {
         ws: "fprocess",
         query: "YQULRZGJLB30OII4CFCJ", // web_fran_s_calculate_month_list
@@ -29,10 +29,10 @@ const useCalculateMonthList = (f_code: number, staffNo: number, option: { [key: 
     });
 };
 
-// 정산내역 확인 - 리스트 가져오기
-const useCalculateDetailList = (f_code: number, staffNo: number, std_month: string, option: { [key: string]: any } = {}) => {
+// 정산내역 확인
+const useCalculateLastMonthTotal = (f_code: number, staffNo: number, std_month: string, isPDF: boolean, option: { [key: string]: any } = {}) => {
 
-    const queryKey = ['caculateDetailList', JSON.stringify({ f_code, staffNo, std_month })];
+    const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_LAST_MONTH_TOTAL, f_code, staffNo, std_month];
     const data = {
         ws: "fprocess",
         query: "LHXFJMM3PJSB5YVRUFLS", // web_fran_s_calculate_detail_list
@@ -42,12 +42,12 @@ const useCalculateDetailList = (f_code: number, staffNo: number, std_month: stri
         },
     };
 
-    return useQuery<{ list: CalculateDetail[], out: CalculateDetailOut, sumAll: number }>(queryKey, () => queryFn.getDataOutputList(data), {
+    return useQuery<CalculateLastMonthTotalQueryResult>(queryKey, () => queryFn.getDataOutputList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
         suspense: option.suspense ? option.suspense : true,
-        enabled: staffNo > 0,
+        enabled: !isPDF && staffNo > 0,
         onSuccess(data) {
             if (data.list.length > 0) {
                 let sum = 0;
@@ -62,7 +62,7 @@ const useCalculateDetailList = (f_code: number, staffNo: number, std_month: stri
 };
 
 // 정산내역 확인 - 정산 확인
-const useCalculateConfirmList = (staffNo: number, calculate_id: number, listRefetchFn: () => Promise<void>, closePopup: () => void) => {
+const useCalculateConfirm = (staffNo: number, calculate_id: number, listRefetchFn: () => Promise<void>, closePopup: () => void) => {
 
     const data = {
         ws: "fprocess",
@@ -111,7 +111,7 @@ const useCalculateRequestFix = (staffNo: number, calculate_id: number, comment: 
 // 정산내역 확인 - 수정요청/변경이력 조회
 const useCalculateFixList = (nFCode: number, staffNo: number, calculate_id: number, option: { [key: string]: any } = {}) => {
 
-    const queryKey = ['caculateFixList', JSON.stringify({ nFCode, staffNo, calculate_id })];
+    const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_FIX_LIST, nFCode, staffNo, calculate_id];
     const data = {
         ws: "fprocess",
         query: "BPXPHMQ8I53JRD2FVYGX", // web_bana_fran_calculate_log_list
@@ -121,7 +121,7 @@ const useCalculateFixList = (nFCode: number, staffNo: number, calculate_id: numb
         },
     };
 
-    return useQuery<CalculateFixDetail[]>(queryKey, () => queryFn.getDataList(data), {
+    return useQuery<CalculateFixListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -130,10 +130,10 @@ const useCalculateFixList = (nFCode: number, staffNo: number, calculate_id: numb
     });
 };
 
-// 포인트/쿠폰/클레임/기타 전월 내역 합계
-const useCalculateDetailSum = (f_code: number, staffNo: number, search_item_type: number, option: { [key: string]: any } = {}) => {
+// 포인트/쿠폰/클레임/기타 각각 전월 내역 리스트
+const useCalculateLastMonthEach = (f_code: number, staffNo: number, search_item_type: number, option: { [key: string]: any } = {}) => {
 
-    const queryKey = ['calculateDetailSum', JSON.stringify({ f_code, staffNo, search_item_type })];
+    const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_LAST_MONTH_EACH, f_code, staffNo, search_item_type];
     const data = {
         ws: "fprocess",
         query: "3ABXWMJURCDQJPLVBJJW", // web_fran_s_calculate_detail_item
@@ -143,7 +143,7 @@ const useCalculateDetailSum = (f_code: number, staffNo: number, search_item_type
         },
     };
 
-    return useQuery<CalculateDetailSum[]>(queryKey, () => queryFn.getDataList(data), {
+    return useQuery<CalculateLastMonthEachQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -153,16 +153,16 @@ const useCalculateDetailSum = (f_code: number, staffNo: number, search_item_type
 };
 
 // 유상포인트 결제내역 상세
-type PointDetailParameter = (
+type CalculatePointDetailListParameter = (
     f_code: number,
     staffNo: number,
     from_date: string,
     to_date: string,
     option?: { [key: string]: any },
-) => UseQueryResult<CalculatePointDetail[], unknown>;
-const useCalculatePointDetail: PointDetailParameter = (f_code, staffNo, from_date, to_date, option = {}) => {
+) => UseQueryResult<CalculatePointDetailListQueryResult[], unknown>;
+const useCalculatePointDetailList: CalculatePointDetailListParameter = (f_code, staffNo, from_date, to_date, option = {}) => {
 
-    const queryKey = ['calculatePointDetail', JSON.stringify({ f_code, staffNo, from_date, to_date })];
+    const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_POINT_DETAIL_LIST, f_code, staffNo, from_date, to_date];
     const data = {
         ws: "fprocess",
         query: "6HURAKO83BCYD8ZXBORH", // web_fran_s_calculate_paid_point_list
@@ -173,7 +173,7 @@ const useCalculatePointDetail: PointDetailParameter = (f_code, staffNo, from_dat
         },
     };
 
-    return useQuery<CalculatePointDetail[]>(queryKey, () => queryFn.getDataList(data), {
+    return useQuery<CalculatePointDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -183,9 +183,9 @@ const useCalculatePointDetail: PointDetailParameter = (f_code, staffNo, from_dat
 };
 
 // 본사 쿠폰 결제내역 상세 - 쿠폰 리스트
-const useCalculateCouponType = (f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
+const useCalculateCouponList = (f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
 
-    const queryKey = ['couponList', JSON.stringify({ f_code, staffNo })];
+    const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_COUPON_LIST, f_code, staffNo];
     const data = {
         ws: "fprocess",
         query: "1ERHH8TI5ER8Z2SNLA5K", // web_fran_s_calculate_hq_coupon_code
@@ -204,16 +204,16 @@ const useCalculateCouponType = (f_code: number, staffNo: number, option: { [key:
 };
 
 // 본사 쿠폰 결제내역 상세
-type CouponDetailParameter = (
+type CalculateCouponDetailListParameter = (
     f_code: number,
     staffNo: number,
     from_date: string,
     to_date: string,
     option?: { [key: string]: any },
-) => UseQueryResult<CalculateCouponDetail[], unknown>;
-const useCalculateCouponDetail: CouponDetailParameter = (f_code, staffNo, from_date, to_date, option = {}) => {
+) => UseQueryResult<CalculateCouponDetailListQueryResult[], unknown>;
+const useCalculateCouponDetailList: CalculateCouponDetailListParameter = (f_code, staffNo, from_date, to_date, option = {}) => {
 
-    const queryKey = ['calculateCouponDetail', JSON.stringify({ f_code, staffNo, from_date, to_date })];
+    const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_COUPON_DETAIL_LIST, f_code, staffNo, from_date, to_date];
     const data = {
         ws: "fprocess",
         query: "NQSZNEAMQLUNQXDTAD70", // web_fran_s_calculate_hq_coupon_list
@@ -224,7 +224,7 @@ const useCalculateCouponDetail: CouponDetailParameter = (f_code, staffNo, from_d
         },
     };
 
-    return useQuery<CalculateCouponDetail[]>(queryKey, () => queryFn.getDataList(data), {
+    return useQuery<CalculateCouponDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -234,15 +234,15 @@ const useCalculateCouponDetail: CouponDetailParameter = (f_code, staffNo, from_d
 };
 
 // 고객 클레임 보상내역 상세
-type ClaimDetailParameter = (
+type CalculateClaimDetailListParameter = (
     queryKey: string | Array<string>,
     f_code: number,
     staffNo: number,
     from_date: string,
     to_date: string,
     option?: { [key: string]: any },
-) => UseQueryResult<CalculatePointDetail[], unknown>;
-const useCalculateClaimDetail: ClaimDetailParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
+) => UseQueryResult<CalculatePointDetailListQueryResult[], unknown>;
+const useCalculateClaimDetailList: CalculateClaimDetailListParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
 
     const data = {
         ws: "fprocess",
@@ -264,16 +264,16 @@ const useCalculateClaimDetail: ClaimDetailParameter = (queryKey, f_code, staffNo
 };
 
 // 기타 정산 내역 상세
-type EtcDetailParameter = (
+type CalculateEtcDetailListParameter = (
     f_code: number,
     staffNo: number,
     from_date: string,
     to_date: string,
     option?: { [key: string]: any },
-) => UseQueryResult<CalculateEtcDetail[], unknown>;
-const useCalculateEtcDetail: EtcDetailParameter = (f_code, staffNo, from_date, to_date, option = {}) => {
+) => UseQueryResult<CalculateEtcDetailListQueryResult[], unknown>;
+const useCalculateEtcDetailList: CalculateEtcDetailListParameter = (f_code, staffNo, from_date, to_date, option = {}) => {
 
-    const queryKey = ['calculateEtcDetail', JSON.stringify({ f_code, staffNo, from_date, to_date })];
+    const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_ETC_DETAIL_LIST, f_code, staffNo, from_date, to_date];
     const data = {
         ws: "fprocess",
         query: "SBGCJDVEODLVS2XGQX1D", // web_fran_s_calculate_etc_list
@@ -284,7 +284,7 @@ const useCalculateEtcDetail: EtcDetailParameter = (f_code, staffNo, from_date, t
         },
     };
 
-    return useQuery<CalculateEtcDetail[]>(queryKey, () => queryFn.getDataList(data), {
+    return useQuery<CalculateEtcDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -295,14 +295,26 @@ const useCalculateEtcDetail: EtcDetailParameter = (f_code, staffNo, from_date, t
 
 export default {
     useCalculateMonthList,
-    useCalculateDetailList,
-    useCalculateConfirmList,
+    useCalculateLastMonthTotal,
+    useCalculateConfirm,
     useCalculateRequestFix,
     useCalculateFixList,
-    useCalculateDetailSum,
-    useCalculatePointDetail,
-    useCalculateCouponType,
-    useCalculateCouponDetail,
-    useCalculateClaimDetail,
-    useCalculateEtcDetail,
+    useCalculateLastMonthEach,
+    useCalculatePointDetailList,
+    useCalculateCouponList,
+    useCalculateCouponDetailList,
+    useCalculateClaimDetailList,
+    useCalculateEtcDetailList,
 };
+
+export const CALCULATE_QUERY_KEY = {
+    CALCULATE_MONTH_LIST: 'calculateMonthList',
+    CALCULATE_LAST_MONTH_TOTAL: 'calculateLastMonthTotal',
+    CALCULATE_FIX_LIST: 'calculateFixList',
+    CALCULATE_LAST_MONTH_EACH: 'calculateLastMonthEach',
+    CALCULATE_POINT_DETAIL_LIST: 'calculatePointDetailList',
+    CALCULATE_COUPON_LIST: 'calculateCouponList',
+    CALCULATE_COUPON_DETAIL_LIST: 'calculateCouponDetailList',
+    CALCULATE_CLAIM_DETAIL_LIST: 'calculateClaimDetailList',
+    CALCULATE_ETC_DETAIL_LIST: 'calculateEtcDetailList',
+} as const;

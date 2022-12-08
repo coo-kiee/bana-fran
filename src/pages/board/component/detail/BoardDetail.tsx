@@ -9,7 +9,7 @@ import { queryFn } from "hooks/useQuery";
 import BOARD_SERVICE from "service/boardService";
 
 // Type
-import { BoardDetailType, MenuType } from "types/board/boardType";
+import { BoardDetailQueryResult, MenuType } from "types/board/boardType";
 import { DetailInfo } from "pages/board";
 
 interface BoardDetailProps {
@@ -21,8 +21,8 @@ interface BoardDetailProps {
 };
 const BoardDetail: FC<BoardDetailProps> = ({ menuType, boardId, staffNo, fCode, setDetailInfo }) => {
 
-    const { data: boardDetail } = BOARD_SERVICE.useBoard(boardId, staffNo, fCode);
-    const { category_name, title, insert_date, important, contents, board_type } = boardDetail as BoardDetailType || {};
+    const { data: boardDetail } = BOARD_SERVICE.useBoardDetail(boardId, staffNo, fCode);
+    const { category_name, title, insert_date, important, contents, board_type } = boardDetail as BoardDetailQueryResult || {};
 
     const navigation = useNavigate();
     // 목록 버튼 클릭시 List로 이동

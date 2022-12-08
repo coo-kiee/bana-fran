@@ -173,7 +173,7 @@ const TableList: FC<TableListProps> = ({ tabType, fCode, staffNo, searchConditio
 
     // eslint-disable-next-line
     const listQueryKey = useMemo(() => ['calculateClaimDetail', JSON.stringify({ tabType, fCode, staffNo, fromDate, toDate })], [fCode, staffNo, searchTrigger]);
-    const { data: claimDetailList } = CALCULATE_SERVICE.useCalculateClaimDetail(listQueryKey, fCode, 0, fromDate, toDate);
+    const { data: claimDetailList } = CALCULATE_SERVICE.useCalculateClaimDetailList(listQueryKey, fCode, 0, fromDate, toDate);
 
     // Table render Node 필터링, 클레임 보상 쿠폰 합계 계산
     const [renderTableList, totalSumObj] = useMemo(() => {

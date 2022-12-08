@@ -17,7 +17,7 @@ interface BoardSearchConditionProps {
 }
 const BoardSearchCondition: FC<BoardSearchConditionProps> = ({ boardType, staffNo, fCode, searchCategory, searchText, setListSearchParameter }) => {
 
-    const { data: categoryList } = BOARD_SERVICE.useCategoryList(boardType, fCode, staffNo);
+    const { data: categoryList } = BOARD_SERVICE.useBoardCategoryList(boardType, fCode, staffNo);
 
     // 카테고리 변경
     const handleSearchCategory: ChangeEventHandler<HTMLSelectElement> = (e) => {

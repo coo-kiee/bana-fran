@@ -21,7 +21,7 @@ const CalculateConfirmModal: FC<CalculateConfirmModalProps> = ({ staffNo, calcul
     };
 
     // 정산확인
-    const calculateConfirmMutation = CALCULATE_SERVICE.useCalculateConfirmList(staffNo, calculateId, listRefetchFn, closePopup);
+    const calculateConfirmMutation = CALCULATE_SERVICE.useCalculateConfirm(staffNo, calculateId, listRefetchFn, closePopup);
 
     useEventKeyCode(closePopup, 'Escape');
 
