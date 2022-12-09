@@ -28,7 +28,7 @@ const Today = () => {
 		<tr>
 			<td className='point'>{Utils.numberComma(totalSales)}원</td>
 			<td>
-				{Utils.numberComma(delivery_charge || 0)}원<span className='percentage'>({(100 * delivery_charge/totalSales).toFixed(1) || 0}%)</span>
+				{Utils.numberComma(delivery_charge || 0)}원<span className='percentage'>({(100 * delivery_charge/totalSales || 0).toFixed(1)}%)</span>
 			</td>
 			<td className='point'>
 				{Utils.numberComma(paidSales)}원<span className='percentage'>({(100 * paidSales/totalSales || 0).toFixed(1)}%)</span>
