@@ -4,8 +4,8 @@ import { CalendarBodyProps } from 'types/home/homeType';
 // Utils
 import Utils from 'utils/Utils';
 
-const CalendarBody = ({ currentDate, data }: CalendarBodyProps) => {
-	const startMonth = startOfMonth(currentDate); 	// 달의 시작일
+const CalendarBody = ({ selectedDate, data }: CalendarBodyProps) => {
+	const startMonth = startOfMonth(selectedDate); 	// 달의 시작일
 	const endMonth = endOfMonth(startMonth); 		// 달의 말일
 	const startWeek = startOfWeek(startMonth); 		// 주의 시작일
 	const endWeek = endOfWeek(endMonth); 			// 주의
@@ -37,7 +37,7 @@ const CalendarBody = ({ currentDate, data }: CalendarBodyProps) => {
 				>
 					<span className={'date-num'}>{formattedDate}</span>
 					{
-                        format(currentDate, 'M') === format(day, 'M') && !isFuture(day) ? // 같은 월이면서 미래가 아닐 때
+                        format(selectedDate, 'M') === format(day, 'M') && !isFuture(day) ? // 같은 월이면서 미래가 아닐 때
                         <span className='date-sales'>
 							{targetData && targetData[0].sales_charge !== 0 ? `${Utils.roundingDown10000(targetData[0]?.sales_charge)}만` : ''}
 						</span> : null // 매출이 0원인 날은 표시 x

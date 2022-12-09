@@ -19,7 +19,7 @@ import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 const WeeklySales = () => {
 	const fCode = useRecoilValue(franState);
 	const { hideTooltip } = useTooltip();
-	const { data } = HOME_SERVICE.useSalesTerms({ f_code: fCode, search_type: 'W', search_month: '2022-10-01' });
+	const { data } = HOME_SERVICE.useSalesTerms({ f_code: fCode, search_type: 'W' });
 	
 	return (
 		<ResponsiveBar

@@ -314,6 +314,12 @@ article { display: flex; position: relative;
                                     color: #777;
                                     border: 1px solid #777;
                                 }
+
+                                &.calculate {
+                                    color: #ff934b;
+                                    border: 1px solid #ff934b;
+                                }
+
                                 &.default {
                                     color: #555;
                                     border: 1px solid #555;

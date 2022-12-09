@@ -15,39 +15,32 @@ import CalendarBody from 'pages/home/components/calendar/CalendarBody';
 import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
-const MonthlySales = ({currentDate}: {currentDate:Date}) => {
+const MonthlySales = ({selectedDate}: {selectedDate: Date}) => {
 	const fCode = useRecoilValue(franState);
-    const searchMonth: string = useMemo(() => {return format(currentDate, 'yyyy-MM-01')}, [currentDate]); // 선택한 달 (params)
-    
+    const searchMonth: string = useMemo(() => {return format(selectedDate, 'yyyy-MM-01')}, [selectedDate]); // 선택한 달 (params)
     const { data } = HOME_SERVICE.useSalesTerms({ f_code: fCode, search_type: 'M', search_month: searchMonth });
     
-	return <CalendarBody currentDate={currentDate} data={data} />;
+	return <CalendarBody selectedDate={selectedDate} data={data} />;
 };
 
 const MonthlySalesConatiner = () => {
-    // 현재 날짜 state
-    const [currentDate, setCurrentDate] = useState<Date>(new Date());
-    // 오늘 기준
 	const today = new Date();
-
-    const prevMonth = () => {
-        (differenceInMonths(today, currentDate) < 12) && setCurrentDate(subMonths(currentDate, 1));
+    // 현재 날짜 state
+    const [selectedDate, setSelectedDate] = useState<Date>(today);
+    const prevMonth = () => { // 최대 12개월까지만 조회
+        (differenceInMonths(today, selectedDate) < 12) && setSelectedDate(subMonths(selectedDate, 1));
     };
-    const nextMonth = () => {
-        !isSameMonth(today, currentDate) && setCurrentDate(addMonths(currentDate, 1));
+    const nextMonth = () => { // 이번 달 이후엔 조회 X
+        !isSameMonth(today, selectedDate) && setSelectedDate(addMonths(selectedDate, 1));
     };
 
     return (
         <Board boardClass='month-sales' title='Month' url='/sales/statistic' suffix='총 매출'>
             <div className='contents-list calendar'>
-                <CalendarHeader
-                    currentDate={currentDate}
-                    prevMonth={prevMonth}
-                    nextMonth={nextMonth}
-                />
+                <CalendarHeader selectedDate={selectedDate} prevMonth={prevMonth} nextMonth={nextMonth} />
                 <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on MonthlyOrder(Month 총 매출): ', e)}>
                     <Suspense fallback={<Loading width={50} height={50} marginTop={100} />}>
-                        <MonthlySales currentDate={currentDate} />
+                        <MonthlySales selectedDate={selectedDate} />
                     </Suspense>
                 </ErrorBoundary>
             </div>

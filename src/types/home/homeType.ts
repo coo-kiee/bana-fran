@@ -6,8 +6,8 @@ interface BoardListParams extends CommonParams {
     search_type: 1|2; // 1: 공지사항, 2: 자료실
 }
 interface SalesTermsParams extends CommonParams {
-    search_type: 'W'|'M'; // W: 1주 매출, M: 월별 매출 
-    search_month: string;
+    search_type: 'W'|'M'; 	// W: 1주 매출, M: 월별 매출 
+    search_month?: string;	// search_type이 M일 때 필요
 }
 
 // Component Props
@@ -29,12 +29,12 @@ interface BoardItemProps {
 	date: string;
 }
 interface CalendarHeaderProps {
-	currentDate: Date;
+	selectedDate: Date;
 	prevMonth: () => void;
 	nextMonth: () => void;
 }
 interface CalendarBodyProps {
-	currentDate: Date;
+	selectedDate: Date;
 	data: any;
 }
 

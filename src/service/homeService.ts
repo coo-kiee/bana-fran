@@ -55,7 +55,7 @@ const useSalesTerms = (params: SalesTermsParams) => {
     const reqData: RequestParams<SalesTermsParams> = {
         ws: 'fprocess',
         query: 'OMG6XENQJIW8SLYTIROV',
-        params: params,
+        params: {search_month: '', ...params}, // 입력받은 search_month가 없을 때 기본값 ''입력
     }; // web_fran_s_sales_term_info
     return useQuery(['sales_terms', params.f_code, params.search_type, params.search_month], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
