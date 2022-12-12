@@ -61,7 +61,7 @@ const Login:React.FC = () => {
             }
             logout(params);
         }
-    },[getToken, logout])
+    },[])
 
     // 데이터 변경.
     const handleChangeData = (e:ChangeEvent<HTMLInputElement>) => {

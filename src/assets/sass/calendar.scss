@@ -36,8 +36,8 @@
                     top: 50%;
                     left: 50%;
                 }
-                &.prev::after { transform: translate(-50%, -50%) rotate(45deg); }
-                &.next::after { transform: translate(-50%, -50%) rotate(225deg); }
+                &.prev::after { transform: translate(-2.475px, -50%) rotate(45deg); }
+                &.next::after { transform: translate(-4.95px, -50%) rotate(225deg); }
                 &:disabled { 
                     border: 1px solid #ddd; 
                     cursor: default;
