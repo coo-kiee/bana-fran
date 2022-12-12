@@ -18,14 +18,17 @@ const defalutQueryOption: QueryClientConfig = {
             onError(error) {
                 const axiosError = error as AxiosError;
                 console.log('defaultError', error);
-                if (axiosError && axiosError.response?.status === 600 && (axiosError.response.data as string).includes('로그인')) {
 
-                    if (queryClient.getQueryCache().getAll().filter(query => query.state.isFetching).length === 0) alert("세션이 만료 되었습니다.");
-
+                const queryCaches = queryClient.getQueryCache().getAll();
+                const isFirstLoginError = queryCaches.filter(query => query.state.error && (query.state.error as AxiosError).response?.status === 600 && ((query.state.error as AxiosError).response?.data as string).includes('로그인')).length === 1;
+                
+                // 첫 로그인 에러인 경우
+                if (isFirstLoginError) {
                     window.location.replace('/index');
-                } else {
+                    alert("세션이 만료 되었습니다.");
+                } else if (!(axiosError?.response?.data as string).includes('로그인')) {
                     alert("[ERROR_" + axiosError.response?.status + "]" + axiosError?.response?.data);
-                }
+                };
             }
         }
     }
