@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 
-const ChartDays = ({bars}: any) => {	
+const ChartDays = ({ bars }: any) => {	
 	return bars.map((bar: any, idx: number) => {
 		const { x, y, width } = bar; // y가 0일 때 최대
 

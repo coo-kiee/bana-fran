@@ -28,6 +28,11 @@ interface BoardItemProps {
 	title: string;
 	date: string;
 }
+interface BarChartTooltipProps {
+	id: string;
+	color: string;
+	value: string;
+}
 interface CalendarHeaderProps {
 	selectedDate: Date;
 	prevMonth: () => void;
@@ -44,6 +49,7 @@ export type {
     SalesTermsParams,
     BoardProps,
     BoardItemProps,
+	BarChartTooltipProps,
 	CalendarHeaderProps,
 	CalendarBodyProps,
 }

@@ -12,21 +12,24 @@ const BoardItem = ({ url, boardType, boardId, important, name, title, date }: Bo
 		// 중요가 1이면 important처리
 		typeText = 'important';
 	} else if (boardType === 1) {
-		// boardType이 1 || 6이면 공지사항
+		// boardType 1: 일반공지
 		switch (name) {
 			case '일반': typeText = 'general'; break;
+			case '출시': typeText = 'menual'; break;
+			case '정보': typeText = 'education'; break;
+			case '이벤트': typeText = 'recipe'; break;
 			default: typeText = 'guide'; break;
 		}
 	} else if (boardType === 6) {
-		typeText = 'calculate'; // 정산공지
+		// boardType 6: 정산공지
+		typeText = 'calculate';
 	} else {
+		// 자료실
 		switch (boardType) {
-			// case 1: typeText = 'general'; break;    	// 일반 공지
 			case 2: typeText = 'menual'; break;			// 운영 메뉴얼
 			case 3: typeText = 'education';	break; 		// 교육
 			case 4:	typeText = 'recipe'; break; 		// 레시피
 			case 5: typeText = 'guide'; break; 			// 규정 가이드
-			// case 6: typeText = 'calculate'; break;   // 정산
 			default: typeText = 'default'; break;
 		}
 	}

@@ -1,9 +1,11 @@
 import { format } from 'date-fns';
 import styled from 'styled-components';
+// Types
+import { SalesLineChartTooltipProps } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
 
-const LineChartTooltip = ({ point, searchType }: any) => {
+const LineChartTooltip = ({ point, searchType }: SalesLineChartTooltipProps) => {
 	const { serieId, serieColor, data: { xFormatted, yFormatted } } = point;
 
 	let salesType = ''; // 매출 유형 string

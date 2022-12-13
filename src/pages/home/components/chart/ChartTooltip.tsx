@@ -1,26 +1,17 @@
-import { BasicTooltip } from "@nivo/tooltip";
+// Types
+import { BarChartTooltipProps } from "types/home/homeType";
 
-const ChartTooltip = ({ id, value, color }: any) => {
-
+const ChartTooltip = ({ id, value, color }: BarChartTooltipProps) => {
 	return (
-		<BasicTooltip
-			id={id}
-            value={value}
-            color={color}
-			renderContent={() => {
-				return (
-					<div>
-						<div>
-							<svg width={13} height={11}>
-								<rect width={10} height={10} fill={color}></rect>
-							</svg>
-							<span style={{ color: '#f1658a' }}>{id}</span>
-						</div>
-						<div style={{ fontWeight: 'bold', color: '#444', marginLeft: '13px' }}>{value}</div>
-					</div>
-				);
-			}}
-		/>
+		<div className="tooltip">
+			<div>
+				<svg width={13} height={11}>
+					<rect width={10} height={10} fill={color}></rect>
+				</svg>
+				<span className="tooltip-id">{id}</span>
+			</div>
+			<div className="tooltip-value">{value}</div>
+		</div>
 	);
 };
 export default ChartTooltip;

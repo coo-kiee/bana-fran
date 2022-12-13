@@ -159,6 +159,10 @@ interface SalesLineChartProps {
     data: any;
     searchType: SearchType;
 }
+interface SalesLineChartTooltipProps {
+	point: any;
+    searchType: SearchType;
+}
 
 // types
 export type {
@@ -172,6 +176,7 @@ export type {
     SalesStatisticSearch, 
     FilterChart, 
     SalesLineChartProps, 
+	SalesLineChartTooltipProps,
 };
 
 // option types

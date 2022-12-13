@@ -1,6 +1,7 @@
 article { display: flex; position: relative;
     nav { 
         width: 230px;
+        min-width: 230px;
         min-height: 1020px;
         padding: 30px 0px 0px;
         background: #3a3a4d;
