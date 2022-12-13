@@ -5,7 +5,7 @@ import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage"; 
 
 // type
-import { PageInfoType, SearchInfoSelectType, SearchInfoType, TableHeadItemType } from "types/etc/etcType";
+import { PageInfoType, TableHeadItemType } from "types/etc/etcType";
 import { ExtraOverallTableRowItemType } from "types/membership/extraType";
 import NoData from "pages/common/noData"; 
 import React from "react";

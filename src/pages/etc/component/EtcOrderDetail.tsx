@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useRef } from 'react';
 import { useRecoilState } from 'recoil';
 import Utils from 'utils/Utils';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -17,6 +17,7 @@ import ETC_SERVICE from 'service/etcService';
 import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import{EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
+import Sticky from 'pages/common/sticky';
 
 const EtcOrderDetail = () => {
     const { reset } = useQueryErrorResetBoundary();  
@@ -55,24 +56,31 @@ const EtcOrderDetailData = () => {
         total = [...total, data[data.length - 1]];
     };
 
+	/* sticky ref */
+    const stickyRootRef = useRef<HTMLDivElement>(null); // sticky wrapper, viewport 역할 ref
+	const stickyRef = useRef<HTMLTableRowElement>(null); // sticky 기준 ref
+    
     return (
         <>
-        <div style={{ 'overflowY': 'auto', 'maxHeight': 500 }}>
-            <table className="board-wrap" cellPadding="0" cellSpacing="0">
-                <EtcDetailTableHead detailTableColGroup={colGroup} detailTableHead={thead}/>
-                <tbody> 
-                    {tbody.map((el, idx) => <EtcOrderDetailItem key={`etc_order_detail_item_${idx}`} {...el} />)}
-                    {total.map((el, idx) => {
-                        return (
-                            <tr key={`etc_order_detail_item_total_${idx}`}>
-                                <td className="result total etc-total" colSpan={5}><strong>합계</strong></td>
-                                <td className="point result total etc-total"><strong>{Utils.numberComma(el.total_amount)}</strong></td>
-                                <td className="result total etc-total"></td>
-                            </tr>
-                        )
-                    })}
-                </tbody>
-            </table>
+            <div style={{ 'overflowY': 'auto', 'maxHeight': 500, position: 'relative' }} ref={stickyRootRef}>
+                <Sticky reference={stickyRef.current} root={stickyRootRef.current}>
+                    <EtcDetailTableHead detailTableColGroup={colGroup} detailTableHead={thead} />
+                </Sticky>
+                <table className="board-wrap" cellPadding="0" cellSpacing="0">
+                    <EtcDetailTableHead detailTableColGroup={colGroup} detailTableHead={thead} ref={stickyRef} />
+                    <tbody> 
+                        {tbody.map((el, idx) => <EtcOrderDetailItem key={`etc_order_detail_item_${idx}`} {...el} />)}
+                        {total.map((el, idx) => {
+                            return (
+                                <tr key={`etc_order_detail_item_total_${idx}`}>
+                                    <td className="result total etc-total" colSpan={5}><strong>합계</strong></td>
+                                    <td className="point result total etc-total"><strong>{Utils.numberComma(el.total_amount)}</strong></td>
+                                    <td className="result total etc-total"></td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
             </div>
             <button className="btn-close order-close" onClick={handleModalClose}></button>
             <button className="cta-btn" onClick={handleModalClose}>확인</button>
