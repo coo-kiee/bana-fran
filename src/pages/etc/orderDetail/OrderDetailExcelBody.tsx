@@ -46,7 +46,7 @@ const OrderDetailExcelBody = ({ data, searchOptionValue }: Props) => {
                             </> 
                             :
                             undefined}
-                        <td className='align-left'>{sGroup} {sItemShort} ({delivery_volume}) 배송단위/용량:  1{delivery_unit}/{nEAPerPack}</td>
+                        <td className='align-left'>{sGroup}<br />{sItemShort} ({delivery_volume})<br />배송단위/용량:  1{delivery_unit}/{nEAPerPack}</td>
                         <td className='align-right'>{Utils.numberComma(fran_price)}원</td>
                         <td className='align-right'>{Utils.numberComma(order_detail_cnt)}개</td>
                         <td className='align-right'>{Utils.numberComma(supply_amt)}원</td>
