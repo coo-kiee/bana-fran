@@ -42,8 +42,11 @@ const EtcOrderDetailData = () => {
         [{itemName: '품목'}, {itemName: '단가'}, {itemName: '수량'}, {itemName: '공급가'}, {itemName: '부가세'}, {itemName: '합계(발주금액)'}, {itemName: '특이사항'}],
     ];
 
-    const handleModalClose = () => {
-        setModalState((prev) => ({ ...prev, show: false })); // 끄기
+    const handleModalClose = () => { 
+        setModalState((prev) => {
+            console.log('click')
+            return {...prev, show: false}
+        }); // 끄기
     };
 
     // 프로시저

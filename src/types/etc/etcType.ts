@@ -69,6 +69,10 @@ interface OrderDetailListType {
     supply_amt: number,
     vat_amt: number,
 } // web_fran_s_etc_order_list 결과 타입
+interface OrderDetailListExcelTotalType {
+    [key: string]: OrderDetailListExcelType[]; 
+    // ex) 123456: [ { cancel_date: "", nOrderId: 123456, ... }, {...}, ... ]
+}
 interface OrderDetailListExcelType {
     cancel_date: string,
     cancel_staff: string,
@@ -284,7 +288,7 @@ const ETC_ORDER_SEARCH_STATE_LIST = [
 ]
 export type {
     SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
-    DeliveryDetailListType, MusicChargeDetailType, GiftCardDetailType, OrderDetailListType, OrderDetailListExcelType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
+    DeliveryDetailListType, MusicChargeDetailType, GiftCardDetailType, OrderDetailListType, OrderDetailListExcelTotalType, OrderDetailListExcelType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
     ChkGiftCardStockParams, GiftCardListParams, OrderDetailModalParams,
     DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps, MusicChargeDetailProps, OrderDetailDetailProps, RoyaltyDetailProps, VirtualAccountDetailProps,
 };

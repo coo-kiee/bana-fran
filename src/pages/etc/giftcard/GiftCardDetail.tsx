@@ -70,13 +70,13 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
     const thRef = useRef<HTMLTableRowElement>(null);
 
     // TODO: 데이터
+    const { giftCardListFrom, giftCardListTo } = {
+        giftCardListFrom: from + '-01',
+        giftCardListTo: isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
+    }
     // eslint-disable-next-line
-    const etcGiftcardListKey = useMemo(() => ['etc_gift_card_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data: listData } = ETC_SERVICE.useGiftCardList(etcGiftcardListKey, [
-        franCode, 
-        from + '-01' ,
-        isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
-    ]);
+    const etcGiftcardListKey = useMemo(() => ['etc_gift_card_list', JSON.stringify({ franCode, from: giftCardListFrom, to: giftCardListTo }) ], [franCode, searchTrigger]);
+    const { data: listData } = ETC_SERVICE.useGiftCardList(etcGiftcardListKey, [ franCode, giftCardListFrom, giftCardListTo ]);
 
     // etc_gift_card_list
     const [renderTableList, kioskAndPosTotal, appTotal, cancelTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => { 

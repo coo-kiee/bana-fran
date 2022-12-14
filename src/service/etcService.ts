@@ -140,11 +140,23 @@ const useDetailListExcel = (queryKey: string[], params: [number, string, string]
     const [ franCode, from, to ] = params;
     const reqData: RequestParams<{ f_code: number, from_date: string, to_date: string }> = { ws: 'fprocess', query:'QUUTFIHQCF8PKO0LPKKF', params: { f_code: franCode, from_date: from, to_date: to} };
 
-    return useQuery<OrderDetailListExcelType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
+    return useQuery<OrderDetailListExcelType[], AxiosError/*, OrderDetailListExcelTotalType */>(queryKey, () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: false
+        suspense: false,
+        // select: (data: OrderDetailListExcelType[]) => {
+        //     // nOrderID 뽑아서 [ 111111: [{...}], 222222:[{...}, {...}, ...], ... ] 형태로 만들어주기
+        //     let tempData = data.reduce((acc, cur) => { 
+        //         // 만약 nOrderID가 이미 존재 -> 추가
+        //         if(Object.keys(acc).includes(String(cur.nOrderID))) acc[`${cur.nOrderID}`] = [ ...acc[cur.nOrderID], cur];
+        //         // 만약 nOrderID 존재 X -> 새로 추가
+        //         else acc[`${cur.nOrderID}`] = [ cur ]; 
+
+        //         return acc; 
+        //     }, {} as OrderDetailListExcelTotalType)
+        //     return tempData; 
+        // }
     });
 } // 발주내역 (suspense 때문에 따로 분리 + 테스트)
 

@@ -59,13 +59,13 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
     });
 
     // TODO: 데이터
+    const { rankListFrom, rankListTo } = {
+        rankListFrom: from + '-01',
+        rankListTo: isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
+    } 
     // eslint-disable-next-line
-    const rankListKey = useMemo(() => ['membership_rank_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data } = MEMBERSHIP_SERVICE.useRankList(rankListKey, [
-        franCode, 
-        from + '-01' ,
-        isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
-    ]);
+    const rankListKey = useMemo(() => ['membership_rank_list', JSON.stringify({ franCode, from:rankListFrom, to:rankListTo }) ], [franCode, searchTrigger]);
+    const { data } = MEMBERSHIP_SERVICE.useRankList(rankListKey, [ franCode, rankListFrom, rankListTo ]);
 
     const renderTableList = useMemo(() => {
         return data?.reduce((arr: ReactNode[], tbodyRow) => {

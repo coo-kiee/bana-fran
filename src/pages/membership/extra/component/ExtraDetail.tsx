@@ -66,13 +66,13 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
     }) // etcDetailFooter 관련 내용
 
     // TODO: 데이터
+    const { membershipListFrom, membershipListTo } = {
+        membershipListFrom: from + '-01',
+        membershipListTo: isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
+    } 
     // eslint-disable-next-line
-    const membershipListKey = useMemo(() => ['membership_extra_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data, isError, isLoading, isSuccess } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [
-        franCode, 
-        from + '-01' ,
-        isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
-    ]);
+    const membershipListKey = useMemo(() => ['membership_extra_list', JSON.stringify({ franCode, from:membershipListFrom, to:membershipListTo }) ], [franCode, searchTrigger]);
+    const { data, isError, isLoading, isSuccess } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [franCode, membershipListFrom, membershipListTo ]);
 
     const renderTableList: ReactNode[] = useMemo(() => {  
         const tableList = data?.reduce((arr: any, tbodyRow: any, index: number) => { 

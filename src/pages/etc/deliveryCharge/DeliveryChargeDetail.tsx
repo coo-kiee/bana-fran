@@ -62,10 +62,10 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
         row: 20, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용 
 
-    // TODO: 데이터  
+    // TODO: 데이터 
     // eslint-disable-next-line
-    const etcdDeliveryListKey = useMemo(() => ['etc_delivery_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data: listData } = ETC_SERVICE.useEtcList<DeliveryDetailListType[]>('YOCYKBCBC6MTUH9AXBM7', etcdDeliveryListKey, [franCode, from, to] );
+    const etcDeliveryListKey = useMemo(() => ['etc_delivery_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
+    const { data: listData } = ETC_SERVICE.useEtcList<DeliveryDetailListType[]>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListKey, [franCode, from, to] );
     const [renderTableList, totalCharge, supplyTotal, taxTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
             const { delivery_pay_type, dtRcp, nDeliveryCharge, payment_type, sItem, sPhone, suply_fee, suply_fee_tax, total_charge, total_fee} = tbodyRow;

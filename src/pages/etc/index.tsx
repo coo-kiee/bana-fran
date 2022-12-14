@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import loadable from '@loadable/component';
 
@@ -20,6 +20,9 @@ const EtcContainer = () => {
     const EtcOrderModal = loadable(() => import('./component/EtcOrderDetail'));
     const { show } = useRecoilValue(orderDetailModalState);
 
+    useEffect(() => {
+        console.log(show)
+    }, [show])
     // TODO: 상태 관련
     const [currTab, setCurrTab] = useState(0); // 선택된 탭 메뉴 관련 
 
@@ -58,7 +61,7 @@ const EtcContainer = () => {
                     </div>
                 </section>
             </section>
-            {show && <EtcOrderModal />}
+            {show ? <EtcOrderModal /> : null}
         </>
     )
 }

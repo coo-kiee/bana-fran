@@ -56,13 +56,13 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
     const thRef = useRef<HTMLTableRowElement>(null);
 
     // TODO: 데이터   
+    const { virtualAccListFrom, virtualAccListTo } = {
+        virtualAccListFrom: from + '-01',
+        virtualAccListTo: isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
+    } 
     // eslint-disable-next-line
-    const etcVirtualAccBalanceListKey = useMemo(() => ['etc_virtual_acc_detail_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [
-        franCode,
-        from + '-01',
-        isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
-    ]);
+    const etcVirtualAccBalanceListKey = useMemo(() => ['etc_virtual_acc_detail_list', JSON.stringify({ franCode, from:virtualAccListFrom , to:virtualAccListTo }) ], [franCode, searchTrigger]);
+    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [franCode, virtualAccListFrom, virtualAccListTo ]);
 
     const [renderTableList, depositTotal, deductTotal]: [ReactNode[] | undefined, number, number] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {

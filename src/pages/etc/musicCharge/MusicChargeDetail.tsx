@@ -60,13 +60,14 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
     const thRef = useRef<HTMLTableRowElement>(null);
 
     // TODO: 데이터
+    const { musicListFrom, musicListTo } = {
+        musicListFrom: from + '-01',
+        musicListTo: isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
+    };
     // eslint-disable-next-line
-    const etcMusicListKey = useMemo(() => ['etc_music_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data: listData } = ETC_SERVICE.useEtcList<MusicChargeDetailType[]>('VK4WML6GW9077BKEWP3O', etcMusicListKey, [
-        franCode, 
-        from + '-01' ,
-        isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
-    ]);
+    const etcMusicListKey = useMemo(() => ['etc_music_list', JSON.stringify({ franCode, from: musicListFrom, to: musicListTo }) ], [franCode, searchTrigger]);
+    const { data: listData } = ETC_SERVICE.useEtcList<MusicChargeDetailType[]>('VK4WML6GW9077BKEWP3O', etcMusicListKey, [ franCode, musicListFrom, musicListTo ]);
+
     const [renderTableList, musicTotal, feeTotal]: [ReactNode[] | undefined, number, number] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow,) => {
             const { std_date, state, suply_amount, tax_amount, total_amount } = tbodyRow; 
