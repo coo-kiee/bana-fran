@@ -88,6 +88,7 @@ const CalanderSearch: React.FC<CalendarSearchProps> = ({ title, dateTitle, dateT
                                             // console.log(option) // 'POINT_ALL'
                                             // console.log(selectData[option].value) // 'POINT_ALL'
                                             return <option key={`option_${optionIdx}`} value={selectData[option].value}>{selectData[option].title}</option>
+                                            // console.log(selectData)
                                         })}
                                     </select>&nbsp;
                                 </Fragment>

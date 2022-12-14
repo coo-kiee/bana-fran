@@ -5,7 +5,7 @@ import { format, subMonths } from 'date-fns';
 
 // type
 import { RequestParams } from 'types/common';
-import { OrderDetailModalParams, OrderDetailModalItemType, ChkGiftCardStockParams, GiftCardListParams, OrderDetailListType, GiftCardDetailType, VirtualAccListType } from 'types/etc/etcType';
+import { OrderDetailModalParams, OrderDetailModalItemType, ChkGiftCardStockParams, GiftCardListParams, OrderDetailListType, GiftCardDetailType, VirtualAccListType, OrderDetailListExcelType } from 'types/etc/etcType';
 import Utils from 'utils/Utils';
 
 // TODO: 수수료 내역 (*_total 프로시저 공통 함수)
@@ -83,11 +83,11 @@ const useOrderDetailStatistic = (params: { fran_store: number }, option: { [key:
             let previousMonths: { [key: string]: any }[] = [];
             Array.from({ length: 10 }, (_, idx1) => idx1).forEach((el, idx2) => {
                 const month = format(subMonths(new Date(), el), 'yyyy-MM');
-                previousMonths[idx2] = { date_monthly: month, amount: 0 }
+                previousMonths[idx2] = { date_monthly: month, amount: 0, supply_amt: 0, vat_amt: 0 }
             }); // previousMonths = [ {date_monthly: '2022-11', amount: 0}, ...,  {date_monthly: '2022-01', amount: 0}], 최근을 앞에 오게
 
             data.forEach((el: any, idx: number) => {
-                previousMonths[idx] = { ...previousMonths[idx], amount: el.amount }
+                previousMonths[idx] = { ...previousMonths[idx], amount: el.amount, supply_amt: el.supply_amt, vat_amt: el.vat_amt }
             }); // 내림차순이라 idx 그대로 사용 가능
 
             return previousMonths.reverse(); // 순서 뒤집어주고 정리  
@@ -136,6 +136,19 @@ const useDetailList = (queryKey: string[], params: [number, string, string]) => 
     });
 } // 발주내역 (suspense 때문에 따로 분리 + 테스트)
 
+const useDetailListExcel = (queryKey: string[], params: [number, string, string]) => {  
+    const [ franCode, from, to ] = params;
+    const reqData: RequestParams<{ f_code: number, from_date: string, to_date: string }> = { ws: 'fprocess', query:'QUUTFIHQCF8PKO0LPKKF', params: { f_code: franCode, from_date: from, to_date: to} };
+
+    return useQuery<OrderDetailListExcelType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        suspense: false
+    });
+} // 발주내역 (suspense 때문에 따로 분리 + 테스트)
+
+
 const useVirtualAccList = (queryKey: string[], params: [number, string, string]) => {
     const [ franCode, from, to ] = params;
     const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = { ws: 'fprocess', query: 'CS4QOSEGOQGJ8QCALM7L',  params: { fran_store: franCode, from_date: from, to_date: to}};
@@ -168,6 +181,7 @@ const ETC_SERVICE = {
     useGiftCardList,
     useOrderDetailStatistic, 
     useDetailList,
+    useDetailListExcel,
     useVirtualAccList,
     useOrderDetailModal,
 };

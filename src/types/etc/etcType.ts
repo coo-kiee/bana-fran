@@ -55,7 +55,7 @@ interface GiftCardDetailType {
 } // web_fran_s_etc_gift_cert_detail_list 결과 타입
 interface OrderDetailListType {
     amount: number,
-    cacel_staff: string,
+    cancel_staff: string,
     cancel_date: string,
     first_item: string,
     insert_date: string,
@@ -64,8 +64,33 @@ interface OrderDetailListType {
     nOrderID: number,
     order_count: number,
     staff_name: string,
-    state_name: string
+    state: number,
+    state_name: string,
+    supply_amt: number,
+    vat_amt: number,
 } // web_fran_s_etc_order_list 결과 타입
+interface OrderDetailListExcelType {
+    cancel_date: string,
+    cancel_staff: string,
+    delivery_volume: string,
+    delivery_unit: string,
+    fran_price: number, 
+    insert_date: string,
+    last_modify_date: string,
+    last_modify_staff: string,
+    nEAPerPack: number,
+    nOrderID: number,
+    order_count: number,
+    order_detail_cnt: number,
+    sGroup: string,
+    sItemShort: string,
+    staff_name: string,
+    state: number,
+    state_name: string,
+    supply_amt: number,
+    total_amt: number,
+    vat_amt: number,
+} // web_fran_s_etc_order_list_excel
 interface RoyaltyDetailListType {
     std_date: string,
     state: string,
@@ -131,7 +156,8 @@ interface GiftcardDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoSelectType, 
 }
 interface OrderDetailDetailProps extends DetailFallbackProps {
-    searchInfo: SearchInfoType, 
+    // searchInfo: SearchInfoType, 
+    searchInfo: SearchInfoSelectType, 
 }
 interface RoyaltyDetailProps extends DetailFallbackProps { 
     searchInfo: SearchInfoType,
@@ -149,7 +175,7 @@ const isRadio = (target: any): target is SearchInfoRadioType => {
     return 'searchType' in target ? true : false;
 }
 
-// etc페이지 탭 관련 
+// etc 페이지 탭 관련 
 const ETC_TAB_TYPE = {
     DELIVERY: 0, // 바나 딜리버리 수수료
     MUSIC: 1, // 음악 서비스 이용료
@@ -209,6 +235,19 @@ const ETC_GIFTCARD_SEARCH_DEVICE_TYPE = {
     ELSE: 'ELSE' // N/A
 }; // 처리기기 관련
 
+
+// etc 페이지 발주내역 상태 검색 옵션 관련
+const ETC_ORDER_SEARCH_STATE_TYPE = {
+    STATE_ALL: 'STATE_ALL',
+    AWAIT: 0,               // 대기
+    CONFIRM: 10,            // 발주확인
+    PACKING: 20,            // 패킹완료
+    DELIVERY: 30,           // 배송출발
+    PARTIAL_COMPLETE: 35,   // 일부배달완료
+    COMPLETE: 40,           // 배송완료
+    CANCEL: 50,             // 취소
+}
+
 const ETC_GIFTCARD_SEARCH_CATEGORY_LIST = [
     ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL,
     ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL,
@@ -231,15 +270,26 @@ const ETC_GIFTCARD_SEARCH_DEVICE_LIST = [
     ETC_GIFTCARD_SEARCH_DEVICE_TYPE.POS,
     ETC_GIFTCARD_SEARCH_DEVICE_TYPE.ELSE,
 ]
-
+const ETC_ORDER_SEARCH_STATE_LIST = [
+    [
+        ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL,
+        ETC_ORDER_SEARCH_STATE_TYPE.AWAIT,
+        ETC_ORDER_SEARCH_STATE_TYPE.CONFIRM,
+        ETC_ORDER_SEARCH_STATE_TYPE.PACKING,
+        ETC_ORDER_SEARCH_STATE_TYPE.DELIVERY,
+        ETC_ORDER_SEARCH_STATE_TYPE.PARTIAL_COMPLETE,
+        ETC_ORDER_SEARCH_STATE_TYPE.COMPLETE,
+        ETC_ORDER_SEARCH_STATE_TYPE.CANCEL,
+    ]
+]
 export type {
     SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
-    DeliveryDetailListType, MusicChargeDetailType, GiftCardDetailType, OrderDetailListType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
+    DeliveryDetailListType, MusicChargeDetailType, GiftCardDetailType, OrderDetailListType, OrderDetailListExcelType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
     ChkGiftCardStockParams, GiftCardListParams, OrderDetailModalParams,
     DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps, MusicChargeDetailProps, OrderDetailDetailProps, RoyaltyDetailProps, VirtualAccountDetailProps,
 };
 export {
     ETC_TAB_TYPE, ETC_TAB_LIST, ETC_DELIVERY_SEARCH_OPTION_TYPE, ETC_DELIVERY_SEARCH_OPTION_LIST,
-    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_LIST,
+    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_LIST, ETC_ORDER_SEARCH_STATE_TYPE, ETC_ORDER_SEARCH_STATE_LIST,
     isSelect, isRadio,
 };

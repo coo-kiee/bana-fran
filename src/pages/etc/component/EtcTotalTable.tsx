@@ -132,22 +132,50 @@ const EtcTotalTableData: FC<{ currTab: number }> = ({ currTab }) => {
 const EtcOrderTotalTableData = () => {
     const franCode = useRecoilValue(franState);
 
-    let tableBody: any = []; // 프로시저 성공 후 업데이트
+    // let tableBody: any = []; // 프로시저 성공 후 업데이트
+    let tableBodyTotal: any; // 프로시저 성공 후 업데이트
+    let tableBodySupply: any; // 프로시저 성공 후 업데이트
+    let tableBodyVat: any; // 프로시저 성공 후 업데이트
+
     const totalParam: { fran_store: number } = { fran_store: franCode };
-    const { data: totalData, isSuccess: totalSuccess } = ETC_SERVICE.useOrderDetailStatistic(totalParam);
+    const { data, isSuccess: totalSuccess } = ETC_SERVICE.useOrderDetailStatistic(totalParam);
     if (totalSuccess) {
-        tableBody = [totalData.map((el: any) => ({ data: Utils.numberComma(el.amount), className: 'align-right' }))];
+        tableBodyTotal = [[{data: '발주금액(합계)', className: 'align-center'}, ...data.map((el: any) => ({ data: Utils.numberComma(el.amount), className: 'align-right' }))]];
+        tableBodySupply = [[{data: '공급가', className: 'align-center'}, ...data.map((el: any) => ({ data: Utils.numberComma(el.supply_amt), className: 'align-right' }))]];
+        tableBodyVat = [[{data: '부가세', className: 'align-center'}, ...data.map((el: any) => ({ data: Utils.numberComma(el.vat_amt), className: 'align-right' }))]];
+        // tableBody = [totalData.map((el: any) => ({ data: Utils.numberComma(el.amount), className: 'align-right' }))];
     }
 
     return (
         <>
-            {tableBody.map((tr: any, idx: number) => {
+            {tableBodyTotal.map((tr: any, idx: number) => {
+                return (
+                    <tr key={`etc_table_tr_total_${idx}`}>
+                        {tr.map((td: any, idx: number) => <td key={`etc_table_td_${idx}`} className={td.className}>{td.strong ? <strong>{td.data}</strong> : td.data}</td>)}
+                    </tr>
+                )
+            })}
+            {tableBodySupply.map((tr: any, idx: number) => {
+                return (
+                    <tr key={`etc_table_tr_supply_${idx}`}>
+                        {tr.map((td: any, idx: number) => <td key={`etc_table_td_${idx}`} className={td.className}>{td.strong ? <strong>{td.data}</strong> : td.data}</td>)}
+                    </tr>
+                )
+            })}
+            {tableBodyVat.map((tr: any, idx: number) => {
+                return (
+                    <tr key={`etc_table_tr_vat_${idx}`}>
+                        {tr.map((td: any, idx: number) => <td key={`etc_table_td_${idx}`} className={td.className}>{td.strong ? <strong>{td.data}</strong> : td.data}</td>)}
+                    </tr>
+                )
+            })}
+            {/* {tableBody.map((tr: any, idx: number) => {
                 return (
                     <tr key={`etc_table_tr_${idx}`}>
                         {tr.map((td: any, idx: number) => <td key={`etc_table_td_${idx}`} className={td.className}>{td.strong ? <strong>{td.data}</strong> : td.data}</td>)}
                     </tr>
                 )
-            })}
+            })} */}
         </>
     )
 }
@@ -240,8 +268,8 @@ const tabList = {
     },
     [ETC_TAB_TYPE.ORDER]: {
         title: `월별 발주금액 통계`,
-        colgroup: ['147', '147', '147', '147', '147', '147', '147', '147', '147', '147'],
-        thead: Array.from({ length: 10 }, (_, idx1) => idx1).map((el) => format(subMonths(new Date(), el), 'yyyy-MM')).reverse(),
+        colgroup: ['147', '147', '147', '147', '147', '147', '147', '147', '147', '147', '147'],
+        thead: Array.from({ length: 11 }, (_, idx1) => idx1).map((el, idx, thisArg) => idx + 1 !== thisArg.length ? format(subMonths(new Date(), el), 'yyyy-MM') : '구분').reverse(),
         query: '2Q65LKD2JBSZ3OWKWTWY',
         queryKey: 'etc_order_detail_statistic',
     },

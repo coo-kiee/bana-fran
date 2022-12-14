@@ -9,7 +9,7 @@ import { format, isAfter, lastDayOfMonth, subMonths } from "date-fns";
 import { franState, loginState, orderDetailModalState } from "state";
 
 // type
-import { PageInfoType, OrderDetailDetailProps, SearchInfoType } from "types/etc/etcType";
+import { PageInfoType, OrderDetailDetailProps, SearchInfoSelectType, ETC_ORDER_SEARCH_STATE_TYPE, ETC_ORDER_SEARCH_STATE_LIST } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from "service/etcService";
@@ -21,13 +21,15 @@ import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetai
 import CalanderSearch from "pages/common/calanderSearch";
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import OrderDetailExcelBody from './OrderDetailExcelBody';
 
 const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ({ detailTableColGroup, detailTableHead }) => {
     const { reset } = useQueryErrorResetBoundary(); 
-    const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
+    const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10
         to: format(new Date(), 'yyyy-MM'), // 2022-11
         searchTrigger: false,
+        searchOption: [{title: '상태 전체', value: ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL}]
     }); // etcSearch 내부 검색 날짜
 
     return (
@@ -42,7 +44,7 @@ const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ({ det
     )
 }
 
-const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: { from, to, searchTrigger} }) => {
+const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: { from, to, searchOption, searchTrigger} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
     const setOrderDetailmodalState = useSetRecoilState(orderDetailModalState);
@@ -54,24 +56,33 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
     });
     const tableRef = useRef<HTMLTableElement>(null);  
     const thRef = useRef<HTMLTableRowElement>(null);
-
+    
     // TODO: 데이터  
     // eslint-disable-next-line
     const etcOrderDetailListKey = useMemo(() => ['etc_order_detail_list', JSON.stringify({ franCode, from, to }) ], [ franCode, searchTrigger ]);
+    const etcOrderDetailExcelListKey = useMemo(() => ['etc_order_detail_list_excel', JSON.stringify({ franCode, from, to }) ], [ franCode, from, to ]);
     const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [
         franCode, 
         from + '-01' ,
         isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
     ]);
 
-    const [renderTableList, totalSumObj]: [ReactNode[] | undefined, number] = useMemo(() => { 
+    const [renderTableList, totalSumObj, supplySumObj, vatSumObj]: [ReactNode[] | undefined, number, number, number] = useMemo(() => { 
         const handlePopupOrderDetail = (nOrderID: number) => { 
             setOrderDetailmodalState((prevState) => ({ ...prevState, show: true, orderCode: nOrderID }));
         };
+        const { value: searchOptionValue } = searchOption[0]; // 검색 상태값 (주문 상태)
 
-        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
-            const { nOrderID, insert_date, last_modify_date, cancel_date, staff_name, last_modify_staff, cacel_staff, state_name, order_count, first_item, amount } = tbodyRow; 
-
+        let filteredData = listData; // filtering data
+        if (searchOptionValue !== ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL) {
+            filteredData = listData?.filter((origData: any) => { 
+                return origData.state === Number(searchOptionValue)
+            })
+        }
+        
+        const tableList = filteredData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
+            const { nOrderID, insert_date, last_modify_date, cancel_date, staff_name, last_modify_staff, cancel_staff, state_name, order_count, first_item, supply_amt, vat_amt, amount } = tbodyRow; 
+            
             arr.push(
                 <>
                     <td className='align-center'>{insert_date}</td>
@@ -79,10 +90,12 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
                     <td className='align-center'>{cancel_date}</td> 
                     <td className='align-center'>{staff_name}</td>
                     <td className='align-center'>{last_modify_staff}</td>
-                    <td className='align-center'>{cacel_staff}</td> 
+                    <td className='align-center'>{cancel_staff}</td> 
                     <td className='align-center'>{state_name}</td> 
                     <td className='align-right'>{Utils.numberComma(order_count)}</td>
                     <td className='align-left order-view' onClick={() => handlePopupOrderDetail(nOrderID)}>{order_count > 1 ? `${first_item} 외 ${order_count - 1}건` : first_item}</td>
+                    <td className='align-right'>{Utils.numberComma(supply_amt)}원</td>
+                    <td className='align-right'>{Utils.numberComma(vat_amt)}원</td>
                     <td className='align-right'>{`${Utils.numberComma(amount)}원`}</td>
                 </>
             )
@@ -90,19 +103,96 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
             return arr;
         }, [] as ReactNode[])
 
-        let sumObj = listData?.reduce((acc: any, cur: any) => acc += cur.amount, 0) || 0; 
+        let sumObjTotal = listData?.reduce((acc: any, cur: any) => cur.state !== 50 ? acc += cur.amount : acc, 0) || 0;      // 발주금액 합계
+        let sumObjSupply = listData?.reduce((acc: any, cur: any) => cur.state !== 50 ? acc += cur.supply_amt : acc, 0) || 0; // 공급가
+        let sumObjVat = listData?.reduce((acc: any, cur: any) => cur.state !== 50 ? acc += cur.vat_amt : acc, 0) || 0;       // 부가세
 
-        return [tableList, sumObj];
-    }, [listData, setOrderDetailmodalState]); 
+        return [tableList, sumObjTotal, sumObjSupply, sumObjVat];
+    }, [listData, setOrderDetailmodalState, searchOption]); 
 
     // TODO: 엑셀, 페이지네이션 관련
+
+    // Excel colgroup, header
+    const excelTableColGroup = ['170', '170', '170', '84', '104', '84', '98', '98', '*', '120', '80', '120', '110', '150'];
+    const excelTableHead = [
+        [{ itemName: '일시' }, { itemName: '최종수정일', }, { itemName: '취소일' }, { itemName: '접수자' }, { itemName: '최종수정자' }, { itemName: '취소자' }, { itemName: '상태' }, { itemName: '발주 건 수' }, { itemName: '품목 상세' }, { itemName: '단가' }, { itemName: '수량' }, { itemName: '공급가' }, { itemName: '부가세' }, { itemName: '발주 금액' }]
+    ];
+    
+    // Excel 다운로드용 query
+    const excelQuery = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [
+        franCode, 
+        from + '-01' ,
+        isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
+    ]);
+
+    // Excel Table 생성
+    const renderExcelTableList: ReactNode[] | undefined = useMemo(() => { 
+        const { value: searchOptionValue } = searchOption[0]; // 검색 상태값 (주문 상태)
+
+        let filteredData = excelQuery.data; // filtering data
+        if (searchOptionValue !== ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL) {
+            filteredData = excelQuery.data?.filter((origData: any) => { 
+                return origData.state === Number(searchOptionValue)
+            })
+        }
+
+        const tableList = filteredData?.reduce((arr: ReactNode[], tbodyRow, index: number) => { 
+            const { 
+                cancel_date,
+                cancel_staff,
+                delivery_volume,
+                delivery_unit,
+                fran_price, 
+                insert_date,
+                last_modify_date,
+                last_modify_staff,
+                nEAPerPack,
+                // nOrderID,
+                order_count,
+                order_detail_cnt,
+                sGroup,
+                sItemShort,
+                staff_name,
+                // state,
+                state_name,
+                supply_amt,
+                total_amt,
+                vat_amt
+             } = tbodyRow; 
+            
+            arr.push(
+                <>
+                    <td className='align-center' rowSpan={order_count}>{insert_date}</td>
+                    <td className='align-center' rowSpan={order_count}>{last_modify_date}</td>
+                    <td className='align-center' rowSpan={order_count}>{cancel_date}</td> 
+                    <td className='align-center' rowSpan={order_count}>{staff_name}</td>
+                    <td className='align-center' rowSpan={order_count}>{last_modify_staff}</td>
+                    <td className='align-center' rowSpan={order_count}>{cancel_staff}</td> 
+                    <td className='align-center' rowSpan={order_count}>{state_name}</td> 
+                    <td className='align-right' rowSpan={order_count}>{Utils.numberComma(order_count)}</td>
+                    <td className='align-left order-view'>{sGroup} {sItemShort} ({delivery_volume}) 배송단위/용량:  1{delivery_unit}/{nEAPerPack}</td>
+                    <td className='align-right'>{Utils.numberComma(fran_price)}원</td>
+                    <td className='align-right'>{Utils.numberComma(order_detail_cnt)}원</td>
+                    <td className='align-right'>{Utils.numberComma(supply_amt)}원</td>
+                    <td className='align-right'>{Utils.numberComma(vat_amt)}원</td>
+                    <td className='align-right'>{Utils.numberComma(total_amt)}원</td>
+                </>
+            )
+
+            return arr;
+        }, [] as ReactNode[])
+        return tableList;
+    }, [excelQuery, searchOption]); 
+
+    console.log(excelQuery.isSuccess && excelQuery.data);
+
     const handleExcelDownload = () => {
         if (tableRef.current) {
             const options = {
                 type: 'table',
                 sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
-                // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
+                colspan: excelTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
+                rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1], color: ['d3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
@@ -110,6 +200,12 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
             Utils.excelDownload(tableRef.current, options, fileName);
         };
     };
+
+
+
+
+
+
     const handlePageChange = (changePage: number) => {
         setPageInfo((prevPageInfo) => ({ ...prevPageInfo, currentPage: changePage }))
     }
@@ -125,6 +221,8 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
                 </div>
                 <ul className="search-result">
                     <li className="hyphen">총 발주금액 합계<span className="colon"></span><span className="value">{Utils.numberComma(totalSumObj)}원</span></li>
+                    <li className="hyphen">총 발주금액 공급가<span className="colon"></span><span className="value">{Utils.numberComma(supplySumObj)}원</span></li>
+                    <li className="hyphen">총 발주금액 부가세<span className="colon"></span><span className="value">{Utils.numberComma(vatSumObj)}원</span></li>
                 </ul>
             </div>
 
@@ -132,13 +230,29 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
 
-            <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
+            <table className="board-wrap" cellPadding="0" cellSpacing="0">
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
-                {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
+                {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />}
                 {isLoading && <tbody><Loading isTable={true} /></tbody>}
                 {isError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 
             </table>
-
+            {/* {
+                 excelQuery.isSuccess && (
+                    <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
+                        <EtcDetailTableHead detailTableColGroup={excelTableColGroup} detailTableHead={excelTableHead} /> 
+                        <EtcDetailTable tbodyData={renderExcelTableList} pageInfo={pageInfo} />
+                        <OrderDetailExcelBody data={excelQuery.data} />
+                    </table>
+                )
+            } */}
+            {
+                excelQuery.isSuccess && (
+                    <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef} style={{position: 'absolute', top: '-9999px', opacity: 0}}>
+                        <EtcDetailTableHead detailTableColGroup={excelTableColGroup} detailTableHead={excelTableHead} /> 
+                        <EtcDetailTable tbodyData={renderExcelTableList} pageInfo={pageInfo} />
+                    </table>
+                )
+            }
             <div className="result-function-wrap">
                 <div className="function">
                     <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
@@ -151,17 +265,31 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
 
 export default OrderDetailDetail;
 
-const OrderDetailDetailSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>> }> = ({ searchInfo, setSearchInfo }) => {
+const OrderDetailDetailSearch: FC<{searchInfo:SearchInfoSelectType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoSelectType>> }> = ({ searchInfo, setSearchInfo }) => {
     const handleRefetch = () => {
         setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
     };
 
+    const searchOptionList = [
+        {
+            [ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL]: {title: '상태 전체', value: ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL},
+            [ETC_ORDER_SEARCH_STATE_TYPE.AWAIT]: {title: '대기', value: 0},
+            [ETC_ORDER_SEARCH_STATE_TYPE.CONFIRM]: {title: '발주확인', value: 10},
+            [ETC_ORDER_SEARCH_STATE_TYPE.PACKING]: {title: '패킹완료', value: 20},
+            [ETC_ORDER_SEARCH_STATE_TYPE.DELIVERY]: {title: '배송출발', value: 30},
+            [ETC_ORDER_SEARCH_STATE_TYPE.PARTIAL_COMPLETE]: {title: '일부배달완료', value: 35},
+            [ETC_ORDER_SEARCH_STATE_TYPE.COMPLETE]: {title: '배송완료', value: 40},
+            [ETC_ORDER_SEARCH_STATE_TYPE.CANCEL]: {title: '취소', value: 50}
+        }
+    ]
     return (
         <CalanderSearch
             title={`상세내역`}
             dateType={'yyyy-MM'}
             searchInfo={searchInfo}
             setSearchInfo={setSearchInfo}
+            selectOption={searchOptionList}
+            optionList={ETC_ORDER_SEARCH_STATE_LIST}
             handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
             showMonthYearPicker={true}
         />
