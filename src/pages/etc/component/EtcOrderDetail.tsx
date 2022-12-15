@@ -67,16 +67,17 @@ const EtcOrderDetailData = () => {
     };
 
 	/* sticky ref */
-    const stickyRootRef = useRef<HTMLDivElement>(null);  // sticky wrapper, viewport 역할 ref
-	const stickyRef = useRef<HTMLTableRowElement>(null); // sticky 기준 ref
-    
+    const stickyRootRef = useRef<HTMLDivElement>(null);      // sticky wrapper, viewport 역할 ref
+	const stickyRef = useRef<HTMLTableRowElement>(null);     // sticky 기준 ref
+    const contentsRefRef = useRef<HTMLTableElement>(null); // 실제 data table ref (sticky 작동용)
+
     return (
         <>
             <div style={{ 'overflowY': 'auto', 'maxHeight': 500, position: 'relative', marginTop: '30px' }} ref={stickyRootRef}>
-                <Sticky reference={stickyRef.current} root={stickyRootRef.current}>
+                <Sticky reference={stickyRef.current} root={stickyRootRef.current} contentsRef={contentsRefRef.current}>
                     <EtcDetailTableHead detailTableColGroup={colGroup} detailTableHead={thead} />
                 </Sticky>
-                <table className="board-wrap" cellPadding="0" cellSpacing="0" style={{marginTop: 0}}>
+                <table className="board-wrap" cellPadding="0" cellSpacing="0" style={{marginTop: 0}} ref={contentsRefRef}>
                     <EtcDetailTableHead detailTableColGroup={colGroup} detailTableHead={thead} ref={stickyRef} />
                     <tbody> 
                         {tbody.map((el, idx) => <EtcOrderDetailItem key={`etc_order_detail_item_${idx}`} {...el} />)}

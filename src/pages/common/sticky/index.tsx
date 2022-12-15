@@ -3,31 +3,49 @@ import styled from 'styled-components';
 
 interface StickyProps {
     reference: HTMLTableRowElement | null; // tableRow target ref (sticky 적용 기준이 될 tr 가리키는 ref.current)
+    contentsRef: HTMLTableElement | null; // 실제 데이터가 그려진 table (sticky table) contentsRef가 viewport에 보여야 sticky 작동
     children: React.ReactNode; // children: colgroup, th. (table의 colgroup과 sticky(fixed)될 tr, th 요소들)
-    root?: HTMLDivElement | null; // 스크롤 영역 기준 Element. 기본값 null(viewport)
+    root?: HTMLDivElement | null; // 스크롤 영역 기준 Element. 기본값 null(viewport) Modal등 Element 내부 스크롤에 사용
 };
 
-const Sticky = ({ reference, children, root = null }: StickyProps) => {
+const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) => {
     // sticky header display states
 	const [showSticky, setShowSticky] = useState<boolean>(false);
+    // sticky table이 viewport 내에 존재하는지
+    const [isViewportIn, setIsViewportIn] = useState<boolean>(false);
 
-	// change sticky states
+    // 실제 데이터가 그려진 table이 scroll 영역 안에 존재하는지
+	const getTableReady = (entries: any, observer: any) => {
+        entries.forEach((entry: any) => {
+            setIsViewportIn(entry.isIntersecting)
+        });
+    }
+
+	// change sticky states (showSticky)
     const handleSticky = (entries: any, observer: any) => {
         entries.forEach((entry: any) => {
-            if (!entry.isIntersecting) setShowSticky((prev) => !prev);
             entry.intersectionRatio <= 0.1 ? setShowSticky(true) : setShowSticky(false); // 10퍼센트 이하로 보이면 sticky 작동
         });
     }
 
+    // sticky observe (showSticky)
 	useEffect(() => {
-		if (reference) {
+		if (reference && isViewportIn) {
             const observer = new IntersectionObserver(handleSticky, {root: root, rootMargin: '0px', threshold: 0.1});
-            observer.observe(reference); // start observe
+            observer.observe(reference)// start observe
         }
-	}, [reference, root]);
+	}, [reference, root, isViewportIn]);
+
+    // table observe (isViewportIn)
+	useEffect(() => {
+		if (contentsRef) {
+            const observer = new IntersectionObserver(getTableReady, {root: root, rootMargin: '0px', threshold: 0.1});
+            observer.observe(contentsRef); // start observe
+        }
+	}, [contentsRef, root]);
 
 	return <>
-        { showSticky ? <StickyContainer className='board-wrap' root={root}>{children}</StickyContainer> : null }        
+        { isViewportIn && showSticky ? <StickyContainer className='board-wrap' root={root}>{children}</StickyContainer> : null }        
     </>;
 };
 

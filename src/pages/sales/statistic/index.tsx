@@ -16,8 +16,12 @@ import Loading from "pages/common/loading";
 import Pagination from "pages/common/pagination";
 import CalanderSearch from "pages/common/calanderSearch";
 import LineChart from "pages/sales/statistic/chart";
-import SalesStatisticTable from "pages/sales/statistic/table";
 import NoData from 'pages/common/noData';
+import Sticky from "pages/common/sticky";
+import TableColGroup from "./table/TableColGroup";
+import TableHead from "./table/TableHead";
+import TableTotalRow from "./table/TableTotalRow";
+import TableBody from "./table/TableBody";
 
 const SalesStatistic = () => {
 	// global state
@@ -65,10 +69,22 @@ const SalesStatistic = () => {
 	}
 
 	/* 검색 기간 필터링 (onChange) */
+
+	// select options list
+	const searchOptionList = [
+		{
+			[STATISTIC_SEARCH_TYPE.DAY]: { title: '일별', id: 'day', value: 'D' },
+			[STATISTIC_SEARCH_TYPE.MONTH]: { title: '월별', id: 'month', value: 'M' },
+		}
+	]
+
+	// data 역순 정렬 (table용)
+	const sortedData =  data ? [...data] : [];
+	sortedData.reverse();
 	
     /* excel download */
     const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 대상 table
-  
+
     const excelDownload = () => {
 		const {searchType, from, to} = statisticSearch;
         if (tableRef.current) {
@@ -85,17 +101,8 @@ const SalesStatistic = () => {
         }
     }
 
-	// select options list
-	const searchOptionList = [
-		{
-			[STATISTIC_SEARCH_TYPE.DAY]: { title: '일별', id: 'day', value: 'D' },
-			[STATISTIC_SEARCH_TYPE.MONTH]: { title: '월별', id: 'month', value: 'M' },
-		}
-	]
-
-	// data 역순 정렬 (table용)
-	const sortedData =  data ? [...data] : [];
-	sortedData.reverse();
+	/* sticky 기준 ref */
+	const stickyRef = useRef<HTMLTableRowElement>(null);
 
 	return (
 		<>
@@ -195,7 +202,24 @@ const SalesStatistic = () => {
 					</div>
 				</div>
 				{/* <!-- 매출통계 Table --> */}
-				<SalesStatisticTable data={sortedData} searchType={searchTypeMemo} isLoading={isLoading || isRefetching} rowPerPage={rowPerPage} currentPage={currentPage} ref={tableRef} />
+				<Sticky reference={stickyRef.current} contentsRef={tableRef.current}>
+					<TableColGroup />
+					<TableHead />
+				</Sticky>
+				<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
+					<TableColGroup />
+					<TableHead ref={stickyRef} />
+					<tbody>
+						{
+							(isLoading || isRefetching) ?
+							<Loading width={100} height={100} marginTop={16} isTable={true} /> :
+							<>
+								<TableTotalRow data={data} />
+								<TableBody data={data} rowPerPage={rowPerPage} currentPage={currentPage} searchType={searchTypeMemo} />
+							</>
+						}
+					</tbody>
+				</table>
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>

@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useRecoilValue } from "recoil";
 import { format, subDays, subYears } from "date-fns";
@@ -99,9 +99,7 @@ const SalesHistoryContainer = () => {
 			[HISTORY_GIFT_CERT.GIFT_CERT]: { title: '실물상품권', value: '1' },
 		}
 	];
-	/* sticky 기준 ref */
-	const stickyRef = useRef<HTMLTableRowElement>(null);
-
+	
     /* excel download */
     const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 대상 table
   
@@ -120,6 +118,11 @@ const SalesHistoryContainer = () => {
             catch (error) { console.log(error); }
         }
     }
+
+	/* sticky 기준 ref */
+	const stickyRef = useRef<HTMLTableRowElement>(null);
+
+	
 
 	return (
 		<>
@@ -168,7 +171,7 @@ const SalesHistoryContainer = () => {
 					</div>
 				</div>
 				{/* <!-- 주문내역 Table --> */}
-				<Sticky reference={stickyRef.current}>
+				<Sticky reference={stickyRef.current} contentsRef={tableRef.current}>
 					<TableColGroup />
 					<TableHead />
 				</Sticky>

@@ -109,7 +109,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
 
     return (
         <>
-            <Sticky reference={thRef.current}>
+            <Sticky reference={thRef.current} contentsRef={tableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
 

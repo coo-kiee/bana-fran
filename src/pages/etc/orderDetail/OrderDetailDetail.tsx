@@ -56,6 +56,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
     });
     const tableRef = useRef<HTMLTableElement>(null);  
     const thRef = useRef<HTMLTableRowElement>(null);
+    const viewportTableRef = useRef<HTMLTableElement>(null);
 
     // TODO: 데이터  
     // eslint-disable-next-line
@@ -150,11 +151,11 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
                 </ul>
             </div>
 
-            <Sticky reference={thRef.current}>
+            <Sticky reference={thRef.current} contentsRef={viewportTableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
 
-            <table className="board-wrap" cellPadding="0" cellSpacing="0">
+            <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={viewportTableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
                 {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />}
                 {isLoading && <tbody><Loading isTable={true} /></tbody>}

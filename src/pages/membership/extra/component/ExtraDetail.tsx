@@ -126,7 +126,7 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
     
     return (
         <> 
-            <Sticky reference={thRef.current}>
+            <Sticky reference={thRef.current} contentsRef={tableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
 

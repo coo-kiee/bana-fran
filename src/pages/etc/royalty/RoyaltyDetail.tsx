@@ -122,7 +122,7 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
                 </div>
             </div>
 
-            <Sticky reference={thRef.current}>
+            <Sticky reference={thRef.current} contentsRef={tableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
 

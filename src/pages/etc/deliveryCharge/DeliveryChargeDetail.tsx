@@ -140,7 +140,7 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
                 </div>
             </div>
 
-            <Sticky reference={thRef.current}> 
+            <Sticky reference={thRef.current} contentsRef={tableRef.current}> 
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}> 

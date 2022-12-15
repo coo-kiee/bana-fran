@@ -3,14 +3,6 @@ import { CommonParams } from "types/common";
 // common
 type SearchType = 'D'|'M';
 
-interface SalesTable {
-	data: any;
-    isLoading: boolean;
-	rowPerPage: number;
-	currentPage: number;
-	searchType?: SearchType;
-}
-
 interface SalesTableBodyProps {
     data: any;
     currentPage: number;
@@ -166,7 +158,6 @@ interface SalesLineChartTooltipProps {
 
 // types
 export type {
-    SalesTable, 
 	SalesTableBodyProps,
 	SalesOrderParams,
 	SalesStatisticParams,

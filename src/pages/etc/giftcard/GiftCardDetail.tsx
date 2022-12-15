@@ -156,7 +156,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
                 </div>
             </div>
 
-            <Sticky reference={thRef.current}> 
+            <Sticky reference={thRef.current} contentsRef={tableRef.current}> 
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
 
