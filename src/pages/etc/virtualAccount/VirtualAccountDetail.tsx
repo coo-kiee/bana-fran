@@ -1,9 +1,9 @@
-import { FC, useState, useRef, useMemo, ReactNode, Suspense } from 'react';
+import { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 import { useRecoilValue } from 'recoil';
 import Utils from 'utils/Utils';
-import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 
 // state
 import { franState, loginState } from 'state';
@@ -55,14 +55,13 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
     const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // TODO: 데이터   
-    const { virtualAccListFrom, virtualAccListTo } = {
-        virtualAccListFrom: from + '-01',
-        virtualAccListTo: isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
-    } 
+    // TODO: 데이터
     // eslint-disable-next-line
-    const etcVirtualAccBalanceListKey = useMemo(() => ['etc_virtual_acc_detail_list', JSON.stringify({ franCode, from:virtualAccListFrom , to:virtualAccListTo }) ], [franCode, searchTrigger]);
-    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [franCode, virtualAccListFrom, virtualAccListTo ]);
+    const etcVirtualAccBalanceListKey = useMemo(() => ['etc_virtual_acc_detail_list', JSON.stringify({ franCode, from , to }) ], [franCode, searchTrigger]);
+    const { data: listData, isSuccess, isError, isLoading, refetch } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [franCode, from, to ]);
+    useEffect(() => {
+        refetch();
+    }, [searchTrigger, refetch])
 
     const [renderTableList, depositTotal, deductTotal]: [ReactNode[] | undefined, number, number] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {

@@ -1,7 +1,7 @@
-import { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
+import { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useQueryErrorResetBoundary } from 'react-query';
-import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns' 
+import { format, subMonths } from 'date-fns';
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
 
@@ -65,15 +65,13 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
         row: 20, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용
 
-    // TODO: 데이터
-    const { membershipListFrom, membershipListTo } = {
-        membershipListFrom: from + '-01',
-        membershipListTo: isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
-    } 
+    // TODO: 데이터 
     // eslint-disable-next-line
-    const membershipListKey = useMemo(() => ['membership_extra_list', JSON.stringify({ franCode, from:membershipListFrom, to:membershipListTo }) ], [franCode, searchTrigger]);
-    const { data, isError, isLoading, isSuccess } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [franCode, membershipListFrom, membershipListTo ]);
-
+    const membershipListKey = useMemo(() => ['membership_extra_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
+    const { data, isError, isLoading, isSuccess, refetch } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [franCode, from, to ]);
+    useEffect(() => {
+        refetch();
+    }, [searchTrigger, refetch])
     const renderTableList: ReactNode[] = useMemo(() => {  
         const tableList = data?.reduce((arr: any, tbodyRow: any, index: number) => { 
             const {

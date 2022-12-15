@@ -1,8 +1,8 @@
-import { FC, Suspense, useState, useRef, ReactNode, useMemo } from "react";
+import { FC, Suspense, useState, useRef, ReactNode, useMemo, useEffect } from "react";
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
 import { useQueryErrorResetBoundary } from "react-query";
-import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
 
 // state
@@ -48,7 +48,8 @@ const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo'>> = ({ detailTab
                     <GiftCardDetailData
                         searchInfo={searchInfo}
                         detailTableColGroup={detailTableColGroup}
-                        detailTableHead={detailTableHead} />
+                        detailTableHead={detailTableHead} 
+                    />
                 </ErrorBoundary>
             </Suspense>
         </>
@@ -70,13 +71,12 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
     const thRef = useRef<HTMLTableRowElement>(null);
 
     // TODO: 데이터
-    const { giftCardListFrom, giftCardListTo } = {
-        giftCardListFrom: from + '-01',
-        giftCardListTo: isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
-    }
     // eslint-disable-next-line
-    const etcGiftcardListKey = useMemo(() => ['etc_gift_card_list', JSON.stringify({ franCode, from: giftCardListFrom, to: giftCardListTo }) ], [franCode, searchTrigger]);
-    const { data: listData } = ETC_SERVICE.useGiftCardList(etcGiftcardListKey, [ franCode, giftCardListFrom, giftCardListTo ]);
+    const etcGiftcardListKey = useMemo(() => ['etc_gift_card_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
+    const { data: listData, refetch } = ETC_SERVICE.useGiftCardList(etcGiftcardListKey, [ franCode, from, to ]);
+    useEffect(() => {
+        refetch();
+    }, [searchTrigger, refetch]);
 
     // etc_gift_card_list
     const [renderTableList, kioskAndPosTotal, appTotal, cancelTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => { 
@@ -94,23 +94,20 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
                 arr.push(
                     <>
                         <td className="align-center">{format(new Date(std_date), 'yyyy-MM-dd hh:mm')}</td>
-                        <td className="align-center">{rcp_type}</td>
+                        <td className={`align-center ${gubun.includes('임의') ? 'negative-value' : ''}`}>{gubun}</td>
                         <td className="align-center">{item_name}</td>
                         <td className="align-center">{Utils.numberComma(item_cnt)}장 ({Utils.numberComma(item_amt)})</td>
                         <td className="align-center">{rcp_type}</td>
-                        <td className="align-center">{gubun}</td>
-                        <td className={`align-center ${(menu_Item === 510 && account_amt < 0) ? 'negative-value' : ''}`}>{menu_Item === 510 ? `${Utils.numberComma(account_amt)}` : ''}</td>
-                        <td className={`align-center ${(menu_Item === 511 && account_amt < 0) ? 'negative-value' : ''}`}>{menu_Item === 511 ? `${Utils.numberComma(account_amt)}` : ''}</td>
-                        <td className={`align-center ${(menu_Item === 512 && account_amt < 0) ? 'negative-value' : ''}`}>{menu_Item === 512 ? `${Utils.numberComma(account_amt)}` : ''}</td>
+                        <td className={`align-center ${account_amt < 0 ? 'negative-value' : ''}`}>{Utils.numberComma(account_amt)}</td>
                     </>
                 )
             }
             return arr;
         }, [] as ReactNode[]);
- 
-        const kioskAndPosTotal = listData?.filter((el:any) => el.rcp_type === '키오스크' || el.rcp_type === 'POS').reduce((acc: any, cur:any) => acc += cur.account_amt,0) || 0; // 키오스크/POS 판매금액 합계
-        const appTotal = listData?.filter((el:any) => el.rcp_type === '어플').reduce((acc: any, cur:any) => acc += cur.account_amt, 0) || 0; // 어플 판매금액 합계
-        const cancelTotal = listData?.filter((el:any) => el.gubun === '판매취소(폐기)').reduce((acc: any, cur:any) => acc += cur.account_amt ,0) || 0;  // 판매취소(폐기)금액 합계
+
+        const kioskAndPosTotal = listData?.filter((el:any) => (el.rcp_type === '키오스크' || el.rcp_type === 'POS') && (el.gubun === '판매')).reduce((acc: any, cur:any) => acc += cur.item_amt,0) || 0; // 키오스크/POS 판매금액 합계
+        const appTotal = listData?.filter((el:any) => el.rcp_type === '어플' && el.gubun === '판매').reduce((acc: any, cur:any) => acc += cur.item_amt, 0) || 0; // 어플 판매금액 합계
+        const cancelTotal = listData?.filter((el:any) => el.gubun === '판매취소(폐기)').reduce((acc: any, cur:any) => acc += cur.item_amt ,0) || 0;  // 판매취소(폐기)금액 합계
 
         setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
         return [tableList, kioskAndPosTotal, appTotal, cancelTotal];

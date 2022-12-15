@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
+import React, { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from "react";
 import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { format, isAfter, lastDayOfMonth, subMonths } from "date-fns"; 
@@ -58,14 +58,13 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
         row: 20, // 한 페이지에 나오는 리스트 개수 
     });
 
-    // TODO: 데이터
-    const { rankListFrom, rankListTo } = {
-        rankListFrom: from + '-01',
-        rankListTo: isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
-    } 
+    // TODO: 데이터 
     // eslint-disable-next-line
-    const rankListKey = useMemo(() => ['membership_rank_list', JSON.stringify({ franCode, from:rankListFrom, to:rankListTo }) ], [franCode, searchTrigger]);
-    const { data } = MEMBERSHIP_SERVICE.useRankList(rankListKey, [ franCode, rankListFrom, rankListTo ]);
+    const rankListKey = useMemo(() => ['membership_rank_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
+    const { data, refetch } = MEMBERSHIP_SERVICE.useRankList(rankListKey, [ franCode, from, to ]);
+    useEffect(() => {
+        refetch();
+    }, [searchTrigger])
 
     const renderTableList = useMemo(() => {
         return data?.reduce((arr: ReactNode[], tbodyRow) => {
@@ -129,17 +128,17 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
 }
 
 const MonthRankDetailSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>> }> = ({ searchInfo, setSearchInfo }) => {
-    const handleSearchInfo = (currentTempSearchInfo: SearchInfoType) => {
-        setSearchInfo((prevSearchInfo) => ({ ...prevSearchInfo, ...currentTempSearchInfo }));
-    }; // tempSearchInfo -> searchInfo로 업데이트 (-> 자동으로 refetch역할)
-
+    const handleRefetch = () => {
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
+    };
+    
     return (
         <CalanderSearch
             title={`보상 지급 내역`}
             dateType={'yyyy-MM'}
             searchInfo={searchInfo}
             setSearchInfo={setSearchInfo}
-            handleSearch={handleSearchInfo} // 조회 버튼에 필요한 fn
+            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
             showMonthYearPicker={true}
         />
     )

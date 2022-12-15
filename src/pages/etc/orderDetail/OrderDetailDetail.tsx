@@ -1,4 +1,4 @@
-import { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
+import { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import Utils from "utils/Utils"; 
 import { useQueryErrorResetBoundary } from "react-query";
@@ -64,9 +64,13 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
     // eslint-disable-next-line
     const etcOrderDetailExcelListKey = useMemo(() => ['etc_order_detail_list_excel', JSON.stringify({ franCode,from, to  }) ], [ franCode, from, to ]);
     // table data
-    const { data: listData, isSuccess, isError, isLoading } = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]);
+    const { data: listData, isSuccess, isError, isLoading, refetch} = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]);
     // Excel 다운로드용 query
-    const { data: listExcelData, isSuccess: isExcelSuccess } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
+    const { data: listExcelData, isSuccess: isExcelSuccess, refetch: excelRefetch } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
+    useEffect(() => {
+        refetch();
+        excelRefetch();
+    }, [searchTrigger, refetch, excelRefetch]);
 
     const [renderTableList, totalSumObj, supplySumObj, vatSumObj]: [ReactNode[] | undefined, number, number, number] = useMemo(() => { 
         const handlePopupOrderDetail = (nOrderID: number) => { 
@@ -163,7 +167,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
             </table>
 
             { 
-                isExcelSuccess && (
+                isSuccess && isExcelSuccess && (
                     <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef} style={{display: 'none'}}> 
                         <EtcDetailTableHead detailTableColGroup={excelTableColGroup} detailTableHead={excelTableHead} /> 
                         <OrderDetailExcelBody  data={listExcelData} searchOptionValue={searchOption[0].value} />

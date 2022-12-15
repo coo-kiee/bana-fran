@@ -1,9 +1,9 @@
-import { FC, useState, useRef, useMemo, ReactNode, Suspense } from 'react';
+import { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 import { useRecoilValue } from 'recoil';
 import Utils from 'utils/Utils';
-import { format, isAfter, lastDayOfMonth, subMonths } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 
 // state
 import { franState, loginState } from 'state';
@@ -57,13 +57,12 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
     const thRef = useRef<HTMLTableRowElement>(null);
 
     // TODO: 데이터  
-    const { royaltyListFrom, royaltyListTo } = {
-        royaltyListFrom: from + '-01',
-        royaltyListTo: isAfter(lastDayOfMonth(new Date(to)), new Date()) ? format(new Date(), 'yyyy-MM-dd') : format(lastDayOfMonth(new Date(to)), 'yyyy-MM-dd')
-    } 
     // eslint-disable-next-line
-    const etcRoyaltyListKey = useMemo(() => ['etc_royalty_list', JSON.stringify({ franCode, from:royaltyListFrom, to:royaltyListTo }) ], [franCode, searchTrigger]);
-    const { data: listData } = ETC_SERVICE.useEtcList<RoyaltyDetailListType[]>('YGQA4CREHNZCZIXPF2AH', etcRoyaltyListKey, [ franCode, royaltyListFrom, royaltyListTo ]); 
+    const etcRoyaltyListKey = useMemo(() => ['etc_royalty_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
+    const { data: listData, refetch } = ETC_SERVICE.useEtcList<RoyaltyDetailListType[]>('YGQA4CREHNZCZIXPF2AH', etcRoyaltyListKey, [ franCode, from, to ]); 
+    useEffect(() => {
+        refetch();
+    }, [searchTrigger, refetch])
     const [renderTableList, royaltyTotal, stageTotal ]: [ReactNode[] | undefined, number, number] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { std_date, state, suply_amount, tax_amount, total_amount } = tbodyRow; 

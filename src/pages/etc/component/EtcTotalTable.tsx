@@ -168,14 +168,7 @@ const EtcOrderTotalTableData = () => {
                         {tr.map((td: any, idx: number) => <td key={`etc_table_td_${idx}`} className={td.className}>{td.strong ? <strong>{td.data}</strong> : td.data}</td>)}
                     </tr>
                 )
-            })}
-            {/* {tableBody.map((tr: any, idx: number) => {
-                return (
-                    <tr key={`etc_table_tr_${idx}`}>
-                        {tr.map((td: any, idx: number) => <td key={`etc_table_td_${idx}`} className={td.className}>{td.strong ? <strong>{td.data}</strong> : td.data}</td>)}
-                    </tr>
-                )
-            })} */}
+            })} 
         </>
     )
 }

@@ -29,7 +29,7 @@ const useMembershipList = (queryKey: string[], [ franCode, from, to ]: [number, 
     const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = {
         ws: 'fprocess',
         query: 'KFVDLH7FKG9QKBVTK8TL',
-        params: { fran_store: franCode, from_date: from, to_date: to} 
+        params: { fran_store: franCode, from_date: from + '-01', to_date: to + '-01'} 
     }; 
     return useQuery<MembershipListType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
@@ -106,7 +106,9 @@ const useRankEditList = (data: RankEditParams[]) => {
 
 // TODO: 월간랭킹현황
 const useRankList = (queryKey: string[], [ franCode, from, to ]: [number, string, string]) => {
-    const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = { ws: 'fprocess', query: 'KUUM9RON9HGD55IBRLQB', params: { fran_store: franCode, from_date: from, to_date: to}};
+    const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = { ws: 'fprocess', query: 'KUUM9RON9HGD55IBRLQB', params: { 
+        fran_store: franCode, from_date: from + '-01', to_date: to + '-01'
+    }};
 
     return useQuery<RankListItemType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
         keepPreviousData: false,

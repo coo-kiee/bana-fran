@@ -1,4 +1,4 @@
-import { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
+import { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from "react";
 import { useRecoilValue } from "recoil";
 import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -65,7 +65,10 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
     // TODO: 데이터 
     // eslint-disable-next-line
     const etcDeliveryListKey = useMemo(() => ['etc_delivery_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data: listData } = ETC_SERVICE.useEtcList<DeliveryDetailListType[]>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListKey, [franCode, from, to] );
+    const { data: listData, refetch } = ETC_SERVICE.useEtcList<DeliveryDetailListType[]>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListKey, [franCode, from, to] );
+    useEffect(() => {
+        refetch();
+    }, [searchTrigger, refetch])
     const [renderTableList, totalCharge, supplyTotal, taxTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
             const { delivery_pay_type, dtRcp, nDeliveryCharge, payment_type, sItem, sPhone, suply_fee, suply_fee_tax, total_charge, total_fee} = tbodyRow;

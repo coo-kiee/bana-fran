@@ -98,7 +98,8 @@ const useOrderDetailStatistic = (params: { fran_store: number }, option: { [key:
 // TODO: 상세 내역 
 const useEtcList = <T>(query: string, queryKey: string[], params: [number, string, string], option: { [key: string]: any } = {}): UseQueryResult<T, AxiosError<unknown, any>> => {
     const [ franCode, from, to ] = params;
-    const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = { ws: 'fprocess', query, params: { fran_store: franCode, from_date: from, to_date: to} };
+
+    const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = { ws: 'fprocess', query, params: { fran_store: franCode, from_date: from.length === 7 ? from + '-01' : from , to_date: to.length === 7 ? to + '-01' : to} };
     return useQuery<T, AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
@@ -112,8 +113,8 @@ const useGiftCardList = (queryKey: string[], params: [number, string, string]) =
 
     const reqData: RequestParams<GiftCardListParams> = { ws: 'fprocess', query:'B2XZPTGEAIHS14XICOKT', params: {
         f_code: franCode,
-        from_date: from,
-        to_date: to
+        from_date: from + '-01',
+        to_date: to + '-01'
     }};
 
     return useQuery<GiftCardDetailType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
@@ -163,7 +164,7 @@ const useDetailListExcel = (queryKey: string[], params: [number, string, string]
 
 const useVirtualAccList = (queryKey: string[], params: [number, string, string]) => {
     const [ franCode, from, to ] = params;
-    const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = { ws: 'fprocess', query: 'CS4QOSEGOQGJ8QCALM7L',  params: { fran_store: franCode, from_date: from, to_date: to}};
+    const reqData: RequestParams<{ fran_store: number, from_date: string, to_date: string }> = { ws: 'fprocess', query: 'CS4QOSEGOQGJ8QCALM7L',  params: { fran_store: franCode, from_date: from + '-01', to_date: to + '-01'}};
 
     return useQuery<VirtualAccListType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
         keepPreviousData: false,

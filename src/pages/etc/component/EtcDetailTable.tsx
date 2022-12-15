@@ -87,5 +87,5 @@ const EtcDetailTableFallback: FC<EtcDetailTableFallbackProps> = ({ colGroup, the
     )
 }
 
-export default React.memo(EtcDetailTable);
+export default EtcDetailTable;
 export { EtcDetailTableHead, EtcDetailTableFallback};
