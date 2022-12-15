@@ -1,4 +1,4 @@
-import React, { Suspense, useRef } from 'react';
+import React, { Suspense, useEffect, useRef } from 'react';
 import { useRecoilState } from 'recoil';
 import Utils from 'utils/Utils';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -16,11 +16,18 @@ import ETC_SERVICE from 'service/etcService';
 // component
 import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
-import{EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
+import{ EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
 import Sticky from 'pages/common/sticky';
 
 const EtcOrderDetail = () => {
     const { reset } = useQueryErrorResetBoundary();  
+    
+    // Modal render시 body scroll방지
+    useEffect(() => {
+        if (document) { document.body.style.overflow = 'hidden'; }
+        return () => { document.body.removeAttribute('style') } // style 제거
+    }, [])
+    
     return (
         <div className="alert-layer order-layer active" style={{position: 'fixed'}}>
             <div className="msg-wrap">
