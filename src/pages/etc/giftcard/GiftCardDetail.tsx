@@ -122,7 +122,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
                 colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X
-                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
+                addRowColor: { row: [1], color: ['d3d3d3'] },
             };
             const fileName = `${from}~${to}_${f_list[0].f_code_name}_상품권내역`;
             Utils.excelDownload(tableRef.current, options, fileName);

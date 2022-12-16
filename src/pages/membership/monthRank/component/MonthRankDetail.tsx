@@ -1,7 +1,7 @@
 import React, { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from "react";
 import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
-import { format, isAfter, lastDayOfMonth, subMonths } from "date-fns"; 
+import { format, subMonths } from "date-fns"; 
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
 
@@ -64,7 +64,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
     const { data, refetch } = MEMBERSHIP_SERVICE.useRankList(rankListKey, [ franCode, from, to ]);
     useEffect(() => {
         refetch();
-    }, [searchTrigger])
+    }, [searchTrigger, refetch])
 
     const renderTableList = useMemo(() => {
         return data?.reduce((arr: ReactNode[], tbodyRow) => {
