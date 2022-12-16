@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useRecoilValue } from "recoil";
 import { format, subDays, subYears } from "date-fns";
@@ -7,7 +7,7 @@ import { format, subDays, subYears } from "date-fns";
 import { franState, loginState } from "state";
 
 // Types
-import { HISTORY_GIFT_CERT, HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE, HISTORY_PAY_TYPE, HISTORY_RCP_TYPE, HISTORY_SEARCH_TYPE_LIST, SalesHistorySearch } from "types/sales/salesType";
+import { HISTORY_GIFT_CERT, HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE, HISTORY_PAY_TYPE, HISTORY_RCP_TYPE, HISTORY_SEARCH_TYPE_LIST, SalesHistoryData, SalesHistorySearch } from "types/sales/salesType";
 // Utils
 import Utils from "utils/Utils";
 
@@ -34,7 +34,7 @@ const SalesHistoryContainer = () => {
 	const [queryKey, setQueryKey] = useState<number>(today.getTime());
 
 	// query data on SalesHistory
-	const [historyData, setHistoryData] = useState<any[]>([]);
+	const [historyData, setHistoryData] = useState<SalesHistoryData[]>([]);
 
 	// queryKey changing function for search(refetch)
 	const handleSearch = () => {setQueryKey(new Date().getTime());}
@@ -101,7 +101,7 @@ const SalesHistoryContainer = () => {
 	];
 	
     /* excel download */
-    const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 대상 table
+    const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
   
     const excelDownload = () => {
 		const {from, to} = historySearch;
@@ -121,8 +121,6 @@ const SalesHistoryContainer = () => {
 
 	/* sticky 기준 ref */
 	const stickyRef = useRef<HTMLTableRowElement>(null);
-
-	
 
 	return (
 		<>

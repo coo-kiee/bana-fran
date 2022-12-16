@@ -12,10 +12,10 @@ import LineChartTooltip from './LineChartTooltip';
 const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
     const { total, paid, app, free } = filterChart;
     // chart data 가공: Serie[] 형태로 데이터 매핑
-    const totalData = data.map((d: any) => {return { x: d.std_date, y: d.total_sales_amt }});
-    const appDeliveryData = data.map((d: any) => {return { x: d.std_date, y: d.app_delivery_amt }});
-    const paidData = data.map((d: any) => {return { x: d.std_date, y: d.paid_sales_amt }});
-    const freeData = data.map((d: any) => {return { x: d.std_date, y: d.free_sales_amt }});
+    const totalData = data.map((d) => {return { x: d.std_date, y: d.total_sales_amt }});
+    const appDeliveryData = data.map((d) => {return { x: d.std_date, y: d.app_delivery_amt }});
+    const paidData = data.map((d) => {return { x: d.std_date, y: d.paid_sales_amt }});
+    const freeData = data.map((d) => {return { x: d.std_date, y: d.free_sales_amt }});
     
 	const chartData = [
         { id: 'total', data: totalData, color: '#f1658a' },
@@ -27,7 +27,7 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
     // 필터 (매출유형별)
 	const filteredData = () => {
 		// 조건 해당 항목 필터링 (id filter)
-		return chartData.filter((fd: any) => {
+		return chartData.filter((fd) => {
 			return (
 				(total && fd.id === 'total') || 
 				(paid && fd.id === 'paid') || 
@@ -53,12 +53,12 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
                 tickSize: 0,
                 tickPadding: 15,
                 tickRotation: 0,
-                format: (y: number) => {return (Utils.numberComma(y))}
+                format: (y) => {return (Utils.numberComma(y))}
             }}
             axisBottom={null}
             lineWidth={4}
             curve='linear'
-            colors={(props: any) => {return props.color}}
+            colors={(props) => {return props.color}}
             useMesh={true}
             enableGridX={true}
             enableGridY={true}
@@ -71,7 +71,7 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
             layers={[
                 'grid', 
                 'axes', 
-                (props: any) => {return searchType === 'D' ? <LineChartDays {...props} /> : <LineChartMonths {...props} />},
+                (props) => {return searchType === 'D' ? <LineChartDays {...props} /> : <LineChartMonths {...props} />},
                 'crosshair', 
                 'lines', 
                 'points',

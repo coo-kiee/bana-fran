@@ -15,10 +15,9 @@ import WeeklySales from 'pages/home/components/WeeklySales';
 
 const HomeContainer: React.FC = () => {
 	const fCode = useRecoilValue(franState);
-	const { userInfo: { f_list }, } = useRecoilValue(loginState);
-
+	const {userInfo: { f_list }} = useRecoilValue(loginState);
 	// 선택된 가맹점 정보
-	const fSelected = f_list?.filter((fran: any) => {
+	const fSelected = f_list?.filter((fran) => {
 		return fran.f_code === fCode;
 	})[0];
 

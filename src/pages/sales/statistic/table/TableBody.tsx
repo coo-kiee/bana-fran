@@ -1,8 +1,9 @@
 // Types
-import NoData from "pages/common/noData";
 import { SalesTableBodyProps } from "types/sales/salesType";
 // Utils
 import Utils from "utils/Utils";
+// Components
+import NoData from "pages/common/noData";
 
 const TableBody = ({data, rowPerPage, currentPage, searchType}: SalesTableBodyProps) => {
     return (

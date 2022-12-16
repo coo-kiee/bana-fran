@@ -2,7 +2,7 @@
 import { useQuery } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
 import { RequestParams } from 'types/common';
-import { SalesOrderParams, SalesStatisticParams } from 'types/sales/salesType';
+import { SalesHistoryData, SalesOrderParams, SalesStatisticData, SalesStatisticParams } from 'types/sales/salesType';
 
 // 주문 내역 조회
 const useSalesOrderList = (params: SalesOrderParams, queryKey: number) => {
@@ -11,7 +11,7 @@ const useSalesOrderList = (params: SalesOrderParams, queryKey: number) => {
         query: 'KTBKHHVNSBCJHXUADDII',
         params: params,
     }; // web_fran_s_sales_order_list
-    return useQuery(['sales_order_list', params.f_code, queryKey], () => queryFn.getDataList(reqData), {
+    return useQuery<SalesHistoryData[]>(['sales_order_list', params.f_code, queryKey], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
@@ -26,7 +26,7 @@ const useSalesStatistic = (params: SalesStatisticParams) => {
         query: 'M2AWHBEO7CTAJMF2B1AW',
         params: params,
     }; // web_fran_s_sales_stat_list
-    return useQuery(['sales_statistic_list', params.f_code], () => queryFn.getDataList(reqData), {
+    return useQuery<SalesStatisticData[]>(['sales_statistic_list', params.f_code], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,

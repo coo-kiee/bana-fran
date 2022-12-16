@@ -6,7 +6,7 @@ import { format, isBefore, subDays, subMonths } from "date-fns";
 import { franState, loginState } from "state";
 
 // API
-import SALES_SERVICE from 'service/salesService'
+import SALES_SERVICE from 'service/salesService';
 // Types
 import { SalesStatisticSearch, FilterChart, STATISTIC_SEARCH_LIST, STATISTIC_SEARCH_TYPE } from "types/sales/salesType";
 // Utils
@@ -27,7 +27,7 @@ const SalesStatistic = () => {
 	// global state
 	const { userInfo } = useRecoilValue(loginState);
 	const fCode = useRecoilValue(franState);
-	const selectedFran = userInfo?.f_list.filter((info: any) => { return (info.f_code === fCode) });
+	const selectedFran = userInfo?.f_list.filter((info) => { return (info.f_code === fCode) });
 	const fCodeName = selectedFran[0]?.f_code_name || ''; // 가맹점명
 	
 	const today = new Date();
@@ -83,7 +83,7 @@ const SalesStatistic = () => {
 	sortedData.reverse();
 	
     /* excel download */
-    const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운로드 대상 table
+    const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
 
     const excelDownload = () => {
 		const {searchType, from, to} = statisticSearch;
@@ -214,7 +214,7 @@ const SalesStatistic = () => {
 							(isLoading || isRefetching) ?
 							<Loading width={100} height={100} marginTop={16} isTable={true} /> :
 							<>
-								<TableTotalRow data={data} />
+								<TableTotalRow data={data ? data : []} />
 								<TableBody data={data} rowPerPage={rowPerPage} currentPage={currentPage} searchType={searchTypeMemo} />
 							</>
 						}

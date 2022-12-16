@@ -15,9 +15,61 @@ interface SalesOrderParams extends CommonParams {
 	from_date: string;
 	to_date: string;
 }
-
 interface SalesStatisticParams extends SalesOrderParams {
 	search_type: SearchType;
+}
+// API Output
+interface SalesHistoryData {
+	[key: string]: string | number;
+	bOrderGiftCert: '0'|'1';
+	bana_point: number;
+	cancel_date: string;
+	card_charge: number;
+	cash_charge: number;
+	dtRcp: string;
+	etc_delivery_charge: number;
+	fran_coupon_charge: number;
+	hd_coupon_charge: number;
+	item_name: string;
+	nChargeTotal: number;
+	nCount: number;
+	nDeliveryCharge: number;
+	nDeliveryPayType: number;
+	nEtcDeliveryCharge: number;
+	nOrderID: number;
+	nSavingPoint: number;
+	nStampCount: number;
+	order_state: 5|10|20|30|35|40|50;
+	order_state_name: string;
+	order_type: 0|1|2|3;
+	order_type_name: string
+	paid_point: number;
+	pay_type: '결제완료'|'현장카드'|'현장현금';
+	phone: string;
+	rcp_date: string;
+	rcp_type: string;
+	sChargeDisDetail: string;
+	sChargeDisReason: string;
+	sCouponID: string;
+	small_point: number;
+}
+interface SalesStatisticData {
+	[key: string]: number|string;
+	app_card_amt: number;
+	app_delivery_amt: number;
+	app_delivery_charge: number;
+	bana_point: number;
+	etc_delivery_amt: number;
+	etc_delivery_charge: number;
+	fran_coupon_charge: number; 
+	free_sales_amt: number;
+	hd_coupon_charge: number;
+	kiosk_card_amt: number;
+	paid_point: number;
+	paid_sales_amt: number;
+	pos_cash_amt: number;
+	std_date: string;
+	total_sales_amt: number;
 }
 /* option value에 사용할 값 관련 타입들 */
 
@@ -114,22 +166,25 @@ const STATISTIC_SEARCH_LIST = [
 ]
 
 // history
+interface SalesHistorySearchOption {
+	title: string; // select box option name
+	value: string; // select box option value
+}
 interface SalesHistorySearch {
 	from: string;
 	to: string;
-	searchOption: any;
+	searchOption: SalesHistorySearchOption[];
 }
 interface PrefixSumProps {
-	data: any;
+	data: SalesHistoryData[];
 }
-
 interface SalesHistoryProps {
     queryKey: number; // queryKey for react query
-	historyData: any[]; // historyData
-	setHistoryData: React.Dispatch<React.SetStateAction<any[]>>;
+	historyData: SalesHistoryData[]; // historyData
+	setHistoryData: React.Dispatch<React.SetStateAction<SalesHistoryData[]>>;
 	historySearch: SalesHistorySearch; // 검색조건(filter)
-	isCancelShow: 0 | 1; // 취소 주문 표시
-	isExcludeCouBae: 0 | 1; // 쿠팡/배민 주문 제외
+	isCancelShow: 0|1; // 취소 주문 표시
+	isExcludeCouBae: 0|1; // 쿠팡/배민 주문 제외
 	currentPage: number; // 현재 페이지
 	rowPerPage: number; //페이지 당 컨텐츠 수
 }
@@ -141,14 +196,14 @@ interface SalesStatisticSearch {
     to: string;
 }
 interface FilterChart {
-    total: 0 | 1;
-    paid: 0 | 1;
-    app: 0 | 1;
-    free: 0 | 1;
+    total: 0|1;
+    paid: 0|1;
+    app: 0|1;
+    free: 0|1;
 }
 interface SalesLineChartProps {
     filterChart: FilterChart;
-    data: any;
+    data: SalesStatisticData[];
     searchType: SearchType;
 }
 interface SalesLineChartTooltipProps {
@@ -156,12 +211,13 @@ interface SalesLineChartTooltipProps {
     searchType: SearchType;
 }
 
-// types
 export type {
 	SalesTableBodyProps,
 	SalesOrderParams,
 	SalesStatisticParams,
     SalesHistorySearch, 
+	SalesHistoryData,
+	SalesStatisticData,
     PrefixSumProps, 
 	SalesHistoryProps,
     SalesStatisticSearch, 

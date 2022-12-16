@@ -1,8 +1,9 @@
 // Types
-import NoData from 'pages/common/noData';
-import { SalesTableBodyProps } from 'types/sales/salesType';
+import { SalesTableBodyProps, SalesHistoryData } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
+// Components
+import NoData from 'pages/common/noData';
 
 const TableBody = ({ data, currentPage, rowPerPage }: SalesTableBodyProps) => {
     
@@ -19,7 +20,7 @@ const TableBody = ({ data, currentPage, rowPerPage }: SalesTableBodyProps) => {
 	};
 
     return ( data.length > 0 ? 
-        data.map((history: any, idx: number) => {
+        data.map((history: SalesHistoryData, idx: number) => {
             const {
                 rcp_date, 			// 결제일시
                 cancel_date, 		// 취소일시. order_state === 50일 때만 사용
@@ -60,7 +61,7 @@ const TableBody = ({ data, currentPage, rowPerPage }: SalesTableBodyProps) => {
                     <td className='align-center'>{order_type_name}</td>
                     <td className='align-center'>{order_state_name}</td>
                     <td className='align-center'>{phone ? phone : '-'}</td>
-                    <td className='align-center'>{bOrderGiftCert === 1 ? '실물상품권' : '일반제품'}</td>
+                    <td className='align-center'>{bOrderGiftCert === '1' ? '실물상품권' : '일반제품'}</td>
                     <td className='align-center'>{item_name}</td>
                     <td className='align-center'>{nCount}</td>
                     <td className='align-center'>{rcp_type}</td>
