@@ -50,10 +50,7 @@ const EtcOrderDetailData = () => {
     ];
 
     const handleModalClose = () => { 
-        setModalState((prev) => {
-            console.log('click')
-            return {...prev, show: false}
-        }); // 끄기
+        setModalState((prev) => ({...prev, show: false})); // 끄기
     };
 
     // 프로시저

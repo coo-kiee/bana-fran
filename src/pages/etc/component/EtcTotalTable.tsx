@@ -132,7 +132,6 @@ const EtcTotalTableData: FC<{ currTab: number }> = ({ currTab }) => {
 const EtcOrderTotalTableData = () => {
     const franCode = useRecoilValue(franState);
 
-    // let tableBody: any = []; // 프로시저 성공 후 업데이트
     let tableBodyTotal: any; // 프로시저 성공 후 업데이트
     let tableBodySupply: any; // 프로시저 성공 후 업데이트
     let tableBodyVat: any; // 프로시저 성공 후 업데이트
@@ -140,10 +139,9 @@ const EtcOrderTotalTableData = () => {
     const totalParam: { fran_store: number } = { fran_store: franCode };
     const { data, isSuccess: totalSuccess } = ETC_SERVICE.useOrderDetailStatistic(totalParam);
     if (totalSuccess) {
-        tableBodyTotal = [[{data: '발주금액(합계)', className: 'align-center'}, ...data.map((el: any) => ({ data: Utils.numberComma(el.amount), className: 'align-right' }))]];
-        tableBodySupply = [[{data: '공급가', className: 'align-center'}, ...data.map((el: any) => ({ data: Utils.numberComma(el.supply_amt), className: 'align-right' }))]];
-        tableBodyVat = [[{data: '부가세', className: 'align-center'}, ...data.map((el: any) => ({ data: Utils.numberComma(el.vat_amt), className: 'align-right' }))]];
-        // tableBody = [totalData.map((el: any) => ({ data: Utils.numberComma(el.amount), className: 'align-right' }))];
+        tableBodyTotal = [[{data: '발주금액(합계)', className: 'align-center'}, ...data.map((el: any) => ({ data: el.amount, className: 'align-right' }))]];
+        tableBodySupply = [[{data: '공급가', className: 'align-center'}, ...data.map((el: any) => ({ data: el.supply_amt, className: 'align-right' }))]];
+        tableBodyVat = [[{data: '부가세', className: 'align-center'}, ...data.map((el: any) => ({ data: el.vat_amt, className: 'align-right' }))]];
     }
 
     return (
@@ -221,16 +219,14 @@ const EtcGiftCardTotalTableData = () => {
                 <td>매장 보유 재고</td>
                 <td className={`align-center ${tableBody.cnt1_class}`}>{tableBody.fran_stock_cnt1}장 ({tableBody.fran_stock_amt1})</td>
                 <td className={`align-center ${tableBody.cnt3_class}`}>{tableBody.fran_stock_cnt3}장 ({tableBody.fran_stock_amt3})</td>
-                <td className={`align-center ${tableBody.cnt5_class}`}>{tableBody.fran_stock_cnt5}장 ({tableBody.fran_stock_amt5})</td>
-                {/* check */}
+                <td className={`align-center ${tableBody.cnt5_class}`}>{tableBody.fran_stock_cnt5}장 ({tableBody.fran_stock_amt5})</td> 
                 <td className={`align-center ${tableBody.total_class}`}>{tableBody.fran_stock_cnt_total}장 ({tableBody.fran_stock_amt_total})</td>
             </tr>
             <tr>
                 <td>본사DB 재고</td>
                 <td className={`align-center ${tableBody.cnt1_class}`}>{tableBody.hq_stock_cnt1}장 ({tableBody.hq_stock_amt1})</td>
                 <td className={`align-center ${tableBody.cnt3_class}`}>{tableBody.hq_stock_cnt3}장 ({tableBody.hq_stock_amt3})</td>
-                <td className={`align-center ${tableBody.cnt5_class}`}>{tableBody.hq_stock_cnt5}장 ({tableBody.hq_stock_amt5})</td>
-                {/* check */}
+                <td className={`align-center ${tableBody.cnt5_class}`}>{tableBody.hq_stock_cnt5}장 ({tableBody.hq_stock_amt5})</td> 
                 <td className={`align-center ${tableBody.total_class}`}>{tableBody.hq_stock_cnt_total}장 ({tableBody.hq_stock_amt_total})</td>
             </tr>
         </>

@@ -87,7 +87,7 @@ const useOrderDetailStatistic = (params: { fran_store: number }, option: { [key:
             }); // previousMonths = [ {date_monthly: '2022-11', amount: 0}, ...,  {date_monthly: '2022-01', amount: 0}], 최근을 앞에 오게
 
             data.forEach((el: any, idx: number) => {
-                previousMonths[idx] = { ...previousMonths[idx], amount: el.amount, supply_amt: el.supply_amt, vat_amt: el.vat_amt }
+                previousMonths[idx] = { ...previousMonths[idx], amount: Utils.numberComma(el.amount), supply_amt: Utils.numberComma(el.supply_amt), vat_amt: Utils.numberComma(el.vat_amt) }
             }); // 내림차순이라 idx 그대로 사용 가능
 
             return previousMonths.reverse(); // 순서 뒤집어주고 정리  

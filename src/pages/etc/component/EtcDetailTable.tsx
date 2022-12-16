@@ -7,8 +7,7 @@ import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 // type
 import { PageInfoType, TableHeadItemType } from "types/etc/etcType";
 import { ExtraOverallTableRowItemType } from "types/membership/extraType";
-import NoData from "pages/common/noData"; 
-import React from "react";
+import NoData from "pages/common/noData";  
 
 interface EtcDetailTableProps {
     tbodyData: ReactNode[] | undefined, // ? 프로시저 데이터 확인하기
