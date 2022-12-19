@@ -47,14 +47,7 @@ interface MembershipListType {
     used_point: number | string, // 포인트 - 사용
 } // useMembershipList 결과 값 타입
 
-interface MembershipTempListType {
-    tempMembershipListTotal: MembershipListType,
-    tempMembershipListData: MembershipListType[],
-}
-// props
-interface ExtraOverallProps {
-    tableHead: ExtraOverallTableRowItemType[][]
-}
+// props 
 
 interface ExtraDetailProps {
     detailTableColGroup: string[],
@@ -72,6 +65,6 @@ interface ExtraDetailDataErrorFallbackProps extends Omit<ExtraDetailProps, 'sear
 }
 
 export type {
-    ExtraOverallTableRowItemType, MembershipTempListType, MembershipTotalType, MembershipListType,
-    ExtraOverallProps, ExtraDetailProps, ExtraDetailDataProps, ExtraDetailDataErrorFallbackProps,
+    ExtraOverallTableRowItemType, MembershipTotalType, MembershipListType,
+    ExtraDetailProps, ExtraDetailDataProps, ExtraDetailDataErrorFallbackProps,
 }

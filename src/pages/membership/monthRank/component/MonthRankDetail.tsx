@@ -12,7 +12,7 @@ import { MonthRankDetailProps, MonthRankDetailDataProps } from "types/membership
 // component
 import CalanderSearch from "pages/common/calanderSearch";
 import Sticky from "pages/common/sticky";
-import EtcDetailTable, { EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
+import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
 import Pagination from "pages/common/pagination";
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
@@ -127,7 +127,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
     )
 }
 
-const MonthRankDetailSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>> }> = ({ searchInfo, setSearchInfo }) => {
+const MonthRankDetailSearch: FC<{ searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>> }> = ({ searchInfo, setSearchInfo }) => {
     const handleRefetch = () => {
         setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
     };

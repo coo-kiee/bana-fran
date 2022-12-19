@@ -1,15 +1,15 @@
 import { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils"; 
 import { useQueryErrorResetBoundary } from "react-query";
 import { ErrorBoundary } from "react-error-boundary";
 import { format, subMonths } from "date-fns";
 
 // state
-import { franState, loginState, orderDetailModalState } from "state";
+import { franState, loginState } from "state";
 
 // type
-import { PageInfoType, OrderDetailDetailProps, SearchInfoSelectType, ETC_ORDER_SEARCH_STATE_TYPE, ETC_ORDER_SEARCH_STATE_LIST } from "types/etc/etcType";
+import { PageInfoType, OrderDetailDetailProps, SearchInfoSelectType, ETC_ORDER_SEARCH_STATE_TYPE, ETC_ORDER_SEARCH_STATE_LIST, OrderDetailListType } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from "service/etcService";
@@ -23,7 +23,7 @@ import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import OrderDetailExcelBody from './OrderDetailExcelBody';
 
-const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ({ detailTableColGroup, detailTableHead }) => {
+const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ({ detailTableColGroup, detailTableHead, openOrderDetailModal }) => {
     const { reset } = useQueryErrorResetBoundary(); 
     const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'), // 2022-10
@@ -37,17 +37,16 @@ const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ({ det
             <OrderDetailDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
             <Suspense fallback={<Loading marginTop={120} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                    <OrderDetailDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+                    <OrderDetailDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} openOrderDetailModal={openOrderDetailModal} />
                 </ErrorBoundary>
             </Suspense>
         </>
     )
 }
 
-const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: { from, to, searchOption, searchTrigger} }) => {
+const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: { from, to, searchOption, searchTrigger}, openOrderDetailModal }) => {
     const franCode = useRecoilValue(franState);
-    const { userInfo: { f_list } } = useRecoilValue(loginState);
-    const setOrderDetailmodalState = useSetRecoilState(orderDetailModalState);
+    const { userInfo: { f_list } } = useRecoilValue(loginState); 
 
     // 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
@@ -64,18 +63,15 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
     // eslint-disable-next-line
     const etcOrderDetailExcelListKey = useMemo(() => ['etc_order_detail_list_excel', JSON.stringify({ franCode,from, to  }) ], [ franCode, from, to ]);
     // table data
-    const { data: listData, isSuccess, isError, isLoading, refetch} = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]);
-    // Excel 다운로드용 query
-    const { data: listExcelData, isSuccess: isExcelSuccess, refetch: excelRefetch } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
+    const { data: listData, isSuccess, isError, isLoading, refetch} = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]); 
+    // Excel 다운로드용 query ('VK4WML6GW9077BKEWP3O', etcMusicListKey, [ franCode, from, to ]);
+    const { data: listExcelData, isSuccess: isExcelSuccess, isError: isExcelError, isLoading: isExcelLoading, refetch: excelRefetch } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
     useEffect(() => {
         refetch();
         excelRefetch();
     }, [searchTrigger, refetch, excelRefetch]);
 
     const [renderTableList, totalSumObj, supplySumObj, vatSumObj]: [ReactNode[] | undefined, number, number, number] = useMemo(() => { 
-        const handlePopupOrderDetail = (nOrderID: number) => { 
-            setOrderDetailmodalState((prevState) => ({ ...prevState, show: true, orderCode: nOrderID }));
-        };
         const { value: searchOptionValue } = searchOption[0]; // 검색 상태값 (주문 상태)
 
         let filteredData = listData; // filtering data
@@ -98,7 +94,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
                     <td className='align-center'>{cancel_staff}</td> 
                     <td className='align-center'>{state_name}</td> 
                     <td className='align-right'>{Utils.numberComma(order_count)}</td>
-                    <td className='align-left order-view' onClick={() => handlePopupOrderDetail(nOrderID)}>{order_count > 1 ? `${first_item} 외 ${order_count - 1}건` : first_item}</td>
+                    <td className='align-left order-view' onClick={() => openOrderDetailModal(nOrderID)}>{order_count > 1 ? `${first_item} 외 ${order_count - 1}건` : first_item}</td>
                     <td className='align-right'>{Utils.numberComma(supply_amt)}원</td>
                     <td className='align-right'>{Utils.numberComma(vat_amt)}원</td>
                     <td className='align-right'>{`${Utils.numberComma(amount)}원`}</td>
@@ -113,7 +109,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
         let sumObjVat = listData?.reduce((acc: any, cur: any) => cur.state !== 50 ? acc += cur.vat_amt : acc, 0) || 0;       // 부가세
 
         return [tableList, sumObjTotal, sumObjSupply, sumObjVat];
-    }, [listData, setOrderDetailmodalState, searchOption]); 
+    }, [listData, openOrderDetailModal, searchOption]); 
 
     // TODO: 엑셀, 페이지네이션 관련
     const excelTableColGroup = ['170', '170', '170', '84', '104', '84', '98', '98', '*', '120', '80', '120', '110', '150'];
@@ -160,20 +156,18 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
             </Sticky>
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={viewportTableRef}>
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
-                {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />}
-                {isLoading && <tbody><Loading isTable={true} /></tbody>}
-                {isError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>  
+                {isSuccess && isExcelSuccess && renderTableList && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />}
+                {isLoading && isExcelLoading && <tbody><Loading isTable={true} /></tbody>}
+                {isError && isExcelError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 
             </table>
 
-            { 
-                isSuccess && isExcelSuccess && (
-                    <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef} style={{display: 'none'}}> 
-                        <EtcDetailTableHead detailTableColGroup={excelTableColGroup} detailTableHead={excelTableHead} /> 
-                        <OrderDetailExcelBody  data={listExcelData} searchOptionValue={searchOption[0].value} />
-                    </table>
-                )
-            } 
+            {isSuccess && isExcelSuccess && (
+                <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef} style={{display: 'none'}}> 
+                    <EtcDetailTableHead detailTableColGroup={excelTableColGroup} detailTableHead={excelTableHead} /> 
+                    <OrderDetailExcelBody data={listExcelData} searchOptionValue={searchOption[0].value} />
+                </table>
+            )} 
             
             <div className="result-function-wrap">
                 <div className="function">

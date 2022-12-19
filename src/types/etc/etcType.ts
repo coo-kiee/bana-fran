@@ -101,15 +101,7 @@ interface RoyaltyDetailListType {
     suply_amount: number,
     tax_amount: number,
     total_amount: number,
-} // web_fran_s_etc_royalty_list 결과 타입
-interface VirtualAccountTotalType {
-    fran_name: string,
-    balance: number,
-    account: string,
-    bank_code: string,
-    total_charge: string,
-    used_amount: string,
-} // web_fran_s_etc_balance 결과 타입
+} // web_fran_s_etc_royalty_list 결과 타입 
 interface VirtualAccListType {
     balance: number,
     deposit: number,
@@ -160,8 +152,12 @@ interface GiftcardDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoSelectType, 
 }
 interface OrderDetailDetailProps extends DetailFallbackProps {
-    // searchInfo: SearchInfoType, 
     searchInfo: SearchInfoSelectType, 
+    openOrderDetailModal: (nOrderID: number) => void,
+}
+interface EtcOrderDetailProps { 
+    showOrderDetail: { show: boolean, orderCode: number},
+    closeOrderDetailModal: () => void
 }
 interface RoyaltyDetailProps extends DetailFallbackProps { 
     searchInfo: SearchInfoType,
@@ -288,12 +284,15 @@ const ETC_ORDER_SEARCH_STATE_LIST = [
 ]
 export type {
     SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
-    DeliveryDetailListType, MusicChargeDetailType, GiftCardDetailType, OrderDetailListType, OrderDetailListExcelTotalType, OrderDetailListExcelType, RoyaltyDetailListType, VirtualAccountTotalType, VirtualAccListType, OrderDetailModalItemType,
+    DeliveryDetailListType, MusicChargeDetailType, GiftCardDetailType, OrderDetailListType, OrderDetailListExcelTotalType, OrderDetailListExcelType, RoyaltyDetailListType, VirtualAccListType, OrderDetailModalItemType,
     ChkGiftCardStockParams, GiftCardListParams, OrderDetailModalParams,
-    DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps, MusicChargeDetailProps, OrderDetailDetailProps, RoyaltyDetailProps, VirtualAccountDetailProps,
+    DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps, MusicChargeDetailProps, OrderDetailDetailProps, EtcOrderDetailProps, RoyaltyDetailProps, VirtualAccountDetailProps,
 };
 export {
     ETC_TAB_TYPE, ETC_TAB_LIST, ETC_DELIVERY_SEARCH_OPTION_TYPE, ETC_DELIVERY_SEARCH_OPTION_LIST,
-    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_LIST, ETC_ORDER_SEARCH_STATE_TYPE, ETC_ORDER_SEARCH_STATE_LIST,
+    ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CATEGORY_LIST, 
+    ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_CARD_LIST, 
+    ETC_GIFTCARD_SEARCH_DEVICE_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_LIST, 
+    ETC_ORDER_SEARCH_STATE_TYPE, ETC_ORDER_SEARCH_STATE_LIST,
     isSelect, isRadio,
 };

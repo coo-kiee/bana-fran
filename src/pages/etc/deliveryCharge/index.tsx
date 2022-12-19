@@ -5,7 +5,7 @@ import DeliveryChargeDetail from "./DeliveryChargeDetail";
 import { TableHeadItemType, ETC_TAB_TYPE } from "types/etc/etcType"; 
 import EtcTotalTable from "../component/EtcTotalTable"; 
 
-const DeliveryCharge = () => { 
+const DeliveryCharge = () => {  
     // column 관련 데이터  
     const detailTableColGroup = ['188', '*', '120', '120', '150', '190', '136', '150', '150', '150'];
     const detailTableHead: TableHeadItemType[][] = [

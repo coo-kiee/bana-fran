@@ -1,10 +1,6 @@
 import { SearchInfoType, TableHeadItemType } from "types/etc/etcType";
 
-// type
-interface PopupOrderDetailType {
-    show: boolean,
-    orderCode: number,
-}
+// type 
 interface RankInfoItemType {
     fran_name: string,
     rank_reward_1: string,
@@ -79,7 +75,7 @@ const RANK_REWARD_LIST = [
 ] as const;
 
 export type {
-    PopupOrderDetailType, RewardEditItemType, RankInfoItemType, RankListItemType, RankEditParams, 
+    RewardEditItemType, RankInfoItemType, RankListItemType, RankEditParams, 
     MonthRankOverallProps, MonthRankDetailProps, MonthRankDetailDataProps, RewardEditDataProps,
 }
 

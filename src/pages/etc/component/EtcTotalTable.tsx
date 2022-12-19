@@ -18,7 +18,7 @@ import { franState } from 'state';
 // service
 import ETC_SERVICE from 'service/etcService';
 
-const EtcTotalTable: FC<{ currTab: number, }> = ({ currTab }) => {
+const EtcTotalTable: FC<{ currTab: number }> = ({ currTab }) => {
     const { reset } = useQueryErrorResetBoundary();
 
     const handleTotalTableData = (currTab: number) => {

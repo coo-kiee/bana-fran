@@ -1,3 +1,5 @@
+import { FC } from "react";
+
 // type
 import { ETC_TAB_TYPE } from "types/etc/etcType";
 
@@ -5,7 +7,7 @@ import { ETC_TAB_TYPE } from "types/etc/etcType";
 import OrderDetailDetail from './OrderDetailDetail'; 
 import EtcTotalTable from '../component/EtcTotalTable';  
 
-const OrderDetail = () => {  
+const OrderDetail: FC<{openOrderDetailModal: (nOrderID: number) => void}> = ({ openOrderDetailModal }) => {
     // TODO: EtcDetailTable 관련 데이터  
     const detailTableColGroup = ['170', '170', '170', '84', '104', '84', '98', '98', '*', '120', '110', '150'];
     const detailTableHead = [
@@ -15,7 +17,7 @@ const OrderDetail = () => {
     return (
         <div className="board-date-wrap">
             <EtcTotalTable currTab={ETC_TAB_TYPE.ORDER} /> 
-            <OrderDetailDetail detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+            <OrderDetailDetail detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} openOrderDetailModal={openOrderDetailModal}/>
         </div>
     )
 }

@@ -30,17 +30,5 @@ const franState = atom<number>({
     default: 0
 })
 
-type OrderDetailModalType = {
-    show: boolean,
-    orderCode: number,
-}
-const orderDetailModalState = atom<OrderDetailModalType>({
-    key: 'orderDetailmodal',
-    default: {
-        show: false,
-        orderCode: 0
-    }
-})
-
-export { loginState, franState, orderDetailModalState }
+export { loginState, franState }
 export type { LoginAuthType }

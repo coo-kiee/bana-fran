@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useState } from 'react';
 import loadable from '@loadable/component';
 
 // type
@@ -13,25 +12,30 @@ import OrderDetail from './orderDetail';
 import Royalty from './royalty';
 import VirtualAccount from './virtualAccount'; 
 
-// state
-import { orderDetailModalState } from 'state';
-
 const EtcContainer = () => {
-    const EtcOrderModal = loadable(() => import('./component/EtcOrderDetail'));
-    const { show } = useRecoilValue(orderDetailModalState);
+    const EtcOrderModal = loadable(() => import('./component/EtcOrderDetail')); 
 
-    useEffect(() => {
-        console.log(show)
-    }, [show])
     // TODO: 상태 관련
     const [currTab, setCurrTab] = useState(0); // 선택된 탭 메뉴 관련 
+    const [ showOrderDetail, setShowOrderDetail ] = useState({
+        show: false,
+        orderCode: 0
+    }); // 발주내역 세부 사항 모달 관련
+
+    const openOrderDetailModal = (nOrderID: number) => { 
+        setShowOrderDetail((prev) => ({...prev, show: true, orderCode: nOrderID}))
+    }
+
+    const closeOrderDetailModal = () => {
+        setShowOrderDetail((prev) => ({...prev, show: false, orderCode: 0}))
+    }
 
     // TODO: 내부 컴포넌트 관련
     const tabList = {
         [ETC_TAB_TYPE.DELIVERY]: { title: '바나 딜리버리 수수료', subtitle:'※ 바나 딜리버리 수수료 내역을 조회할 수 있습니다.', id: 'tab1', component: <DeliveryCharge /> },
         [ETC_TAB_TYPE.MUSIC]: { title: '음악 서비스 이용료', subtitle: '※ 매월 매장 음악 서비스 이용료를 조회할 수 있습니다.', id: 'tab2', component: <MusicCharge /> },
         [ETC_TAB_TYPE.GIFTCARD]: { title: '실물상품권 발주/판매', subtitle: '※ 실물 상품권 발주/위탁판매내역을 조회할 수 있습니다.', id: 'tab3', component: <GiftCard /> },
-        [ETC_TAB_TYPE.ORDER]: { title: '발주내역', subtitle: '※ 상세 발주 내역을 조회할 수 있습니다.', id: 'tab4', component: <OrderDetail /> },
+        [ETC_TAB_TYPE.ORDER]: { title: '발주내역', subtitle: '※ 상세 발주 내역을 조회할 수 있습니다.', id: 'tab4', component: <OrderDetail openOrderDetailModal={openOrderDetailModal} /> },
         [ETC_TAB_TYPE.ROYALTY]: { title: '로열티', subtitle: '※ 매월 매장 로열티를 조회할 수 있습니다.', id: 'tab5', component: <Royalty /> },
         [ETC_TAB_TYPE.ACCOUNT]: { title: '가상계좌 충전/차감', subtitle: '※ 가상계좌 충전/차감 내역을 조회할 수 있습니다.', id: 'tab6', component: <VirtualAccount /> },
     };
@@ -61,7 +65,7 @@ const EtcContainer = () => {
                     </div>
                 </section>
             </section>
-            {show ? <EtcOrderModal /> : null}
+            {showOrderDetail.show ? <EtcOrderModal showOrderDetail={showOrderDetail} closeOrderDetailModal={closeOrderDetailModal} /> : null}
         </>
     )
 }

@@ -1,14 +1,10 @@
-import React, { Suspense, useEffect, useRef } from 'react';
-import { useRecoilState } from 'recoil';
+import React, { FC, Suspense, useEffect, useRef } from 'react'; 
 import Utils from 'utils/Utils';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 
 // type
-import { OrderDetailModalParams, OrderDetailModalItemType } from 'types/etc/etcType';
-
-// state
-import { orderDetailModalState } from 'state';
+import { OrderDetailModalParams, OrderDetailModalItemType, EtcOrderDetailProps } from 'types/etc/etcType';
 
 // service 
 import ETC_SERVICE from 'service/etcService';
@@ -19,7 +15,7 @@ import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import{ EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
 import Sticky from 'pages/common/sticky';
 
-const EtcOrderDetail = () => {
+const EtcOrderDetail:FC<EtcOrderDetailProps> = ( props ) => { 
     const { reset } = useQueryErrorResetBoundary();  
     
     // Modal render시 body scroll방지
@@ -34,7 +30,7 @@ const EtcOrderDetail = () => {
                 <p className="title">발주 품목 상세</p>
                 <Suspense fallback={<div style={{ width: 900, height: 300, display: 'flex', justifyContent: 'center', alignItems: 'center' }}><Loading /></div>}>
                     <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <div style={{ width: 900, height: 200, display: 'flex', justifyContent: 'center', alignItems: 'center' }}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary}/></div>} >
-                        <EtcOrderDetailData />
+                        <EtcOrderDetailData {...props} />
                     </ErrorBoundary>
                 </Suspense>
             </div>
@@ -42,21 +38,16 @@ const EtcOrderDetail = () => {
     )
 }
 
-const EtcOrderDetailData = () => {
-    const [modalState, setModalState] = useRecoilState(orderDetailModalState);
+const EtcOrderDetailData:FC<EtcOrderDetailProps> = ({ showOrderDetail, closeOrderDetailModal }) => { 
     const colGroup = ['226', '100', '100', '100', '100', '100', '191'];
     const thead = [
         [{itemName: '품목'}, {itemName: '단가'}, {itemName: '수량'}, {itemName: '공급가'}, {itemName: '부가세'}, {itemName: '합계(발주금액)'}, {itemName: '특이사항'}],
     ];
 
-    const handleModalClose = () => { 
-        setModalState((prev) => ({...prev, show: false})); // 끄기
-    };
-
     // 프로시저
     let tbody: Array<OrderDetailModalItemType> = [];
     let total: Array<OrderDetailModalItemType> = [];
-    const orderDetailModalParams: OrderDetailModalParams = { order_code: modalState.orderCode };
+    const orderDetailModalParams: OrderDetailModalParams = { order_code: showOrderDetail.orderCode };
     const { data, isSuccess } = ETC_SERVICE.useOrderDetailModal(orderDetailModalParams);
     if (isSuccess) {
         tbody = [...tbody, ...data.slice(0, data.length - 1)];
@@ -90,11 +81,12 @@ const EtcOrderDetailData = () => {
                     </tbody>
                 </table>
             </div>
-            <button className="btn-close order-close" onClick={handleModalClose}></button>
-            <button className="cta-btn" onClick={handleModalClose}>확인</button>
+            <button className="btn-close order-close" onClick={closeOrderDetailModal}></button>
+            <button className="cta-btn" onClick={closeOrderDetailModal}>확인</button>
         </>
     )
 }
+
 const EtcOrderDetailItem: React.FC<OrderDetailModalItemType> = (props) => {
     const { fOrderCount, fran_price, nEAPerPack, sDeliveryUnit, sEtc, sGroup, sItemShort, suply_amount, tax_amount, total_amount, volume } = props;
 

@@ -1,4 +1,4 @@
-import React, { useState, FC, useMemo, useEffect } from 'react'
+import React, { useState, FC, useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
 import { useQueryClient } from 'react-query'
 
@@ -46,10 +46,6 @@ const PrizeEdit: FC<{ setPopupRankReward: React.Dispatch<React.SetStateAction<bo
         reward4: handleRewardInfo(data.rank_reward_4),
         reward5: handleRewardInfo(data.rank_reward_5),
     }); // 입력값 관련 
-
-    useEffect(() => {
-        console.log(rewardValue)
-    }, [rewardValue]);
 
     // 상태 관련
     const handleRewardValue = (keyName: string, target: { [key in keyof RewardEditItemType]?: RewardEditItemType[key] }) => {
