@@ -93,7 +93,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
             if( pointType && cardType && deviceType ){
                 arr.push(
                     <>
-                        <td className="align-center">{format(new Date(std_date), 'yyyy-MM-dd hh:mm')}</td>
+                        <td className="align-center">{std_date}</td>
                         <td className={`align-center ${gubun.includes('임의') ? 'negative-value' : ''}`}>{gubun}</td>
                         <td className="align-center">{item_name}</td>
                         <td className="align-center">{Utils.numberComma(item_cnt)}장 ({Utils.numberComma(item_amt)})</td>

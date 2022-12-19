@@ -79,7 +79,7 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
             if(paymentType){
                 arr.push(
                     <>
-                        <td className="align-center">{format(new Date(dtRcp), `yyyy-MM-dd hh:mm`)}</td>
+                        <td className="align-center">{dtRcp}</td>
                         <td className="align-left">{sItem}</td>
                         <td className="align-right">{Utils.numberComma(total_charge)}</td>
                         <td className="align-right">{Utils.numberComma(nDeliveryCharge)}</td>

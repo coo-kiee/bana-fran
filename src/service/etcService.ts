@@ -105,9 +105,9 @@ const useEtcList = <T>(query: string, queryKey: string[], params: [number, strin
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,    
+        enabled: false
     });
-}; // *_list 프로시저 공통 함수
-
+}; // *_list 프로시저 공통 함수 
 const useGiftCardList = (queryKey: string[], params: [number, string, string]) => {
     const [ franCode, from, to ] = params;
 
@@ -133,7 +133,7 @@ const useDetailList = (queryKey: string[], params: [number, string, string]) => 
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: false
+        suspense: false,
     });
 } // 발주내역 (suspense 때문에 따로 분리 + 테스트)
 

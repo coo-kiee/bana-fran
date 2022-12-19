@@ -1,7 +1,7 @@
 import { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useQueryErrorResetBoundary } from 'react-query';
-import { format, subMonths } from 'date-fns';
+import { format, isBefore, isSameDay, subMonths } from 'date-fns';
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
 
@@ -22,6 +22,10 @@ import MEMBERSHIP_SERVICE from "service/membershipService";
 
 // state
 import { franState, loginState } from "state"; 
+
+const isSameOrBeforeToday = (targetDate: string) => {
+    return isBefore(new Date(targetDate), new Date()) || isSameDay(new Date(targetDate), new Date())
+};
 
 const ExtraDetail: FC<ExtraDetailProps> = (props) => {
     const { detailTableColGroup, detailTableHead } = props;
@@ -72,8 +76,10 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
     useEffect(() => {
         refetch();
     }, [searchTrigger, refetch])
+
     const renderTableList: ReactNode[] = useMemo(() => {  
-        const tableList = data?.reduce((arr: any, tbodyRow: any, index: number) => { 
+        const tableList = data?.filter((data, idx) => isSameOrBeforeToday(data.std_date) || idx === 0) // 가장 첫번째 데이터(=총 합 데이터) || 오늘 포함한 오늘 이전 데이터
+        .reduce((arr: any, tbodyRow: any, index: number) => { 
             const {
                 std_date, total_stamp_cnt, convert_coupon_stamp_cnt, expired_stamp_cnt, total_coupon_cnt, total_coupon_amount,
                 used_coupon_cnt, used_coupon_amount, expired_coupon_cnt, expired_coupon_amount, total_point, used_point, expired_point
@@ -92,7 +98,7 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
                     <td className={index === 0 ? 'total' : ''}>{used_point}P</td>
                     <td className={index === 0 ? 'total' : ''}>{expired_point}P</td>
                 </>
-            ) 
+            );
 
             return arr;
         }, [] as ReactNode[]) || [];   

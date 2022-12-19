@@ -36,6 +36,7 @@ const useMembershipList = (queryKey: string[], [ franCode, from, to ]: [number, 
         refetchOnWindowFocus: false,
         retry: false,
         suspense: false, 
+        enabled: false,
         select: (data: MembershipListType[]) => {
             const tempData = data.map((el, idx) => {
                 let tempData: any = {}
@@ -115,6 +116,7 @@ const useRankList = (queryKey: string[], [ franCode, from, to ]: [number, string
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,
+        enabled: false,
     });
 }; // web_fran_s_membership_rank_list
 

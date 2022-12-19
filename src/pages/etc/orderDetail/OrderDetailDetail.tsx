@@ -9,7 +9,7 @@ import { format, subMonths } from "date-fns";
 import { franState, loginState } from "state";
 
 // type
-import { PageInfoType, OrderDetailDetailProps, SearchInfoSelectType, ETC_ORDER_SEARCH_STATE_TYPE, ETC_ORDER_SEARCH_STATE_LIST, OrderDetailListType } from "types/etc/etcType";
+import { PageInfoType, OrderDetailDetailProps, SearchInfoSelectType, ETC_ORDER_SEARCH_STATE_TYPE, ETC_ORDER_SEARCH_STATE_LIST } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from "service/etcService";
@@ -61,10 +61,10 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
     // eslint-disable-next-line
     const etcOrderDetailListKey = useMemo(() => ['etc_order_detail_list', JSON.stringify({ franCode, from, to }) ], [ franCode, searchTrigger ]);
     // eslint-disable-next-line
-    const etcOrderDetailExcelListKey = useMemo(() => ['etc_order_detail_list_excel', JSON.stringify({ franCode,from, to  }) ], [ franCode, from, to ]);
+    const etcOrderDetailExcelListKey = useMemo(() => ['etc_order_detail_list_excel', JSON.stringify({ franCode, from, to }) ], [ franCode, from, to ]);
     // table data
     const { data: listData, isSuccess, isError, isLoading, refetch} = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]); 
-    // Excel 다운로드용 query ('VK4WML6GW9077BKEWP3O', etcMusicListKey, [ franCode, from, to ]);
+    // Excel 다운로드용 
     const { data: listExcelData, isSuccess: isExcelSuccess, isError: isExcelError, isLoading: isExcelLoading, refetch: excelRefetch } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
     useEffect(() => {
         refetch();

@@ -69,7 +69,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
 
             arr.push(
                 <>
-                    <td className='align-center'>{format(new Date(log_date), 'yyyy/MM/dd hh:mm')}</td>
+                    <td className='align-center'>{log_date}</td>
                     <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{division}</td>
                     <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{Utils.numberComma(deposit)}</td>
                     <td className='align-center'>{state}</td>
