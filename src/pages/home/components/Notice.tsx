@@ -23,7 +23,7 @@ const Notice = () => {
 
 	return (
 		<>
-			{data?.map((board: any, idx: number) => {
+			{data?.map((board, idx) => {
 				const { board_id, board_type, category_name, important, title, insert_date } = board;
 				return (
 					<BoardItem

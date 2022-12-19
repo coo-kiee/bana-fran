@@ -21,7 +21,7 @@ const CalendarBody = ({ selectedDate, data }: CalendarBodyProps) => {
 		for (let i = 0; i < 7; i++) {
 			formattedDate = format(day, 'd'); // 날짜 표시 형식 변환
 			const dayCopy = day;
-			const targetData = data?.filter((franData: any) => {
+			const targetData = data?.filter((franData) => {
 				return new Date(franData.std_date).getDate() === Number(format(dayCopy, 'd'));
 			});
 

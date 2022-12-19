@@ -23,7 +23,7 @@ const Archive = () => {
 
 	return (
 		<>
-			{data?.map((board: any, idx: number) => {
+			{data?.map((board, idx) => {
 				const { board_id, board_type, important, category_name, title, insert_date } = board;
 				return (
 					<BoardItem

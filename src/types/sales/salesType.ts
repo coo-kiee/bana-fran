@@ -1,10 +1,9 @@
+import { Point } from "@nivo/line";
 import { CommonParams } from "types/common";
 
 // common
 type SearchType = 'D'|'M';
-
-interface SalesTableBodyProps {
-    data: any;
+interface TableDetailProps {
     currentPage: number;
     rowPerPage: number;
 	searchType?: SearchType; 
@@ -18,9 +17,10 @@ interface SalesOrderParams extends CommonParams {
 interface SalesStatisticParams extends SalesOrderParams {
 	search_type: SearchType;
 }
+
 // API Output
 interface SalesHistoryData {
-	[key: string]: string | number;
+	[key: string]: number|string;
 	bOrderGiftCert: '0'|'1';
 	bana_point: number;
 	cancel_date: string;
@@ -42,7 +42,7 @@ interface SalesHistoryData {
 	order_state: 5|10|20|30|35|40|50;
 	order_state_name: string;
 	order_type: 0|1|2|3;
-	order_type_name: string
+	order_type_name: string;
 	paid_point: number;
 	pay_type: '결제완료'|'현장카드'|'현장현금';
 	phone: string;
@@ -165,7 +165,7 @@ const STATISTIC_SEARCH_LIST = [
 	STATISTIC_SEARCH_TYPE.MONTH
 ]
 
-// history
+// history type
 interface SalesHistorySearchOption {
 	title: string; // select box option name
 	value: string; // select box option value
@@ -188,31 +188,36 @@ interface SalesHistoryProps {
 	currentPage: number; // 현재 페이지
 	rowPerPage: number; //페이지 당 컨텐츠 수
 }
+interface SalesHistoryTableDetailProps extends TableDetailProps {
+	data: SalesHistoryData[];
+}
 
-// statistics
+// statistic type
 interface SalesStatisticSearch {
     searchType: SearchType;
     from: string;
     to: string;
 }
-interface FilterChart {
+interface ChartFilter {
     total: 0|1;
     paid: 0|1;
     app: 0|1;
     free: 0|1;
 }
 interface SalesLineChartProps {
-    filterChart: FilterChart;
-    data: SalesStatisticData[];
+    chartFilter: ChartFilter;
     searchType: SearchType;
+    data: SalesStatisticData[];
 }
 interface SalesLineChartTooltipProps {
-	point: any;
+	point: Point;
     searchType: SearchType;
+}
+interface SalesStatisticTableDetailProps extends TableDetailProps {
+	data: SalesStatisticData[];
 }
 
 export type {
-	SalesTableBodyProps,
 	SalesOrderParams,
 	SalesStatisticParams,
     SalesHistorySearch, 
@@ -220,12 +225,13 @@ export type {
 	SalesStatisticData,
     PrefixSumProps, 
 	SalesHistoryProps,
+	SalesHistoryTableDetailProps,
     SalesStatisticSearch, 
-    FilterChart, 
+    ChartFilter, 
     SalesLineChartProps, 
 	SalesLineChartTooltipProps,
+	SalesStatisticTableDetailProps,
 };
-
 // option types
 export {
     HISTORY_ORDER_TYPE,

@@ -14,16 +14,16 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
     // sticky table이 viewport 내에 존재하는지
     const [isViewportIn, setIsViewportIn] = useState<boolean>(false);
 
-    // 실제 데이터가 그려진 table이 scroll 영역 안에 존재하는지
-	const getTableReady = (entries: any, observer: any) => {
-        entries.forEach((entry: any) => {
+    // isViewportIn handler
+	const getTableReady = (entries: IntersectionObserverEntry[]) => {
+        entries.forEach((entry) => {
             setIsViewportIn(entry.isIntersecting)
         });
     }
 
-	// change sticky states (showSticky)
-    const handleSticky = (entries: any, observer: any) => {
-        entries.forEach((entry: any) => {
+	// change sticky states (showSticky handler)
+    const handleSticky = (entries: IntersectionObserverEntry[]) => {
+        entries.forEach((entry) => {
             entry.intersectionRatio <= 0.1 ? setShowSticky(true) : setShowSticky(false); // 10퍼센트 이하로 보이면 sticky 작동
         });
     }
@@ -39,7 +39,7 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
     // table observe (isViewportIn)
 	useEffect(() => {
 		if (contentsRef) {
-            const observer = new IntersectionObserver(getTableReady, {root: root, rootMargin: '0px', threshold: 0.1});
+            const observer = new IntersectionObserver(getTableReady, {root: root, rootMargin: '0px', threshold: 0});
             observer.observe(contentsRef); // start observe
         }
 	}, [contentsRef, root]);
@@ -51,7 +51,7 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
 
 export default Sticky;
 
-const StickyContainer = styled.table<{root: any}>`    
+const StickyContainer = styled.table<{root: HTMLDivElement | null}>`    
     position: ${(props) => (props.root ? 'sticky' : 'fixed')};
     top: 0;
 	z-index: 10;

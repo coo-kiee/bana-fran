@@ -21,7 +21,7 @@ const EtcOrderDetail:FC<EtcOrderDetailProps> = ( props ) => {
     // Modal render시 body scroll방지
     useEffect(() => {
         if (document) { document.body.style.overflow = 'hidden'; }
-        return () => { document.body.removeAttribute('style') } // style 제거
+        return () => { document.body.removeAttribute('style'); } // style 제거
     }, [])
     
     return (

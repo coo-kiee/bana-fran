@@ -19,7 +19,7 @@ const CalculateList = () => {
 
 	return (
 		<>
-			{data?.map((settlement: any, idx: number) => {
+			{data?.map((settlement, idx) => {
 				const { std_month, receive_charge, send_charge, total_send_charge, status, status_name } = settlement;
 				return (
 					<tr key={String(std_month) + idx}>

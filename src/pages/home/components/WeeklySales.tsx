@@ -23,7 +23,7 @@ const WeeklySales = () => {
 	
 	return (
 		<ResponsiveBar
-			data={data}
+			data={data || []}
 			keys={['sales_charge']}
 			indexBy='std_date'
 			margin={{ top: 70, right: 0, bottom: 50, left: 0 }}
@@ -41,7 +41,7 @@ const WeeklySales = () => {
 			theme={{
 				axis: {
 					ticks: {
-						text: { // axis label font properties
+						text: {
 							fontSize: 12,
 							fontWeight: 'bold',
 						}
@@ -49,7 +49,7 @@ const WeeklySales = () => {
 				}
 			}}
 			enableLabel={false}
-			role='application'
+			role='graphics-doc'
 			ariaLabel='Weekly Sales'
 			layers={[
 				'grid',
@@ -68,7 +68,7 @@ const WeeklyContainer = () => {
 	return (
 		<Board title='Week' boardClass='week-sales' url='/sales/history' suffix='총 매출'>
 			<div className='contents-list bar-chart chart'>
-				<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <div style={{marginTop:'90px'}}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} /></div>} onError={(e) => console.log('error on WeeklySales(Week 총 매출): ', e)}>
+				<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <div style={{ marginTop: '90px' }}><SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} /></div>} onError={(e) => console.log('error on WeeklySales(Week 총 매출): ', e)}>
                     <Suspense fallback={<Loading width={50} height={50} marginTop={153.5} />}>
 						<WeeklySales />
 					</Suspense>

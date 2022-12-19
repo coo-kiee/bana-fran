@@ -1,4 +1,5 @@
-import { ResponsiveLine } from '@nivo/line';
+import { useMemo } from 'react';
+import { Point, ResponsiveLine } from '@nivo/line';
 
 // Types
 import { SalesLineChartProps } from 'types/sales/salesType';
@@ -9,40 +10,41 @@ import LineChartDays from './LineChartDays';
 import LineChartMonths from './LineChartMonths';
 import LineChartTooltip from './LineChartTooltip';
 
-const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
-    const { total, paid, app, free } = filterChart;
-    // chart data 가공: Serie[] 형태로 데이터 매핑
-    const totalData = data.map((d) => {return { x: d.std_date, y: d.total_sales_amt }});
-    const appDeliveryData = data.map((d) => {return { x: d.std_date, y: d.app_delivery_amt }});
-    const paidData = data.map((d) => {return { x: d.std_date, y: d.paid_sales_amt }});
-    const freeData = data.map((d) => {return { x: d.std_date, y: d.free_sales_amt }});
+const LineChart = ({ chartFilter, searchType, data }: SalesLineChartProps) => {
     
-	const chartData = [
-        { id: 'total', data: totalData, color: '#f1658a' },
-        { id: 'paid', data: paidData, color: '#ae88ff' },
-        { id: 'app', data: appDeliveryData, color: '#6ecfbc' },
-        { id: 'free', data: freeData, color: '#ff9177' },
-    ]
 
     // 필터 (매출유형별)
-	const filteredData = () => {
+	const filteredData = useMemo(() => {
+        const { total, paid, app, free } = chartFilter;
+    
+        // chart data 가공: Serie[] 형태로 데이터 매핑
+        const totalData = data.map((sales) => {return { x: sales.std_date, y: sales.total_sales_amt }});
+        const appDeliveryData = data.map((sales) => {return { x: sales.std_date, y: sales.app_delivery_amt }});
+        const paidData = data.map((sales) => {return { x: sales.std_date, y: sales.paid_sales_amt }});
+        const freeData = data.map((sales) => {return { x: sales.std_date, y: sales.free_sales_amt }});
+
+        const chartData = [
+            { id: 'total', data: totalData, color: '#f1658a' },
+            { id: 'paid', data: paidData, color: '#ae88ff' },
+            { id: 'app', data: appDeliveryData, color: '#6ecfbc' },
+            { id: 'free', data: freeData, color: '#ff9177' },
+        ]
 		// 조건 해당 항목 필터링 (id filter)
-		return chartData.filter((fd) => {
+		return chartData.filter(({ id }) => {
 			return (
-				(total && fd.id === 'total') || 
-				(paid && fd.id === 'paid') || 
-				(app && fd.id === 'app') ||
-				(free && fd.id === 'free')
+				(total && id === 'total') || 
+				(paid && id === 'paid') || 
+				(app && id === 'app') ||
+				(free && id === 'free')
 			)
 		});
-	};
+	}, [chartFilter, data]);
 
     return (
         <ResponsiveLine
-            data={filteredData()}
+            data={filteredData}
             margin={{ top: 20, right: 70, bottom: 40, left: 70 }}
             animate={true}
-            // xScale={{ type: 'point' }}
             yScale={{
                 type: 'linear',
                 min: 'auto',
@@ -58,7 +60,7 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
             axisBottom={null}
             lineWidth={4}
             curve='linear'
-            colors={(props) => {return props.color}}
+            colors={props => {return props.color}}
             useMesh={true}
             enableGridX={true}
             enableGridY={true}
@@ -66,7 +68,8 @@ const LineChart = ({ filterChart, data, searchType }: SalesLineChartProps) => {
             pointSize={10}
             pointColor='#ffffff'
             pointBorderWidth={4}
-            pointBorderColor={(props: any) => {return props.serieColor}}
+            pointBorderColor={(props: Point) => {return props.serieColor}}
+            role='graphics-doc'
             tooltip={({point}) => {return <LineChartTooltip point={point} searchType={searchType} />}}
             layers={[
                 'grid', 

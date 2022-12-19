@@ -16,19 +16,38 @@ import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 const Today = () => {
 	const fCode = useRecoilValue(franState);
 	const { data } = HOME_SERVICE.useSalesToday({ f_code: fCode });
-
+	
 	// 배달매출, 카드결제, 현금결제, 유상포인트결제, 본사쿠폰결제, 쿠팡/배민, 가맹점쿠폰결제, 바나포인트결제,
-	let { delivery_charge, card_charge, cash_charge, paid_point, hd_coupon_charge, etc_delivery_charge, fran_coupon_charge, bana_point } = data[0];
-	
-	const freeService = useMemo(() => {return data[0].fran_coupon_charge + data[0].bana_point}, [data]); // 무상서비스
-	const paidSales = useMemo(() => {return data[0].card_charge + data[0].cash_charge + data[0].paid_point + data[0].hd_coupon_charge + data[0].etc_delivery_charge}, [data]); // 유상 매출
-	const totalSales = useMemo(() => {return freeService + paidSales}, [freeService, paidSales]);	// 총 매출
-	
+	const [freeService, paidSales, totalSales, {delivery_charge, card_charge, cash_charge, paid_point, hd_coupon_charge, etc_delivery_charge, fran_coupon_charge, bana_point}] = useMemo(() => {
+		// 매출 상세 내역
+		let todayData = {
+			delivery_charge: 0, 
+			card_charge: 0, 
+			cash_charge: 0, 
+			paid_point: 0, 
+			hd_coupon_charge: 0, 
+			etc_delivery_charge: 0, 
+			fran_coupon_charge: 0, 
+			bana_point: 0
+		}
+		// 무/유상 매출 합계
+		let	freeService = 0,
+			paidSales = 0,
+			totalSales = 0;
+		if (data) {
+			todayData = data[0];
+			freeService = data[0].fran_coupon_charge + data[0].bana_point;
+			paidSales = data[0].card_charge + data[0].cash_charge + data[0].paid_point + data[0].hd_coupon_charge + data[0].etc_delivery_charge;
+			totalSales = freeService + paidSales;
+		}
+		return [freeService, paidSales, totalSales, todayData]
+	}, [data]);
+
 	return (
 		<tr>
 			<td className='point'>{Utils.numberComma(totalSales)}원</td>
 			<td>
-				{Utils.numberComma(delivery_charge || 0)}원<span className='percentage'>({(100 * delivery_charge/totalSales || 0).toFixed(1)}%)</span>
+				{Utils.numberComma(data ? data[0].delivery_charge : 0)}원<span className='percentage'>({(100 * delivery_charge/totalSales || 0).toFixed(1)}%)</span>
 			</td>
 			<td className='point'>
 				{Utils.numberComma(paidSales)}원<span className='percentage'>({(100 * paidSales/totalSales || 0).toFixed(1)}%)</span>

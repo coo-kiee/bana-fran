@@ -8,7 +8,7 @@ import { franState, loginState } from "state";
 // API
 import SALES_SERVICE from 'service/salesService';
 // Types
-import { SalesStatisticSearch, FilterChart, STATISTIC_SEARCH_LIST, STATISTIC_SEARCH_TYPE } from "types/sales/salesType";
+import { SalesStatisticSearch, ChartFilter, STATISTIC_SEARCH_LIST, STATISTIC_SEARCH_TYPE } from "types/sales/salesType";
 // Utils
 import Utils from "utils/Utils";
 // Components
@@ -21,7 +21,7 @@ import Sticky from "pages/common/sticky";
 import TableColGroup from "./table/TableColGroup";
 import TableHead from "./table/TableHead";
 import TableTotalRow from "./table/TableTotalRow";
-import TableBody from "./table/TableBody";
+import TableDetail from "./table/TableDetail";
 
 const SalesStatistic = () => {
 	// global state
@@ -34,7 +34,7 @@ const SalesStatistic = () => {
 
 	// filter options
     const [statisticSearch, setStatisticSearch] = useState<SalesStatisticSearch>({ searchType: 'D', from: format(subMonths(today, 1), 'yyyy-MM-dd'), to: format(today, 'yyyy-MM-dd') });
-    const [filterChart, setFilterChart] = useState<FilterChart>({ total: 1, paid: 0, app: 0, free: 0 });
+    const [chartFilter, setChartFilter] = useState<ChartFilter>({ total: 1, paid: 0, app: 0, free: 0 });
 
 	// pagination
 	const [currentPage, setCurrentPage] = useState<number>(1);
@@ -81,7 +81,9 @@ const SalesStatistic = () => {
 	// data 역순 정렬 (table용)
 	const sortedData =  data ? [...data] : [];
 	sortedData.reverse();
-	
+
+	/* sticky 기준 ref */
+	const stickyRef = useRef<HTMLTableRowElement>(null);
     /* excel download */
     const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
 
@@ -100,9 +102,6 @@ const SalesStatistic = () => {
             catch (error) { console.log(error); }
         }
     }
-
-	/* sticky 기준 ref */
-	const stickyRef = useRef<HTMLTableRowElement>(null);
 
 	return (
 		<>
@@ -131,10 +130,10 @@ const SalesStatistic = () => {
 								className='check'
 								type='checkbox'
 								id='total-sales'
-								checked={filterChart.total === 1}
-								value={filterChart.total}
+								checked={chartFilter.total === 1}
+								value={chartFilter.total}
 								onChange={(e) => {
-									setFilterChart({ ...filterChart, total: e.target.checked ? 1 : 0 });
+									setChartFilter({ ...chartFilter, total: e.target.checked ? 1 : 0 });
 								}}
 							/>
 							<label htmlFor='total-sales'>총 매출</label>
@@ -144,10 +143,10 @@ const SalesStatistic = () => {
 								className='check'
 								type='checkbox'
 								id='paid-sales'
-								checked={filterChart.paid === 1}
-								value={filterChart.paid}
+								checked={chartFilter.paid === 1}
+								value={chartFilter.paid}
 								onChange={(e) => {
-									setFilterChart({ ...filterChart, paid: e.target.checked ? 1 : 0 })
+									setChartFilter({ ...chartFilter, paid: e.target.checked ? 1 : 0 })
 								}}
 							/>
 							<label htmlFor='paid-sales'>유상매출</label>
@@ -157,10 +156,10 @@ const SalesStatistic = () => {
 								className='check'
 								type='checkbox'
 								id='delivery-sales'
-								checked={filterChart.app === 1}
-								value={filterChart.app}
+								checked={chartFilter.app === 1}
+								value={chartFilter.app}
 								onChange={(e) => {
-									setFilterChart({ ...filterChart, app: e.target.checked ? 1 : 0 })
+									setChartFilter({ ...chartFilter, app: e.target.checked ? 1 : 0 })
 								}}
 							/>
 							<label htmlFor='delivery-sales'>배달매출</label>
@@ -170,10 +169,10 @@ const SalesStatistic = () => {
 								className='check'
 								type='checkbox'
 								id='free-sales'
-								checked={filterChart.free === 1}
-								value={filterChart.free}
+								checked={chartFilter.free === 1}
+								value={chartFilter.free}
 								onChange={(e) => {
-									setFilterChart({ ...filterChart, free: e.target.checked ? 1 : 0 })
+									setChartFilter({ ...chartFilter, free: e.target.checked ? 1 : 0 })
 								}}
 							/>
 							<label htmlFor='free-sales'>무상서비스</label>
@@ -185,7 +184,7 @@ const SalesStatistic = () => {
 					<div className='line-chart chart'>
 						{!(isLoading || isRefetching) ? ( // loading, refetching 아닐 때
 							data ? 
-							<LineChart filterChart={filterChart} data={data} searchType={searchTypeMemo} /> : 
+							<LineChart chartFilter={chartFilter} data={data} searchType={searchTypeMemo} /> : 
 							<div className="no-chart"><NoData /></div>
 						) : (
 							<div className='chart-loading-wrap'>
@@ -214,8 +213,8 @@ const SalesStatistic = () => {
 							(isLoading || isRefetching) ?
 							<Loading width={100} height={100} marginTop={16} isTable={true} /> :
 							<>
-								<TableTotalRow data={data ? data : []} />
-								<TableBody data={data} rowPerPage={rowPerPage} currentPage={currentPage} searchType={searchTypeMemo} />
+								<TableTotalRow data={data || []} />
+								<TableDetail data={sortedData || []} rowPerPage={rowPerPage} currentPage={currentPage} searchType={searchTypeMemo} />
 							</>
 						}
 					</tbody>

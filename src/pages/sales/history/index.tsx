@@ -26,7 +26,7 @@ const SalesHistoryContainer = () => {
 	// global state
 	const { userInfo } = useRecoilValue(loginState);
 	const fCode = useRecoilValue(franState);
-	const selectedFran = userInfo?.f_list.filter((info: any) => { return (info.f_code === fCode) });
+	const selectedFran = userInfo?.f_list.filter((info) => { return (info.f_code === fCode) });
 	const fCodeName = selectedFran[0]?.f_code_name; // 가맹점명
 	
 	const today = new Date();
@@ -99,7 +99,9 @@ const SalesHistoryContainer = () => {
 			[HISTORY_GIFT_CERT.GIFT_CERT]: { title: '실물상품권', value: '1' },
 		}
 	];
-	
+
+	/* sticky 기준 ref */
+	const stickyRef = useRef<HTMLTableRowElement>(null);
     /* excel download */
     const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
   
@@ -118,9 +120,6 @@ const SalesHistoryContainer = () => {
             catch (error) { console.log(error); }
         }
     }
-
-	/* sticky 기준 ref */
-	const stickyRef = useRef<HTMLTableRowElement>(null);
 
 	return (
 		<>

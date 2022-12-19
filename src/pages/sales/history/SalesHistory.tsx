@@ -7,9 +7,9 @@ import { franState } from "state";
 import SALES_SERVICE from 'service/salesService';
 // Types
 import { SalesHistoryProps, HISTORY_ORDER_TYPE, HISTORY_ORDER_STATE, HISTORY_RCP_TYPE } from "types/sales/salesType";
-
 // Components
-import TableBody from "./table/TableBody";
+import TableDetail from "./table/TableDetail";
+import NoData from "pages/common/noData";
 
 const SalesHistory = ({ queryKey, historySearch, isCancelShow, isExcludeCouBae, historyData, setHistoryData, currentPage, rowPerPage}: SalesHistoryProps) => {
 	// global state
@@ -64,7 +64,11 @@ const SalesHistory = ({ queryKey, historySearch, isCancelShow, isExcludeCouBae, 
         }
     }, [data, isSuccess, historySearch.searchOption, isCancelShow, isExcludeCouBae, setHistoryData])
 
-	return <TableBody data={historyData || data} rowPerPage={rowPerPage} currentPage={currentPage} />;
+	return (
+        data && data?.length > 0 ? 
+        <TableDetail data={historyData||[]} rowPerPage={rowPerPage} currentPage={currentPage} /> : 
+        <NoData isTable={true} rowSpan={1} colSpan={25} paddingTop={20} paddingBottom={20} />
+    );
 }
 
 export default SalesHistory;

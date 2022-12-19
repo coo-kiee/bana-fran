@@ -17,10 +17,10 @@ import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const MonthlySales = ({selectedDate}: {selectedDate: Date}) => {
 	const fCode = useRecoilValue(franState);
-    const searchMonth: string = useMemo(() => {return format(selectedDate, 'yyyy-MM-01')}, [selectedDate]); // 선택한 달 (params)
+    const searchMonth = useMemo(() => {return format(selectedDate, 'yyyy-MM-01')}, [selectedDate]); // 선택한 달 (params)
     const { data } = HOME_SERVICE.useSalesTerms({ f_code: fCode, search_type: 'M', search_month: searchMonth });
     
-	return <CalendarBody selectedDate={selectedDate} data={data} />;
+	return <CalendarBody selectedDate={selectedDate} data={data || []} />;
 };
 
 const MonthlySalesConatiner = () => {

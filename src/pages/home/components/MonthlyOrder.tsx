@@ -20,7 +20,7 @@ const MonthlyOrder = () => {
 
 	return (
 		<>
-			{data?.map((order: any, idx: number, origData: any) => {
+			{data?.map((order, idx, origData) => {
 				const {deposit, log_date} = order;
 				return (
 					<tr key={log_date + idx}>
