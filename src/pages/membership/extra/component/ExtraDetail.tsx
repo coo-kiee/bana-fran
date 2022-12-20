@@ -32,10 +32,10 @@ const ExtraDetail: FC<ExtraDetailProps> = (props) => {
     const { reset } = useQueryErrorResetBoundary(); 
 
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
-        to: format(new Date(), 'yyyy-MM'), // 2022-11  
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), 
+        to: format(new Date(), 'yyyy-MM'),
         searchTrigger: false,
-    }); // 실제 쿼리에서 사용될 날짜, 옵션값
+    }); 
 
     return (
         <>
@@ -67,7 +67,7 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 20, // 한 페이지에 나오는 리스트 개수 
-    }) // etcDetailFooter 관련 내용
+    });
 
     // TODO: 데이터 
     // eslint-disable-next-line
@@ -163,7 +163,7 @@ const ExtraDetailSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dis
             dateType={'yyyy-MM'}
             searchInfo={searchInfo}
             setSearchInfo={setSearchInfo}
-            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+            handleSearch={handleRefetch}
             showMonthYearPicker={true}
         />
     )

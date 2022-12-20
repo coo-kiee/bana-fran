@@ -29,7 +29,7 @@ const DeliveryChargeDetail: FC<Omit<DeliveryChargeDetailProps, 'searchInfo' | 's
         to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
         searchOption: [{ value: 'TOTAL', title: '구분 전체' }],
         searchTrigger: false,
-    }); // 실제 쿼리에서 사용될 날짜, 옵션값
+    });
 
     return (
         <>
@@ -72,8 +72,6 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
     const [renderTableList, totalCharge, supplyTotal, taxTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
             const { delivery_pay_type, dtRcp, nDeliveryCharge, payment_type, sItem, sPhone, suply_fee, suply_fee_tax, total_charge, total_fee} = tbodyRow;
-
-            // option filter
             const paymentType = searchOption[0].value === ETC_DELIVERY_SEARCH_OPTION_TYPE.TOTAL ? true : searchOption[0].title === delivery_pay_type;
 
             if(paymentType){
@@ -110,7 +108,7 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
 
         if( isTableSuccess ) {
             return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
-        } else if( isError ) { // 실패한 경우 
+        } else if( isError ) {
             return <tbody><SuspenseErrorPage isTable={true} /></tbody>
         } else if( isTableLoading ){
             return <tbody><Loading isTable={true} /></tbody>
@@ -178,7 +176,6 @@ const DeliveryChargeDetailSearch: FC<{searchInfo:SearchInfoSelectType, setSearch
     };
 
     return (
-        // 검색 -> 관련 X 
         <CalanderSearch
             title={`상세내역`}
             dateType={'yyyy-MM-dd'}
@@ -186,7 +183,7 @@ const DeliveryChargeDetailSearch: FC<{searchInfo:SearchInfoSelectType, setSearch
             setSearchInfo={setSearchInfo}
             selectOption={searchOptionList}
             optionList={ETC_DELIVERY_SEARCH_OPTION_LIST}
-            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+            handleSearch={handleRefetch}
         />
     )
 }

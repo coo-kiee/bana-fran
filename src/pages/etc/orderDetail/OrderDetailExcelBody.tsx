@@ -9,8 +9,7 @@ type Props = {
 }
 
 const OrderDetailExcelBody = ({ data, searchOptionValue }: Props) => { 
-    const renderExcelTableList: ReactNode[] | undefined = useMemo(() => {  
-        // 옵션 관련 필터링 
+    const renderExcelTableList: ReactNode[] | undefined = useMemo(() => {
         let filteredData = data;
         if (searchOptionValue !== ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL) {
             filteredData = filteredData?.filter((origData: any) => origData.state === Number(searchOptionValue))
@@ -62,14 +61,12 @@ const OrderDetailExcelBody = ({ data, searchOptionValue }: Props) => {
     }, [data, searchOptionValue]); 
 
     return ( 
-        <> 
-            <tbody>
-                {(!!renderExcelTableList && renderExcelTableList.length > 0) && renderExcelTableList.map((item: any, index: number) => { 
-                    return (<tr key={index}>{item}</tr>);
-                })}
-                {!!renderExcelTableList && renderExcelTableList?.length === 0 && <NoData isTable={true} />}
-            </tbody> 
-        </>
+        <tbody>
+            {(!!renderExcelTableList && renderExcelTableList.length > 0) && renderExcelTableList.map((item: any, index: number) => { 
+                return (<tr key={index}>{item}</tr>);
+            })}
+            {!!renderExcelTableList && renderExcelTableList?.length === 0 && <NoData isTable={true} />}
+        </tbody> 
     )
 }
 

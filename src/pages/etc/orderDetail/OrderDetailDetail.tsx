@@ -30,7 +30,7 @@ const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ({ det
         to: format(new Date(), 'yyyy-MM-dd'), // 2022-11
         searchTrigger: false,
         searchOption: [{title: '상태 전체', value: ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL}]
-    }); // etcSearch 내부 검색 날짜
+    });
 
     return (
         <>
@@ -76,7 +76,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
     const [renderTableList, totalSumObj, supplySumObj, vatSumObj]: [ReactNode[] | undefined, number, number, number] = useMemo(() => { 
         const { value: searchOptionValue } = searchOption[0]; // 검색 상태값 (주문 상태)
 
-        let filteredData = listData; // filtering data
+        let filteredData = listData; 
         if (searchOptionValue !== ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL) {
             filteredData = listData?.filter((origData: any) => { 
                 return origData.state === Number(searchOptionValue)
@@ -209,7 +209,7 @@ const OrderDetailDetailSearch: FC<{searchInfo:SearchInfoSelectType, setSearchInf
             setSearchInfo={setSearchInfo}
             selectOption={searchOptionList}
             optionList={ETC_ORDER_SEARCH_STATE_LIST}
-            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+            handleSearch={handleRefetch}
         />
     )
 }

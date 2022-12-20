@@ -28,7 +28,7 @@ const MusicChargeDetail: FC<Omit<MusicChargeDetailProps, 'searchInfo'>> = ({ det
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10
         to: format(new Date(), 'yyyy-MM'), // 2022-11
         searchTrigger: false,
-    }); // etcSearch 내부 검색 날짜
+    });
 
     return (
         <>
@@ -157,7 +157,7 @@ const MusicChargeDetailSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: Rea
             dateType={'yyyy-MM'}
             searchInfo={searchInfo}
             setSearchInfo={setSearchInfo}
-            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+            handleSearch={handleRefetch}
             showMonthYearPicker={true}
         />
     )

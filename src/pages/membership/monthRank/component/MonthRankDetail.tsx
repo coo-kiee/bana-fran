@@ -29,7 +29,7 @@ const MonthRankDetail: FC<MonthRankDetailProps> = ({ detailTableColGroup, detail
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
         to: format(new Date(), 'yyyy-MM'), // 2022-11
         searchTrigger: false,
-    }); // 실제 쿼리에서 사용될 날짜, 옵션값 
+    });
 
     return (
         <>
@@ -90,7 +90,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
 
         if( isTableSuccess ) {
             return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
-        } else if( isError ) { // 실패한 경우 
+        } else if( isError ) {
             return <tbody><SuspenseErrorPage isTable={true} /></tbody>
         } else if( isTableLoading ){
             return <tbody><Loading isTable={true} /></tbody>
@@ -141,7 +141,7 @@ const MonthRankDetailSearch: FC<{ searchInfo:SearchInfoType, setSearchInfo: Reac
             dateType={'yyyy-MM'}
             searchInfo={searchInfo}
             setSearchInfo={setSearchInfo}
-            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+            handleSearch={handleRefetch}
             showMonthYearPicker={true}
         />
     )

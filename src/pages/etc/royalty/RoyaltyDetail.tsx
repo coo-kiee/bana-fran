@@ -29,14 +29,13 @@ const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'searchInfo'>> = (props) => {
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10
         to: format(new Date(), 'yyyy-MM'), // 2022-11
         searchTrigger: false,
-    }); // etcSearch 내부 검색 날짜
+    });
     
     return (
         <>
             <RoyaltyOverallSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} /> 
             <Suspense fallback={<Loading marginTop={120} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                    {/* 로열티 내역 */}
                     <RoyaltyDetailData searchInfo={searchInfo} {...props} />
                 </ErrorBoundary>
             </Suspense>
@@ -52,7 +51,7 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
         currentPage: 1, // 현재 페이지
         row: 20, // 한 페이지에 나오는 리스트 개수 
-    }) // etcDetailFooter 관련 내용
+    });
     const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
 
@@ -157,7 +156,7 @@ const RoyaltyOverallSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.
             dateType={'yyyy-MM'}
             searchInfo={searchInfo}
             setSearchInfo={setSearchInfo}
-            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+            handleSearch={handleRefetch}
             showMonthYearPicker={true}
         />
     )

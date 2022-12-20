@@ -38,7 +38,7 @@ const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo'>> = ({ detailTab
             { value: 'CARD_ALL', title: '상품권종 전체' },
             { value: 'DEVICE_ALL', title: '처리기기 전체' },
         ],
-    }); // etcSearch 내부 검색 날짜 
+    }); 
 
     return (
         <>
@@ -119,7 +119,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
 
         if( isTableSuccess ) {
             return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
-        } else if( isError ) { // 실패한 경우 
+        } else if( isError ) {
             return <tbody><SuspenseErrorPage isTable={true} /></tbody>
         } else if( isTableLoading ){
             return <tbody><Loading isTable={true} /></tbody>
@@ -212,7 +212,7 @@ const GiftCardDetailSearch: FC<{searchInfo:SearchInfoSelectType, setSearchInfo: 
             setSearchInfo={setSearchInfo}
             selectOption={searchOptionList}
             optionList={[ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST]}
-            handleSearch={handleRefetch} // 조회 버튼에 필요한 fn
+            handleSearch={handleRefetch}
             showMonthYearPicker={true}
         />
     )
