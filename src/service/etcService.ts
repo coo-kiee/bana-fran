@@ -1,7 +1,7 @@
 import { useQuery, UseQueryResult } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
 import { AxiosError } from 'axios';
-import { format, subMonths } from 'date-fns';
+import { format, lastDayOfMonth, subMonths } from 'date-fns';
 
 // type
 import { RequestParams } from 'types/common';
@@ -27,6 +27,11 @@ const useMusicTotal = (params: { fran_store: number }) => {
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true, 
+        select: (data: any) => {
+            if(data.length > 0) return data;
+            // '가맹점점'에서 []로 들어와서 안보이는 경우 임의데이터
+            else return [{ std_date: `${format(subMonths(new Date(), 1), 'yy/MM/01')} ~ ${format(lastDayOfMonth(subMonths(new Date(), 1)), 'yy/MM/dd')}`, item: '-', supply_amt: 0, vat_amt: 0, total_amt: 0}];
+        }
     });
 };
 

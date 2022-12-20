@@ -27,6 +27,7 @@ const EtcTotalTable: FC<{ currTab: number }> = ({ currTab }) => {
         else if (currTab === ETC_TAB_TYPE.GIFTCARD) return <EtcGiftCardTotalTableData />
         else return <EtcTotalTableData currTab={currTab} />
     }
+
     return (
         <>
             <p className="title bullet">{tabList[currTab].title}</p>
@@ -64,17 +65,11 @@ const EtcTotalTableData: FC<{ currTab: number }> = ({ currTab }) => {
     };
     
     const handleAccount = (accNum: string) => {
-        if (accNum.length === 14) {
-            return [accNum.slice(0, 6), accNum.slice(6, 8), accNum.slice(8)].join('-');
-        } else if (accNum.length === 13) {
-            return [accNum.slice(0, 4), accNum.slice(4, 7), accNum.slice(7)].join('-');
-        } else if (accNum.length === 12) {
-            return [accNum.slice(0, 3), accNum.slice(4, 7), accNum.slice(7)].join('-');
-        } else if (accNum.length === 11) {
-            return [accNum.slice(0, 3), accNum.slice(3, 5), accNum.slice(5)].join('-');
-        } else {
-            return accNum
-        }
+        if(accNum.length <= 11) return [accNum.slice(0, 3), accNum.slice(3, 5), accNum.slice(5)].join('-'); // XXX-YY-ZZZZZC
+        else if(accNum.length === 12) return [accNum.slice(0, 3), accNum.slice(3, 5), accNum.slice(5)].join('-'); // XXX-YY-ZZZZZZC
+        else if(accNum.length === 13) return [accNum.slice(0, 4), accNum.slice(4, 7), accNum.slice(7)].join('-'); // SYYY-CZZ-ZZZZZZ
+        else if(accNum.length >= 14) return [accNum.slice(0, 3), accNum.slice(3, 9), accNum.slice(9, 11), accNum.slice(11)].join('-'); // XXX-BBBBBB-YY-ZZC
+        else return accNum; 
     };
 
     // TODO: 프로시저 
@@ -178,7 +173,7 @@ const EtcMusicTotalTableData = () => {
     let tableBody: any = []; // 프로시저 성공 후 업데이트
     const totalParam: { fran_store: number } = { fran_store: franCode };
     const { data: totalData, isSuccess: totalSuccess } = ETC_SERVICE.useMusicTotal(totalParam);
-    if (totalSuccess) {
+    if (totalSuccess) { 
         tableBody = totalData.map((item: any) => {
             return [
                 {data: item.std_date, className:'align-center'},
