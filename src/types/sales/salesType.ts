@@ -11,6 +11,9 @@ interface SalesTableDetailProps<T> {
 	searchType?: SearchType; 
 	data: T;
 }
+interface PrefixSumProps<T> {
+	data: T;
+}
 // API params type
 interface SalesOrderParams extends CommonParams {
 	from_date: string;
@@ -41,9 +44,9 @@ interface SalesHistoryData {
 	nOrderID: number;
 	nSavingPoint: number;
 	nStampCount: number;
-	order_state: 5|10|20|30|35|40|50;
+	order_state: number;
 	order_state_name: string;
-	order_type: 0|1|2|3;
+	order_type: number;
 	order_type_name: string;
 	paid_point: number;
 	pay_type: '결제완료'|'현장카드'|'현장현금';
@@ -177,9 +180,6 @@ interface SalesHistorySearch {
 	to: string;
 	searchOption: SalesHistorySearchOption[];
 }
-interface PrefixSumProps {
-	data: SalesHistoryData[];
-}
 interface SalesHistoryProps {
     queryKey: number; // queryKey for react query
 	tableData: SalesHistoryData[]; // 필터링된 데이터
@@ -215,18 +215,18 @@ interface SalesLineChartTooltipProps {
 }
 
 export type {
+    PrefixSumProps, 
 	SalesTableDetailProps,
 	SalesOrderParams,
 	SalesStatisticParams,
     SalesHistorySearch, 
 	SalesHistoryData,
 	SalesStatisticData,
-    PrefixSumProps, 
 	SalesHistoryProps,
     SalesStatisticSearch, 
     ChartFilter, 
     SalesLineChartProps, 
-	SalesLineChartTooltipProps,
+	SalesLineChartTooltipProps
 };
 // option types
 export {
@@ -237,5 +237,5 @@ export {
     HISTORY_GIFT_CERT,
     HISTORY_SEARCH_TYPE_LIST,
     STATISTIC_SEARCH_TYPE,
-    STATISTIC_SEARCH_LIST,
+    STATISTIC_SEARCH_LIST
 }

@@ -11,13 +11,11 @@ import LineChartMonths from './LineChartMonths';
 import LineChartTooltip from './LineChartTooltip';
 
 const LineChart = ({ chartFilter, searchType, data }: SalesLineChartProps) => {
-    
-
-    // 필터 (매출유형별)
+    // 매출 유형별 필터
 	const filteredData = useMemo(() => {
         const { total, paid, app, free } = chartFilter;
-    
-        // chart data 가공: Serie[] 형태로 데이터 매핑
+
+        // chart data 가공
         const totalData = data.map((sales) => {return { x: sales.std_date, y: sales.total_sales_amt }});
         const appData = data.map((sales) => {return { x: sales.std_date, y: sales.app_delivery_amt }});
         const paidData = data.map((sales) => {return { x: sales.std_date, y: sales.paid_sales_amt }});
@@ -29,7 +27,7 @@ const LineChart = ({ chartFilter, searchType, data }: SalesLineChartProps) => {
             { id: 'app', data: appData, color: '#6ecfbc' },
             { id: 'free', data: freeData, color: '#ff9177' },
         ]
-		// 조건 해당 항목 필터링 (id filter)
+		// 선택 매출 유형과 일치하는 항목만 리턴
 		return chartData.filter(({ id }) => {
 			return (
 				(total && id === 'total') || 

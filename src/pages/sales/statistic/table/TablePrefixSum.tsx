@@ -1,12 +1,26 @@
 // Types
-import { SalesStatisticData } from 'types/sales/salesType';
+import { PrefixSumProps, SalesStatisticData } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
 
-const TableTotalRow = ({ data }: { data: SalesStatisticData[] }) => {
-    
-	// totalSales: 합계 계산용 data 가공
-	const totalSales = {
+const TablePrefixSum = ({ data }: PrefixSumProps<SalesStatisticData[]>) => {
+	// 합계 계산용 data 가공
+	const {
+        total_sales_amt, 
+        app_delivery_amt, 
+        etc_delivery_amt, 
+        etc_delivery_charge, 
+        app_delivery_charge, 
+        paid_sales_amt, 
+        kiosk_card_amt,
+        app_card_amt,
+        pos_cash_amt,
+        paid_point,
+        hd_coupon_charge,
+        free_sales_amt,
+        bana_point,
+        fran_coupon_charge
+    } = {
 		total_sales_amt: data?.reduce((acc, cur) => { return acc + cur.total_sales_amt; }, 0),          // 총 매출
 		app_delivery_amt: data?.reduce((acc, cur) => { return acc + cur.app_delivery_amt; }, 0),        // 앱주문 배달매출
 		etc_delivery_amt: data?.reduce((acc, cur) => { return acc + cur.etc_delivery_amt; }, 0),        // 쿠팡/배민
@@ -20,87 +34,87 @@ const TableTotalRow = ({ data }: { data: SalesStatisticData[] }) => {
 		hd_coupon_charge: data?.reduce((acc, cur) => { return acc + cur.hd_coupon_charge; }, 0),        // 본사쿠폰
 		free_sales_amt: data?.reduce((acc, cur) => { return acc + cur.free_sales_amt; }, 0),            // 무상서비스
 		bana_point: data?.reduce((acc, cur) => { return acc + cur.bana_point; }, 0),                    // 바나포인트
-		fran_coupon_charge: data?.reduce((acc, cur) => { return acc + cur.fran_coupon_charge; }, 0),    // 가맹점 쿠폰
+		fran_coupon_charge: data?.reduce((acc, cur) => { return acc + cur.fran_coupon_charge; }, 0)     // 가맹점 쿠폰
 	};
-
+    
     return (
         <tr>
             <td className='total'>합계</td>
             <td className='total'>
-                {Utils.numberComma(totalSales.total_sales_amt)}<br />
-                <span>({totalSales.total_sales_amt !== 0 ? 100 : 0}%)</span>
+                {Utils.numberComma(total_sales_amt)}<br />
+                <span>({total_sales_amt !== 0 ? 100 : 0}%)</span>
             </td>
             <td className='total'>
-                {Utils.numberComma(totalSales.app_delivery_amt)}<br />
+                {Utils.numberComma(app_delivery_amt)}<br />
                 <span>
-                    ({(100 * totalSales.app_delivery_amt / totalSales.total_sales_amt || 0).toFixed(1)}%)
+                    ({(100 * app_delivery_amt / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
-            <td className='total'>{Utils.numberComma(totalSales.app_delivery_charge)}</td>
+            <td className='total'>{Utils.numberComma(app_delivery_charge)}</td>
             <td className='total'>
-                {Utils.numberComma(totalSales.paid_sales_amt)}<br />
+                {Utils.numberComma(paid_sales_amt)}<br />
                 <span>
-                    ({(100 * totalSales.paid_sales_amt / totalSales.total_sales_amt || 0).toFixed(1)}%)
-                </span>
-            </td>
-            <td className='total'>
-                {Utils.numberComma(totalSales.kiosk_card_amt)}<br />
-                <span>
-                    ({(100 * totalSales.kiosk_card_amt / totalSales.total_sales_amt || 0).toFixed(1)}%)
+                    ({(100 * paid_sales_amt / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
             <td className='total'>
-                {Utils.numberComma(totalSales.app_card_amt)}<br />
+                {Utils.numberComma(kiosk_card_amt)}<br />
                 <span>
-                    ({(100 * totalSales.app_card_amt / totalSales.total_sales_amt || 0).toFixed(1)}%)
+                    ({(100 * kiosk_card_amt / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
             <td className='total'>
-                {Utils.numberComma(totalSales.pos_cash_amt)}<br />
+                {Utils.numberComma(app_card_amt)}<br />
                 <span>
-                    ({(100 * totalSales.pos_cash_amt / totalSales.total_sales_amt || 0).toFixed(1)}%)
+                    ({(100 * app_card_amt / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
             <td className='total'>
-                {Utils.numberComma(totalSales.etc_delivery_amt)}<br />
+                {Utils.numberComma(pos_cash_amt)}<br />
                 <span>
-                    ({(100 * totalSales.etc_delivery_amt / totalSales.total_sales_amt || 0).toFixed(1)}%)
+                    ({(100 * pos_cash_amt / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
             <td className='total'>
-                {Utils.numberComma(totalSales.etc_delivery_charge)}<br />
+                {Utils.numberComma(etc_delivery_amt)}<br />
                 <span>
-                    ({(100 * totalSales.etc_delivery_charge / totalSales.total_sales_amt || 0).toFixed(1)}%)
+                    ({(100 * etc_delivery_amt / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
             <td className='total'>
-                {Utils.numberComma(totalSales.paid_point)}<br />
-                <span>({(100 * totalSales.paid_point / totalSales.total_sales_amt || 0).toFixed(1)}%)</span>
-            </td>
-            <td className='total'>
-                {Utils.numberComma(totalSales.hd_coupon_charge)}<br />
+                {Utils.numberComma(etc_delivery_charge)}<br />
                 <span>
-                    ({(100 * totalSales.hd_coupon_charge / totalSales.total_sales_amt || 0).toFixed(1)}%)
+                    ({(100 * etc_delivery_charge / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
             <td className='total'>
-                {Utils.numberComma(totalSales.free_sales_amt)}<br />
+                {Utils.numberComma(paid_point)}<br />
+                <span>({(100 * paid_point / total_sales_amt || 0).toFixed(1)}%)</span>
+            </td>
+            <td className='total'>
+                {Utils.numberComma(hd_coupon_charge)}<br />
                 <span>
-                    ({(100 * totalSales.free_sales_amt / totalSales.total_sales_amt || 0).toFixed(1)}%)
+                    ({(100 * hd_coupon_charge / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
             <td className='total'>
-                {Utils.numberComma(totalSales.bana_point)}<br />
-                <span>({(100 * totalSales.bana_point / totalSales.total_sales_amt || 0).toFixed(1)}%)</span>
+                {Utils.numberComma(free_sales_amt)}<br />
+                <span>
+                    ({(100 * free_sales_amt / total_sales_amt || 0).toFixed(1)}%)
+                </span>
             </td>
             <td className='total'>
-                {Utils.numberComma(totalSales.fran_coupon_charge)}<br />
+                {Utils.numberComma(bana_point)}<br />
+                <span>({(100 * bana_point / total_sales_amt || 0).toFixed(1)}%)</span>
+            </td>
+            <td className='total'>
+                {Utils.numberComma(fran_coupon_charge)}<br />
                 <span>
-                    ({(100 * totalSales.fran_coupon_charge / totalSales.total_sales_amt || 0).toFixed(1)}%)
+                    ({(100 * fran_coupon_charge / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
         </tr>
     )
 }
 
-export default TableTotalRow
+export default TablePrefixSum

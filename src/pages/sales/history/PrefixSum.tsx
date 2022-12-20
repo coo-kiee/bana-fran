@@ -1,9 +1,9 @@
 // Types
-import { PrefixSumProps } from 'types/sales/salesType';
+import { PrefixSumProps, SalesHistoryData } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
 
-const PrefixSum = ({ data }: PrefixSumProps) => {
+const PrefixSum = ({ data }: PrefixSumProps<SalesHistoryData[]>) => {
 	// 기간별 상세내역 누적 합계
 	const prefixSum = {
 		chargeTotal: data.reduce((acc, cur) => {return cur.order_state !== 50 ? acc + cur.nChargeTotal : acc}, 0),
@@ -18,7 +18,7 @@ const PrefixSum = ({ data }: PrefixSumProps) => {
 		giftCertCharge: data.reduce((acc, cur) => {return cur.bOrderGiftCert === '1' && cur.order_state !== 50 ? acc + cur.nChargeTotal : acc}, 0),
 		couBaeCharge: data.reduce((acc, cur) => {return (cur.order_type === 2 || cur.order_type === 3) && cur.order_state !== 50 ? acc + cur.nChargeTotal : acc}, 0),
 	};
-
+	
 	// 렌더용 배열
 	const prefixSumArray = [
 		{title: '주문금액 합계', charge: prefixSum.chargeTotal},
@@ -36,7 +36,7 @@ const PrefixSum = ({ data }: PrefixSumProps) => {
 
 	return (
 		<ul className='search-result'>
-			{prefixSumArray.map((content, idx: number) => {
+			{prefixSumArray.map((content, idx) => {
 				const {title, charge} = content;
 				return (
 					<li key={idx}>

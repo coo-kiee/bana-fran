@@ -9,7 +9,7 @@ const TableDetail = ({data, rowPerPage, currentPage, searchType}: SalesTableDeta
     return (
         <>{
             data.length > 0 ? 
-            data.map((salesData: SalesStatisticData, idx: number) => {
+            data.map((salesData, idx) => {
                 const {
                     std_date,
                     total_sales_amt,

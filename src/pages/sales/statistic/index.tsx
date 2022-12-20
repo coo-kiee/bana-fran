@@ -20,7 +20,7 @@ import NoData from 'pages/common/noData';
 import Sticky from "pages/common/sticky";
 import TableColGroup from "./table/TableColGroup";
 import TableHead from "./table/TableHead";
-import TableTotalRow from "./table/TableTotalRow";
+import TablePrefixSum from "./table/TablePrefixSum";
 import TableDetail from "./table/TableDetail";
 
 const SalesStatistic = () => {
@@ -212,7 +212,7 @@ const SalesStatistic = () => {
 							(isLoading || isRefetching) ?
 							<Loading width={100} height={100} marginTop={16} isTable={true} /> :
 							<>
-								<TableTotalRow data={data || []} />
+								<TablePrefixSum data={data || []} />
 								<TableDetail data={sortedData || []} rowPerPage={rowPerPage} currentPage={currentPage} searchType={searchTypeMemo} />
 							</>
 						}
