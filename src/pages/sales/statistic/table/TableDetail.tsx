@@ -1,11 +1,11 @@
 // Types
-import { SalesStatisticData, SalesStatisticTableDetailProps } from "types/sales/salesType";
+import { SalesStatisticData, SalesTableDetailProps } from "types/sales/salesType";
 // Utils
 import Utils from "utils/Utils";
 // Components
 import NoData from "pages/common/noData";
 
-const TableDetail = ({data, rowPerPage, currentPage, searchType}: SalesStatisticTableDetailProps) => {
+const TableDetail = ({data, rowPerPage, currentPage, searchType}: SalesTableDetailProps<SalesStatisticData[]>) => {
     return (
         <>{
             data.length > 0 ? 

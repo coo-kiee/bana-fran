@@ -3,12 +3,14 @@ import { CommonParams } from "types/common";
 
 // common
 type SearchType = 'D'|'M';
-interface TableDetailProps {
+type Bit = 0|1;
+
+interface SalesTableDetailProps<T> {
     currentPage: number;
     rowPerPage: number;
 	searchType?: SearchType; 
+	data: T;
 }
-
 // API params type
 interface SalesOrderParams extends CommonParams {
 	from_date: string;
@@ -180,16 +182,14 @@ interface PrefixSumProps {
 }
 interface SalesHistoryProps {
     queryKey: number; // queryKey for react query
-	historyData: SalesHistoryData[]; // historyData
-	setHistoryData: React.Dispatch<React.SetStateAction<SalesHistoryData[]>>;
+	tableData: SalesHistoryData[]; // 필터링된 데이터
+	setTableData: React.Dispatch<React.SetStateAction<SalesHistoryData[]>>;
+	setTotalData: React.Dispatch<React.SetStateAction<SalesHistoryData[]>>;
 	historySearch: SalesHistorySearch; // 검색조건(filter)
-	isCancelShow: 0|1; // 취소 주문 표시
-	isExcludeCouBae: 0|1; // 쿠팡/배민 주문 제외
+	isCancelShow: Bit; // 취소 주문 표시
+	isExcludeCouBae: Bit; // 쿠팡/배민 주문 제외
 	currentPage: number; // 현재 페이지
 	rowPerPage: number; //페이지 당 컨텐츠 수
-}
-interface SalesHistoryTableDetailProps extends TableDetailProps {
-	data: SalesHistoryData[];
 }
 
 // statistic type
@@ -199,10 +199,10 @@ interface SalesStatisticSearch {
     to: string;
 }
 interface ChartFilter {
-    total: 0|1;
-    paid: 0|1;
-    app: 0|1;
-    free: 0|1;
+    total: Bit;
+    paid: Bit;
+    app: Bit;
+    free: Bit;
 }
 interface SalesLineChartProps {
     chartFilter: ChartFilter;
@@ -213,11 +213,9 @@ interface SalesLineChartTooltipProps {
 	point: Point;
     searchType: SearchType;
 }
-interface SalesStatisticTableDetailProps extends TableDetailProps {
-	data: SalesStatisticData[];
-}
 
 export type {
+	SalesTableDetailProps,
 	SalesOrderParams,
 	SalesStatisticParams,
     SalesHistorySearch, 
@@ -225,12 +223,10 @@ export type {
 	SalesStatisticData,
     PrefixSumProps, 
 	SalesHistoryProps,
-	SalesHistoryTableDetailProps,
     SalesStatisticSearch, 
     ChartFilter, 
     SalesLineChartProps, 
 	SalesLineChartTooltipProps,
-	SalesStatisticTableDetailProps,
 };
 // option types
 export {

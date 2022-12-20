@@ -11,15 +11,16 @@ import { SalesHistoryProps, HISTORY_ORDER_TYPE, HISTORY_ORDER_STATE, HISTORY_RCP
 import TableDetail from "./table/TableDetail";
 import NoData from "pages/common/noData";
 
-const SalesHistory = ({ queryKey, historySearch, isCancelShow, isExcludeCouBae, historyData, setHistoryData, currentPage, rowPerPage}: SalesHistoryProps) => {
+const SalesHistory = ({ queryKey, historySearch, isCancelShow, isExcludeCouBae, tableData, setTableData, setTotalData, currentPage, rowPerPage}: SalesHistoryProps) => {
 	// global state
-	const fCode = useRecoilValue(franState); // franCode
+	const fCode = useRecoilValue(franState);
 	// query
 	const { data, isSuccess } = SALES_SERVICE.useSalesOrderList({ from_date: historySearch.from, to_date: historySearch.to, f_code: fCode }, queryKey);
 
 	// filter (change on select/check)
     useEffect(() => {
         if(isSuccess) {
+            setTotalData(data); // 초기 데이터 저장 (prefixSum에 사용, filter 적용 X)
             const orderType = historySearch.searchOption[0].value; 		// 주문유형 1: 앱 2,3:쿠팡/배민 else: 매장
             const orderState = historySearch.searchOption[1].value;		// 주문상태
             const rcpType = historySearch.searchOption[2].value;		// 접수타입
@@ -33,7 +34,7 @@ const SalesHistory = ({ queryKey, historySearch, isCancelShow, isExcludeCouBae, 
             } else if (orderType !== 'total' && orderType === HISTORY_ORDER_TYPE.COUBAE) { 
                 resultData = resultData.filter((dd) => {return dd.order_type === 2 || dd.order_type === 3});
             }
-            if (orderState !== 'total' && orderState !== HISTORY_ORDER_STATE.MAKING) { // 주문상태
+            if (orderState !== 'total' && orderState !== HISTORY_ORDER_STATE.MAKING) {
                 // total과 제조중(10) 제외한 나머지 state			
                 resultData = resultData.filter((dd) => {return dd.order_state === Number(orderState)});
             } else if (orderState !== 'total' && orderState === HISTORY_ORDER_STATE.MAKING) { 
@@ -60,13 +61,13 @@ const SalesHistory = ({ queryKey, historySearch, isCancelShow, isExcludeCouBae, 
             if (isExcludeCouBae === 1) { // 쿠팡/배민 제외시 (checked)
                 resultData = resultData?.filter((dd) => {return dd.order_type !== 2 && dd.order_type !== 3});
             }
-            setHistoryData(resultData); // update historyData (filtered)
+            setTableData(resultData); // update tableData (filtered)
         }
-    }, [data, isSuccess, historySearch.searchOption, isCancelShow, isExcludeCouBae, setHistoryData])
+    }, [data, isSuccess, historySearch.searchOption, isCancelShow, isExcludeCouBae, setTableData, setTotalData])
 
 	return (
         data && data?.length > 0 ? 
-        <TableDetail data={historyData||[]} rowPerPage={rowPerPage} currentPage={currentPage} /> : 
+        <TableDetail data={tableData} rowPerPage={rowPerPage} currentPage={currentPage} /> : 
         <NoData isTable={true} rowSpan={1} colSpan={25} paddingTop={20} paddingBottom={20} />
     );
 }

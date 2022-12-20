@@ -1,9 +1,9 @@
 // Types
-import { SalesHistoryData, SalesHistoryTableDetailProps } from 'types/sales/salesType';
+import { SalesHistoryData, SalesTableDetailProps } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
 
-const TableDetail = ({ data, currentPage, rowPerPage }: SalesHistoryTableDetailProps) => {
+const TableDetail = ({ data, currentPage, rowPerPage }: SalesTableDetailProps<SalesHistoryData[]>) => {
     
 	// 표시 날짜 줄바꿈 추가
 	const convertDateLineBreak = (dateText: string) => {
@@ -22,7 +22,6 @@ const TableDetail = ({ data, currentPage, rowPerPage }: SalesHistoryTableDetailP
                 const {
                     rcp_date, 			// 결제일시
                     cancel_date, 		// 취소일시. order_state === 50일 때만 사용
-                    // order_type, 		// 주문유형. 필터처리에 사용. 주문타입 1: 앱 2: 쿠팡 3: 배민 else: 매장
                     order_type_name, 	// 주문유형명
                     order_state, 		// 주문상태. 50일 때 취소 / 5: 대기 10|20: 제조중, 30: 제조완료, 35: 배달중, 40: 완료, 50: 취소
                     order_state_name, 	// 주문상태명
@@ -45,9 +44,6 @@ const TableDetail = ({ data, currentPage, rowPerPage }: SalesHistoryTableDetailP
                     nEtcDeliveryCharge,  // 쿠팡/배민 배달비
                     nStampCount, 		// 스탬프(계)
                     nSavingPoint, 		// 바나포인트(적립)
-                    // sChargeDisDetail,
-                    // sChargeDisReason,
-                    // sCouponID,
                 } = history;
                 // pagination
                 const isDisplay = (currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx;

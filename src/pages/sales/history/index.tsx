@@ -34,7 +34,8 @@ const SalesHistoryContainer = () => {
 	const [queryKey, setQueryKey] = useState<number>(today.getTime());
 
 	// query data on SalesHistory
-	const [historyData, setHistoryData] = useState<SalesHistoryData[]>([]);
+	const [totalData, setTotalData] = useState<SalesHistoryData[]>([]); // prefixSum 계산용 data (filter x)
+	const [filteredData, setFilteredData] = useState<SalesHistoryData[]>([]); // table data (filter o)
 
 	// queryKey changing function for search(refetch)
 	const handleSearch = () => {setQueryKey(new Date().getTime());}
@@ -143,7 +144,7 @@ const SalesHistoryContainer = () => {
 						<p>조회기간: {historySearch.from} ~ {historySearch.to}</p>
 					</div>
 					{/* 누적 합계 */}
-					<PrefixSum data={historyData} />
+					<PrefixSum data={totalData} />
 					<div className='detail-info-wrap'>
 						<div className='price-info'>
 							<p className='hyphen'>
@@ -180,13 +181,14 @@ const SalesHistoryContainer = () => {
 							<Suspense fallback={<Loading width={100} height={100} marginTop={16} isTable={true} />}>
 								<SalesHistory
 									queryKey={queryKey}
-									historyData={historyData} 
-									setHistoryData={setHistoryData} 
-									historySearch={historySearch} 
-									isCancelShow={isCancelShow} 
-									isExcludeCouBae={isExcludeCouBae} 
-									currentPage={currentPage} 
-									rowPerPage={rowPerPage} 
+									tableData={filteredData}
+									setTableData={setFilteredData}
+									setTotalData={setTotalData}
+									historySearch={historySearch}
+									isCancelShow={isCancelShow}
+									isExcludeCouBae={isExcludeCouBae}
+									currentPage={currentPage}
+									rowPerPage={rowPerPage}
 								/>
 							</Suspense>
 						</ErrorBoundary>
@@ -199,7 +201,7 @@ const SalesHistoryContainer = () => {
 					<button className='goast-btn' onClick={excelDownload} >엑셀다운</button>
 				</div>
 				<Pagination
-					dataCnt={historyData.length}
+					dataCnt={filteredData.length}
 					pageInfo={{row: rowPerPage, currentPage}}
 					handlePageChange={setCurrentPage}
 					handlePageRow={setRowPerPage}

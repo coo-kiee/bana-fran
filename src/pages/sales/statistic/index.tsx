@@ -79,8 +79,7 @@ const SalesStatistic = () => {
 	]
 
 	// data 역순 정렬 (table용)
-	const sortedData =  data ? [...data] : [];
-	sortedData.reverse();
+	const sortedData =  useMemo(() => {return data ? [...data].reverse() : []}, [data]);
 
 	/* sticky 기준 ref */
 	const stickyRef = useRef<HTMLTableRowElement>(null);

@@ -19,14 +19,14 @@ const LineChart = ({ chartFilter, searchType, data }: SalesLineChartProps) => {
     
         // chart data 가공: Serie[] 형태로 데이터 매핑
         const totalData = data.map((sales) => {return { x: sales.std_date, y: sales.total_sales_amt }});
-        const appDeliveryData = data.map((sales) => {return { x: sales.std_date, y: sales.app_delivery_amt }});
+        const appData = data.map((sales) => {return { x: sales.std_date, y: sales.app_delivery_amt }});
         const paidData = data.map((sales) => {return { x: sales.std_date, y: sales.paid_sales_amt }});
         const freeData = data.map((sales) => {return { x: sales.std_date, y: sales.free_sales_amt }});
 
         const chartData = [
             { id: 'total', data: totalData, color: '#f1658a' },
             { id: 'paid', data: paidData, color: '#ae88ff' },
-            { id: 'app', data: appDeliveryData, color: '#6ecfbc' },
+            { id: 'app', data: appData, color: '#6ecfbc' },
             { id: 'free', data: freeData, color: '#ff9177' },
         ]
 		// 조건 해당 항목 필터링 (id filter)
