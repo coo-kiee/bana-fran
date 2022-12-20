@@ -17,14 +17,13 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
     // isViewportIn handler
 	const getTableReady = (entries: IntersectionObserverEntry[]) => {
         entries.forEach((entry) => {
-            setIsViewportIn(entry.isIntersecting)
+            setIsViewportIn(entry.isIntersecting);
         });
     }
-
 	// change sticky states (showSticky handler)
     const handleSticky = (entries: IntersectionObserverEntry[]) => {
         entries.forEach((entry) => {
-            entry.intersectionRatio <= 0.1 ? setShowSticky(true) : setShowSticky(false); // 10퍼센트 이하로 보이면 sticky 작동
+            setShowSticky(!entry.isIntersecting);
         });
     }
 
@@ -32,21 +31,20 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
 	useEffect(() => {
 		if (reference && isViewportIn) {
             const observer = new IntersectionObserver(handleSticky, {root: root, rootMargin: '0px', threshold: 0.1});
-            observer.observe(reference)// start observe
+            observer.observe(reference); // start observe
         }
 	}, [reference, root, isViewportIn]);
-
     // table observe (isViewportIn)
 	useEffect(() => {
 		if (contentsRef) {
-            const observer = new IntersectionObserver(getTableReady, {root: root, rootMargin: '0px', threshold: 0});
+            const observer = new IntersectionObserver(getTableReady, {root: root, rootMargin: '0px', threshold: 0.01});
             observer.observe(contentsRef); // start observe
         }
 	}, [contentsRef, root]);
 
-	return <>
-        { isViewportIn && showSticky ? <StickyContainer className='board-wrap' root={root}>{children}</StickyContainer> : null }        
-    </>;
+	return( 
+        isViewportIn && showSticky ? <StickyContainer className='board-wrap' root={root}>{children}</StickyContainer> : null
+    );
 };
 
 export default Sticky;
