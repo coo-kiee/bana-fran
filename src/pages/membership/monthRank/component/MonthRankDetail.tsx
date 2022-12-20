@@ -61,7 +61,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
     // TODO: 데이터 
     // eslint-disable-next-line
     const rankListKey = useMemo(() => ['membership_rank_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data, refetch } = MEMBERSHIP_SERVICE.useRankList(rankListKey, [ franCode, from, to ]);
+    const { data, isSuccess, isLoading, isRefetching, isError, refetch } = MEMBERSHIP_SERVICE.useRankList(rankListKey, [ franCode, from, to ]);
     useEffect(() => {
         refetch();
     }, [franCode, searchTrigger, refetch])
@@ -83,6 +83,19 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
             return arr;
         }, [] as ReactNode[]);
     }, [data]);
+
+    const monthRankDetailTablebody = useMemo(() => { 
+        const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
+        const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
+
+        if( isTableSuccess ) {
+            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
+        } else if( isError ) { // 실패한 경우 
+            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
+        } else if( isTableLoading ){
+            return <tbody><Loading isTable={true} /></tbody>
+        } 
+    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]);
 
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
@@ -109,7 +122,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
 
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
-                <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />  
+                {monthRankDetailTablebody}
             </table>
             
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}

@@ -73,7 +73,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
     // TODO: 데이터
     // eslint-disable-next-line
     const etcGiftcardListKey = useMemo(() => ['etc_gift_card_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data: listData, refetch } = ETC_SERVICE.useGiftCardList(etcGiftcardListKey, [ franCode, from, to ]);
+    const { data: listData, isSuccess, isLoading, isRefetching, isError, refetch } = ETC_SERVICE.useGiftCardList(etcGiftcardListKey, [ franCode, from, to ]);
     useEffect(() => {
         refetch();
     }, [franCode, searchTrigger, refetch]);
@@ -112,6 +112,19 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
         setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
         return [tableList, kioskAndPosTotal, appTotal, cancelTotal];
     }, [listData, searchOption ])
+
+    const giftCardDetailTablebody = useMemo(() => { 
+        const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
+        const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
+
+        if( isTableSuccess ) {
+            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
+        } else if( isError ) { // 실패한 경우 
+            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
+        } else if( isTableLoading ){
+            return <tbody><Loading isTable={true} /></tbody>
+        } 
+    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]);
 
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
@@ -154,7 +167,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
-                <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> 
+                {giftCardDetailTablebody}
             </table>
 
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}

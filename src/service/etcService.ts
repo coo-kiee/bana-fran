@@ -108,8 +108,8 @@ const useEtcList = <T>(query: string, queryKey: string[], params: [number, strin
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: true,    
-        enabled: false
+        suspense: true,
+        enabled: false,
     });
 }; // *_list 프로시저 공통 함수 
 const useGiftCardList = (queryKey: string[], params: [number, string, string]) => {
@@ -125,7 +125,8 @@ const useGiftCardList = (queryKey: string[], params: [number, string, string]) =
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: true,   
+        suspense: true, 
+        enabled: false,
     });
 } // web_fran_s_etc_gift_cert_detail_list
 
@@ -138,7 +139,8 @@ const useDetailList = (queryKey: string[], params: [number, string, string]) => 
         refetchOnWindowFocus: false,
         retry: false,
         suspense: false,
-        useErrorBoundary: true
+        useErrorBoundary: true,
+        enabled: false,
     });
 } // 발주내역 (suspense 때문에 따로 분리 + 테스트)
 
@@ -151,7 +153,8 @@ const useDetailListExcel = (queryKey: string[], params: [number, string, string]
         refetchOnWindowFocus: false,
         retry: false,
         suspense: false, 
-        useErrorBoundary: true
+        useErrorBoundary: true,
+        enabled: false,
     });
 } // 발주내역 (suspense 때문에 따로 분리 + 테스트)
 
@@ -164,7 +167,8 @@ const useVirtualAccList = (queryKey: string[], params: [number, string, string])
         refetchOnWindowFocus: false,
         retry: false, 
         suspense: false,  
-        useErrorBoundary: true
+        useErrorBoundary: true,
+        enabled: false,
     });
 } // 가상계좌 (suspense 때문에 따로 분리 + 테스트)
 

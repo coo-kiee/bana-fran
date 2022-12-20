@@ -59,10 +59,11 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
     // TODO: 데이터  
     // eslint-disable-next-line
     const etcRoyaltyListKey = useMemo(() => ['etc_royalty_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data: listData, refetch } = ETC_SERVICE.useEtcList<RoyaltyDetailListType[]>('YGQA4CREHNZCZIXPF2AH', etcRoyaltyListKey, [ franCode, from, to ]); 
+    const { data: listData, isSuccess, isLoading, isRefetching, isError, refetch } = ETC_SERVICE.useEtcList<RoyaltyDetailListType[]>('YGQA4CREHNZCZIXPF2AH', etcRoyaltyListKey, [ franCode, from, to ]); 
     useEffect(() => {
         refetch();
     }, [franCode, searchTrigger, refetch])
+
     const [renderTableList, royaltyTotal, stageTotal ]: [ReactNode[] | undefined, number, number] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { std_date, state, suply_amount, tax_amount, total_amount } = tbodyRow; 
@@ -83,6 +84,19 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
 
         return [tableList, royaltyTotal, stageTotal];
     }, [listData]);
+
+    const royaltyDetailTablebody = useMemo(() => { 
+        const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
+        const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
+
+        if( isTableSuccess ) {
+            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
+        } else if( isError ) { // 실패한 경우 
+            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
+        } else if( isTableLoading ){
+            return <tbody><Loading isTable={true} /></tbody>
+        } 
+    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]);
 
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
@@ -122,7 +136,7 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
-                <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> 
+                {royaltyDetailTablebody}
             </table>
 
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}

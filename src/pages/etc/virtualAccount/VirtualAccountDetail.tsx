@@ -85,7 +85,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
         return [tableList, depositTotal, deductTotal];
     }, [listData]);
 
-    const VirtualAccDetailTablebody = useMemo(() => { 
+    const virtualAccDetailTablebody = useMemo(() => { 
         const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
         const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
 
@@ -96,7 +96,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
         } else if( isTableLoading ){
             return <tbody><Loading isTable={true} /></tbody>
         } 
-    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]); // 상태 관련
+    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]); 
 
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
@@ -133,7 +133,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
-                {VirtualAccDetailTablebody}
+                {virtualAccDetailTablebody}
             </table>
 
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}

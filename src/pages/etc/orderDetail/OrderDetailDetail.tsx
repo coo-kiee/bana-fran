@@ -113,7 +113,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
         return [tableList, sumObjTotal, sumObjSupply, sumObjVat];
     }, [listData, openOrderDetailModal, searchOption]); 
 
-    const OrderDetailTablebody = useMemo(() => { 
+    const orderDetailTablebody = useMemo(() => { 
         const isTableSuccess = isSuccess && isExcelSuccess && !isLoading && !isExcelLoading && !isRefetching && !isExcelRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
         const isTableLoading = isLoading || isExcelLoading || isRefetching || isExcelRefetching; // 처음으로 요청 || refetch 하는 경우 
         const isTableError = isError || isExcelError; // 모두 실패한 경우 
@@ -125,7 +125,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
         } else if( isTableLoading ){
             return <tbody><Loading isTable={true} /></tbody>
         } 
-    }, [isSuccess, isExcelSuccess, isLoading, isExcelLoading, isRefetching, isExcelRefetching, isError, isExcelError, pageInfo, renderTableList]); // 상태 관련
+    }, [isSuccess, isExcelSuccess, isLoading, isExcelLoading, isRefetching, isExcelRefetching, isError, isExcelError, pageInfo, renderTableList]);
 
     // TODO: 엑셀, 페이지네이션 관련
     const excelTableColGroup = ['170', '170', '170', '84', '104', '84', '98', '98', '*', '120', '80', '120', '110', '150'];
@@ -167,7 +167,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={viewportTableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>  
-                {OrderDetailTablebody}
+                {orderDetailTablebody}
             </table>
 
             {isSuccess && isExcelSuccess && (

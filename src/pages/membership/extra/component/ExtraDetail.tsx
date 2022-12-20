@@ -72,7 +72,7 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
     // TODO: 데이터 
     // eslint-disable-next-line
     const membershipListKey = useMemo(() => ['membership_extra_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data, isError, isLoading, isSuccess, refetch } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [franCode, from, to ]);
+    const { data, isError, isLoading, isSuccess, isRefetching, refetch } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [franCode, from, to ]);
     useEffect(() => {
         refetch();
     }, [franCode, searchTrigger, refetch])
@@ -104,7 +104,20 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
         }, [] as ReactNode[]) || [];   
 
         return tableList
-    }, [data]);  
+    }, [data]);
+    
+    const extraDetailTablebody = useMemo(() => { 
+        const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
+        const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
+
+        if( isTableSuccess ) {
+            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
+        } else if( isError ) { // 실패한 경우 
+            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
+        } else if( isTableLoading ){
+            return <tbody><Loading isTable={true} /></tbody>
+        } 
+    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]);
 
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
@@ -131,9 +144,7 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} /> 
-                {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
-                {isLoading && <tbody><Loading isTable={true} /></tbody>}
-                {isError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 
+                {extraDetailTablebody}
             </table>
 
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
