@@ -16,7 +16,7 @@ import ETC_SERVICE from 'service/etcService';
 
 // component   
 import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
-import Pagination from "pages/common/pagination"; 
+import EtcDetailTableBottom from "../component/EtcDetailTableBottom";
 import Sticky from "pages/common/sticky";  
 import CalanderSearch from "pages/common/calanderSearch";
 import Loading from "pages/common/loading";
@@ -52,13 +52,13 @@ export default DeliveryChargeDetail;
 
 const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: { from, to, searchOption, searchTrigger} }) => {
     const franCode = useRecoilValue(franState);
-    const { userInfo: { f_list } } = useRecoilValue(loginState);
+    const { userInfo: { f_list } } = useRecoilValue(loginState); 
 
     // TODO: 상태
     const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null); 
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, // 현재 페이지tempSearchInfo
+        currentPage: 1, // 현재 페이지 tempSearchInfo
         row: 20, // 한 페이지에 나오는 리스트 개수 
     }) // etcDetailFooter 관련 내용 
 
@@ -68,7 +68,7 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
     const { data: listData, refetch } = ETC_SERVICE.useEtcList<DeliveryDetailListType[]>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListKey, [franCode, from, to] );
     useEffect(() => {
         refetch();
-    }, [searchTrigger, refetch])
+    }, [franCode, searchTrigger, refetch])
     const [renderTableList, totalCharge, supplyTotal, taxTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
             const { delivery_pay_type, dtRcp, nDeliveryCharge, payment_type, sItem, sPhone, suply_fee, suply_fee_tax, total_charge, total_fee} = tbodyRow;
@@ -106,6 +106,8 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
 
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
+        const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
+
         if (tableRef.current) {
             const options = {
                 type: 'table',
@@ -115,16 +117,10 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
-            const fileName = `${from}~${to}_${f_list[0].f_code_name}_딜리버리수수료내역`;
+            const fileName = `${from}~${to}_${branchName}_딜리버리수수료내역`;
             Utils.excelDownload(tableRef.current, options, fileName);
         };
     };
-    const handlePageChange = (changePage: number) => {
-        setPageInfo((prevPageInfo) => ({ ...prevPageInfo, currentPage: changePage }))
-    }
-    const handlePageRow = (row: number) => {
-        setPageInfo((prevPageInfo) => ({ ...prevPageInfo, row: row }))
-    }
 
     return (
         <> 
@@ -150,13 +146,7 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
                 <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> 
             </table>
-
-            <div className="result-function-wrap">
-                <div className="function">
-                    <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
-                </div>
-                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
-            </div>
+            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>
     )
 };

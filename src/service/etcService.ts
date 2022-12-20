@@ -76,8 +76,7 @@ const useOrderDetailStatistic = (params: { fran_store: number }, option: { [key:
     return useQuery(['etc_order_detail_statistic', params.fran_store], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
-        retry: false,
-        // suspense: false, 
+        retry: false, 
         suspense: true, 
         select: (data: any) => { 
             let previousMonths: { [key: string]: any }[] = [];
@@ -134,6 +133,7 @@ const useDetailList = (queryKey: string[], params: [number, string, string]) => 
         refetchOnWindowFocus: false,
         retry: false,
         suspense: false,
+        useErrorBoundary: true
     });
 } // 발주내역 (suspense 때문에 따로 분리 + 테스트)
 
@@ -145,10 +145,10 @@ const useDetailListExcel = (queryKey: string[], params: [number, string, string]
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,
-        suspense: false
+        suspense: false, 
+        useErrorBoundary: true
     });
 } // 발주내역 (suspense 때문에 따로 분리 + 테스트)
-
 
 const useVirtualAccList = (queryKey: string[], params: [number, string, string]) => {
     const [ franCode, from, to ] = params;
@@ -159,6 +159,7 @@ const useVirtualAccList = (queryKey: string[], params: [number, string, string])
         refetchOnWindowFocus: false,
         retry: false, 
         suspense: false,  
+        useErrorBoundary: true
     });
 } // 가상계좌 (suspense 때문에 따로 분리 + 테스트)
 

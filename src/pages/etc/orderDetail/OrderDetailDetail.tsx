@@ -14,14 +14,14 @@ import { PageInfoType, OrderDetailDetailProps, SearchInfoSelectType, ETC_ORDER_S
 // API
 import ETC_SERVICE from "service/etcService";
 
-// component    
-import Pagination from "pages/common/pagination";
+// component     
 import Sticky from "pages/common/sticky";
 import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import CalanderSearch from "pages/common/calanderSearch";
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import OrderDetailExcelBody from './OrderDetailExcelBody';
+import EtcDetailTableBottom from "../component/EtcDetailTableBottom";
 
 const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ({ detailTableColGroup, detailTableHead, openOrderDetailModal }) => {
     const { reset } = useQueryErrorResetBoundary(); 
@@ -61,15 +61,17 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
     // eslint-disable-next-line
     const etcOrderDetailListKey = useMemo(() => ['etc_order_detail_list', JSON.stringify({ franCode, from, to }) ], [ franCode, searchTrigger ]);
     // eslint-disable-next-line
-    const etcOrderDetailExcelListKey = useMemo(() => ['etc_order_detail_list_excel', JSON.stringify({ franCode, from, to }) ], [ franCode, from, to ]);
+    const etcOrderDetailExcelListKey = useMemo(() => ['etc_order_detail_list_excel', JSON.stringify({ franCode, from, to }) ], [ franCode, searchTrigger ]);
     // table data
-    const { data: listData, isSuccess, isError, isLoading, refetch} = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]); 
+    const { data: listData, isSuccess, isError, isLoading, isRefetching, refetch} = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]);
+
     // Excel 다운로드용 
-    const { data: listExcelData, isSuccess: isExcelSuccess, isError: isExcelError, isLoading: isExcelLoading, refetch: excelRefetch } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
+    const { data: listExcelData, isSuccess: isExcelSuccess, isError: isExcelError, isLoading: isExcelLoading, isRefetching:isExcelRefetching, refetch: excelRefetch } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
+
     useEffect(() => {
         refetch();
         excelRefetch();
-    }, [searchTrigger, refetch, excelRefetch]);
+    }, [franCode, searchTrigger, refetch, excelRefetch]);
 
     const [renderTableList, totalSumObj, supplySumObj, vatSumObj]: [ReactNode[] | undefined, number, number, number] = useMemo(() => { 
         const { value: searchOptionValue } = searchOption[0]; // 검색 상태값 (주문 상태)
@@ -111,12 +113,27 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
         return [tableList, sumObjTotal, sumObjSupply, sumObjVat];
     }, [listData, openOrderDetailModal, searchOption]); 
 
+    const OrderDetailTablebody = useMemo(() => { 
+        const isTableSuccess = isSuccess && isExcelSuccess && !isLoading && !isExcelLoading && !isRefetching && !isExcelRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
+        const isTableLoading = isLoading || isExcelLoading || isRefetching || isExcelRefetching; // 처음으로 요청 || refetch 하는 경우 
+        const isTableError = isError || isExcelError; // 모두 실패한 경우 
+
+        if( isTableSuccess ) {
+            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
+        } else if( isTableError ) {
+            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
+        } else if( isTableLoading ){
+            return <tbody><Loading isTable={true} /></tbody>
+        } 
+    }, [isSuccess, isExcelSuccess, isLoading, isExcelLoading, isRefetching, isExcelRefetching, isError, isExcelError, pageInfo, renderTableList]); // 상태 관련
+
     // TODO: 엑셀, 페이지네이션 관련
     const excelTableColGroup = ['170', '170', '170', '84', '104', '84', '98', '98', '*', '120', '80', '120', '110', '150'];
     const excelTableHead = [
         [{ itemName: '일시' }, { itemName: '최종수정일', }, { itemName: '취소일' }, { itemName: '접수자' }, { itemName: '최종수정자' }, { itemName: '취소자' }, { itemName: '상태' }, { itemName: '발주 건 수' }, { itemName: '품목 상세' }, { itemName: '단가' },{ itemName: '수량' }, { itemName: '공급가' }, { itemName: '부가세' }, { itemName: '발주 금액' }]
     ]
     const handleExcelDownload = () => {
+        const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
         if (tableRef.current) {
             const options = {
                 type: 'table',
@@ -126,17 +143,10 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1], color: ['d3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
-            const fileName = `${from}~${to}_${f_list[0].f_code_name}_발주내역`;
+            const fileName = `${from}~${to}_${branchName}_발주내역`;
             Utils.excelDownload(tableRef.current, options, fileName);
         };
-    };
-
-    const handlePageChange = (changePage: number) => {
-        setPageInfo((prevPageInfo) => ({ ...prevPageInfo, currentPage: changePage }))
-    }
-    const handlePageRow = (row: number) => {
-        setPageInfo((prevPageInfo) => ({ ...prevPageInfo, row: row }))
-    }
+    }; 
 
     return (
         <> 
@@ -157,9 +167,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={viewportTableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>  
-                {isSuccess && isExcelSuccess && renderTableList && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />}
-                {isLoading && isExcelLoading && <tbody><Loading isTable={true} /></tbody>}
-                {isError && isExcelError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 
+                {OrderDetailTablebody}
             </table>
 
             {isSuccess && isExcelSuccess && (
@@ -169,12 +177,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
                 </table>
             )} 
             
-            <div className="result-function-wrap">
-                <div className="function">
-                    <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
-                </div>
-                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
-            </div>
+            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>
     )
 }

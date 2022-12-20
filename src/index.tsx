@@ -26,7 +26,7 @@ const defalutQueryOption: QueryClientConfig = {
                 if (isFirstLoginError) {
                     window.location.replace('/index');
                     alert("세션이 만료 되었습니다.");
-                } else if (!(axiosError?.response?.data as string).includes('로그인')) {
+                } else if (!!axiosError?.response?.data && !(axiosError?.response?.data as string).includes('로그인')) {
                     alert("[ERROR_" + axiosError.response?.status + "]" + axiosError?.response?.data);
                 };
             }

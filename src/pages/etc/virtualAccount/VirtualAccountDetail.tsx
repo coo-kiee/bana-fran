@@ -9,18 +9,18 @@ import { format, subMonths } from 'date-fns';
 import { franState, loginState } from 'state';
 
 // component
-import EtcDetailTable, { EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
+import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
+import Sticky from 'pages/common/sticky'; 
+import Loading from 'pages/common/loading';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage'; 
+import CalanderSearch from 'pages/common/calanderSearch';
+import EtcDetailTableBottom from '../component/EtcDetailTableBottom';
 
 // api
 import ETC_SERVICE from 'service/etcService';
 
 // type
-import { PageInfoType, VirtualAccountDetailProps, SearchInfoType } from 'types/etc/etcType'  
-import Pagination from 'pages/common/pagination';
-import Sticky from 'pages/common/sticky'; 
-import Loading from 'pages/common/loading';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage'; 
-import CalanderSearch from 'pages/common/calanderSearch';
+import { PageInfoType, VirtualAccountDetailProps, SearchInfoType } from 'types/etc/etcType'   
 
 const VirtualAccountDetail: FC<Omit<VirtualAccountDetailProps, 'searchInfo'>> = (props) => { 
     const { reset } = useQueryErrorResetBoundary();
@@ -58,10 +58,10 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
     // TODO: 데이터
     // eslint-disable-next-line
     const etcVirtualAccBalanceListKey = useMemo(() => ['etc_virtual_acc_detail_list', JSON.stringify({ franCode, from , to }) ], [franCode, searchTrigger]);
-    const { data: listData, isSuccess, isError, isLoading, refetch } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [franCode, from, to ]);
+    const { data: listData, isSuccess, isError, isLoading, isRefetching, refetch } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [franCode, from, to ]);
     useEffect(() => {
         refetch();
-    }, [searchTrigger, refetch])
+    }, [franCode, searchTrigger, refetch])
 
     const [renderTableList, depositTotal, deductTotal]: [ReactNode[] | undefined, number, number] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
@@ -85,8 +85,22 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
         return [tableList, depositTotal, deductTotal];
     }, [listData]);
 
+    const VirtualAccDetailTablebody = useMemo(() => { 
+        const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
+        const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
+
+        if( isTableSuccess ) {
+            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
+        } else if( isError ) { // 실패한 경우 
+            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
+        } else if( isTableLoading ){
+            return <tbody><Loading isTable={true} /></tbody>
+        } 
+    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]); // 상태 관련
+
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
+        const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
         if (tableRef.current) {
             const options = {
                 type: 'table',
@@ -96,16 +110,10 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1], color: ['d3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
-            const fileName = `${from}~${to}_${f_list[0].f_code_name}_발주내역`;
+            const fileName = `${from}~${to}_${branchName}_발주내역`;
             Utils.excelDownload(tableRef.current, options, fileName);
         };
-    };
-    const handlePageChange = (changePage: number) => {
-        setPageInfo((prevPageInfo) => ({ ...prevPageInfo, currentPage: changePage }))
-    }
-    const handlePageRow = (row: number) => {
-        setPageInfo((prevPageInfo) => ({ ...prevPageInfo, row: row }))
-    }
+    }; 
 
     return (
         <> 
@@ -125,17 +133,10 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
-                {isSuccess && <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} /> }
-                {isLoading && <tbody><Loading isTable={true} /></tbody>}
-                {isError && <tbody><SuspenseErrorPage isTable={true} /></tbody>} 
+                {VirtualAccDetailTablebody}
             </table>
 
-            <div className="result-function-wrap">
-                <div className="function">
-                    <button className="goast-btn" onClick={handleExcelDownload}>엑셀다운</button>
-                </div>
-                <Pagination dataCnt={!!renderTableList ? renderTableList.length : 0} pageInfo={pageInfo} handlePageChange={handlePageChange} handlePageRow={handlePageRow} />
-            </div> 
+            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>
     )
 }
