@@ -37,23 +37,21 @@ const CalanderSearch: React.FC<CalendarSearchProps> = ({ title, dateTitle, dateT
     };
 
     // TODO: Radio onChange 변경
-    /* 11-14 수정: 일/월 검색조건에 따라 value format도 달라지기 때문에 함수 내 조건 추가 및 상태변경 수정 */
+    /* searchType에 맞게 from, to 형식 변경 */
     const handleSearchRadio = (searchType: string) => {
-        return setSearchInfo((prev: SearchInfoRadioType) => {
-            return (
-                searchType === 'M' ? 
-                {
-                    from: format(new Date(searchInfo.from), 'yyyy-MM'), 
-                    to: format(new Date(searchInfo.to), 'yyyy-MM'),
-                    searchType
-                } : 
-                {
-                    from: format(new Date(searchInfo.from), 'yyyy-MM-dd'), 
-                    to: format(new Date(searchInfo.to), 'yyyy-MM-dd'),
-                    searchType                    
-                }
-            )
-        }) as React.Dispatch<React.SetStateAction<SearchInfoRadioType>>;
+        return setSearchInfo(
+            searchType === 'M' ? 
+            {
+                from: format(new Date(searchInfo.from), 'yyyy-MM'), 
+                to: format(new Date(searchInfo.to), 'yyyy-MM'),
+                searchType
+            } : 
+            {
+                from: format(new Date(searchInfo.from), 'yyyy-MM-dd'), 
+                to: format(new Date(searchInfo.to), 'yyyy-MM-dd'),
+                searchType                    
+            }
+        ) as React.Dispatch<React.SetStateAction<SearchInfoRadioType>>;
     };
 
     // handleSearch 실행함수

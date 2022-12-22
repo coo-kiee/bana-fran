@@ -22,6 +22,10 @@ interface SalesOrderParams extends CommonParams {
 interface SalesStatisticParams extends SalesOrderParams {
 	search_type: SearchType;
 }
+interface SalesQueryTrigger {
+	from: string;
+	to: string;
+}
 
 // API Output
 interface SalesHistoryData {
@@ -181,7 +185,7 @@ interface SalesHistorySearch {
 	searchOption: SalesHistorySearchOption[];
 }
 interface SalesHistoryProps {
-    queryKey: number; // queryKey for react query
+    queryTrigger: SalesQueryTrigger; // queryTrigger for react query
 	tableData: SalesHistoryData[]; // 필터링된 데이터
 	setTableData: React.Dispatch<React.SetStateAction<SalesHistoryData[]>>;
 	setTotalData: React.Dispatch<React.SetStateAction<SalesHistoryData[]>>;
@@ -219,6 +223,7 @@ export type {
 	SalesTableDetailProps,
 	SalesOrderParams,
 	SalesStatisticParams,
+	SalesQueryTrigger,
     SalesHistorySearch, 
 	SalesHistoryData,
 	SalesStatisticData,

@@ -37,7 +37,7 @@ const useMembershipInfo = (params: CommonParams) => {
     });
 };
 
-// Today - 총매출 조회.
+// Today - 총매출 조회
 const useSalesToday = (params: CommonParams) => {
     const reqData: RequestParams<CommonParams> = {
         ws: 'fprocess',
@@ -52,7 +52,7 @@ const useSalesToday = (params: CommonParams) => {
     });
 };
 
-// 기간별 - 총매출 조회.
+// 기간별 - 총매출 조회
 const useSalesTerms = (params: SalesTermsParams) => {
     const reqData: RequestParams<SalesTermsParams> = {
         ws: 'fprocess',

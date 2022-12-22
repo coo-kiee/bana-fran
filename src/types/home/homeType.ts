@@ -9,6 +9,7 @@ interface SalesTermsParams extends CommonParams {
     search_type: 'W'|'M'; 	// W: 주간, M: 월별
     search_month?: string;	// search_type이 M일 때 필요
 }
+
 // API Output
 interface HomeBoardData {
 	board_id: number;
@@ -58,6 +59,7 @@ interface HomeCalculateListData {
 	std_month: string;
 	total_send_charge: number;
 }
+
 // Component Props
 interface BoardProps {
 	boardClass: string; // className

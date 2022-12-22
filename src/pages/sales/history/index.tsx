@@ -30,15 +30,11 @@ const SalesHistoryContainer = () => {
 	const fCodeName = selectedFran[0]?.f_code_name; // 가맹점명
 	
 	const today = new Date();
-    // queryKey
-	const [queryKey, setQueryKey] = useState<number>(today.getTime());
 
 	// query data on SalesHistory
 	const [totalData, setTotalData] = useState<SalesHistoryData[]>([]); // prefixSum 계산용 data (filter x)
 	const [filteredData, setFilteredData] = useState<SalesHistoryData[]>([]); // table data (filter o)
 
-	// queryKey changing function for search(refetch)
-	const handleSearch = () => {setQueryKey(new Date().getTime());}
 	// filter options
 	const [historySearch, setHistorySearch] = useState<SalesHistorySearch>({ 
 		from: format(new Date(subDays(today, 6)), 'yyyy-MM-dd'), 
@@ -51,6 +47,9 @@ const SalesHistoryContainer = () => {
 			{ title: '상품 전체', value: 'total' },
 		]
 	});
+
+	// queryTrigger for refetching
+	const [queryTrigger, setQueryTrigger] = useState({ from: historySearch.from, to: historySearch.to });
 	
 	// 취소 주문 표시 여부 0: 취소주문감추기 1: 취소주문표시
 	const [isCancelShow, setIsCancelShow] = useState<0|1>(1);
@@ -122,6 +121,12 @@ const SalesHistoryContainer = () => {
         }
     }
 
+	// queryKey changing function for search(refetch)
+	const handleSearch = () => {
+		const { from, to } = historySearch;
+		setQueryTrigger({ from, to });
+	}
+	
 	return (
 		<>
 			<div className='info-wrap'>
@@ -180,7 +185,7 @@ const SalesHistoryContainer = () => {
 						<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Today: ', e)}>
 							<Suspense fallback={<Loading width={100} height={100} marginTop={16} isTable={true} />}>
 								<SalesHistory
-									queryKey={queryKey}
+									queryTrigger={queryTrigger}
 									tableData={filteredData}
 									setTableData={setFilteredData}
 									setTotalData={setTotalData}

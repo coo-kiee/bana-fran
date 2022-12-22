@@ -17,7 +17,7 @@ const TableDetail = ({ data, currentPage, rowPerPage }: SalesTableDetailProps<Sa
 
     return ( 
         <>{
-            data?.map((history, idx) => {
+            data.map((history, idx) => {
                 const {
                     rcp_date, 			 // 결제일시
                     cancel_date, 		 // 취소일시. order_state === 50일 때만 사용

@@ -1,6 +1,6 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
-import { format, isBefore, subDays, subMonths } from "date-fns";
+import { format, isAfter, subDays, subMonths } from "date-fns";
 
 // global state
 import { franState, loginState } from "state";
@@ -30,8 +30,8 @@ const SalesStatistic = () => {
 	const selectedFran = userInfo?.f_list.filter((info) => { return (info.f_code === fCode) });
 	const fCodeName = selectedFran[0]?.f_code_name || ''; // 가맹점명
 	
+	// const today = today;
 	const today = new Date();
-
 	// filter options
     const [statisticSearch, setStatisticSearch] = useState<SalesStatisticSearch>({ searchType: 'D', from: format(subMonths(today, 1), 'yyyy-MM-dd'), to: format(today, 'yyyy-MM-dd') });
     const [chartFilter, setChartFilter] = useState<ChartFilter>({ total: 1, paid: 0, app: 0, free: 0 });
@@ -40,43 +40,27 @@ const SalesStatistic = () => {
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [rowPerPage, setRowPerPage] = useState<number>(20);
 
+	// queryTrigger
+	const [queryTrigger, setQueryTrigger] = useState({ from: statisticSearch.from, to: statisticSearch.to });
+	
 	// query
 	// 월별 검색(M)이면 from/to에 -01 string 추가 M: yy-MM, D: yy-MM-dd 포멧
-	const { data, isLoading, isRefetching, refetch } = SALES_SERVICE.useSalesStatistic({ 
+	const { data, isFetching } = SALES_SERVICE.useSalesStatistic({ 
 		f_code: fCode, 
 		search_type: statisticSearch.searchType, 
 		from_date: statisticSearch.searchType === 'M' ? (statisticSearch.from + '-01') : statisticSearch.from, 
 		to_date: statisticSearch.searchType === 'M' ? (statisticSearch.to + '-01') : statisticSearch.to 
-	})
+	}, queryTrigger)
 
-	// searchTypeMemo for Line Chart, Table (searchType 변경되어도 refetch 전까진 기존 값이 유지되도록)
+	// 데이터 조회 후 검색 조건 저장 (조건 비교용. refetch 전까지 기존 값이 유지되도록)
 	const searchTypeMemo = useMemo(() => {return statisticSearch.searchType}, [data]);
-	
-	// 상태가 바뀔 때, 제한 조건(90일)을 넘어가면 refecth를 막고 날짜 바꿔주는 함수
-	const handleSearch = () => {
-		const limitDate = subDays(today, 90);
-		const { searchType, from, to } = statisticSearch;
-
-		// limitDate에 렌더 됐을 때의 시간이 들어있어 날짜가 같아도 isBefore가 true로 적용될 수 있기에, from/to에 시간대를 설정
-		if (searchType === 'D' && isBefore(new Date(from + ' 23:59:59'), limitDate)) { 
-			setStatisticSearch((prev) => ({...prev, from: format(limitDate, 'yyyy-MM-dd')}));
-			return alert('일별 매출 통계는 오늘부터 90일 전까지만 조회할 수 있습니다.');
-		} else if (searchType === 'D' && isBefore(new Date(to + ' 23:59:59'), limitDate)) {
-			setStatisticSearch((prev) => ({...prev, to: format(today, 'yyyy-MM-dd')}));
-			return alert('일별 매출 통계는 오늘부터 90일 전까지만 조회할 수 있습니다.');
-		} 
-		refetch();
-	}
 
 	/* 검색 기간 필터링 (onChange) */
-
 	// select options list
-	const searchOptionList = [
-		{
-			[STATISTIC_SEARCH_TYPE.DAY]: { title: '일별', id: 'day', value: 'D' },
-			[STATISTIC_SEARCH_TYPE.MONTH]: { title: '월별', id: 'month', value: 'M' },
-		}
-	]
+	const searchOptionList = [{
+		[STATISTIC_SEARCH_TYPE.DAY]: { title: '일별', id: 'day', value: 'D' },
+		[STATISTIC_SEARCH_TYPE.MONTH]: { title: '월별', id: 'month', value: 'M' },
+	}]
 
 	// data 역순 정렬 (table용)
 	const sortedData =  useMemo(() => {return data ? [...data].reverse() : []}, [data]);
@@ -101,6 +85,28 @@ const SalesStatistic = () => {
             catch (error) { console.log(error); }
         }
     }
+
+	// 제한 조건(90일)을 넘어가면 refecth를 막고 날짜 바꿔주는 함수
+	const handleSearch = useCallback(() => {
+		const today = new Date();
+		const limitDate = subDays(today, 90);
+		const { searchType, from, to } = statisticSearch;
+		// 90일 이내의 날짜인지
+		const isFromWithinRange = isAfter(new Date(from + ' 23:59:59'), limitDate);
+		const isToWithinRange = isAfter(new Date(to + ' 23:59:59'), limitDate);
+		const isPeriodWithinRange = isFromWithinRange && isToWithinRange;
+
+		if (searchType === 'D' && !isPeriodWithinRange) {
+			// 범위에 맞는 날짜로 변경
+			setStatisticSearch((prev) => ({
+				...prev, 
+				from: isFromWithinRange ? from : format(limitDate, 'yyyy-MM-dd'), 
+				to: isToWithinRange ? to : format(today, 'yyyy-MM-dd')
+			}));
+			return alert('일별 매출 통계는 오늘부터 90일 전까지만 조회할 수 있습니다.');
+		}
+		setQueryTrigger({ from, to });
+	}, [statisticSearch]);
 
 	return (
 		<>
@@ -181,7 +187,7 @@ const SalesStatistic = () => {
 				{/* <!-- 차트 --> */}
 				<div className='chart-wrap'>
 					<div className='line-chart chart'>
-						{!(isLoading || isRefetching) ? ( // loading, refetching 아닐 때
+						{!(isFetching) ? ( // loading, refetching 아닐 때
 							data ? 
 							<LineChart chartFilter={chartFilter} data={data} searchType={searchTypeMemo} /> : 
 							<div className="no-chart"><NoData /></div>
@@ -209,7 +215,7 @@ const SalesStatistic = () => {
 					<TableHead ref={stickyRef} />
 					<tbody>
 						{
-							(isLoading || isRefetching) ?
+							(isFetching) ?
 							<Loading width={100} height={100} marginTop={16} isTable={true} /> :
 							<>
 								<TablePrefixSum data={data || []} />
@@ -222,7 +228,7 @@ const SalesStatistic = () => {
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
 				<div className='function'>
-					<button className='goast-btn' onClick={excelDownload} disabled={isLoading || isRefetching}>엑셀다운</button>
+					<button className='goast-btn' onClick={excelDownload} disabled={isFetching}>엑셀다운</button>
 				</div>
 				<Pagination 
 					dataCnt={sortedData?.length} 

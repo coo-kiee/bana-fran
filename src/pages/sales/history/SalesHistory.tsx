@@ -11,11 +11,11 @@ import { SalesHistoryProps, HISTORY_ORDER_TYPE, HISTORY_ORDER_STATE, HISTORY_RCP
 import TableDetail from "./table/TableDetail";
 import NoData from "pages/common/noData";
 
-const SalesHistory = ({ queryKey, historySearch, isCancelShow, isExcludeCouBae, tableData, setTableData, setTotalData, currentPage, rowPerPage}: SalesHistoryProps) => {
+const SalesHistory = ({ queryTrigger, historySearch, isCancelShow, isExcludeCouBae, tableData, setTableData, setTotalData, currentPage, rowPerPage}: SalesHistoryProps) => {
 	// global state
 	const fCode = useRecoilValue(franState);
 	// query
-	const { data, isSuccess } = SALES_SERVICE.useSalesOrderList({ from_date: historySearch.from, to_date: historySearch.to, f_code: fCode }, queryKey);
+	const { data, isSuccess } = SALES_SERVICE.useSalesOrderList({ from_date: historySearch.from, to_date: historySearch.to, f_code: fCode }, queryTrigger);
 
 	// filter (change on select/check)
     useEffect(() => {
