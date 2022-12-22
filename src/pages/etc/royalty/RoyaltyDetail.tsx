@@ -9,7 +9,8 @@ import { format, subMonths } from 'date-fns';
 import { franState, loginState } from 'state';
 
 // component  
-import EtcDetailTable, { EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
+import EtcDetailSummary from '../component/EtcDetailSummary';
 import Sticky from 'pages/common/sticky';  
 import CalanderSearch from 'pages/common/calanderSearch';
 import Loading from 'pages/common/loading';
@@ -22,7 +23,7 @@ import ETC_SERVICE from 'service/etcService';
 // type
 import { PageInfoType, RoyaltyDetailProps, RoyaltyDetailListType, SearchInfoType } from 'types/etc/etcType'; 
 
-const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'searchInfo'>> = (props) => { 
+const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'searchInfo'>> = ( props ) => { 
     // 게시판 + 엑셀다운, 페이징, 정렬
     const { reset } = useQueryErrorResetBoundary(); 
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
@@ -30,12 +31,23 @@ const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'searchInfo'>> = (props) => {
         to: format(new Date(), 'yyyy-MM'), // 2022-11
         searchTrigger: false,
     });
-    
+    // fallback props 정리
+    const defaultFallbackProps = { 
+        searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
+        summaryResult: [
+            ['로열티 합계', '0'],
+            ['공연권료 합계', '0'], 
+        ], 
+        ...props
+    }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
+
     return (
         <>
             <RoyaltyOverallSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} /> 
-            <Suspense fallback={<Loading marginTop={120} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
+            <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
                     <RoyaltyDetailData searchInfo={searchInfo} {...props} />
                 </ErrorBoundary>
             </Suspense>
@@ -43,7 +55,7 @@ const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'searchInfo'>> = (props) => {
     )
 }
 
-const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: {from, to, searchTrigger} }) => {
+const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detailTableHead, summaryInfo, searchInfo: {from, to, searchTrigger} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
@@ -63,7 +75,7 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
         refetch();
     }, [franCode, searchTrigger, refetch])
 
-    const [renderTableList, royaltyTotal, stageTotal ]: [ReactNode[] | undefined, number, number] = useMemo(() => { 
+    const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { std_date, state, suply_amount, tax_amount, total_amount } = tbodyRow; 
             arr.push(
@@ -78,10 +90,14 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
  
             return arr;
         }, [] as ReactNode[]);
-        const royaltyTotal = listData?.filter((el: any) => el.state.includes('로열티')).reduce((acc: any, cur: any) => acc+= cur.total_amount,0) || 0;
-        const stageTotal = listData?.filter((el: any) => el.state.includes('공연')).reduce((acc: any, cur: any) => acc+= cur.total_amount,0) || 0;
 
-        return [tableList, royaltyTotal, stageTotal];
+        const summaryResult = [
+            ['로열티 합계', Utils.numberComma(listData?.filter((el: any) => el.state.includes('로열티')).reduce((acc: any, cur: any) => acc+= cur.total_amount,0) || 0)],
+            ['공연권료 합계', Utils.numberComma(listData?.filter((el: any) => el.state.includes('공연')).reduce((acc: any, cur: any) => acc+= cur.total_amount,0) || 0)]
+        ];
+
+        setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
+        return [tableList, summaryResult];
     }, [listData]);
 
     const royaltyDetailTablebody = useMemo(() => { 
@@ -116,18 +132,7 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
     
     return (
         <> 
-            <div className="search-result-wrap">
-                <div className="search-date">
-                    <p>조회기간: {from} ~ {to}</p>
-                </div>
-                <ul className="search-result">
-                    <li className="hyphen">로열티 힙계<span className="colon"></span><span className="value">{Utils.numberComma(royaltyTotal)}원</span></li>
-                    <li className="hyphen">공연권료 힙계<span className="colon"></span><span className="value">{Utils.numberComma(stageTotal)}원</span></li>
-                </ul>
-                <div className="price-info">
-                    <p className="hyphen">로열티는 일할 계산되지 않습니다. (월 단위 요금 청구)</p>
-                </div>
-            </div>
+            <EtcDetailSummary searchDate={`${from} ~ ${to}`} summaryResult={summaryResult} summaryInfo={summaryInfo} />
 
             <Sticky reference={thRef.current} contentsRef={tableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />

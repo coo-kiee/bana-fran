@@ -15,30 +15,39 @@ import { PageInfoType, MusicChargeDetailProps, MusicChargeDetailType, SearchInfo
 import ETC_SERVICE from 'service/etcService';
 
 // component 
-import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
 import EtcDetailTableBottom from "../component/EtcDetailTableBottom";
 import Sticky from "pages/common/sticky"; 
 import CalanderSearch from "pages/common/calanderSearch";
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import EtcDetailSummary from "../component/EtcDetailSummary";
 
-const MusicChargeDetail: FC<Omit<MusicChargeDetailProps, 'searchInfo'>> = ({ detailTableColGroup, detailTableHead  }) => {
+const MusicChargeDetail: FC<Omit<MusicChargeDetailProps, 'searchInfo'>> = (props) => {
     const { reset } = useQueryErrorResetBoundary();
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10
         to: format(new Date(), 'yyyy-MM'), // 2022-11
         searchTrigger: false,
     });
+    // fallback props 정리
+    const defaultFallbackProps = { 
+        searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
+        summaryResult: [
+            ['음악 사용료 합계', '0'],
+            ['공연권료 합계', '0']
+        ], 
+        ...props
+    }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
 
     return (
         <>
             <MusicChargeDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} /> 
-            <Suspense fallback={<Loading marginTop={120} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                    <MusicChargeDetailData 
-                        searchInfo={searchInfo}
-                        detailTableColGroup={detailTableColGroup}
-                        detailTableHead={detailTableHead} />
+            <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
+                    <MusicChargeDetailData searchInfo={searchInfo} {...props} />
                 </ErrorBoundary>
             </Suspense>
         </>
@@ -47,7 +56,7 @@ const MusicChargeDetail: FC<Omit<MusicChargeDetailProps, 'searchInfo'>> = ({ det
 
 export default MusicChargeDetail;
 
-const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from, to, searchTrigger }, detailTableColGroup, detailTableHead }) => {
+const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from, to, searchTrigger }, summaryInfo, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
@@ -67,7 +76,7 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
         refetch();
     }, [franCode, searchTrigger, refetch]);
 
-    const [renderTableList, musicTotal, feeTotal]: [ReactNode[] | undefined, number, number] = useMemo(() => { 
+    const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow,) => {
             const { std_date, state, suply_amount, tax_amount, total_amount } = tbodyRow; 
             arr.push(
@@ -82,10 +91,11 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
             return arr;
         }, [] as ReactNode[]); 
 
-        const musicTotal = listData?.filter((el: any) => el.state.includes('음악')).reduce((acc: any, cur: any) => acc+= cur.total_amount,0);
-        const feeTotal = listData?.filter((el: any) => el.state.includes('공연')).reduce((acc: any, cur: any) => acc+= cur.total_amount,0);
-
-        return [tableList, musicTotal, feeTotal];
+        const summaryResult = [
+            ['음악 사용료 합계', Utils.numberComma(listData?.filter((el: any) => el.state.includes('음악')).reduce((acc: any, cur: any) => acc+= cur.total_amount, 0) || 0)],
+            ['공연권료 합계', Utils.numberComma(listData?.filter((el: any) => el.state.includes('공연')).reduce((acc: any, cur: any) => acc+= cur.total_amount, 0) || 0)]
+        ]
+        return [tableList, summaryResult];
     }, [listData])
 
     const musicChargeDetailTablebody = useMemo(() => { 
@@ -119,19 +129,8 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
     }; 
 
     return (
-        <>  
-            <div className="search-result-wrap">
-                <div className="search-date">
-                    <p>조회기간: {from} ~ {to}</p>
-                </div>
-                <ul className="search-result"> 
-                    <li className="hyphen">음악 사용료 합계<span className="colon"></span><span className="value">{Utils.numberComma(musicTotal)}원</span></li>
-                    <li className="hyphen">공연권료 합계<span className="colon"></span><span className="value">{Utils.numberComma(feeTotal)}원</span></li>
-                </ul>
-                <div className='price-info'>
-                    <p className="hyphen">음악사용료/공연권료는 일할 계산되지 않습니다. (월 단위 요금 청구)</p>
-                </div>
-            </div>
+        <>
+            <EtcDetailSummary searchDate={`${from} ~ ${to}`} summaryResult={summaryResult} summaryInfo={summaryInfo} />
 
             <Sticky reference={thRef.current} contentsRef={tableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
@@ -140,7 +139,6 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
                 {musicChargeDetailTablebody}
             </table>
-            
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>
     )

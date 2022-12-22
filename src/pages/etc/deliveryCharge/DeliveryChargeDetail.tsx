@@ -15,33 +15,43 @@ import { PageInfoType, DeliveryChargeDetailProps, ETC_DELIVERY_SEARCH_OPTION_TYP
 import ETC_SERVICE from 'service/etcService';
 
 // component   
-import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
-import EtcDetailTableBottom from "../component/EtcDetailTableBottom";
+import EtcDetailTable, { EtcDetailTableHead, EtcDetailTableFallback } from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTableBottom from "../component/EtcDetailTableBottom"; 
+import EtcDetailSummary from "../component/EtcDetailSummary"; 
 import Sticky from "pages/common/sticky";  
 import CalanderSearch from "pages/common/calanderSearch";
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
-const DeliveryChargeDetail: FC<Omit<DeliveryChargeDetailProps, 'searchInfo' | 'setSearchInfo'>> = ({ detailTableColGroup, detailTableHead }) => {
+const DeliveryChargeDetail: FC<Omit<DeliveryChargeDetailProps, 'searchInfo' | 'setSearchInfo'>> = (props) => {
     const { reset } = useQueryErrorResetBoundary();
+    // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
         to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
         searchOption: [{ value: 'TOTAL', title: '구분 전체' }],
         searchTrigger: false,
-    });
+    }); 
+    // fallback props 정리
+    const defaultFallbackProps = { 
+        searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
+        summaryResult: [
+            ['바나 딜리버리 주문금액 합계', '0' ], // 바나 딜리버리 주문금액 합계
+            ['바나 딜리버리 수수료 공급가(주문금액*2%) 합계', '0'], // 바나 딜리버리 수수료 공급가(주문금액*2%) 합계
+            ['바나 딜리버리 수수료(수수료 공급가+부가세) 합계', '0'], // 바나 딜리버리 수수료(수수료 공급가+부가세) 합계
+        ], 
+        ...props
+    }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
 
     return (
         <>
             <DeliveryChargeDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo}/> 
 
-            <Suspense fallback={<Loading marginTop={120} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                    <DeliveryChargeDetailData 
-                        searchInfo={searchInfo} 
-                        detailTableColGroup={detailTableColGroup}
-                        detailTableHead={detailTableHead}
-                    />
+            <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
+                    <DeliveryChargeDetailData searchInfo={searchInfo} {...props} /> 
                 </ErrorBoundary>
             </Suspense>
         </>
@@ -50,7 +60,7 @@ const DeliveryChargeDetail: FC<Omit<DeliveryChargeDetailProps, 'searchInfo' | 's
 
 export default DeliveryChargeDetail; 
 
-const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: { from, to, searchOption, searchTrigger } }) => {
+const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, summaryInfo, searchInfo: { from, to, searchOption, searchTrigger } }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState); 
 
@@ -69,7 +79,7 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
     useEffect(() => {
         refetch();
     }, [franCode, searchTrigger, refetch])
-    const [renderTableList, totalCharge, supplyTotal, taxTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => {
+    const [renderTableList, summaryResult ]: [ReactNode[] | undefined, string[][]] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
             const { delivery_pay_type, dtRcp, nDeliveryCharge, payment_type, sItem, sPhone, suply_fee, suply_fee_tax, total_charge, total_fee} = tbodyRow;
             const paymentType = searchOption[0].value === ETC_DELIVERY_SEARCH_OPTION_TYPE.TOTAL ? true : searchOption[0].title === delivery_pay_type;
@@ -93,13 +103,14 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
             return arr;
         }, [] as ReactNode[]);
 
-        const totalCharge = listData?.reduce((acc: any, cur: any) => acc += cur.total_charge, 0) || 0; // 바나 딜리버리 주문금액 합계
-        const supplyTotal = listData?.reduce((acc: any, cur: any) => acc += cur.suply_fee, 0) || 0; // 바나 딜리버스 수수료 공급가(주문금액*2%) 합계
-        const taxTotal = listData?.reduce((acc: any, cur: any) => acc += (cur.suply_fee + cur.suply_fee_tax), 0) || 0; // 바나 딜리버리 수수료(수수료 공급가+부가세) 합계
-        
+        const summaryResult = [
+            ['바나 딜리버리 주문금액 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += cur.total_charge, 0) || 0) ], // 바나 딜리버리 주문금액 합계
+            ['바나 딜리버리 수수료 공급가(주문금액*2%) 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += cur.suply_fee, 0) || 0)], // 바나 딜리버리 수수료 공급가(주문금액*2%) 합계
+            ['바나 딜리버리 수수료(수수료 공급가+부가세) 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += (cur.suply_fee + cur.suply_fee_tax), 0) || 0)], // 바나 딜리버리 수수료(수수료 공급가+부가세) 합계
+        ]
         setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
 
-        return [tableList, totalCharge, supplyTotal, taxTotal];
+        return [tableList, summaryResult];
     }, [listData, searchOption]) 
 
     const deliveryChargeDetailTablebody = useMemo(() => { 
@@ -134,21 +145,8 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
     };
 
     return (
-        <> 
-            <div className="search-result-wrap">
-                <div className="search-date">
-                    <p>조회기간: {from} ~ {to}</p>
-                </div>
-                <ul className="search-result"> 
-                    <li className="hyphen">바나 딜리버리 주문금액 합계<span className="colon"></span><span className="value">{Utils.numberComma(totalCharge)}원</span></li>
-                    <li className="hyphen">바나 딜리버스 수수료 공급가(주문금액*2%) 합계<span className="colon"></span><span className="value">{Utils.numberComma(supplyTotal)}원</span></li>
-                    <li className="hyphen">바나 딜리버리 수수료(수수료 공급가+부가세) 합계<span className="colon"></span><span className="value">{Utils.numberComma(taxTotal)}원</span></li>
-                </ul>
-                <div className="price-info">
-                    <p className="hyphen"><span>주문금액</span><span className="colon"></span>배달비를 제외한 카드/현금/포인트/쿠폰 결제금액의 합계.</p>
-                    <p className="hyphen"><span>수수료 공급가</span><span className="colon"></span>주문금액의 2% (부가세 별도.)</p>
-                </div>
-            </div>
+        <>
+            <EtcDetailSummary searchDate={`${from} ~ ${to}`} summaryResult={summaryResult} summaryInfo={summaryInfo} />
 
             <Sticky reference={thRef.current} contentsRef={tableRef.current}> 
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />

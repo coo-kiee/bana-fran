@@ -19,16 +19,17 @@ import {
 import ETC_SERVICE from "service/etcService";
 
 // component 
-import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import EtcDetailTableBottom from "../component/EtcDetailTableBottom"; 
 import Sticky from "pages/common/sticky";
 import CalanderSearch from "pages/common/calanderSearch";
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import EtcDetailSummary from "../component/EtcDetailSummary";
 
-const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo'>> = ({ detailTableHead, detailTableColGroup }) => {
+const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo'>> = ( props ) => {
     const { reset } = useQueryErrorResetBoundary();
-
+    // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
         to: format(new Date(), 'yyyy-MM'), // 2022-10 
@@ -39,17 +40,25 @@ const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo'>> = ({ detailTab
             { value: 'DEVICE_ALL', title: '처리기기 전체' },
         ],
     }); 
+    // fallback props 정리
+    const defaultFallbackProps = { 
+        searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
+        summaryResult: [
+            ['키오스크/POS 판매금액 합계', '0'],
+            ['어플 판매금액 합계', '0'],
+            ['판매취소(폐기)금액 합계', '0']
+        ], 
+        ...props
+    }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
 
     return (
         <>
             <GiftCardDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
-            <Suspense fallback={<Loading marginTop={120} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                    <GiftCardDetailData
-                        searchInfo={searchInfo}
-                        detailTableColGroup={detailTableColGroup}
-                        detailTableHead={detailTableHead} 
-                    />
+            <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
+                    <GiftCardDetailData searchInfo={searchInfo} {...props} />
                 </ErrorBoundary>
             </Suspense>
         </>
@@ -58,7 +67,7 @@ const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo'>> = ({ detailTab
 
 export default GiftCardDetail
 
-const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({ detailTableHead, detailTableColGroup, searchInfo: {from, to, searchTrigger, searchOption} }) => {
+const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({ detailTableHead, detailTableColGroup, summaryInfo, searchInfo: {from, to, searchTrigger, searchOption} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
@@ -79,7 +88,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
     }, [franCode, searchTrigger, refetch]);
 
     // etc_gift_card_list
-    const [renderTableList, kioskAndPosTotal, appTotal, cancelTotal]: [ReactNode[] | undefined, number, number, number] = useMemo(() => { 
+    const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { account_amt, gubun, item_amt, item_cnt, item_name, menu_Item, rcp_type, std_date} = tbodyRow; 
 
@@ -105,12 +114,14 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
             return arr;
         }, [] as ReactNode[]);
 
-        const kioskAndPosTotal = listData?.filter((el:any) => (el.rcp_type === '키오스크' || el.rcp_type === 'POS') && (el.gubun === '판매')).reduce((acc: any, cur:any) => acc += cur.item_amt,0) || 0; // 키오스크/POS 판매금액 합계
-        const appTotal = listData?.filter((el:any) => el.rcp_type === '어플' && el.gubun === '판매').reduce((acc: any, cur:any) => acc += cur.item_amt, 0) || 0; // 어플 판매금액 합계
-        const cancelTotal = listData?.filter((el:any) => el.gubun === '판매취소(폐기)').reduce((acc: any, cur:any) => acc += cur.item_amt ,0) || 0;  // 판매취소(폐기)금액 합계
+        const summaryResult = [
+            ['키오스크/POS 판매금액 합계', Utils.numberComma(listData?.filter((el:any) => (el.rcp_type === '키오스크' || el.rcp_type === 'POS') && (el.gubun === '판매')).reduce((acc: any, cur:any) => acc += cur.item_amt,0) || 0)], // 키오스크/POS 판매금액 합계
+            ['어플 판매금액 합계', Utils.numberComma(listData?.filter((el:any) => el.rcp_type === '어플' && el.gubun === '판매').reduce((acc: any, cur:any) => acc += cur.item_amt, 0) || 0)], // 어플 판매금액 합계
+            ['판매취소(폐기)금액 합계', Utils.numberComma(listData?.filter((el:any) => el.gubun === '판매취소(폐기)').reduce((acc: any, cur:any) => acc += cur.item_amt ,0) || 0)] // 판매취소(폐기)금액 합계
+        ]
 
         setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
-        return [tableList, kioskAndPosTotal, appTotal, cancelTotal];
+        return [tableList, summaryResult];
     }, [listData, searchOption ])
 
     const giftCardDetailTablebody = useMemo(() => { 
@@ -145,21 +156,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
 
     return (
         <> 
-            <div className="search-result-wrap">
-                <div className="search-date">
-                    <p>조회기간: {from} ~ {to}</p>
-                </div>
-                <ul className="search-result"> 
-                    <li className="hyphen">키오스크/POS 판매금액 합계<span className="colon"></span><span className="value">{Utils.numberComma(kioskAndPosTotal)}원</span></li>
-                    <li className="hyphen">어플 판매금액 합계<span className="colon"></span><span className="value">{Utils.numberComma(appTotal)}원</span></li>
-                    <li className="hyphen">판매취소(폐기)금액 합계<span className="colon"></span><span className="value">{Utils.numberComma(cancelTotal)}원</span></li>
-                </ul>
-                <div className='price-info'>
-                    <p className="hyphen">키오스크/POS 판매금액은 가상계좌에서 자동 차감됩니다.</p>
-                    <p className="hyphen">어플 판매금액은 가상계좌에서 차감되지 않습니다.</p>
-                    <p className="hyphen">판매취소된 상품권은 폐기되므로 재고에 반영되지 않습니다.</p>
-                </div>
-            </div>
+            <EtcDetailSummary searchDate={`${from} ~ ${to}`} summaryResult={summaryResult} summaryInfo={summaryInfo} />
 
             <Sticky reference={thRef.current} contentsRef={tableRef.current}> 
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />

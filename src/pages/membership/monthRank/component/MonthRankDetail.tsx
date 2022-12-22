@@ -12,7 +12,7 @@ import { MonthRankDetailProps, MonthRankDetailDataProps } from "types/membership
 // component
 import CalanderSearch from "pages/common/calanderSearch";
 import Sticky from "pages/common/sticky";
-import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable"; 
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable"; 
 import EtcDetailTableBottom from "pages/etc/component/EtcDetailTableBottom";
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
@@ -23,21 +23,24 @@ import MEMBERSHIP_SERVICE from "service/membershipService";
 // state
 import { franState, loginState } from "state";
 
-const MonthRankDetail: FC<MonthRankDetailProps> = ({ detailTableColGroup, detailTableHead }) => {
+const MonthRankDetail: FC<MonthRankDetailProps> = ( props ) => {
     const { reset } = useQueryErrorResetBoundary();
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
         to: format(new Date(), 'yyyy-MM'), // 2022-11
         searchTrigger: false,
     });
+    // fallback props 정리 
+    const loadingFallbackProps = { ...props, fallbackType: 'LOADING' }
+    const errorFallbackProps = { ...props, fallbackType: 'ERROR' }
 
     return (
         <>
             <MonthRankDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
 
-            <Suspense fallback={<Loading marginTop={120} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                    <MonthRankDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+            <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />}>
+                    <MonthRankDetailData searchInfo={searchInfo} {...props} />
                 </ErrorBoundary>
             </Suspense>
         </>

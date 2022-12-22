@@ -9,7 +9,8 @@ import { format, subMonths } from 'date-fns';
 import { franState, loginState } from 'state';
 
 // component
-import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
+import EtcDetailSummary from '../component/EtcDetailSummary';
 import Sticky from 'pages/common/sticky'; 
 import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage'; 
@@ -24,18 +25,29 @@ import { PageInfoType, VirtualAccountDetailProps, SearchInfoType } from 'types/e
 
 const VirtualAccountDetail: FC<Omit<VirtualAccountDetailProps, 'searchInfo'>> = (props) => { 
     const { reset } = useQueryErrorResetBoundary();
-    
+    // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
         to: format(new Date(), 'yyyy-MM'), // 2022-11  
         searchTrigger: false,
     });
+    // fallback props 정리
+    const defaultFallbackProps = { 
+        searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
+        summaryResult: [
+            ['충전', '0'],
+            ['차감', '0'], 
+        ], 
+        ...props
+    }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
 
     return (
         <>
             <VirtualAccountSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
-            <Suspense fallback={<Loading marginTop={120} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
+            <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
                     <VirtualAccountDetailData searchInfo={searchInfo} {...props} />
                 </ErrorBoundary>
             </Suspense>
@@ -63,7 +75,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
         refetch();
     }, [franCode, searchTrigger, refetch])
 
-    const [renderTableList, depositTotal, deductTotal]: [ReactNode[] | undefined, number, number] = useMemo(() => {
+    const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { balance, deposit, division, log_date, state } = tbodyRow; 
 
@@ -79,10 +91,11 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
             return arr;
         }, [] as ReactNode[]);
 
-        const depositTotal = listData?.filter((el: any) => el.division === '충전').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0; // 총 충전 금액
-        const deductTotal = listData?.filter((el: any) => el.division === '차감').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0; // 총 차감 금액
-
-        return [tableList, depositTotal, deductTotal];
+        const summaryResult = [
+            ['충전', Utils.numberComma(listData?.filter((el: any) => el.division === '충전').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0)], // 총 충전 금액
+            ['차감', Utils.numberComma(listData?.filter((el: any) => el.division === '차감').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0)] // 총 차감 금액
+        ]
+        return [tableList, summaryResult];
     }, [listData]);
 
     const virtualAccDetailTablebody = useMemo(() => { 
@@ -117,15 +130,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
 
     return (
         <> 
-            <div className="search-result-wrap">
-                <div className="search-date">
-                    <p>조회기간: {from} ~ {to}</p>
-                </div>
-                <ul className="search-result">
-                    <li className="hyphen">충전<span className="colon"></span><span className="value">{Utils.numberComma(depositTotal)}원</span></li>
-                    <li className="hyphen">차감<span className="colon"></span><span className="value">{Utils.numberComma(deductTotal)}원</span></li>
-                </ul>
-            </div>
+            <EtcDetailSummary searchDate={`${from} ~ ${to}`} summaryResult={summaryResult} />
 
             <Sticky reference={thRef.current} contentsRef={tableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />

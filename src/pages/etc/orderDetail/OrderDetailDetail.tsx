@@ -16,14 +16,15 @@ import ETC_SERVICE from "service/etcService";
 
 // component     
 import Sticky from "pages/common/sticky";
-import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import CalanderSearch from "pages/common/calanderSearch";
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import OrderDetailExcelBody from './OrderDetailExcelBody';
 import EtcDetailTableBottom from "../component/EtcDetailTableBottom";
+import EtcDetailSummary from "../component/EtcDetailSummary";
 
-const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ({ detailTableColGroup, detailTableHead, openOrderDetailModal }) => {
+const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ( props ) => {
     const { reset } = useQueryErrorResetBoundary(); 
     const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'), // 2022-10
@@ -31,13 +32,26 @@ const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ({ det
         searchTrigger: false,
         searchOption: [{title: '상태 전체', value: ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL}]
     });
+    // fallback props 정리
+    const defaultFallbackProps = { 
+        searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
+        summaryResult: [
+            ['총 발주금액 합계', '0'],
+            ['총 발주금액 공급가', '0'],
+            ['총 발주금액 부가세', '0']
+        ], 
+        detailTableColGroup: props.detailTableColGroup, 
+        detailTableHead: props.detailTableHead
+    }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
 
     return (
         <>
             <OrderDetailDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
-            <Suspense fallback={<Loading marginTop={120} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                    <OrderDetailDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} openOrderDetailModal={openOrderDetailModal} />
+            <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
+                    <OrderDetailDetailData searchInfo={searchInfo} {...props} />
                 </ErrorBoundary>
             </Suspense>
         </>
@@ -73,7 +87,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
         excelRefetch();
     }, [franCode, searchTrigger, refetch, excelRefetch]);
 
-    const [renderTableList, totalSumObj, supplySumObj, vatSumObj]: [ReactNode[] | undefined, number, number, number] = useMemo(() => { 
+    const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const { value: searchOptionValue } = searchOption[0]; // 검색 상태값 (주문 상태)
 
         let filteredData = listData; 
@@ -104,13 +118,16 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
             )
 
             return arr;
-        }, [] as ReactNode[])
+        }, [] as ReactNode[]) 
 
-        let sumObjTotal = listData?.reduce((acc: any, cur: any) => cur.state !== 50 ? acc += cur.amount : acc, 0) || 0;      // 발주금액 합계
-        let sumObjSupply = listData?.reduce((acc: any, cur: any) => cur.state !== 50 ? acc += cur.supply_amt : acc, 0) || 0; // 공급가
-        let sumObjVat = listData?.reduce((acc: any, cur: any) => cur.state !== 50 ? acc += cur.vat_amt : acc, 0) || 0;       // 부가세
+        const summaryResult = [
+            ['총 발주금액 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => cur.state !== 50 ? acc += cur.amount : acc, 0) || 0) ], // 발주금액 합계
+            ['총 발주금액 공급가', Utils.numberComma(listData?.reduce((acc: any, cur: any) => cur.state !== 50 ? acc += cur.supply_amt : acc, 0) || 0) ], // 공급가
+            ['총 발주금액 부가세', Utils.numberComma(listData?.reduce((acc: any, cur: any) => cur.state !== 50 ? acc += cur.vat_amt : acc, 0) || 0)] // 부가세
+        ];
 
-        return [tableList, sumObjTotal, sumObjSupply, sumObjVat];
+        setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
+        return [tableList, summaryResult];
     }, [listData, openOrderDetailModal, searchOption]); 
 
     const orderDetailTablebody = useMemo(() => { 
@@ -150,16 +167,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
 
     return (
         <> 
-            <div className="search-result-wrap">
-                <div className="search-date">
-                    <p>조회기간: {from} ~ {to}</p>
-                </div>
-                <ul className="search-result">
-                    <li className="hyphen">총 발주금액 합계<span className="colon"></span><span className="value">{Utils.numberComma(totalSumObj)}원</span></li>
-                    <li className="hyphen">총 발주금액 공급가<span className="colon"></span><span className="value">{Utils.numberComma(supplySumObj)}원</span></li>
-                    <li className="hyphen">총 발주금액 부가세<span className="colon"></span><span className="value">{Utils.numberComma(vatSumObj)}원</span></li>
-                </ul>
-            </div>
+            <EtcDetailSummary searchDate={`${from} ~ ${to}`} summaryResult={summaryResult} />
 
             <Sticky reference={thRef.current} contentsRef={viewportTableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />

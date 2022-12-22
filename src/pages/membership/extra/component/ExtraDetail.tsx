@@ -7,7 +7,7 @@ import Utils from "utils/Utils";
 
 // component
 import CalanderSearch from "pages/common/calanderSearch"; 
-import EtcDetailTable, { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
+import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import EtcDetailTableBottom from "pages/etc/component/EtcDetailTableBottom";
 import Sticky from "pages/common/sticky";  
 import Loading from "pages/common/loading";
@@ -22,6 +22,7 @@ import MEMBERSHIP_SERVICE from "service/membershipService";
 
 // state
 import { franState, loginState } from "state"; 
+import EtcSearchDetail from "pages/etc/component/EtcDetailSummary";
 
 const isSameOrBeforeToday = (targetDate: string) => {
     return isBefore(new Date(targetDate), new Date()) || isSameDay(new Date(targetDate), new Date())
@@ -36,19 +37,21 @@ const ExtraDetail: FC<ExtraDetailProps> = (props) => {
         to: format(new Date(), 'yyyy-MM'),
         searchTrigger: false,
     }); 
+    // fallback props 정리
+    const defaultFallbackProps = { 
+        searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
+        ...props
+    }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
 
     return (
         <>
-            <ExtraDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
-            <div className="search-result-wrap">
-                <div className="search-date">
-                    <p>조회기간: {searchInfo.from} ~ {searchInfo.to}</p>
-                </div>
-            </div>
+            <ExtraDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} /> 
 
-            <Suspense fallback={<Loading marginTop={120} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} >
-                    <ExtraDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
+            <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
+                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
+                    <ExtraDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} /> 
                 </ErrorBoundary>
             </Suspense>
         </>
@@ -138,6 +141,12 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
     
     return (
         <> 
+            <div className="search-result-wrap">
+                <div className="search-date">
+                    <p>조회기간: {from} ~ {to}</p>
+                </div>
+            </div>
+
             <Sticky reference={thRef.current} contentsRef={tableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>

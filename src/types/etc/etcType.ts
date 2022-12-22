@@ -144,12 +144,15 @@ interface DetailFallbackProps {
 } 
 interface DeliveryChargeDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoSelectType, 
+    summaryInfo: string[][]
 }
 interface MusicChargeDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoType, 
+    summaryInfo: string[][]
 }
 interface GiftcardDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoSelectType, 
+    summaryInfo: string[][]
 }
 interface OrderDetailDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoSelectType, 
@@ -161,6 +164,7 @@ interface EtcOrderDetailProps {
 }
 interface RoyaltyDetailProps extends DetailFallbackProps { 
     searchInfo: SearchInfoType,
+    summaryInfo: string[][]
 }
 interface VirtualAccountDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoType,
