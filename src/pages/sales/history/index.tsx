@@ -220,8 +220,8 @@ const SalesHistoryContainer = () => {
 						</ErrorBoundary>
 					</tbody>
 				</table>
-				{/* excel table */}
-				
+				{/* Excel Table */}
+				{/* Excel Loading */}
 				<Wrapper isRender={isLoadingExcel} isFixed={true} width='100%' height='100%'>
 					<Loading marginTop={0} />
 				</Wrapper>

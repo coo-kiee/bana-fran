@@ -21,9 +21,9 @@ export default Wrapper;
 const LoadingWrapper = styled.div<WrapperProps>`
     position: ${({isFixed}) => isFixed ? 'fixed' : 'absolute'};
     top: 0;
-    left: ${({isFixed}) => isFixed ? '230px' : '0'};
+    left: 0;
     z-index: 100;
-    width: calc(${({isFixed, width}) => isFixed ? (width + ' - 230px') : width});
+    width: calc(${({width}) => width});
     height: ${({height}) => height};
     background: rgba(255, 255, 255, .7);
     display: ${({isRender}) => isRender ? 'flex' : 'none'};
