@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useRecoilValue } from "recoil";
 import { format, subDays, subYears } from "date-fns";
@@ -21,6 +21,7 @@ import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 import Sticky from "pages/common/sticky";
 import TableColGroup from "./table/TableColGroup";
 import TableHead from "./table/TableHead";
+import TableRow from "./table/TableRow";
 
 const SalesHistoryContainer = () => {
 	// global state
@@ -56,6 +57,9 @@ const SalesHistoryContainer = () => {
 	// 쿠팡/배민 주문 제외 여부 0: 쿠팡/배민표시 1:쿠팡/배민제외
 	const [isExcludeCouBae, setIsExcludeCouBae] = useState<0|1>(0);
 
+	// 엑셀 컴포넌트 생성용
+	const [isDownloadExcel, setIsDownloadExcel] = useState<boolean>(false);
+	
 	// pagination
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [rowPerPage, setRowPerPage] = useState<number>(20);
@@ -102,12 +106,14 @@ const SalesHistoryContainer = () => {
 
 	/* sticky 기준 ref */
 	const stickyRef = useRef<HTMLTableRowElement>(null);
-    /* excel download */
     const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
+   
+	/* excel download */
+    const excelRef = useRef<HTMLTableElement>(null); // excel 출력용 table
   
-    const excelDownload = () => {
+    const excelDownload = useCallback(() => {
 		const {from, to} = historySearch;
-        if (tableRef.current) {
+        if (excelRef.current) {
             // Excel - sheet options: 셀 시작 위치, 셀 크기
             const options = {
                 type: 'table', // 필수 O
@@ -116,10 +122,11 @@ const SalesHistoryContainer = () => {
                 addRowColor: { row: [1,2], color: ['d3d3d3','d3d3d3'] },
                 sheetName: '주문내역', // 시트이름, 필수 X
             };
-            try { Utils.excelDownload(tableRef.current, options, `${fCodeName}_주문내역(${from}~${to})`); }
+            try { Utils.excelDownload(excelRef.current, options, `${fCodeName}_주문내역(${from}~${to})`); }
             catch (error) { console.log(error); }
         }
-    }
+		return setIsDownloadExcel(false);
+    }, [fCodeName, historySearch]);
 
 	// queryKey changing function for search(refetch)
 	const handleSearch = () => {
@@ -127,6 +134,10 @@ const SalesHistoryContainer = () => {
 		setQueryTrigger({ from, to });
 	}
 	
+	useEffect(() => {
+		isDownloadExcel && excelDownload();
+	}, [isDownloadExcel, excelDownload]);
+
 	return (
 		<>
 			<div className='info-wrap'>
@@ -199,11 +210,26 @@ const SalesHistoryContainer = () => {
 						</ErrorBoundary>
 					</tbody>
 				</table>
+				{/* excel table */}
+				{
+					isDownloadExcel ? (
+						<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
+							<TableColGroup />
+							<TableHead />
+							<tbody>
+								{
+									filteredData.map((data) => <TableRow data={data} key={`history_excel_${data.nOrderID}`} />)
+								}
+							</tbody>
+						</table>
+					) : 
+					null
+				}
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
 				<div className='function'>
-					<button className='goast-btn' onClick={excelDownload} >엑셀다운</button>
+					<button className='goast-btn' onClick={() => setIsDownloadExcel(true)} disabled={filteredData.length === 0 && isDownloadExcel}>엑셀다운</button>
 				</div>
 				<Pagination
 					dataCnt={filteredData.length}

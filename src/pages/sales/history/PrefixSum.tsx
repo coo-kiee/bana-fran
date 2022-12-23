@@ -1,9 +1,9 @@
 // Types
-import { PrefixSumProps, SalesHistoryData } from 'types/sales/salesType';
+import { DataArrayProps, SalesHistoryData } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
 
-const PrefixSum = ({ data }: PrefixSumProps<SalesHistoryData[]>) => {
+const PrefixSum = ({ data }: DataArrayProps<SalesHistoryData>) => {
 	// 기간별 상세내역 누적 합계
 	const {
 		chargeTotal,

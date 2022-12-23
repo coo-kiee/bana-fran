@@ -346,6 +346,8 @@ select { @include select-style; }
 
 .board-wrap { margin-top: 30px;  border-radius: 20px; box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.08); overflow: hidden; 
     &.board-top { margin-top: 15px; }
+    &.excel-table { display: none; }
+
     .price-area { background: #585872; border: 0px!important; text-align: center; font-size: 14px; color: #fff; }
     .block { display: block; }
     .bg-a { background: #585872; }

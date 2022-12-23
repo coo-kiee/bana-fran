@@ -1,9 +1,9 @@
 // Types
-import { PrefixSumProps, SalesStatisticData } from 'types/sales/salesType';
+import { DataArrayProps, SalesStatisticData } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
 
-const TablePrefixSum = ({ data }: PrefixSumProps<SalesStatisticData[]>) => {
+const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
 	// 합계 계산용 data 가공
 	const {
         total_sales_amt, 

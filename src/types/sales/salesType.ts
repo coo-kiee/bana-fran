@@ -5,14 +5,11 @@ import { CommonParams } from "types/common";
 type SearchType = 'D'|'M';
 type Bit = 0|1;
 
-interface SalesTableDetailProps<T> {
-    currentPage: number;
-    rowPerPage: number;
-	searchType?: SearchType; 
+interface DataProps<T> {
 	data: T;
 }
-interface PrefixSumProps<T> {
-	data: T;
+interface DataArrayProps<T> {
+	data: T[]; 
 }
 // API params type
 interface SalesOrderParams extends CommonParams {
@@ -217,9 +214,16 @@ interface SalesLineChartTooltipProps {
 	point: Point;
     searchType: SearchType;
 }
+interface SalesTableDetailProps {
+    currentPage: number;
+    rowPerPage: number;
+	searchType?: SearchType; 
+	data: SalesStatisticData[];
+}
 
 export type {
-    PrefixSumProps, 
+    DataProps, 
+	DataArrayProps,
 	SalesTableDetailProps,
 	SalesOrderParams,
 	SalesStatisticParams,

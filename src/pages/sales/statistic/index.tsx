@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { format, isAfter, subDays, subMonths } from "date-fns";
 
@@ -21,7 +21,7 @@ import Sticky from "pages/common/sticky";
 import TableColGroup from "./table/TableColGroup";
 import TableHead from "./table/TableHead";
 import TablePrefixSum from "./table/TablePrefixSum";
-import TableDetail from "./table/TableDetail";
+import TableRow from "./table/TableRow";
 
 const SalesStatistic = () => {
 	// global state
@@ -35,6 +35,9 @@ const SalesStatistic = () => {
 	// filter options
     const [statisticSearch, setStatisticSearch] = useState<SalesStatisticSearch>({ searchType: 'D', from: format(subMonths(today, 1), 'yyyy-MM-dd'), to: format(today, 'yyyy-MM-dd') });
     const [chartFilter, setChartFilter] = useState<ChartFilter>({ total: 1, paid: 0, app: 0, free: 0 });
+
+	// 엑셀 컴포넌트 생성용
+	const [isDownloadExcel, setIsDownloadExcel] = useState<boolean>(false);
 
 	// pagination
 	const [currentPage, setCurrentPage] = useState<number>(1);
@@ -52,6 +55,9 @@ const SalesStatistic = () => {
 		to_date: statisticSearch.searchType === 'M' ? (statisticSearch.to + '-01') : statisticSearch.to 
 	}, queryTrigger)
 
+	// data 역순 정렬 (table용)
+	const sortedData =  useMemo(() => {return data ? [...data].reverse() : []}, [data]);
+	
 	// 데이터 조회 후 검색 조건 저장 (조건 비교용. refetch 전까지 기존 값이 유지되도록)
 	const searchTypeMemo = useMemo(() => {return statisticSearch.searchType}, [data]);
 
@@ -62,17 +68,16 @@ const SalesStatistic = () => {
 		[STATISTIC_SEARCH_TYPE.MONTH]: { title: '월별', id: 'month', value: 'M' },
 	}]
 
-	// data 역순 정렬 (table용)
-	const sortedData =  useMemo(() => {return data ? [...data].reverse() : []}, [data]);
-
 	/* sticky 기준 ref */
 	const stickyRef = useRef<HTMLTableRowElement>(null);
-    /* excel download */
     const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
+    
+	/* excel download */
+    const excelRef = useRef<HTMLTableElement>(null); // excel 출력용 table
 
-    const excelDownload = () => {
+    const excelDownload = useCallback(() => {
 		const {searchType, from, to} = statisticSearch;
-        if (tableRef.current) {
+        if (excelRef.current) {
             // Excel - sheet options: 셀 시작 위치, 셀 크기
             const options = {
                 type: 'table', // 필수 O
@@ -81,10 +86,11 @@ const SalesStatistic = () => {
                 addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','ffc89f'] },
                 sheetName: '매출통계', // 시트이름, 필수 X
             };
-            try { Utils.excelDownload(tableRef.current, options, `${fCodeName}_${searchType === 'D' ? '일별' : '월별'}_매출통계(${from}~${to})`); }
+            try { Utils.excelDownload(excelRef.current, options, `${fCodeName}_${searchType === 'D' ? '일별' : '월별'}_매출통계(${from}~${to})`); }
             catch (error) { console.log(error); }
         }
-    }
+		return setIsDownloadExcel(prev => (!prev));
+    }, [fCodeName, statisticSearch]);
 
 	// 제한 조건(90일)을 넘어가면 refecth를 막고 날짜 바꿔주는 함수
 	const handleSearch = useCallback(() => {
@@ -107,6 +113,10 @@ const SalesStatistic = () => {
 		}
 		setQueryTrigger({ from, to });
 	}, [statisticSearch]);
+
+	useEffect(() => {
+		isDownloadExcel && excelDownload();
+	}, [isDownloadExcel, excelDownload]);
 
 	return (
 		<>
@@ -219,16 +229,42 @@ const SalesStatistic = () => {
 							<Loading width={100} height={100} marginTop={16} isTable={true} /> :
 							<>
 								<TablePrefixSum data={data || []} />
-								<TableDetail data={sortedData || []} rowPerPage={rowPerPage} currentPage={currentPage} searchType={searchTypeMemo} />
+								{data && data.length > 0 ? (
+									sortedData.map((sData, idx) => {
+										// pagination
+										const isDisplay = (currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx;
+										return isDisplay ? <TableRow data={sData} key={`statistic_table_row_${idx}`} /> : null;
+									})
+								) : (
+									<NoData isTable={true} rowSpan={1} colSpan={15} paddingTop={20} paddingBottom={20} />
+								)}
 							</>
 						}
 					</tbody>
 				</table>
+				{/* excel table */}
+				{
+					isDownloadExcel ? (
+						<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
+							<TableColGroup />
+							<TableHead />
+							<tbody>
+								<TablePrefixSum data={data || []} />
+								<>
+									{sortedData?.map((statisticData, idx) => {
+										return <TableRow data={statisticData} key={`statistic_excel_row_${idx}`} />
+									})}
+								</>
+							</tbody>
+						</table>
+					) : 
+					null
+				}
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
 				<div className='function'>
-					<button className='goast-btn' onClick={excelDownload} disabled={isFetching}>엑셀다운</button>
+					<button className='goast-btn' onClick={() => setIsDownloadExcel(true)} disabled={isFetching && isDownloadExcel}>엑셀다운</button>
 				</div>
 				<Pagination 
 					dataCnt={sortedData?.length} 
