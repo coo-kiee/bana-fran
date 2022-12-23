@@ -22,6 +22,7 @@ import TableColGroup from "./table/TableColGroup";
 import TableHead from "./table/TableHead";
 import TablePrefixSum from "./table/TablePrefixSum";
 import TableRow from "./table/TableRow";
+import Wrapper from "pages/common/loading/Wrapper";
 
 const SalesStatistic = () => {
 	// global state
@@ -37,6 +38,7 @@ const SalesStatistic = () => {
     const [chartFilter, setChartFilter] = useState<ChartFilter>({ total: 1, paid: 0, app: 0, free: 0 });
 
 	// 엑셀 컴포넌트 생성용
+	const [isLoadingExcel, setIsLoadingExcel] = useState<boolean>(false);
 	const [isDownloadExcel, setIsDownloadExcel] = useState<boolean>(false);
 
 	// pagination
@@ -89,7 +91,8 @@ const SalesStatistic = () => {
             try { Utils.excelDownload(excelRef.current, options, `${fCodeName}_${searchType === 'D' ? '일별' : '월별'}_매출통계(${from}~${to})`); }
             catch (error) { console.log(error); }
         }
-		return setIsDownloadExcel(prev => (!prev));
+		setIsDownloadExcel(false);
+		setIsLoadingExcel(false);
     }, [fCodeName, statisticSearch]);
 
 	// 제한 조건(90일)을 넘어가면 refecth를 막고 날짜 바꿔주는 함수
@@ -114,10 +117,16 @@ const SalesStatistic = () => {
 		setQueryTrigger({ from, to });
 	}, [statisticSearch]);
 
+	// loading띄우고 excelDownload 진행
 	useEffect(() => {
-		isDownloadExcel && excelDownload();
-	}, [isDownloadExcel, excelDownload]);
-
+		isLoadingExcel && setIsDownloadExcel(true);
+	}, [isLoadingExcel]);
+	
+	useEffect(() => {
+		if (isDownloadExcel) {
+			excelDownload();
+		}
+	}, [excelDownload, isDownloadExcel]);
 	return (
 		<>
 			<div className='info-wrap'>
@@ -148,7 +157,7 @@ const SalesStatistic = () => {
 								checked={chartFilter.total === 1}
 								value={chartFilter.total}
 								onChange={(e) => {
-									setChartFilter({ ...chartFilter, total: e.target.checked ? 1 : 0 });
+									setChartFilter({ ...chartFilter, total: e.target.checked ? 1 : 0 })
 								}}
 							/>
 							<label htmlFor='total-sales'>총 매출</label>
@@ -242,21 +251,27 @@ const SalesStatistic = () => {
 						}
 					</tbody>
 				</table>
-				{/* excel table */}
+				{/* Excel table */}
+				{/* Excel Loading */}
+				<Wrapper isRender={isLoadingExcel} isFixed={true} width='100%' height='100%'>
+					<Loading marginTop={0} />
+				</Wrapper>
 				{
 					isDownloadExcel ? (
-						<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
-							<TableColGroup />
-							<TableHead />
-							<tbody>
-								<TablePrefixSum data={data || []} />
-								<>
-									{sortedData?.map((statisticData, idx) => {
-										return <TableRow data={statisticData} key={`statistic_excel_row_${idx}`} />
-									})}
-								</>
-							</tbody>
-						</table>
+						<>
+							<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
+								<TableColGroup />
+								<TableHead />
+								<tbody>
+									<TablePrefixSum data={data || []} />
+									<>
+										{sortedData?.map((statisticData, idx) => {
+											return <TableRow data={statisticData} key={`statistic_excel_row_${idx}`} />
+										})}
+									</>
+								</tbody>
+							</table>
+						</>
 					) : 
 					null
 				}
@@ -264,7 +279,7 @@ const SalesStatistic = () => {
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
 				<div className='function'>
-					<button className='goast-btn' onClick={() => setIsDownloadExcel(true)} disabled={isFetching && isDownloadExcel}>엑셀다운</button>
+					<button className='goast-btn' onClick={() => setIsLoadingExcel(true)} disabled={isFetching && isDownloadExcel}>엑셀다운</button>
 				</div>
 				<Pagination 
 					dataCnt={sortedData?.length} 

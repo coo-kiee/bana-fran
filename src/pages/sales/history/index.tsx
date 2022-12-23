@@ -22,6 +22,7 @@ import Sticky from "pages/common/sticky";
 import TableColGroup from "./table/TableColGroup";
 import TableHead from "./table/TableHead";
 import TableRow from "./table/TableRow";
+import Wrapper from "pages/common/loading/Wrapper";
 
 const SalesHistoryContainer = () => {
 	// global state
@@ -58,8 +59,9 @@ const SalesHistoryContainer = () => {
 	const [isExcludeCouBae, setIsExcludeCouBae] = useState<0|1>(0);
 
 	// 엑셀 컴포넌트 생성용
+	const [isLoadingExcel, setIsLoadingExcel] = useState<boolean>(false);
 	const [isDownloadExcel, setIsDownloadExcel] = useState<boolean>(false);
-	
+
 	// pagination
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [rowPerPage, setRowPerPage] = useState<number>(20);
@@ -124,8 +126,9 @@ const SalesHistoryContainer = () => {
             };
             try { Utils.excelDownload(excelRef.current, options, `${fCodeName}_주문내역(${from}~${to})`); }
             catch (error) { console.log(error); }
-        }
-		return setIsDownloadExcel(false);
+        }		
+		setIsDownloadExcel(false);
+		setIsLoadingExcel(false);
     }, [fCodeName, historySearch]);
 
 	// queryKey changing function for search(refetch)
@@ -133,10 +136,17 @@ const SalesHistoryContainer = () => {
 		const { from, to } = historySearch;
 		setQueryTrigger({ from, to });
 	}
+
+	// loading띄우고 excelDownload 진행
+	useEffect(() => {
+		isLoadingExcel && setIsDownloadExcel(true);
+	}, [isLoadingExcel]);
 	
 	useEffect(() => {
-		isDownloadExcel && excelDownload();
-	}, [isDownloadExcel, excelDownload]);
+		if (isDownloadExcel) {
+			excelDownload();
+		}
+	}, [excelDownload, isDownloadExcel]);
 
 	return (
 		<>
@@ -211,17 +221,23 @@ const SalesHistoryContainer = () => {
 					</tbody>
 				</table>
 				{/* excel table */}
+				
+				<Wrapper isRender={isLoadingExcel} isFixed={true} width='100%' height='100%'>
+					<Loading marginTop={0} />
+				</Wrapper>
 				{
 					isDownloadExcel ? (
-						<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
-							<TableColGroup />
-							<TableHead />
-							<tbody>
-								{
-									filteredData.map((data) => <TableRow data={data} key={`history_excel_${data.nOrderID}`} />)
-								}
-							</tbody>
-						</table>
+						<>
+							<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
+								<TableColGroup />
+								<TableHead />
+								<tbody>
+									{
+										filteredData.map((data) => <TableRow data={data} key={`history_excel_${data.nOrderID}`} />)
+									}
+								</tbody>
+							</table>
+						</>
 					) : 
 					null
 				}
@@ -229,7 +245,7 @@ const SalesHistoryContainer = () => {
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
 				<div className='function'>
-					<button className='goast-btn' onClick={() => setIsDownloadExcel(true)} disabled={filteredData.length === 0 && isDownloadExcel}>엑셀다운</button>
+					<button className='goast-btn' onClick={() => setIsLoadingExcel(true)} disabled={filteredData.length === 0 && isDownloadExcel}>엑셀다운</button>
 				</div>
 				<Pagination
 					dataCnt={filteredData.length}
