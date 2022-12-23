@@ -245,7 +245,7 @@ const SalesHistoryContainer = () => {
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
 				<div className='function'>
-					<button className='goast-btn' onClick={() => setIsLoadingExcel(true)} disabled={filteredData.length === 0 && isDownloadExcel}>엑셀다운</button>
+					<button className='goast-btn' onClick={() => setIsLoadingExcel(true)} disabled={filteredData.length === 0 || isDownloadExcel}>엑셀다운</button>
 				</div>
 				<Pagination
 					dataCnt={filteredData.length}
