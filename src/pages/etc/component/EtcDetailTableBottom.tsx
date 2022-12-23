@@ -1,4 +1,6 @@
 import { FC } from "react"
+
+// type
 import { PageInfoType } from "types/etc/etcType"
 
 // component 

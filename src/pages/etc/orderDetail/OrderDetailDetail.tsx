@@ -1,7 +1,7 @@
-import { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from "react";
+import { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils"; 
-import { useQueryErrorResetBoundary } from "react-query";
+import { useQueryClient, useQueryErrorResetBoundary } from "react-query";
 import { ErrorBoundary } from "react-error-boundary";
 import { format, subMonths } from "date-fns";
 
@@ -24,14 +24,31 @@ import OrderDetailExcelBody from './OrderDetailExcelBody';
 import EtcDetailTableBottom from "../component/EtcDetailTableBottom";
 import EtcDetailSummary from "../component/EtcDetailSummary";
 
-const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ( props ) => {
+const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo' | 'etcOrderDetailListKey' | 'etcOrderDetailExcelListKey'>> = ( props ) => {
     const { reset } = useQueryErrorResetBoundary(); 
+    const queryClient = useQueryClient();
+    const franCode = useRecoilValue(franState);
+
+    // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'), // 2022-10
         to: format(new Date(), 'yyyy-MM-dd'), // 2022-11
         searchTrigger: false,
         searchOption: [{title: '상태 전체', value: ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL}]
     });
+
+    // key
+    // eslint-disable-next-line
+    const etcOrderDetailListKey = useMemo(() => ['etc_order_detail_list', JSON.stringify({ franCode, from: searchInfo.from, to: searchInfo.to }) ], [ franCode, searchInfo.searchTrigger ]);
+    // eslint-disable-next-line
+    const etcOrderDetailExcelListKey = useMemo(() => ['etc_order_detail_list_excel', JSON.stringify({ franCode, from: searchInfo.from, to: searchInfo.to }) ], [ franCode, searchInfo.searchTrigger ]);
+
+    const handleRefetch = () => {
+        queryClient.removeQueries({ queryKey:etcOrderDetailListKey, exact: true }); // 쿼리 제거 
+        queryClient.removeQueries({ queryKey:etcOrderDetailExcelListKey, exact: true }); // 쿼리 제거 
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger })); // =refetch
+    };
+
     // fallback props 정리
     const defaultFallbackProps = { 
         searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
@@ -48,17 +65,26 @@ const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo'>> = ( prop
 
     return (
         <>
-            <OrderDetailDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
+            <CalanderSearch
+                title={`상세내역`}
+                dateType={'yyyy-MM-dd'}
+                searchInfo={searchInfo}
+                setSearchInfo={setSearchInfo}
+                selectOption={searchOptionList}
+                optionList={ETC_ORDER_SEARCH_STATE_LIST}
+                handleSearch={handleRefetch}
+            />
+
             <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
-                    <OrderDetailDetailData searchInfo={searchInfo} {...props} />
+                    <OrderDetailDetailData searchInfo={searchInfo} etcOrderDetailListKey={etcOrderDetailListKey} etcOrderDetailExcelListKey={etcOrderDetailExcelListKey} {...props} />
                 </ErrorBoundary>
             </Suspense>
         </>
     )
 }
 
-const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: { from, to, searchOption, searchTrigger}, openOrderDetailModal }) => {
+const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, etcOrderDetailListKey, etcOrderDetailExcelListKey, searchInfo: { from, to, searchOption}, openOrderDetailModal }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState); 
 
@@ -71,21 +97,11 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
     const thRef = useRef<HTMLTableRowElement>(null);
     const viewportTableRef = useRef<HTMLTableElement>(null);
 
-    // TODO: 데이터  
-    // eslint-disable-next-line
-    const etcOrderDetailListKey = useMemo(() => ['etc_order_detail_list', JSON.stringify({ franCode, from, to }) ], [ franCode, searchTrigger ]);
-    // eslint-disable-next-line
-    const etcOrderDetailExcelListKey = useMemo(() => ['etc_order_detail_list_excel', JSON.stringify({ franCode, from, to }) ], [ franCode, searchTrigger ]);
+    // TODO: 데이터
     // table data
-    const { data: listData, isSuccess, isError, isLoading, isRefetching, refetch} = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]);
-
+    const { data: listData, isSuccess, isError, isLoading, isRefetching} = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]);
     // Excel 다운로드용 
-    const { data: listExcelData, isSuccess: isExcelSuccess, isError: isExcelError, isLoading: isExcelLoading, isRefetching:isExcelRefetching, refetch: excelRefetch } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
-
-    useEffect(() => {
-        refetch();
-        excelRefetch();
-    }, [franCode, searchTrigger, refetch, excelRefetch]);
+    const { data: listExcelData, isSuccess: isExcelSuccess, isError: isExcelError, isLoading: isExcelLoading, isRefetching:isExcelRefetching } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
 
     const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const { value: searchOptionValue } = searchOption[0]; // 검색 상태값 (주문 상태)
@@ -175,7 +191,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={viewportTableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>  
-                {orderDetailTablebody}
+                {orderDetailTablebody} 
             </table>
 
             {isSuccess && isExcelSuccess && (
@@ -192,32 +208,15 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
 
 export default OrderDetailDetail;
 
-const OrderDetailDetailSearch: FC<{searchInfo:SearchInfoSelectType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoSelectType>> }> = ({ searchInfo, setSearchInfo }) => {
-    const handleRefetch = () => {
-        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
-    };
-
-    const searchOptionList = [
-        {
-            [ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL]: {title: '상태 전체', value: ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL},
-            [ETC_ORDER_SEARCH_STATE_TYPE.AWAIT]: {title: '대기', value: 0},
-            [ETC_ORDER_SEARCH_STATE_TYPE.CONFIRM]: {title: '발주확인', value: 10},
-            [ETC_ORDER_SEARCH_STATE_TYPE.PACKING]: {title: '패킹완료', value: 20},
-            [ETC_ORDER_SEARCH_STATE_TYPE.DELIVERY]: {title: '배송출발', value: 30},
-            [ETC_ORDER_SEARCH_STATE_TYPE.PARTIAL_COMPLETE]: {title: '일부배달완료', value: 35},
-            [ETC_ORDER_SEARCH_STATE_TYPE.COMPLETE]: {title: '배송완료', value: 40},
-            [ETC_ORDER_SEARCH_STATE_TYPE.CANCEL]: {title: '취소', value: 50}
-        }
-    ]
-    return (
-        <CalanderSearch
-            title={`상세내역`}
-            dateType={'yyyy-MM-dd'}
-            searchInfo={searchInfo}
-            setSearchInfo={setSearchInfo}
-            selectOption={searchOptionList}
-            optionList={ETC_ORDER_SEARCH_STATE_LIST}
-            handleSearch={handleRefetch}
-        />
-    )
-}
+const searchOptionList = [
+    {
+        [ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL]: {title: '상태 전체', value: ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL},
+        [ETC_ORDER_SEARCH_STATE_TYPE.AWAIT]: {title: '대기', value: 0},
+        [ETC_ORDER_SEARCH_STATE_TYPE.CONFIRM]: {title: '발주확인', value: 10},
+        [ETC_ORDER_SEARCH_STATE_TYPE.PACKING]: {title: '패킹완료', value: 20},
+        [ETC_ORDER_SEARCH_STATE_TYPE.DELIVERY]: {title: '배송출발', value: 30},
+        [ETC_ORDER_SEARCH_STATE_TYPE.PARTIAL_COMPLETE]: {title: '일부배달완료', value: 35},
+        [ETC_ORDER_SEARCH_STATE_TYPE.COMPLETE]: {title: '배송완료', value: 40},
+        [ETC_ORDER_SEARCH_STATE_TYPE.CANCEL]: {title: '취소', value: 50}
+    }
+];

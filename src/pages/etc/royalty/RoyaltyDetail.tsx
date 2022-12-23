@@ -1,6 +1,6 @@
-import { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from 'react';
+import { FC, useState, useRef, useMemo, ReactNode, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useQueryErrorResetBoundary } from 'react-query';
+import { useQueryClient, useQueryErrorResetBoundary } from 'react-query';
 import { useRecoilValue } from 'recoil';
 import Utils from 'utils/Utils';
 import { format, subMonths } from 'date-fns';
@@ -12,9 +12,7 @@ import { franState, loginState } from 'state';
 import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead} from "pages/etc/component/EtcDetailTable";
 import EtcDetailSummary from '../component/EtcDetailSummary';
 import Sticky from 'pages/common/sticky';  
-import CalanderSearch from 'pages/common/calanderSearch';
-import Loading from 'pages/common/loading';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+import CalanderSearch from 'pages/common/calanderSearch'; 
 import EtcDetailTableBottom from '../component/EtcDetailTableBottom';
 
 // api
@@ -23,14 +21,28 @@ import ETC_SERVICE from 'service/etcService';
 // type
 import { PageInfoType, RoyaltyDetailProps, RoyaltyDetailListType, SearchInfoType } from 'types/etc/etcType'; 
 
-const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'searchInfo'>> = ( props ) => { 
-    // 게시판 + 엑셀다운, 페이징, 정렬
+const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'searchInfo' | 'etcRoyaltyListKey'>> = ( props ) => { 
     const { reset } = useQueryErrorResetBoundary(); 
+    const queryClient = useQueryClient();
+    const franCode = useRecoilValue(franState);
+
+    // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10
         to: format(new Date(), 'yyyy-MM'), // 2022-11
         searchTrigger: false,
     });
+
+    // key
+    // eslint-disable-next-line
+    const etcRoyaltyListKey = useMemo(() => ['etc_royalty_list', JSON.stringify({ franCode, from: searchInfo.from, to: searchInfo.to }) ], [franCode, searchInfo.searchTrigger]);
+
+    // 검색
+    const handleRefetch = () => {
+        queryClient.removeQueries({ queryKey:etcRoyaltyListKey, exact: true }); // 쿼리 제거 
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger })); // =refetch
+    };
+
     // fallback props 정리
     const defaultFallbackProps = { 
         searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
@@ -45,17 +57,25 @@ const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'searchInfo'>> = ( props ) => {
 
     return (
         <>
-            <RoyaltyOverallSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} /> 
+            <CalanderSearch
+                title={`상세내역`}
+                dateType={'yyyy-MM'}
+                searchInfo={searchInfo}
+                setSearchInfo={setSearchInfo}
+                handleSearch={handleRefetch}
+                showMonthYearPicker={true}
+            />
+
             <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
-                    <RoyaltyDetailData searchInfo={searchInfo} {...props} />
+                    <RoyaltyDetailData searchInfo={searchInfo} etcRoyaltyListKey={etcRoyaltyListKey} {...props} />
                 </ErrorBoundary>
             </Suspense>
         </>
     )
 }
 
-const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detailTableHead, summaryInfo, searchInfo: {from, to, searchTrigger} }) => {
+const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detailTableHead, etcRoyaltyListKey, summaryInfo, searchInfo: {from, to} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
@@ -67,13 +87,8 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
     const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // TODO: 데이터  
-    // eslint-disable-next-line
-    const etcRoyaltyListKey = useMemo(() => ['etc_royalty_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data: listData, isSuccess, isLoading, isRefetching, isError, refetch } = ETC_SERVICE.useEtcList<RoyaltyDetailListType[]>('YGQA4CREHNZCZIXPF2AH', etcRoyaltyListKey, [ franCode, from, to ]); 
-    useEffect(() => {
-        refetch();
-    }, [franCode, searchTrigger, refetch])
+    // TODO: 데이터
+    const { data: listData } = ETC_SERVICE.useEtcList<RoyaltyDetailListType[]>('YGQA4CREHNZCZIXPF2AH', etcRoyaltyListKey, [ franCode, from, to ]); 
 
     const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
@@ -87,7 +102,7 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
                     <td className='align-center'><strong>{Utils.numberComma(total_amount)}</strong></td>
                 </>
             ) 
- 
+
             return arr;
         }, [] as ReactNode[]);
 
@@ -99,19 +114,6 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
         setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
         return [tableList, summaryResult];
     }, [listData]);
-
-    const royaltyDetailTablebody = useMemo(() => { 
-        const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
-        const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
-
-        if( isTableSuccess ) {
-            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
-        } else if( isError ) { // 실패한 경우 
-            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
-        } else if( isTableLoading ){
-            return <tbody><Loading isTable={true} /></tbody>
-        } 
-    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]);
 
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
@@ -140,7 +142,8 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
-                {royaltyDetailTablebody}
+                {/* {royaltyDetailTablebody} */}
+                <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
             </table>
 
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
@@ -149,20 +152,3 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
 }
 
 export default RoyaltyDetail;
-
-const RoyaltyOverallSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>> }> = ({ searchInfo, setSearchInfo }) => {
-    const handleRefetch = () => {
-        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
-    };
-
-    return (
-        <CalanderSearch
-            title={`상세내역`}
-            dateType={'yyyy-MM'}
-            searchInfo={searchInfo}
-            setSearchInfo={setSearchInfo}
-            handleSearch={handleRefetch}
-            showMonthYearPicker={true}
-        />
-    )
-}

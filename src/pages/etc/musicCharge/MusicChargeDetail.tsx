@@ -1,7 +1,7 @@
-import React, { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from "react";
+import { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
-import { useQueryErrorResetBoundary } from "react-query";
+import { useQueryClient, useQueryErrorResetBoundary } from "react-query";
 import { format, subMonths } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
 
@@ -18,18 +18,31 @@ import ETC_SERVICE from 'service/etcService';
 import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
 import EtcDetailTableBottom from "../component/EtcDetailTableBottom";
 import Sticky from "pages/common/sticky"; 
-import CalanderSearch from "pages/common/calanderSearch";
-import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import CalanderSearch from "pages/common/calanderSearch"; 
 import EtcDetailSummary from "../component/EtcDetailSummary";
 
-const MusicChargeDetail: FC<Omit<MusicChargeDetailProps, 'searchInfo'>> = (props) => {
+const MusicChargeDetail: FC<Omit<MusicChargeDetailProps, 'searchInfo' | 'etcMusicListKey'>> = (props) => {
     const { reset } = useQueryErrorResetBoundary();
+    const queryClient = useQueryClient();
+    const franCode = useRecoilValue(franState);
+
+    // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10
         to: format(new Date(), 'yyyy-MM'), // 2022-11
         searchTrigger: false,
     });
+
+    // key
+    // eslint-disable-next-line
+    const etcMusicListKey = useMemo(() => ['etc_music_list', JSON.stringify({ franCode, from: searchInfo.from, to: searchInfo.to }) ], [franCode, searchInfo.searchTrigger]);
+    
+    // 검색
+    const handleRefetch = () => {
+        queryClient.removeQueries({ queryKey:etcMusicListKey, exact: true }); // 쿼리 제거 
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger })); // =refetch
+    };
+
     // fallback props 정리
     const defaultFallbackProps = { 
         searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
@@ -44,10 +57,18 @@ const MusicChargeDetail: FC<Omit<MusicChargeDetailProps, 'searchInfo'>> = (props
 
     return (
         <>
-            <MusicChargeDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} /> 
+            <CalanderSearch
+                title={`상세내역`}
+                dateType={'yyyy-MM'}
+                searchInfo={searchInfo}
+                setSearchInfo={setSearchInfo}
+                handleSearch={handleRefetch}
+                showMonthYearPicker={true}
+            />
+
             <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
-                    <MusicChargeDetailData searchInfo={searchInfo} {...props} />
+                    <MusicChargeDetailData {...props} etcMusicListKey={etcMusicListKey} searchInfo={searchInfo} />
                 </ErrorBoundary>
             </Suspense>
         </>
@@ -56,7 +77,7 @@ const MusicChargeDetail: FC<Omit<MusicChargeDetailProps, 'searchInfo'>> = (props
 
 export default MusicChargeDetail;
 
-const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from, to, searchTrigger }, summaryInfo, detailTableColGroup, detailTableHead }) => {
+const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from, to }, etcMusicListKey, summaryInfo, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
@@ -69,12 +90,7 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
     const thRef = useRef<HTMLTableRowElement>(null);
 
     // TODO: 데이터 
-    // eslint-disable-next-line
-    const etcMusicListKey = useMemo(() => ['etc_music_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data: listData, isSuccess, isLoading, isRefetching, isError, refetch } = ETC_SERVICE.useEtcList<MusicChargeDetailType[]>('VK4WML6GW9077BKEWP3O', etcMusicListKey, [ franCode, from, to ]);
-    useEffect(() => {
-        refetch();
-    }, [franCode, searchTrigger, refetch]);
+    const { data: listData } = ETC_SERVICE.useEtcList<MusicChargeDetailType[]>('VK4WML6GW9077BKEWP3O', etcMusicListKey, [ franCode, from, to ]);
 
     const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow,) => {
@@ -96,20 +112,7 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
             ['공연권료 합계', Utils.numberComma(listData?.filter((el: any) => el.state.includes('공연')).reduce((acc: any, cur: any) => acc+= cur.total_amount, 0) || 0)]
         ]
         return [tableList, summaryResult];
-    }, [listData])
-
-    const musicChargeDetailTablebody = useMemo(() => { 
-        const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
-        const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
-
-        if( isTableSuccess ) {
-            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
-        } else if( isError ) { // 실패한 경우 
-            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
-        } else if( isTableLoading ){
-            return <tbody><Loading isTable={true} /></tbody>
-        } 
-    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]); 
+    }, [listData]) 
 
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
@@ -137,26 +140,9 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
             </Sticky>
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
-                {musicChargeDetailTablebody}
+                <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
             </table>
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>
-    )
-} 
-
-const MusicChargeDetailSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>> }> = ({ searchInfo, setSearchInfo }) => {
-    const handleRefetch = () => {
-        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
-    };
-
-    return (
-        <CalanderSearch
-            title={`상세내역`}
-            dateType={'yyyy-MM'}
-            searchInfo={searchInfo}
-            setSearchInfo={setSearchInfo}
-            handleSearch={handleRefetch}
-            showMonthYearPicker={true}
-        />
     )
 }

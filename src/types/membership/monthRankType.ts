@@ -44,10 +44,8 @@ interface MonthRankOverallProps {
 interface MonthRankDetailProps {
     detailTableColGroup: string[],
     detailTableHead: TableHeadItemType[][],
-}
-
-interface MonthRankDetailDataProps extends MonthRankDetailProps {
     searchInfo: SearchInfoType,
+    rankListKey: string[]
 }
 
 interface RewardEditDataProps {
@@ -76,7 +74,7 @@ const RANK_REWARD_LIST = [
 
 export type {
     RewardEditItemType, RankInfoItemType, RankListItemType, RankEditParams, 
-    MonthRankOverallProps, MonthRankDetailProps, MonthRankDetailDataProps, RewardEditDataProps,
+    MonthRankOverallProps, MonthRankDetailProps, RewardEditDataProps,
 }
 
 export { RANK_REWARD_TYPE, RANK_REWARD_LIST }

@@ -1,5 +1,5 @@
-import React, { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from "react";
-import { useQueryErrorResetBoundary } from 'react-query';
+import { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
+import { useQueryClient, useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { format, subMonths } from "date-fns"; 
 import { useRecoilValue } from "recoil";
@@ -7,15 +7,13 @@ import Utils from "utils/Utils";
 
 // type
 import { SearchInfoType, PageInfoType } from "types/etc/etcType";
-import { MonthRankDetailProps, MonthRankDetailDataProps } from "types/membership/monthRankType";
+import { MonthRankDetailProps } from "types/membership/monthRankType";
 
 // component
 import CalanderSearch from "pages/common/calanderSearch";
 import Sticky from "pages/common/sticky";
 import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable"; 
-import EtcDetailTableBottom from "pages/etc/component/EtcDetailTableBottom";
-import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import EtcDetailTableBottom from "pages/etc/component/EtcDetailTableBottom"; 
 
 // service
 import MEMBERSHIP_SERVICE from "service/membershipService";
@@ -23,24 +21,46 @@ import MEMBERSHIP_SERVICE from "service/membershipService";
 // state
 import { franState, loginState } from "state";
 
-const MonthRankDetail: FC<MonthRankDetailProps> = ( props ) => {
+const MonthRankDetail: FC<Omit<MonthRankDetailProps, 'searchInfo' | 'rankListKey'>> = ( props ) => {
     const { reset } = useQueryErrorResetBoundary();
+    const queryClient = useQueryClient();
+    const franCode = useRecoilValue(franState);
+
+    // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
         to: format(new Date(), 'yyyy-MM'), // 2022-11
         searchTrigger: false,
     });
+
+    // key
+    // eslint-disable-next-line
+    const rankListKey = useMemo(() => ['membership_rank_list', JSON.stringify({ franCode, from: searchInfo.from, to: searchInfo.to }) ], [franCode, searchInfo.searchTrigger]);
+
+    // 검색
+    const handleRefetch = () => {
+        queryClient.removeQueries({ queryKey:rankListKey, exact: true }); // 쿼리 제거 
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger })); // =refetch
+    };
+
     // fallback props 정리 
     const loadingFallbackProps = { ...props, fallbackType: 'LOADING' }
     const errorFallbackProps = { ...props, fallbackType: 'ERROR' }
 
     return (
         <>
-            <MonthRankDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
+            <CalanderSearch
+                title={`보상 지급 내역`}
+                dateType={'yyyy-MM'}
+                searchInfo={searchInfo}
+                setSearchInfo={setSearchInfo}
+                handleSearch={handleRefetch}
+                showMonthYearPicker={true}
+            />
 
             <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />}>
-                    <MonthRankDetailData searchInfo={searchInfo} {...props} />
+                    <MonthRankDetailData searchInfo={searchInfo} rankListKey={rankListKey} {...props} />
                 </ErrorBoundary>
             </Suspense>
         </>
@@ -49,7 +69,7 @@ const MonthRankDetail: FC<MonthRankDetailProps> = ( props ) => {
 
 export default MonthRankDetail;
 
-const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from, to, searchTrigger }, detailTableColGroup, detailTableHead }) => {
+const MonthRankDetailData: FC<MonthRankDetailProps> = ({ searchInfo: { from, to }, rankListKey, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
@@ -61,13 +81,8 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
         row: 20, // 한 페이지에 나오는 리스트 개수 
     });
 
-    // TODO: 데이터 
-    // eslint-disable-next-line
-    const rankListKey = useMemo(() => ['membership_rank_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data, isSuccess, isLoading, isRefetching, isError, refetch } = MEMBERSHIP_SERVICE.useRankList(rankListKey, [ franCode, from, to ]);
-    useEffect(() => {
-        refetch();
-    }, [franCode, searchTrigger, refetch])
+    // TODO: 데이터
+    const { data } = MEMBERSHIP_SERVICE.useRankList(rankListKey, [ franCode, from, to ]);
 
     const renderTableList = useMemo(() => {
         return data?.reduce((arr: ReactNode[], tbodyRow) => {
@@ -85,20 +100,7 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
             )
             return arr;
         }, [] as ReactNode[]);
-    }, [data]);
-
-    const monthRankDetailTablebody = useMemo(() => { 
-        const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
-        const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
-
-        if( isTableSuccess ) {
-            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
-        } else if( isError ) {
-            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
-        } else if( isTableLoading ){
-            return <tbody><Loading isTable={true} /></tbody>
-        } 
-    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]);
+    }, [data]); 
 
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
@@ -125,27 +127,11 @@ const MonthRankDetailData: FC<MonthRankDetailDataProps> = ({ searchInfo: { from,
 
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
-                {monthRankDetailTablebody}
+                {/* {monthRankDetailTablebody} */}
+                <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
             </table>
             
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>
-    )
-}
-
-const MonthRankDetailSearch: FC<{ searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>> }> = ({ searchInfo, setSearchInfo }) => {
-    const handleRefetch = () => {
-        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
-    };
-    
-    return (
-        <CalanderSearch
-            title={`보상 지급 내역`}
-            dateType={'yyyy-MM'}
-            searchInfo={searchInfo}
-            setSearchInfo={setSearchInfo}
-            handleSearch={handleRefetch}
-            showMonthYearPicker={true}
-        />
     )
 }

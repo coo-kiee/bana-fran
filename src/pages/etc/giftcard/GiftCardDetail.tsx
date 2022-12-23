@@ -1,7 +1,7 @@
-import { FC, Suspense, useState, useRef, ReactNode, useMemo, useEffect } from "react";
+import { FC, Suspense, useState, useRef, ReactNode, useMemo } from "react";
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
-import { useQueryErrorResetBoundary } from "react-query";
+import { useQueryClient, useQueryErrorResetBoundary } from "react-query";
 import { format, subMonths } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
 
@@ -22,13 +22,14 @@ import ETC_SERVICE from "service/etcService";
 import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import EtcDetailTableBottom from "../component/EtcDetailTableBottom"; 
 import Sticky from "pages/common/sticky";
-import CalanderSearch from "pages/common/calanderSearch";
-import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import CalanderSearch from "pages/common/calanderSearch"; 
 import EtcDetailSummary from "../component/EtcDetailSummary";
 
-const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo'>> = ( props ) => {
+const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo' | 'etcGiftcardListKey'>> = ( props ) => {
     const { reset } = useQueryErrorResetBoundary();
+    const queryClient = useQueryClient();
+    const franCode = useRecoilValue(franState);
+
     // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
@@ -40,6 +41,16 @@ const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo'>> = ( props ) =>
             { value: 'DEVICE_ALL', title: '처리기기 전체' },
         ],
     }); 
+
+    // eslint-disable-next-line
+    const etcGiftcardListKey = useMemo(() => ['etc_gift_card_list', JSON.stringify({ franCode, from: searchInfo.from, to: searchInfo.to }) ], [franCode, searchInfo.searchTrigger]);
+
+    // 검색 기능
+    const handleRefetch = () => {
+        queryClient.removeQueries({ queryKey:etcGiftcardListKey, exact: true }); // 쿼리 제거 
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger })); // =refetch
+    };
+
     // fallback props 정리
     const defaultFallbackProps = { 
         searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
@@ -55,10 +66,20 @@ const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo'>> = ( props ) =>
 
     return (
         <>
-            <GiftCardDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
+            <CalanderSearch
+                title={`상세내역`}
+                dateType={'yyyy-MM'}
+                searchInfo={searchInfo}
+                setSearchInfo={setSearchInfo}
+                selectOption={searchOptionList}
+                optionList={[ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST]}
+                handleSearch={handleRefetch}
+                showMonthYearPicker={true}
+            />
+
             <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
-                    <GiftCardDetailData searchInfo={searchInfo} {...props} />
+                    <GiftCardDetailData {...props} searchInfo={searchInfo} etcGiftcardListKey={etcGiftcardListKey} />
                 </ErrorBoundary>
             </Suspense>
         </>
@@ -67,7 +88,7 @@ const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo'>> = ( props ) =>
 
 export default GiftCardDetail
 
-const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({ detailTableHead, detailTableColGroup, summaryInfo, searchInfo: {from, to, searchTrigger, searchOption} }) => {
+const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({ detailTableHead, detailTableColGroup, etcGiftcardListKey, summaryInfo, searchInfo: {from, to, searchOption} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
@@ -79,14 +100,8 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
     const tableRef = useRef<HTMLTableElement>(null); 
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // TODO: 데이터
-    // eslint-disable-next-line
-    const etcGiftcardListKey = useMemo(() => ['etc_gift_card_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data: listData, isSuccess, isLoading, isRefetching, isError, refetch } = ETC_SERVICE.useGiftCardList(etcGiftcardListKey, [ franCode, from, to ]);
-    useEffect(() => {
-        refetch();
-    }, [franCode, searchTrigger, refetch]);
-
+    // TODO: 데이터 
+    const { data: listData } = ETC_SERVICE.useGiftCardList(etcGiftcardListKey, [ franCode, from, to ]);
     // etc_gift_card_list
     const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
@@ -124,19 +139,6 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
         return [tableList, summaryResult];
     }, [listData, searchOption ])
 
-    const giftCardDetailTablebody = useMemo(() => { 
-        const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
-        const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
-
-        if( isTableSuccess ) {
-            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
-        } else if( isError ) {
-            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
-        } else if( isTableLoading ){
-            return <tbody><Loading isTable={true} /></tbody>
-        } 
-    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]);
-
     // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
@@ -164,7 +166,7 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
 
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
-                {giftCardDetailTablebody}
+                <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
             </table>
 
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
@@ -172,45 +174,27 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
     )
 }
 
-const GiftCardDetailSearch: FC<{searchInfo:SearchInfoSelectType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoSelectType>> }> = ({ searchInfo, setSearchInfo }) => { 
-    const searchOptionList = [
-        {
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL]: { title: '포인트 구분 전체', value: 'CATEGORY_ALL' },
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL]: { title: '판매', value: '판매' },
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL_DELETE]: { title: '판매 취소(폐기)', value: '판매 취소(폐기)' },
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ADD]: { title: '임의추가', value: '임의추가' },    
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.DELETE]: { title: '임의폐기', value: '임의폐기' },
-            [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ELSE]: { title: 'N/A', value: 'N/A' },
-        },
-        {
-            [ETC_GIFTCARD_SEARCH_CARD_TYPE.CARD_ALL]: { title: '상품권종 전체', value: 'CARD_ALL' },
-            [ETC_GIFTCARD_SEARCH_CARD_TYPE.TEN]: { title: '1만원권', value: 510 },
-            [ETC_GIFTCARD_SEARCH_CARD_TYPE.THIRTY]: { title: '3만원권', value: 511 },
-            [ETC_GIFTCARD_SEARCH_CARD_TYPE.FIFTY]: { title: '5만원권', value: 512 },
-        },
-        {
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.DEVICE_ALL]: { title: '처리기기 전체', value: 'DEVICE_ALL' },
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.BRANCH_APP]: { title: '매장앱', value: '매장앱' },
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.APP]: { title: '어플', value: '어플' },
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.KIOSK]: { title: '키오스크', value: '키오스크' },
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.POS]: { title: 'POS', value: 'POS' },
-            [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.ELSE]: {title: 'N/A', value: 'N/A'}
-        },
-    ];
-    const handleRefetch = () => {
-        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
-    };
-
-    return ( 
-        <CalanderSearch
-            title={`상세내역`}
-            dateType={'yyyy-MM'}
-            searchInfo={searchInfo}
-            setSearchInfo={setSearchInfo}
-            selectOption={searchOptionList}
-            optionList={[ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST]}
-            handleSearch={handleRefetch}
-            showMonthYearPicker={true}
-        />
-    )
-}
+const searchOptionList = [
+    {
+        [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL]: { title: '포인트 구분 전체', value: 'CATEGORY_ALL' },
+        [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL]: { title: '판매', value: '판매' },
+        [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL_DELETE]: { title: '판매 취소(폐기)', value: '판매 취소(폐기)' },
+        [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ADD]: { title: '임의추가', value: '임의추가' },    
+        [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.DELETE]: { title: '임의폐기', value: '임의폐기' },
+        [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ELSE]: { title: 'N/A', value: 'N/A' },
+    },
+    {
+        [ETC_GIFTCARD_SEARCH_CARD_TYPE.CARD_ALL]: { title: '상품권종 전체', value: 'CARD_ALL' },
+        [ETC_GIFTCARD_SEARCH_CARD_TYPE.TEN]: { title: '1만원권', value: 510 },
+        [ETC_GIFTCARD_SEARCH_CARD_TYPE.THIRTY]: { title: '3만원권', value: 511 },
+        [ETC_GIFTCARD_SEARCH_CARD_TYPE.FIFTY]: { title: '5만원권', value: 512 },
+    },
+    {
+        [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.DEVICE_ALL]: { title: '처리기기 전체', value: 'DEVICE_ALL' },
+        [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.BRANCH_APP]: { title: '매장앱', value: '매장앱' },
+        [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.APP]: { title: '어플', value: '어플' },
+        [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.KIOSK]: { title: '키오스크', value: '키오스크' },
+        [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.POS]: { title: 'POS', value: 'POS' },
+        [ETC_GIFTCARD_SEARCH_DEVICE_TYPE.ELSE]: {title: 'N/A', value: 'N/A'}
+    },
+]; 

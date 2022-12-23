@@ -3,12 +3,12 @@ import { FC, forwardRef, ReactNode } from "react";
 // component
 import Loading from "pages/common/loading";
 import SuspenseErrorPage from "pages/common/suspenseErrorPage"; 
+import NoData from "pages/common/noData";  
+import EtcDetailSummary from "./EtcDetailSummary";
 
 // type
 import { PageInfoType, TableHeadItemType } from "types/etc/etcType";
 import { ExtraOverallTableRowItemType } from "types/membership/extraType";
-import NoData from "pages/common/noData";  
-import EtcDetailSummary from "./EtcDetailSummary";
 
 interface EtcDetailTableProps {
     tbodyData: ReactNode[] | undefined, // ? 프로시저 데이터 확인하기

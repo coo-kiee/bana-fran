@@ -4,7 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 
 // type
-import { OrderDetailModalParams, OrderDetailModalItemType, EtcOrderDetailProps } from 'types/etc/etcType';
+import { OrderDetailModalItemType, EtcOrderDetailProps } from 'types/etc/etcType';
 
 // service 
 import ETC_SERVICE from 'service/etcService';
@@ -12,7 +12,7 @@ import ETC_SERVICE from 'service/etcService';
 // component
 import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
-import{ EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
+import { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
 import Sticky from 'pages/common/sticky';
 
 const EtcOrderDetail:FC<EtcOrderDetailProps> = ( props ) => { 
@@ -47,7 +47,7 @@ const EtcOrderDetailData:FC<EtcOrderDetailProps> = ({ showOrderDetail, closeOrde
     // 프로시저
     let tbody: Array<OrderDetailModalItemType> = [];
     let total: Array<OrderDetailModalItemType> = [];
-    const orderDetailModalParams: OrderDetailModalParams = { order_code: showOrderDetail.orderCode };
+    const orderDetailModalParams = { order_code: showOrderDetail.orderCode };
     const { data, isSuccess } = ETC_SERVICE.useOrderDetailModal(orderDetailModalParams);
     if (isSuccess) {
         tbody = [...tbody, ...data.slice(0, data.length - 1)];

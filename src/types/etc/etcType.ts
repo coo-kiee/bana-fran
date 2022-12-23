@@ -70,8 +70,7 @@ interface OrderDetailListType {
     vat_amt: number,
 } // web_fran_s_etc_order_list 결과 타입
 interface OrderDetailListExcelTotalType {
-    [key: string]: OrderDetailListExcelType[]; 
-    // ex) 123456: [ { cancel_date: "", nOrderId: 123456, ... }, {...}, ... ]
+    [key: string]: OrderDetailListExcelType[]; // ex) 123456: [ { cancel_date: "", nOrderId: 123456, ... }, {...}, ... ]
 }
 interface OrderDetailListExcelType {
     cancel_date: string,
@@ -124,38 +123,37 @@ interface OrderDetailModalItemType {
     volume: string
 }// web_fran_s_etc_order_detail 결과 타입
 
-// param 
-interface ChkGiftCardStockParams {
-    f_code: number
-}
+// param
 interface GiftCardListParams {
     f_code: number,
     from_date: string,
     to_date: string,
-} 
-interface OrderDetailModalParams {
-    order_code: number,
 }
 
 // Detail props
 interface DetailFallbackProps { 
     detailTableColGroup: string[],
     detailTableHead: TableHeadItemType[][],
-} 
+}  
 interface DeliveryChargeDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoSelectType, 
+    etcDeliveryListKey: string[],
     summaryInfo: string[][]
 }
 interface MusicChargeDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoType, 
+    etcMusicListKey: string[],
     summaryInfo: string[][]
 }
 interface GiftcardDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoSelectType, 
+    etcGiftcardListKey: string[],
     summaryInfo: string[][]
 }
 interface OrderDetailDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoSelectType, 
+    etcOrderDetailListKey: string[],
+    etcOrderDetailExcelListKey: string[],
     openOrderDetailModal: (nOrderID: number) => void,
 }
 interface EtcOrderDetailProps { 
@@ -164,10 +162,12 @@ interface EtcOrderDetailProps {
 }
 interface RoyaltyDetailProps extends DetailFallbackProps { 
     searchInfo: SearchInfoType,
+    etcRoyaltyListKey: string[],
     summaryInfo: string[][]
 }
 interface VirtualAccountDetailProps extends DetailFallbackProps {
     searchInfo: SearchInfoType,
+    etcVirtualAccBalanceListKey: string[]
 }
 
 /* Type Check */ 
@@ -287,9 +287,8 @@ const ETC_ORDER_SEARCH_STATE_LIST = [
     ]
 ]
 export type {
-    SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType,
+    SearchInfoType, PageInfoType, TableHeadItemType, SearchInfoSelectType, SearchInfoRadioType, GiftCardListParams,
     DeliveryDetailListType, MusicChargeDetailType, GiftCardDetailType, OrderDetailListType, OrderDetailListExcelTotalType, OrderDetailListExcelType, RoyaltyDetailListType, VirtualAccListType, OrderDetailModalItemType,
-    ChkGiftCardStockParams, GiftCardListParams, OrderDetailModalParams,
     DetailFallbackProps, DeliveryChargeDetailProps, GiftcardDetailProps, MusicChargeDetailProps, OrderDetailDetailProps, EtcOrderDetailProps, RoyaltyDetailProps, VirtualAccountDetailProps,
 };
 export {

@@ -115,7 +115,6 @@ const useRankList = (queryKey: string[], [ franCode, from, to ]: [number, string
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true, 
-        enabled: false,
     });
 }; // web_fran_s_membership_rank_list
 

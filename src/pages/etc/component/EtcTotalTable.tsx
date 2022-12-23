@@ -1,15 +1,15 @@
 import React, { FC } from 'react';
 import { format, subMonths } from 'date-fns';
 import { useQueryErrorResetBoundary } from 'react-query';
-
-// type
-import { ETC_TAB_TYPE, ChkGiftCardStockParams } from 'types/etc/etcType';
 import { ErrorBoundary } from 'react-error-boundary';
-import Loading from 'pages/common/loading';
 import { useRecoilValue } from 'recoil';
 import Utils from 'utils/Utils';
 
+// type
+import { ETC_TAB_TYPE } from 'types/etc/etcType';
+
 // component
+import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 // state
@@ -202,7 +202,7 @@ const EtcGiftCardTotalTableData = () => {
     const franCode = useRecoilValue(franState);
 
     let tableBody: any = []; // 프로시저 성공 후 업데이트
-    const totalParam: ChkGiftCardStockParams = { f_code: franCode };
+    const totalParam = { f_code: franCode };
     const { data: totalData, isSuccess: totalSuccess } = ETC_SERVICE.useChkGiftCardStock(totalParam);
     if (totalSuccess) {  
         tableBody = totalData;

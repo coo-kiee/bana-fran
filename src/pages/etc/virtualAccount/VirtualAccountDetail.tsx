@@ -1,6 +1,6 @@
-import { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from 'react';
+import { FC, useState, useRef, useMemo, ReactNode, Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useQueryErrorResetBoundary } from 'react-query';
+import { useQueryClient, useQueryErrorResetBoundary } from 'react-query';
 import { useRecoilValue } from 'recoil';
 import Utils from 'utils/Utils';
 import { format, subMonths } from 'date-fns';
@@ -23,14 +23,28 @@ import ETC_SERVICE from 'service/etcService';
 // type
 import { PageInfoType, VirtualAccountDetailProps, SearchInfoType } from 'types/etc/etcType'   
 
-const VirtualAccountDetail: FC<Omit<VirtualAccountDetailProps, 'searchInfo'>> = (props) => { 
+const VirtualAccountDetail: FC<Omit<VirtualAccountDetailProps, 'searchInfo' | 'etcVirtualAccBalanceListKey'>> = (props) => { 
     const { reset } = useQueryErrorResetBoundary();
+    const queryClient = useQueryClient();
+    const franCode = useRecoilValue(franState);
+
     // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
         to: format(new Date(), 'yyyy-MM'), // 2022-11  
         searchTrigger: false,
     });
+
+    // key
+    // eslint-disable-next-line
+    const etcVirtualAccBalanceListKey = useMemo(() => ['etc_virtual_acc_detail_list', JSON.stringify({ franCode, from: searchInfo.from, to: searchInfo.to }) ], [franCode, searchInfo.searchTrigger]);
+
+    // 검색
+    const handleRefetch = () => {
+        queryClient.removeQueries({ queryKey:etcVirtualAccBalanceListKey, exact: true }); // 쿼리 제거 
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger })); // =refetch
+    };
+
     // fallback props 정리
     const defaultFallbackProps = { 
         searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
@@ -45,17 +59,25 @@ const VirtualAccountDetail: FC<Omit<VirtualAccountDetailProps, 'searchInfo'>> = 
 
     return (
         <>
-            <VirtualAccountSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} />
+            <CalanderSearch
+                title={`상세내역`}
+                dateType={'yyyy-MM'}
+                searchInfo={searchInfo}
+                setSearchInfo={setSearchInfo}
+                handleSearch={handleRefetch}
+                showMonthYearPicker={true}
+            />
+
             <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
-                    <VirtualAccountDetailData searchInfo={searchInfo} {...props} />
+                    <VirtualAccountDetailData searchInfo={searchInfo} etcVirtualAccBalanceListKey={etcVirtualAccBalanceListKey} {...props} />
                 </ErrorBoundary>
             </Suspense>
         </>
     )
 }
 
-const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableColGroup, detailTableHead, searchInfo: {from, to, searchTrigger} }) => {
+const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableColGroup, detailTableHead, etcVirtualAccBalanceListKey, searchInfo: {from, to} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
 
@@ -67,13 +89,8 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
     const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // TODO: 데이터
-    // eslint-disable-next-line
-    const etcVirtualAccBalanceListKey = useMemo(() => ['etc_virtual_acc_detail_list', JSON.stringify({ franCode, from , to }) ], [franCode, searchTrigger]);
-    const { data: listData, isSuccess, isError, isLoading, isRefetching, refetch } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [franCode, from, to ]);
-    useEffect(() => {
-        refetch();
-    }, [franCode, searchTrigger, refetch])
+    // TODO: 데이터 
+    const { data: listData, isSuccess, isError, isLoading, isRefetching } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [franCode, from, to ]);
 
     const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
@@ -147,20 +164,3 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
 }
 
 export default VirtualAccountDetail;
-
-const VirtualAccountSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>>}> = ({  searchInfo, setSearchInfo  }) => {
-    const handleRefetch = () => {
-        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
-    };
-
-    return (
-        <CalanderSearch
-            title={`상세내역`}
-            dateType={'yyyy-MM'}
-            searchInfo={searchInfo}
-            setSearchInfo={setSearchInfo}
-            handleSearch={handleRefetch}
-            showMonthYearPicker={true}
-        />
-    )
-}

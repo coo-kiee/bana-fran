@@ -1,6 +1,6 @@
-import { FC, useState, useRef, useMemo, ReactNode, Suspense, useEffect } from "react";
+import { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { useQueryErrorResetBoundary } from 'react-query';
+import { useQueryClient, useQueryErrorResetBoundary } from 'react-query';
 import { format, isBefore, isSameDay, subMonths } from 'date-fns';
 import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
@@ -15,28 +15,40 @@ import SuspenseErrorPage from "pages/common/suspenseErrorPage";
 
 // type 
 import { SearchInfoType, PageInfoType } from 'types/etc/etcType';
-import { ExtraDetailProps, ExtraDetailDataProps } from "types/membership/extraType";
+import { ExtraDetailProps } from "types/membership/extraType";
 
 // service
 import MEMBERSHIP_SERVICE from "service/membershipService";
 
 // state
-import { franState, loginState } from "state"; 
-import EtcSearchDetail from "pages/etc/component/EtcDetailSummary";
+import { franState, loginState } from "state";  
 
 const isSameOrBeforeToday = (targetDate: string) => {
     return isBefore(new Date(targetDate), new Date()) || isSameDay(new Date(targetDate), new Date())
 };
 
-const ExtraDetail: FC<ExtraDetailProps> = (props) => {
-    const { detailTableColGroup, detailTableHead } = props;
+const ExtraDetail: FC<Omit<ExtraDetailProps, 'searchInfo' | 'membershipListKey'>> = (props) => { 
     const { reset } = useQueryErrorResetBoundary(); 
+    const queryClient = useQueryClient();
+    const franCode = useRecoilValue(franState);
 
+    // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), 
         to: format(new Date(), 'yyyy-MM'),
         searchTrigger: false,
     }); 
+
+    // key
+    // eslint-disable-next-line
+    const membershipListKey = useMemo(() => ['membership_extra_list', JSON.stringify({ franCode, from: searchInfo.from, to: searchInfo.to }) ], [franCode, searchInfo.searchTrigger]);
+
+    // 검색
+    const handleRefetch = () => {
+        queryClient.removeQueries({ queryKey:membershipListKey, exact: true }); // 쿼리 제거 
+        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger })); // =refetch
+    };
+
     // fallback props 정리
     const defaultFallbackProps = { 
         searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
@@ -47,11 +59,18 @@ const ExtraDetail: FC<ExtraDetailProps> = (props) => {
 
     return (
         <>
-            <ExtraDetailSearch searchInfo={searchInfo} setSearchInfo={setSearchInfo} /> 
+            <CalanderSearch
+                title={`상세내역`}
+                dateType={'yyyy-MM'}
+                searchInfo={searchInfo}
+                setSearchInfo={setSearchInfo}
+                handleSearch={handleRefetch}
+                showMonthYearPicker={true}
+            />
 
             <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
                 <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
-                    <ExtraDetailData searchInfo={searchInfo} detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} /> 
+                    <ExtraDetailData searchInfo={searchInfo} membershipListKey={membershipListKey} {...props} /> 
                 </ErrorBoundary>
             </Suspense>
         </>
@@ -60,7 +79,7 @@ const ExtraDetail: FC<ExtraDetailProps> = (props) => {
 
 export default ExtraDetail;
 
-const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, searchTrigger }, detailTableColGroup, detailTableHead }) => {
+const ExtraDetailData: FC<ExtraDetailProps> = ({ searchInfo: { from, to }, membershipListKey, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState); 
     
@@ -73,12 +92,7 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
     });
 
     // TODO: 데이터 
-    // eslint-disable-next-line
-    const membershipListKey = useMemo(() => ['membership_extra_list', JSON.stringify({ franCode, from, to }) ], [franCode, searchTrigger]);
-    const { data, isError, isLoading, isSuccess, isRefetching, refetch } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [franCode, from, to ]);
-    useEffect(() => {
-        refetch();
-    }, [franCode, searchTrigger, refetch])
+    const { data, isError, isLoading, isSuccess, isRefetching } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [franCode, from, to ]);
 
     const renderTableList: ReactNode[] = useMemo(() => {  
         const tableList = data?.filter((data, idx) => isSameOrBeforeToday(data.std_date) || idx === 0) // 가장 첫번째 데이터(=총 합 데이터) || 오늘 포함한 오늘 이전 데이터
@@ -160,20 +174,3 @@ const ExtraDetailData: FC<ExtraDetailDataProps> = ({ searchInfo: { from, to, sea
         </>
     )
 };
-
-const ExtraDetailSearch: FC<{searchInfo:SearchInfoType, setSearchInfo: React.Dispatch<React.SetStateAction<SearchInfoType>> }> = ({ searchInfo, setSearchInfo }) => {
-    const handleRefetch = () => {
-        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger }));
-    };
-
-    return (
-        <CalanderSearch
-            title={`상세내역`}
-            dateType={'yyyy-MM'}
-            searchInfo={searchInfo}
-            setSearchInfo={setSearchInfo}
-            handleSearch={handleRefetch}
-            showMonthYearPicker={true}
-        />
-    )
-}

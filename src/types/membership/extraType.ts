@@ -47,17 +47,12 @@ interface MembershipListType {
     used_point: number | string, // 포인트 - 사용
 } // useMembershipList 결과 값 타입
 
-// props 
-
+// props  
 interface ExtraDetailProps {
-    detailTableColGroup: string[],
-    detailTableHead: ExtraOverallTableRowItemType[][],
-}
-
-interface ExtraDetailDataProps {
     searchInfo: SearchInfoType,
     detailTableColGroup: string[],
     detailTableHead: ExtraOverallTableRowItemType[][],
+    membershipListKey: string[],
 }
 
 interface ExtraDetailDataErrorFallbackProps extends Omit<ExtraDetailProps, 'searchInfo'> {
@@ -66,5 +61,5 @@ interface ExtraDetailDataErrorFallbackProps extends Omit<ExtraDetailProps, 'sear
 
 export type {
     ExtraOverallTableRowItemType, MembershipTotalType, MembershipListType,
-    ExtraDetailProps, ExtraDetailDataProps, ExtraDetailDataErrorFallbackProps,
+    ExtraDetailProps, ExtraDetailDataErrorFallbackProps,
 }

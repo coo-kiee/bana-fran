@@ -2,11 +2,11 @@ import { useQuery, UseQueryResult } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
 import { AxiosError } from 'axios';
 import { format, lastDayOfMonth, subMonths } from 'date-fns';
+import Utils from 'utils/Utils';
 
 // type
 import { RequestParams } from 'types/common';
-import { OrderDetailModalParams, OrderDetailModalItemType, ChkGiftCardStockParams, GiftCardListParams, OrderDetailListType, GiftCardDetailType, VirtualAccListType, OrderDetailListExcelType } from 'types/etc/etcType';
-import Utils from 'utils/Utils';
+import { OrderDetailModalItemType, GiftCardListParams, OrderDetailListType, GiftCardDetailType, VirtualAccListType, OrderDetailListExcelType } from 'types/etc/etcType';
 
 // TODO: 수수료 내역 (*_total 프로시저 공통 함수)
 const useEtcTotal = <T extends { fran_store: number }, U>(query: string, params: T, queryKey: string, option: { [key: string]: any } = {}): UseQueryResult<U, AxiosError<unknown, any>> => {
@@ -35,8 +35,8 @@ const useMusicTotal = (params: { fran_store: number }) => {
     });
 };
 
-const useChkGiftCardStock = (params: ChkGiftCardStockParams) => {
-    const reqData: RequestParams<ChkGiftCardStockParams> = { ws: 'fprocess', query:'U1UQFUQ3JVHCLULFASVU', params};
+const useChkGiftCardStock = (params: {f_code: number}) => {
+    const reqData: RequestParams<{f_code: number}> = { ws: 'fprocess', query:'U1UQFUQ3JVHCLULFASVU', params};
     return useQuery<any, AxiosError>(['etc_gift_card_stock', params.f_code], () => queryFn.getData(reqData), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
@@ -109,7 +109,7 @@ const useEtcList = <T>(query: string, queryKey: string[], params: [number, strin
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,
-        enabled: false,
+        // enabled: false,
     });
 }; // *_list 프로시저 공통 함수 
 const useGiftCardList = (queryKey: string[], params: [number, string, string]) => {
@@ -126,7 +126,6 @@ const useGiftCardList = (queryKey: string[], params: [number, string, string]) =
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true, 
-        enabled: false,
     });
 } // web_fran_s_etc_gift_cert_detail_list
 
@@ -139,8 +138,7 @@ const useDetailList = (queryKey: string[], params: [number, string, string]) => 
         refetchOnWindowFocus: false,
         retry: false,
         suspense: false,
-        useErrorBoundary: true,
-        enabled: false,
+        useErrorBoundary: true, 
     });
 } // 발주내역 (suspense 때문에 따로 분리 + 테스트)
 
@@ -153,8 +151,7 @@ const useDetailListExcel = (queryKey: string[], params: [number, string, string]
         refetchOnWindowFocus: false,
         retry: false,
         suspense: false, 
-        useErrorBoundary: true,
-        enabled: false,
+        useErrorBoundary: true, 
     });
 } // 발주내역 (suspense 때문에 따로 분리 + 테스트)
 
@@ -167,14 +164,13 @@ const useVirtualAccList = (queryKey: string[], params: [number, string, string])
         refetchOnWindowFocus: false,
         retry: false, 
         suspense: false,  
-        useErrorBoundary: true,
-        enabled: false,
+        useErrorBoundary: true, 
     });
 } // 가상계좌 (suspense 때문에 따로 분리 + 테스트)
 
 // TODO: 발주 상세내역 관련
-const useOrderDetailModal = (params: OrderDetailModalParams) => {
-    const reqData: RequestParams<OrderDetailModalParams> = { ws: 'fprocess', query: 'R7UCMHCQJ7DPFZXTVPRP', params };
+const useOrderDetailModal = (params: {order_code: number}) => {
+    const reqData: RequestParams<{order_code: number}> = { ws: 'fprocess', query: 'R7UCMHCQJ7DPFZXTVPRP', params };
 
     return useQuery<Array<OrderDetailModalItemType>, AxiosError>(['etc_order_detail_modal', params.order_code], () => queryFn.getDataList(reqData), {
         keepPreviousData: false,
