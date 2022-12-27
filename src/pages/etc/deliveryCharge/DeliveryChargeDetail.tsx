@@ -95,7 +95,7 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
     // TODO: 데이터  
     const { data: listData } = ETC_SERVICE.useEtcList<DeliveryDetailListType[]>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListKey, [franCode, from, to] );
     const [renderTableList, summaryResult ]: [ReactNode[] | undefined, string[][]] = useMemo(() => {
-        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
+        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { delivery_pay_type, dtRcp, nDeliveryCharge, payment_type, sItem, sPhone, suply_fee, suply_fee_tax, total_charge, total_fee} = tbodyRow;
             const paymentType = searchOption[0].value === ETC_DELIVERY_SEARCH_OPTION_TYPE.TOTAL ? true : searchOption[0].title === delivery_pay_type;
 
@@ -123,8 +123,8 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
             ['바나 딜리버리 수수료 공급가(주문금액*2%) 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += cur.suply_fee, 0) || 0)], // 바나 딜리버리 수수료 공급가(주문금액*2%) 합계
             ['바나 딜리버리 수수료(수수료 공급가+부가세) 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += (cur.suply_fee + cur.suply_fee_tax), 0) || 0)], // 바나 딜리버리 수수료(수수료 공급가+부가세) 합계
         ]
-        setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
 
+        setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
         return [tableList, summaryResult];
     }, [listData, searchOption]) 
 
@@ -157,7 +157,7 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} /> 
                 <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
             </table>
-            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
+            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={renderTableList.length} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>
     )
 };

@@ -85,7 +85,7 @@ const MonthRankDetailData: FC<MonthRankDetailProps> = ({ searchInfo: { from, to 
     const { data } = MEMBERSHIP_SERVICE.useRankList(rankListKey, [ franCode, from, to ]);
 
     const renderTableList = useMemo(() => {
-        return data?.reduce((arr: ReactNode[], tbodyRow) => {
+        const tableList = data?.reduce((arr: ReactNode[], tbodyRow) => {
             const { sDate, sName, nRank, sPhone, nickname } = tbodyRow;
             const [rewardType, rewardAmount] = tbodyRow.gift.split(' ');
 
@@ -100,6 +100,9 @@ const MonthRankDetailData: FC<MonthRankDetailProps> = ({ searchInfo: { from, to 
             )
             return arr;
         }, [] as ReactNode[]);
+        
+        setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
+        return tableList;
     }, [data]); 
 
     // TODO: 엑셀, 페이지네이션 관련
@@ -124,14 +127,11 @@ const MonthRankDetailData: FC<MonthRankDetailProps> = ({ searchInfo: { from, to 
             <Sticky reference={thRef.current} contentsRef={tableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
-
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} />
-                {/* {monthRankDetailTablebody} */}
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} /> 
                 <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
             </table>
-            
-            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
+            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={renderTableList.length} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>
     )
 }

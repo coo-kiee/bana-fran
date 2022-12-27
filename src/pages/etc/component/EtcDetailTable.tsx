@@ -79,7 +79,7 @@ interface EtcDetailTableFallbackProps {
 const EtcDetailTableFallback: FC<EtcDetailTableFallbackProps> = ({ fallbackType, resetErrorBoundary, searchDate, summaryResult, summaryInfo, detailTableColGroup, detailTableHead}) => {
     return (
         <>
-            {searchDate && summaryResult && summaryInfo && <EtcDetailSummary searchDate={searchDate} summaryResult={summaryResult} summaryInfo={summaryInfo} />} 
+            {searchDate && ( summaryResult || summaryInfo ) && <EtcDetailSummary searchDate={searchDate} summaryResult={summaryResult} summaryInfo={summaryInfo} />} 
             <table className="board-wrap" cellPadding="0" cellSpacing="0"> 
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
                 <tbody>

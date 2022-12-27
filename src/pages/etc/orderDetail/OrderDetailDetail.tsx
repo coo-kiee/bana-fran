@@ -84,7 +84,7 @@ const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo' | 'etcOrde
     )
 }
 
-const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, etcOrderDetailListKey, etcOrderDetailExcelListKey, searchInfo: { from, to, searchOption}, openOrderDetailModal }) => {
+const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, etcOrderDetailListKey, etcOrderDetailExcelListKey, searchInfo: { from, to, searchOption }, openOrderDetailModal }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState); 
 
@@ -98,7 +98,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
     const viewportTableRef = useRef<HTMLTableElement>(null);
 
     // TODO: 데이터
-    // table data
+    // table data 
     const { data: listData, isSuccess, isError, isLoading, isRefetching} = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]);
     // Excel 다운로드용 
     const { data: listExcelData, isSuccess: isExcelSuccess, isError: isExcelError, isLoading: isExcelLoading, isRefetching:isExcelRefetching } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
@@ -107,13 +107,9 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
         const { value: searchOptionValue } = searchOption[0]; // 검색 상태값 (주문 상태)
 
         let filteredData = listData; 
-        if (searchOptionValue !== ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL) {
-            filteredData = listData?.filter((origData: any) => { 
-                return origData.state === Number(searchOptionValue)
-            })
-        }
+        if (searchOptionValue !== ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL) filteredData = listData?.filter((origData: any) => origData.state === Number(searchOptionValue))
         
-        const tableList = filteredData?.reduce((arr: ReactNode[], tbodyRow, index: number) => {
+        const tableList = filteredData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { nOrderID, insert_date, last_modify_date, cancel_date, staff_name, last_modify_staff, cancel_staff, state_name, order_count, first_item, supply_amt, vat_amt, amount } = tbodyRow; 
             
             arr.push(
@@ -188,12 +184,10 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
             <Sticky reference={thRef.current} contentsRef={viewportTableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
-
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={viewportTableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>  
                 {orderDetailTablebody} 
             </table>
-
             {isSuccess && isExcelSuccess && (
                 <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef} style={{display: 'none'}}> 
                     <EtcDetailTableHead detailTableColGroup={excelTableColGroup} detailTableHead={excelTableHead} /> 
@@ -201,7 +195,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
                 </table>
             )} 
             
-            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
+            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={renderTableList.length} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>
     )
 }

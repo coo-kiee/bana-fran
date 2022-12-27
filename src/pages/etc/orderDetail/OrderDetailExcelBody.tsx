@@ -62,9 +62,7 @@ const OrderDetailExcelBody = ({ data, searchOptionValue }: Props) => {
 
     return ( 
         <tbody>
-            {(!!renderExcelTableList && renderExcelTableList.length > 0) && renderExcelTableList.map((item: any, index: number) => { 
-                return (<tr key={index}>{item}</tr>);
-            })}
+            {(!!renderExcelTableList && renderExcelTableList.length > 0) && renderExcelTableList.map((item: any, index: number) => <tr key={index}>{item}</tr>)}
             {!!renderExcelTableList && renderExcelTableList?.length === 0 && <NoData isTable={true} />}
         </tbody> 
     )

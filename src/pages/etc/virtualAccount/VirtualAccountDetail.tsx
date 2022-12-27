@@ -92,7 +92,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
     // TODO: 데이터 
     const { data: listData, isSuccess, isError, isLoading, isRefetching } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [franCode, from, to ]);
 
-    const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => {
+    const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { balance, deposit, division, log_date, state } = tbodyRow; 
 
@@ -112,16 +112,18 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
             ['충전', Utils.numberComma(listData?.filter((el: any) => el.division === '충전').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0)], // 총 충전 금액
             ['차감', Utils.numberComma(listData?.filter((el: any) => el.division === '차감').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0)] // 총 차감 금액
         ]
+
+        setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
         return [tableList, summaryResult];
     }, [listData]);
 
-    const virtualAccDetailTablebody = useMemo(() => { 
+    const virtualAccDetailTablebody = useMemo(() => {  
         const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
         const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
 
         if( isTableSuccess ) {
             return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
-        } else if( isError ) { // 실패한 경우 
+        } else if( isError ) { 
             return <tbody><SuspenseErrorPage isTable={true} /></tbody>
         } else if( isTableLoading ){
             return <tbody><Loading isTable={true} /></tbody>
@@ -152,13 +154,11 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
             <Sticky reference={thRef.current} contentsRef={tableRef.current}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
-
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
                 {virtualAccDetailTablebody}
             </table>
-
-            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
+            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={renderTableList.length} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>
     )
 }

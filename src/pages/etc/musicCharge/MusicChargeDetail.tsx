@@ -93,7 +93,7 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
     const { data: listData } = ETC_SERVICE.useEtcList<MusicChargeDetailType[]>('VK4WML6GW9077BKEWP3O', etcMusicListKey, [ franCode, from, to ]);
 
     const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
-        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow,) => {
+        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
             const { std_date, state, suply_amount, tax_amount, total_amount } = tbodyRow; 
             arr.push(
                 <>
@@ -111,6 +111,8 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
             ['음악 사용료 합계', Utils.numberComma(listData?.filter((el: any) => el.state.includes('음악')).reduce((acc: any, cur: any) => acc+= cur.total_amount, 0) || 0)],
             ['공연권료 합계', Utils.numberComma(listData?.filter((el: any) => el.state.includes('공연')).reduce((acc: any, cur: any) => acc+= cur.total_amount, 0) || 0)]
         ]
+
+        setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
         return [tableList, summaryResult];
     }, [listData]) 
 
@@ -142,7 +144,7 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>
                 <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
             </table>
-            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={!!renderTableList ? renderTableList?.length : 0} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
+            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={renderTableList.length} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>
     )
 }
