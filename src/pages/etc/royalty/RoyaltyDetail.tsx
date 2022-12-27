@@ -127,7 +127,7 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
             };
-            const fileName = `${from}~${to}_${branchName}_발주내역`;
+            const fileName = `${from}~${to}_${branchName}_로열티내역`;
             Utils.excelDownload(tableRef.current, options, fileName);
         };
     }; 
