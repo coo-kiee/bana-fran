@@ -23,7 +23,7 @@ import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "page
 import EtcDetailTableBottom from "../component/EtcDetailTableBottom"; 
 import Sticky from "pages/common/sticky";
 import CalanderSearch from "pages/common/calanderSearch"; 
-import EtcDetailSummary from "../component/EtcDetailSummary";
+import EtcDetailSummary from "../component/EtcDetailSummary"; 
 
 const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo' | 'etcGiftcardListKey'>> = ( props ) => {
     const { reset } = useQueryErrorResetBoundary();
@@ -129,10 +129,17 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
             return arr;
         }, [] as ReactNode[]);
 
+        // 키오스크/POS 판매금액 합계
+        const KioskPosTotalSell = listData?.filter((el:any) => (el.rcp_type === '키오스크' || el.rcp_type === 'POS') && (el.gubun === '판매')).reduce((acc: any, cur:any) => acc += cur.item_amt, 0);  
+        // 어플 판매금액 합계
+        const AppTotalSell = listData?.filter((el:any) => el.rcp_type === '어플' && el.gubun === '판매').reduce((acc: any, cur:any) => acc += cur.item_amt, 0); 
+        // 판매취소(폐기)금액 합계
+        const totalCancel = listData?.filter((el:any) => el.gubun === '판매취소(폐기)').reduce((acc: any, cur:any) => acc += cur.item_amt ,0);
+
         const summaryResult = [
-            ['키오스크/POS 판매금액 합계', Utils.numberComma(listData?.filter((el:any) => (el.rcp_type === '키오스크' || el.rcp_type === 'POS') && (el.gubun === '판매')).reduce((acc: any, cur:any) => acc += cur.item_amt,0) || 0)], // 키오스크/POS 판매금액 합계
-            ['어플 판매금액 합계', Utils.numberComma(listData?.filter((el:any) => el.rcp_type === '어플' && el.gubun === '판매').reduce((acc: any, cur:any) => acc += cur.item_amt, 0) || 0)], // 어플 판매금액 합계
-            ['판매취소(폐기)금액 합계', Utils.numberComma(listData?.filter((el:any) => el.gubun === '판매취소(폐기)').reduce((acc: any, cur:any) => acc += cur.item_amt ,0) || 0)] // 판매취소(폐기)금액 합계
+            ['키오스크/POS 판매금액 합계', Utils.numberComma(KioskPosTotalSell || 0)], // 키오스크/POS 판매금액 합계 (330,000)
+            ['어플 판매금액 합계', Utils.numberComma(AppTotalSell || 0)], // 어플 판매금액 합계 (0)
+            ['판매취소(폐기)금액 합계', Utils.numberComma(totalCancel || 0)] // 판매취소(폐기)금액 합계 (2,340,000)
         ]
 
         setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
@@ -176,7 +183,7 @@ const searchOptionList = [
     {
         [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL]: { title: '포인트 구분 전체', value: 'CATEGORY_ALL' },
         [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL]: { title: '판매', value: '판매' },
-        [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL_DELETE]: { title: '판매 취소(폐기)', value: '판매 취소(폐기)' },
+        [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL_DELETE]: { title: '판매취소(폐기)', value: '판매취소(폐기)' },
         [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ADD]: { title: '임의추가', value: '임의추가' },    
         [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.DELETE]: { title: '임의폐기', value: '임의폐기' },
         [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.ELSE]: { title: 'N/A', value: 'N/A' },

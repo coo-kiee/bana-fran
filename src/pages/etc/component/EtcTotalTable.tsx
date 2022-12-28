@@ -239,7 +239,7 @@ const tabList = {
     [ETC_TAB_TYPE.MUSIC]: {
         title: `${format(subMonths(new Date(), 1), `yyyy년 M월 음악 서비스 이용료`)}`,
         colgroup: ['188', '*', '150', '150', '150'],
-        thead: ['기간', '품목', '공급가', '부가세', '수수료 합계 (2.2%)'],
+        thead: ['기간', '품목', '공급가', '부가세', '수수료 합계'],
         query: '', // 개별 프로시저
         queryKey: 'etc_music_fee',
     },

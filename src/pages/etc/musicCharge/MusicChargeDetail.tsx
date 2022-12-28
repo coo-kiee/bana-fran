@@ -28,8 +28,8 @@ const MusicChargeDetail: FC<Omit<MusicChargeDetailProps, 'searchInfo' | 'etcMusi
 
     // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10
-        to: format(new Date(), 'yyyy-MM'), // 2022-11
+        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-11
+        to: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-11
         searchTrigger: false,
     });
 
