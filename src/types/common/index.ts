@@ -3,6 +3,8 @@ const RES_DATA_TYPE = {
     OBJECT: 1,
 }
 
+type Bit = 0|1;
+
 interface RequestParams<T> {
     ws: String
     query: String
@@ -16,4 +18,4 @@ interface CommonParams {
 
 export { RES_DATA_TYPE }
 
-export type { RequestParams, CommonParams }
+export type { Bit, RequestParams, CommonParams }

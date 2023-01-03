@@ -38,12 +38,12 @@ const SalesStatistic = () => {
     const [chartFilter, setChartFilter] = useState<ChartFilter>({ total: 1, paid: 0, app: 0, free: 0 });
 
 	// 엑셀 컴포넌트 생성용
-	const [isLoadingExcel, setIsLoadingExcel] = useState<boolean>(false);
-	const [isDownloadExcel, setIsDownloadExcel] = useState<boolean>(false);
+	const [isLoadingExcel, setIsLoadingExcel] = useState(false);
+	const [isDownloadExcel, setIsDownloadExcel] = useState(false);
 
 	// pagination
-	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [rowPerPage, setRowPerPage] = useState<number>(20);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [rowPerPage, setRowPerPage] = useState(20);
 
 	// queryTrigger
 	const [queryTrigger, setQueryTrigger] = useState({ from: statisticSearch.from, to: statisticSearch.to });
@@ -68,7 +68,7 @@ const SalesStatistic = () => {
 	const searchOptionList = [{
 		[STATISTIC_SEARCH_TYPE.DAY]: { title: '일별', id: 'day', value: 'D' },
 		[STATISTIC_SEARCH_TYPE.MONTH]: { title: '월별', id: 'month', value: 'M' },
-	}]
+	}];
 
 	/* sticky 기준 ref */
 	const stickyRef = useRef<HTMLTableRowElement>(null);

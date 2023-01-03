@@ -1,9 +1,8 @@
 import { Point } from "@nivo/line";
-import { CommonParams } from "types/common";
+import { Bit, CommonParams } from "types/common";
 
 // common
 type SearchType = 'D'|'M';
-type Bit = 0|1;
 
 interface DataProps<T> {
 	data: T;
@@ -11,6 +10,7 @@ interface DataProps<T> {
 interface DataArrayProps<T> {
 	data: T[]; 
 }
+
 // API params type
 interface SalesOrderParams extends CommonParams {
 	from_date: string;
@@ -77,6 +77,7 @@ interface SalesStatisticData {
 	std_date: string;
 	total_sales_amt: number;
 }
+
 /* option value에 사용할 값 관련 타입들 */
 
 // history option types
@@ -214,17 +215,10 @@ interface SalesLineChartTooltipProps {
 	point: Point;
     searchType: SearchType;
 }
-interface SalesTableDetailProps {
-    currentPage: number;
-    rowPerPage: number;
-	searchType?: SearchType; 
-	data: SalesStatisticData[];
-}
 
 export type {
     DataProps, 
 	DataArrayProps,
-	SalesTableDetailProps,
 	SalesOrderParams,
 	SalesStatisticParams,
 	SalesQueryTrigger,

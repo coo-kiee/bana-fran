@@ -3,9 +3,7 @@ import { useQuery } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
 // types
 import { CommonParams, RequestParams } from 'types/common';
-import { BoardListParams, HomeBoardData, HomeCalculateListData, HomeMembershipData, HomeMonthlyOrderData, SalesTermsParams } from 'types/home/homeType';
-import { HomeSalesTodayData } from 'types/home/homeType';
-import { HomeSalesTermsData } from 'types/home/homeType';
+import { BoardListParams, SalesTermsParams, HomeBoardData, HomeMembershipData, HomeSalesTodayData, HomeSalesTermsData, HomeMonthlyOrderData, HomeCalculateListData } from 'types/home/homeType';
 
 // 공지사항/자료실 조회
 const useBoardList = (params: BoardListParams) => {

@@ -2,7 +2,7 @@
 import { useQuery } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
 import { RequestParams } from 'types/common';
-import { SalesOrderParams, SalesQueryTrigger, SalesHistoryData, SalesStatisticData, SalesStatisticParams } from 'types/sales/salesType';
+import { SalesOrderParams, SalesQueryTrigger, SalesHistoryData, SalesStatisticParams, SalesStatisticData } from 'types/sales/salesType';
 
 // 주문 내역 조회
 const useSalesOrderList = (params: SalesOrderParams, queryTrigger: SalesQueryTrigger) => {

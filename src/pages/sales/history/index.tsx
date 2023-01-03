@@ -7,6 +7,7 @@ import { format, subDays, subYears } from "date-fns";
 import { franState, loginState } from "state";
 
 // Types
+import { Bit } from "types/common";
 import { HISTORY_GIFT_CERT, HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE, HISTORY_PAY_TYPE, HISTORY_RCP_TYPE, HISTORY_SEARCH_TYPE_LIST, SalesHistoryData, SalesHistorySearch } from "types/sales/salesType";
 // Utils
 import Utils from "utils/Utils";
@@ -54,17 +55,17 @@ const SalesHistoryContainer = () => {
 	const [queryTrigger, setQueryTrigger] = useState({ from: historySearch.from, to: historySearch.to });
 	
 	// 취소 주문 표시 여부 0: 취소주문감추기 1: 취소주문표시
-	const [isCancelShow, setIsCancelShow] = useState<0|1>(1);
+	const [isCancelShow, setIsCancelShow] = useState<Bit>(1);
 	// 쿠팡/배민 주문 제외 여부 0: 쿠팡/배민표시 1:쿠팡/배민제외
-	const [isExcludeCouBae, setIsExcludeCouBae] = useState<0|1>(0);
+	const [isExcludeCouBae, setIsExcludeCouBae] = useState<Bit>(0);
 
 	// 엑셀 컴포넌트 생성용
-	const [isLoadingExcel, setIsLoadingExcel] = useState<boolean>(false);
-	const [isDownloadExcel, setIsDownloadExcel] = useState<boolean>(false);
+	const [isLoadingExcel, setIsLoadingExcel] = useState(false);
+	const [isDownloadExcel, setIsDownloadExcel] = useState(false);
 
 	// pagination
-	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [rowPerPage, setRowPerPage] = useState<number>(20);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [rowPerPage, setRowPerPage] = useState(20);
 
 	// select options 내용
 	const searchOptionList = [
