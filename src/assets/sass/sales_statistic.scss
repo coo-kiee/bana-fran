@@ -1,4 +1,6 @@
 .sales_statistic {
+    min-width: 1010px;
+    overflow-x: hidden;
     .contents { position: relative; width: 100%; padding-top: 40px; 
         .result-function-wrap { 
             display: flex; 

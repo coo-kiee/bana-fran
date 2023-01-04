@@ -118,7 +118,7 @@ const HISTORY_PAY_TYPE = {
 	CASH: '현장현금',
 	// CANCEL: '결제취소',
 }
-// 일반제품(GIFT_CERT)
+// 상품종류(GIFT_CERT)
 const HISTORY_GIFT_CERT = {
 	TOTAL: 'total',
 	PRODUCT: 0,

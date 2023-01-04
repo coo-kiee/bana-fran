@@ -47,7 +47,7 @@ const SalesHistoryContainer = () => {
 			{ title: '주문상태 전체', value: 'total' },
 			{ title: '접수타입 전체', value: 'total' },
 			{ title: '결제방식 전체', value: 'total' },
-			{ title: '상품 전체', value: 'total' },
+			{ title: '상품종류 전체', value: 'total' },
 		]
 	});
 
@@ -100,7 +100,7 @@ const SalesHistoryContainer = () => {
 			// [HISTORY_PAY_TYPE.CANCEL]: { title: '결제취소', value: '결제취소' },
 		},
 		{
-			[HISTORY_GIFT_CERT.TOTAL]: { title: '상품 전체', value: 'total' },
+			[HISTORY_GIFT_CERT.TOTAL]: { title: '상품종류 전체', value: 'total' },
 			[HISTORY_GIFT_CERT.PRODUCT]: { title: '일반제품', value: '0' },
 			[HISTORY_GIFT_CERT.GIFT_CERT]: { title: '실물상품권', value: '1' },
 		}

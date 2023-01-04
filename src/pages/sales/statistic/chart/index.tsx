@@ -41,7 +41,7 @@ const LineChart = ({ chartFilter, searchType, data }: SalesLineChartProps) => {
     return (
         <ResponsiveLine
             data={filteredData}
-            margin={{ top: 20, right: 70, bottom: 40, left: 70 }}
+            margin={{ top: 20, right: 30, bottom: 40, left: 70 }}
             animate={true}
             yScale={{
                 type: 'linear',
