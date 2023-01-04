@@ -84,19 +84,22 @@ interface SalesStatisticData {
 // 주문유형(ORDER_TYPE)
 const HISTORY_ORDER_TYPE = {
 	TOTAL: 'total',
-	CAFE: '0',
-	APP: '1',
-	COUBAE: '2',
+	COUBAE: '쿠팡배민',
+	CAFE: 0,
+	APP: 1,
+	COUPANG: 2,
+	BAEMIN: 3,
 }
 // 주문상태(ORDER_STATE)
 const HISTORY_ORDER_STATE = {
 	TOTAL: 'total',
-	AWAIT: '5',
-	MAKING: '10',
-	MAKING_FINISH: '30',
-	DELIVERY: '35',
-	COMPLETE: '40',
-	// CANCEL: '50',
+	AWAIT: 5,
+	MAKING: 10,
+	MAKING20: 20,
+	MAKING_FINISH: 30,
+	DELIVERY: 35,
+	COMPLETE: 40,
+	CANCEL: 50,
 }
 // 접수타입(RCP_TYPE)
 const HISTORY_RCP_TYPE = {
@@ -118,8 +121,8 @@ const HISTORY_PAY_TYPE = {
 // 일반제품(GIFT_CERT)
 const HISTORY_GIFT_CERT = {
 	TOTAL: 'total',
-	PRODUCT: '0',
-	GIFT_CERT: '1',
+	PRODUCT: 0,
+	GIFT_CERT: 1,
 }
 
 // select안에서 사용할 option의 타입 LIST

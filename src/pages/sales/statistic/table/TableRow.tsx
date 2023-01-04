@@ -3,7 +3,7 @@ import { DataProps, SalesStatisticData } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
 
-const TableRow = ({data}: DataProps<SalesStatisticData>) => {
+const TableRow = ({ data }: DataProps<SalesStatisticData>) => {
     const {
         std_date,
         total_sales_amt,

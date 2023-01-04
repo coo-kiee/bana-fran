@@ -133,6 +133,7 @@
         }
         .react-datepicker__current-month {
             color: #fff;
+            font-size: 14px;
             margin: 2px 0;
         }
     }
@@ -145,7 +146,7 @@
     &__day {
         &--outside-month { color: #ccc !important; }
         &-name {
-            &:nth-child(n) { color: #fff; } // rest
+            &:nth-child(n) { color: #fff; }
             &:first-child { color: #ff7b7b; }
             &:last-child { color: #99a8ff; }
         }

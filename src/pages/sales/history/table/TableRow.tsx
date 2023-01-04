@@ -1,9 +1,14 @@
 // Utils
 import Utils from 'utils/Utils';
 // Components
-import { DataProps, SalesHistoryData } from 'types/sales/salesType';
+import { DataProps, HISTORY_GIFT_CERT, HISTORY_ORDER_STATE, SalesHistoryData } from 'types/sales/salesType';
 
-const TableRow = ({data}: DataProps<SalesHistoryData>) => {
+
+// filter options type
+const { CANCEL } = HISTORY_ORDER_STATE;
+const { GIFT_CERT } = HISTORY_GIFT_CERT;
+
+const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
     const {
         rcp_date, 			 // 결제일시
         cancel_date, 		 // 취소일시. order_state === 50일 때만 사용
@@ -45,11 +50,11 @@ const TableRow = ({data}: DataProps<SalesHistoryData>) => {
     return (
         <tr>
             <td className='align-center'>{convertDateLineBreak(rcp_date)}</td>
-            <td className='align-center'>{order_state === 50 ? convertDateLineBreak(cancel_date) : '-'}</td>
+            <td className='align-center'>{order_state === CANCEL ? convertDateLineBreak(cancel_date) : '-'}</td>
             <td className='align-center'>{order_type_name}</td>
             <td className='align-center'>{order_state_name}</td>
             <td className='align-center'>{phone ? phone : '-'}</td>
-            <td className='align-center'>{bOrderGiftCert === '1' ? '실물상품권' : '일반제품'}</td>
+            <td className='align-center'>{Number(bOrderGiftCert) === GIFT_CERT ? '실물상품권' : '일반제품'}</td>
             <td className='align-center'>{item_name}</td>
             <td className='align-center'>{nCount}</td>
             <td className='align-center'>{rcp_type}</td>
@@ -73,4 +78,4 @@ const TableRow = ({data}: DataProps<SalesHistoryData>) => {
     )
 }
 
-export default TableRow
+export default TableRow;

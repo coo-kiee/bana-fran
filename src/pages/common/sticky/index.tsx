@@ -10,9 +10,9 @@ interface StickyProps {
 
 const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) => {
     // sticky header display states
-	const [showSticky, setShowSticky] = useState<boolean>(false);
+	const [showSticky, setShowSticky] = useState(false);
     // sticky table이 viewport 내에 존재하는지
-    const [isViewportIn, setIsViewportIn] = useState<boolean>(false);
+    const [isViewportIn, setIsViewportIn] = useState(false);
 
     // isViewportIn handler
 	const getTableReady = (entries: IntersectionObserverEntry[]) => {

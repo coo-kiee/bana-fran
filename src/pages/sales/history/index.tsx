@@ -73,8 +73,7 @@ const SalesHistoryContainer = () => {
 			[HISTORY_ORDER_TYPE.TOTAL]: { title: '주문유형 전체', value: 'total' },
 			[HISTORY_ORDER_TYPE.CAFE]: { title: '매장주문', value: '0' },
 			[HISTORY_ORDER_TYPE.APP]: { title: '앱배달주문', value: '1' },
-			[HISTORY_ORDER_TYPE.COUBAE]: { title: '쿠팡/배민주문', value: '2' },
-			// [HISTORY_ORDER_TYPE.BAEMIN]: { title: '배민주문', value: '3' },
+			[HISTORY_ORDER_TYPE.COUBAE]: { title: '쿠팡/배민주문', value: '쿠팡배민' },
 		},
 		{
 			[HISTORY_ORDER_STATE.TOTAL]: { title: '주문상태 전체', value: 'total' },

@@ -99,6 +99,11 @@ interface CalendarBodyProps {
 	data: HomeSalesTermsData[];
 }
 
+// Constants
+const CALCULATE_STATUS = {
+	UNCONFIRMED: 10,
+}
+
 export type {
     CommonParams,
     BoardListParams,
@@ -115,4 +120,8 @@ export type {
 	BarChartTooltipProps,
 	CalendarHeaderProps,
 	CalendarBodyProps,
+}
+
+export {
+	CALCULATE_STATUS
 }

@@ -1,34 +1,30 @@
 // Types
-import { DataArrayProps, SalesHistoryData } from 'types/sales/salesType';
+import { DataArrayProps, HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE, HISTORY_GIFT_CERT, SalesHistoryData } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
+
+
+// filter options type
+const { CANCEL } = HISTORY_ORDER_STATE;
+const { COUPANG, BAEMIN } = HISTORY_ORDER_TYPE;
+const { GIFT_CERT } = HISTORY_GIFT_CERT;
 
 const PrefixSum = ({ data }: DataArrayProps<SalesHistoryData>) => {
 	// 기간별 상세내역 누적 합계
 	const {
-		chargeTotal,
-		deliveryCharge,
-		cardCharge,
-		cashCharge,
-		paidPoint,
-		banaPoint,
-		franCoupon,
-		hdCoupon,
-		savingPoint,
-		giftCertCharge,
-		couBaeCharge
+		chargeTotal, deliveryCharge, cardCharge, cashCharge, paidPoint, banaPoint, franCoupon, hdCoupon, savingPoint, giftCertCharge, couBaeCharge
 	} = {
-		chargeTotal: data.reduce((acc, cur) => {return cur.order_state !== 50 ? acc + cur.nChargeTotal : acc}, 0),
-		deliveryCharge: data.reduce((acc, cur) => {return cur.order_state !== 50 ? acc + cur.nDeliveryCharge : acc}, 0),
-		cardCharge: data.reduce((acc, cur) => {return cur.order_state !== 50 ? acc + cur.card_charge : acc}, 0),
-		cashCharge: data.reduce((acc, cur) => {return cur.order_state !== 50 ? acc + cur.cash_charge : acc}, 0),
-		paidPoint: data.reduce((acc, cur) => {return cur.order_state !== 50 ? acc + cur.paid_point : acc}, 0),
-		banaPoint: data.reduce((acc, cur) => {return cur.order_state !== 50 ? acc + cur.bana_point : acc}, 0),
-		franCoupon: data.reduce((acc, cur) => {return cur.order_state !== 50 ? acc + cur.fran_coupon_charge : acc}, 0),
-		hdCoupon: data.reduce((acc, cur) => {return cur.order_state !== 50 ? acc + cur.hd_coupon_charge : acc}, 0),
-		savingPoint: data.reduce((acc, cur) => {return cur.order_state !== 50 ? acc + cur.nSavingPoint : acc}, 0),
-		giftCertCharge: data.reduce((acc, cur) => {return cur.bOrderGiftCert === '1' && cur.order_state !== 50 ? acc + cur.nChargeTotal : acc}, 0),
-		couBaeCharge: data.reduce((acc, cur) => {return (cur.order_type === 2 || cur.order_type === 3) && cur.order_state !== 50 ? acc + cur.nChargeTotal : acc}, 0),
+		chargeTotal: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.nChargeTotal : acc}, 0),
+		deliveryCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.nDeliveryCharge : acc}, 0),
+		cardCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.card_charge : acc}, 0),
+		cashCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.cash_charge : acc}, 0),
+		paidPoint: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.paid_point : acc}, 0),
+		banaPoint: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.bana_point : acc}, 0),
+		franCoupon: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.fran_coupon_charge : acc}, 0),
+		hdCoupon: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.hd_coupon_charge : acc}, 0),
+		savingPoint: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.nSavingPoint : acc}, 0),
+		giftCertCharge: data.reduce((acc, cur) => {return Number(cur.bOrderGiftCert) === GIFT_CERT && cur.order_state !== CANCEL ? acc + cur.nChargeTotal : acc}, 0),
+		couBaeCharge: data.reduce((acc, cur) => {return (cur.order_type === COUPANG || cur.order_type === BAEMIN) && cur.order_state !== CANCEL ? acc + cur.nChargeTotal : acc}, 0),
 	};
 	
 	// 렌더용 배열

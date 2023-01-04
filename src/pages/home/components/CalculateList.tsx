@@ -12,6 +12,7 @@ import Utils from 'utils/Utils';
 import Board from 'pages/home/components/board/Board';
 import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+import { CALCULATE_STATUS } from 'types/home/homeType';
 
 const CalculateList = () => {
 	const fCode = useRecoilValue(franState);
@@ -23,11 +24,11 @@ const CalculateList = () => {
 				const { std_month, receive_charge, send_charge, total_send_charge, status, status_name } = settlement;
 				return (
 					<tr key={String(std_month) + idx}>
-						<td className={status === 10 ? 'point' : ''}>{std_month}</td>
-						<td className={status === 10 ? 'point' : ''}>{Utils.numberComma(send_charge)}</td>
-						<td className={status === 10 ? 'point' : ''}>{Utils.numberComma(receive_charge)}</td>
-						<td className={status === 10 ? 'point point-text' : ''}>{Utils.numberComma(total_send_charge)}</td>
-						<td className={status === 10 ? 'point' : ''}>{status_name}</td>
+						<td className={status === CALCULATE_STATUS.UNCONFIRMED ? 'point' : ''}>{std_month}</td>
+						<td className={status === CALCULATE_STATUS.UNCONFIRMED ? 'point' : ''}>{Utils.numberComma(send_charge)}</td>
+						<td className={status === CALCULATE_STATUS.UNCONFIRMED ? 'point' : ''}>{Utils.numberComma(receive_charge)}</td>
+						<td className={status === CALCULATE_STATUS.UNCONFIRMED ? 'point point-text' : ''}>{Utils.numberComma(total_send_charge)}</td>
+						<td className={status === CALCULATE_STATUS.UNCONFIRMED ? 'point' : ''}>{status_name}</td>
 					</tr>
 				);
 			})}
