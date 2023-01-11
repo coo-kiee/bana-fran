@@ -29,14 +29,15 @@ const CalculateLastMonthTable: FC<CalculateLastMonthTableProps> = ({ userInfo, c
     const { f_code, staff_no } = userInfo;
 
     const now = new Date();
-    const year = now.getFullYear();
-    const lastMonth = new Date(now.setMonth(-1)).getMonth() + 1;
+    const lastMonthDate = new Date(now.setMonth(now.getMonth() - 1));
+    const year = lastMonthDate.getFullYear();
+    const month = lastMonthDate.getMonth() + 1;
 
     const { width, headerText } = TABLE_COLUMN_INFO[caculateType as keyof typeof TABLE_COLUMN_INFO];
 
     return (
         <>
-            <p className="title bullet">{year}년 {lastMonth}월 {TABLE_COLUMN_INFO[caculateType as keyof typeof TABLE_COLUMN_INFO].title}</p>
+            <p className="title bullet">{year}년 {month}월 {TABLE_COLUMN_INFO[caculateType as keyof typeof TABLE_COLUMN_INFO].title}</p>
             <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
                 {/* Column Width */}
                 <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
