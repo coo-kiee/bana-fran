@@ -30,7 +30,7 @@ const CalculateLastMonthTable: FC<CalculateLastMonthTableProps> = ({ userInfo, c
 
     const now = new Date();
     const year = now.getFullYear();
-    const lastMonth = now.getMonth();
+    const lastMonth = new Date(now.setMonth(-1)).getMonth() + 1;
 
     const { width, headerText } = TABLE_COLUMN_INFO[caculateType as keyof typeof TABLE_COLUMN_INFO];
 
