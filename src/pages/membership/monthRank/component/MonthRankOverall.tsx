@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useCallback } from "react";
 import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useRecoilValue } from 'recoil';
@@ -54,7 +54,7 @@ const MonthRankOverallData: FC<{ setPopupRankReward: React.Dispatch<React.SetSta
     }
     const rankInfoParams: { fran_store: number } = { fran_store: franCode };
     const { data, isSuccess } = MEMBERSHIP_SERVICE.useRankInfo(rankInfoParams);
-    if (isSuccess) {
+    if (isSuccess) { 
         rewards = { ...rewards, ...data };
     };
 
@@ -66,6 +66,14 @@ const MonthRankOverallData: FC<{ setPopupRankReward: React.Dispatch<React.SetSta
         };
     };
 
+    const handlePopupRankReward = useCallback(() => {
+        if(data === undefined){ 
+            alert('설정이 불가능합니다.')
+        } else {
+            setPopupRankReward((prev) => true)
+        }
+    }, [data, setPopupRankReward])
+
     return (
         <tr>
             <td>{rewards.fran_name}</td>
@@ -74,7 +82,7 @@ const MonthRankOverallData: FC<{ setPopupRankReward: React.Dispatch<React.SetSta
             <td>{handleRankInfoText(rewards.rank_reward_3)}</td>
             <td>{handleRankInfoText(rewards.rank_reward_4)}</td>
             <td>{handleRankInfoText(rewards.rank_reward_5)}</td>
-            <td className="setting-view" onClick={() => setPopupRankReward((prev) => true)}>설정하기</td>
+            <td className="setting-view" onClick={() => handlePopupRankReward()}>설정하기</td>
         </tr>
     )
 }
