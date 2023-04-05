@@ -33,10 +33,15 @@ const Membership = () => {
 				<td className='align-right'>{data && Utils.numberComma(data[0].month_coupon_cnt)}</td>
 				<td className='align-right'>-</td>
 			</tr>
+			{/* 라벨 QR 이벤트 부분 */}
+			<tr>
+				<td className='sortation'>미사용 무료쿠폰(라벨QR이벤트)</td>
+				<td className='align-right'>{data && Utils.numberComma(data[0].qr_coupon_cnt)}</td>
+				<td className='align-right'>-</td>
+			</tr>
 		</>
 	);
 };
-
 
 const MembershipContainer = () => {
 	return (
@@ -55,15 +60,30 @@ const MembershipContainer = () => {
 					</tr>
 				</thead>
 				<tbody>
-					<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} paddingTop='0px' resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Membership(멤버십 적립 현황): ', e)}>
-						<Suspense fallback={<tr><td rowSpan={3} colSpan={3}><Loading width={50} height={50} marginTop={15} /></td></tr>}>
+					<ErrorBoundary
+						fallbackRender={({ resetErrorBoundary }) => (
+							<SuspenseErrorPage
+								isTable={true}
+								paddingTop='0px'
+								resetErrorBoundary={resetErrorBoundary}
+							/>
+						)}
+						onError={(e) => console.log('error on Membership(멤버십 적립 현황): ', e)}>
+						<Suspense
+							fallback={
+								<tr>
+									<td rowSpan={3} colSpan={3}>
+										<Loading width={50} height={50} marginTop={15} />
+									</td>
+								</tr>
+							}>
 							<Membership />
 						</Suspense>
 					</ErrorBoundary>
 				</tbody>
 			</table>
 		</Board>
-	)
-}
+	);
+};
 
 export default MembershipContainer;

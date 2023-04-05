@@ -34,7 +34,7 @@ const Login:React.FC = () => {
     // 아이디 저장표시.
     useEffect(() => {
         const saveID = localStorage.getItem("sUserID")||"";
-        console.log(saveID)
+        // console.log(saveID)
         if(saveID !== ""){
             setLoginInfo(prev => ({ ...prev, loginID: saveID, chkSaveID: true }));
         }

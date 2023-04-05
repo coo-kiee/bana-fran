@@ -359,7 +359,8 @@ article { display: flex; position: relative;
 
                             td {
                                 height: auto;
-                                padding: 25px 20px;
+                                // padding: 25px 20px; // 기본
+                                padding: 15.75px 20px; // 라벨 QR 이벤트 칸 추가시 사용
                                 border-right: 1px solid #ddd;
                                 border-bottom: 1px solid #ddd;
 
