@@ -94,7 +94,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
 
     const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
-            const { balance, deposit, division, log_date, state } = tbodyRow; 
+            const { balance, deposit, division, log_date, etc, state } = tbodyRow; 
 
             arr.push(
                 <>
@@ -102,6 +102,7 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
                     <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{division}</td>
                     <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{Utils.numberComma(deposit)}</td>
                     <td className='align-center'>{state}</td>
+                    <td className='align-center'>{etc}</td>
                     <td className='balance'>{Utils.numberComma(balance)}</td>
                 </>
             )

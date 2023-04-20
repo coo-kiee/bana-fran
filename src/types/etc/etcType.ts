@@ -106,6 +106,7 @@ interface VirtualAccListType {
     deposit: number,
     division: string,
     log_date: string,
+    etc: string
     state: string
 } // web_fran_s_etc_balance_list 결과 타입
 interface OrderDetailModalItemType {
