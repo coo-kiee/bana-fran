@@ -102,8 +102,8 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
                     <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{division}</td>
                     <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{Utils.numberComma(deposit)}</td>
                     <td className='align-center'>{state}</td>
-                    <td className='align-center'>{etc}</td>
                     <td className='balance'>{Utils.numberComma(balance)}</td>
+                    <td className='align-left'>{etc}</td>
                 </>
             )
             return arr;
