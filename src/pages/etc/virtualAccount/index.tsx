@@ -7,7 +7,7 @@ import EtcTotalTable from "../component/EtcTotalTable";
 
 const VirtualAccount = () => {
   // TODO: EtcDetailTable 관련 데이터
-  const detailTableColGroup = ["170", "170", "503", "503", "503"];
+  const detailTableColGroup = ["170", "170", "503", "503", "503", "170"];
   const detailTableHead = [
     [
       { itemName: "거래일시" },
