@@ -47,7 +47,7 @@ const SalesStatistic = () => {
 
 	// queryTrigger
 	const [queryTrigger, setQueryTrigger] = useState({ from: statisticSearch.from, to: statisticSearch.to });
-	
+
 	// query
 	// 월별 검색(M)이면 from/to에 -01 string 추가 M: yy-MM, D: yy-MM-dd 포멧
 	const { data, isFetching } = SALES_SERVICE.useSalesStatistic({ 
@@ -126,7 +126,13 @@ const SalesStatistic = () => {
 		if (isDownloadExcel) {
 			excelDownload();
 		}
-	}, [excelDownload, isDownloadExcel]);
+	}, [excelDownload, isDownloadExcel]);		
+	
+	// 검색하면 현재 페이지 번호 초기화
+	useEffect(() => {
+		setCurrentPage(1)
+	}, [queryTrigger])
+
 	return (
 		<>
 			<div className='info-wrap'>

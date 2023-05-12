@@ -147,6 +147,11 @@ const SalesHistoryContainer = () => {
 			excelDownload();
 		}
 	}, [excelDownload, isDownloadExcel]);
+	
+	// 검색마다 현재 페이지 번호 초기화
+	useEffect(() => {
+		setCurrentPage(1)
+	}, [queryTrigger])
 
 	return (
 		<>
