@@ -39,10 +39,10 @@ const TableRow = ({ data }: DataProps<SalesStatisticData>) => {
             <td>{Utils.numberComma(etc_delivery_charge)}</td>
             <td>{Utils.numberComma(paid_point)}</td>
             <td>{Utils.numberComma(hd_coupon_charge)}</td>
-            <td>{Utils.numberComma(hd_coupon_charge_2)}</td>
             <td>{Utils.numberComma(free_sales_amt)}</td>
             <td>{Utils.numberComma(bana_point)}</td>
             <td>{Utils.numberComma(fran_coupon_charge)}</td>
+            <td>{Utils.numberComma(hd_coupon_charge_2)}</td>
         </tr>
     )
 }
