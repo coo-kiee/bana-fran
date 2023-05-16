@@ -106,12 +106,6 @@ const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
                 </span>
             </td>
             <td className='total'>
-                {Utils.numberComma(hd_coupon_charge_2)}<br />
-                <span>
-                    ({(100 * hd_coupon_charge_2 / total_sales_amt || 0).toFixed(1)}%)
-                </span>
-            </td>
-            <td className='total'>
                 {Utils.numberComma(bana_point)}<br />
                 <span>({(100 * bana_point / total_sales_amt || 0).toFixed(1)}%)</span>
             </td>
@@ -119,6 +113,12 @@ const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
                 {Utils.numberComma(fran_coupon_charge)}<br />
                 <span>
                     ({(100 * fran_coupon_charge / total_sales_amt || 0).toFixed(1)}%)
+                </span>
+            </td>
+            <td className='total'>
+                {Utils.numberComma(hd_coupon_charge_2)}<br />
+                <span>
+                    ({(100 * hd_coupon_charge_2 / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
         </tr>

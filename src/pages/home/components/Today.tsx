@@ -72,13 +72,13 @@ const Today = () => {
 				{Utils.numberComma(freeService)}원<span className='percentage'>({(100 * freeService/totalSales || 0).toFixed(1)}%)</span>
 			</td>
 			<td>
-				{Utils.numberComma(hd_coupon_charge_2 || 0)}원<span className='percentage'>({(100 * hd_coupon_charge_2/totalSales || 0).toFixed(1)}%)</span>
-			</td>
-			<td>
 				{Utils.numberComma(fran_coupon_charge || 0)}원<span className='percentage'>({(100 * fran_coupon_charge/totalSales || 0).toFixed(1)}%)</span>
 			</td>
 			<td>
 				{Utils.numberComma(bana_point || 0)}원<span className='percentage'>({(100 * bana_point/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+			<td>
+				{Utils.numberComma(hd_coupon_charge_2 || 0)}원<span className='percentage'>({(100 * hd_coupon_charge_2/totalSales || 0).toFixed(1)}%)</span>
 			</td>
 		</tr>
 	);
@@ -117,9 +117,9 @@ const TodayContainer = () => {
 						<td className='sales'>본사쿠폰결제(보전)</td>
 						<td className='sales'>쿠팡/배민</td>
 						<td className='service'>합계</td>
-						<td className='service'>본사쿠폰결제(미보전)</td>
 						<td className='service'>가맹점쿠폰결제</td>
 						<td className='service'>바나포인트결제</td>
+						<td className='service'>본사쿠폰결제(미보전)</td>
 					</tr>
 				</thead>
 				<tbody>
