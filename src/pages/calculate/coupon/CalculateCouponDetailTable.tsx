@@ -64,25 +64,30 @@ const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userI
     const { data: calculateCouponList } = CALCULATE_SERVICE.useCalculateCouponList(f_code, staff_no);
 
     useEffect(() => {
-        if (calculateCouponList) {
-            // initialTotalInfo - { {key: CouponType}: {title: string, sum: number} }
-            const [couponObj, initialTotalInfo] = calculateCouponList.reduce((res, cur, index) => {
-                const codeName = cur.code_name;
-                const code = cur.code;
-                
-                COUPON_TYPE[code] = index + 1
-                
-                res[0][index + 1] = { title: codeName, value: index + 1 }; // couponObj
-                res[1][index + 1] = { title: codeName, sum: 0 }; // initialTotalInfo
+        if(!calculateCouponList) return
 
-                return res;
-            }, [{}, {}] as [CouponType, TotalInfo]);
+        
 
-            initialTotalInfo[COUPON_TYPE.ALL] = { title: COUPON_TYPE_OPTION[COUPON_TYPE.ALL].title, sum: 0 };
+        // initialTotalInfo - { {key: CouponType}: {title: string, sum: number} }
+        const [couponObj, initialTotalInfo] = calculateCouponList.reduce((res, cur, index) => {
+            const codeName = cur.code_name;
+            const code = cur.code;
+            
+            COUPON_TYPE[code] = index + 1;
 
-            setCouponType(prev => ({ ...prev, ...couponObj }));
-            setTableTopInfo(prev => ({ ...prev, totalInfo: initialTotalInfo }));
-        };
+            // CouponListObj
+            res[0][index + 1] = { title: codeName, value: index + 1 }; // couponObj
+            // TotalResObj
+            res[1][index + 1] = { title: codeName, sum: 0 }; // initialTotalInfo
+
+            return res;
+        }, [{}, {}] as [CouponType, TotalInfo]);
+
+        initialTotalInfo[COUPON_TYPE.ALL] = { title: COUPON_TYPE_OPTION[COUPON_TYPE.ALL].title, sum: 0 };
+
+        setCouponType(prev => ({ ...prev, ...couponObj }));
+        setTableTopInfo(prev => ({ ...prev, totalInfo: initialTotalInfo }));
+
     }, [calculateCouponList]);
 
     // 테이블 상단 검색영역 파라미터
@@ -173,15 +178,20 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
         // 쿠폰 사용 전체 금액 합계 렌더링할 때 맨 아래 위치시키기 위해서 999 키값 사용
         totalObj[999] = { title: COUPON_TOTAL_TITLE[COUPON_TYPE.ALL], sum: 0 };
 
-        // 필터링 된 Table List 생성
-        const tableList = couponDetailList?.reduce((arr, couponDetail, index) => {
+        // 필터링 된 Table List 생성 + 합계 계산
+        const 미보전코드 = [99];
+        const tableList = couponDetailList?.reduce((arr, couponDetail) => {
 
             const { rcp_date, item_type, item_type_code, sItem, total_amt, rcp_type, phone, supply_amt, vat_amt } = couponDetail;
             const [date] = rcp_date.split(' '); // [date, time]
 
             // 합계 계산
             totalObj[COUPON_TYPE[item_type_code]].sum += total_amt;
-            totalObj[999].sum += total_amt;
+
+            const is미보전 = 미보전코드.includes(item_type_code)
+            if(!is미보전) {
+                totalObj[999].sum += total_amt;
+            }
 
             // 필터링 조건
             const showCoupon = Number(searchOption[0].value);
@@ -255,7 +265,7 @@ const COUPON_TYPE_OPTION = {
 } as const;
 
 const COUPON_TOTAL_TITLE = {
-    [COUPON_TYPE.ALL]: '본사 쿠폰 사용금액 합계',
+    [COUPON_TYPE.ALL]: '본사 쿠폰 사용금액 합계(보전)',
 } as const;
 
 const DEVICE_TYPE = {
