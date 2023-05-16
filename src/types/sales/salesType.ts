@@ -36,6 +36,7 @@ interface SalesHistoryData {
 	etc_delivery_charge: number;
 	fran_coupon_charge: number;
 	hd_coupon_charge: number;
+	hd_coupon_charge_2: number;
 	item_name: string;
 	nChargeTotal: number;
 	nCount: number;
@@ -70,6 +71,7 @@ interface SalesStatisticData {
 	fran_coupon_charge: number; 
 	free_sales_amt: number;
 	hd_coupon_charge: number;
+	hd_coupon_charge_2: number;
 	kiosk_card_amt: number;
 	paid_point: number;
 	paid_sales_amt: number;

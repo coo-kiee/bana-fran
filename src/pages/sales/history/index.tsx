@@ -1,37 +1,37 @@
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { ErrorBoundary } from "react-error-boundary";
-import { useRecoilValue } from "recoil";
-import { format, subDays, subYears } from "date-fns";
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useRecoilValue } from 'recoil';
+import { format, subDays, subYears } from 'date-fns';
 
 // global state
-import { franState, loginState } from "state";
+import { franState, loginState } from 'state';
 
 // Types
-import { Bit } from "types/common";
-import { HISTORY_GIFT_CERT, HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE, HISTORY_PAY_TYPE, HISTORY_RCP_TYPE, HISTORY_SEARCH_TYPE_LIST, SalesHistoryData, SalesHistorySearch } from "types/sales/salesType";
+import { Bit } from 'types/common';
+import { HISTORY_GIFT_CERT,	HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE, HISTORY_PAY_TYPE, HISTORY_RCP_TYPE, HISTORY_SEARCH_TYPE_LIST, SalesHistoryData, SalesHistorySearch } from 'types/sales/salesType';
 // Utils
-import Utils from "utils/Utils";
+import Utils from 'utils/Utils';
 
 // Components
-import CalanderSearch from "pages/common/calanderSearch";
-import PrefixSum from "pages/sales/history/PrefixSum";
-import SalesHistory from "pages/sales/history/SalesHistory";
-import Pagination from "pages/common/pagination";
-import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
-import Sticky from "pages/common/sticky";
-import TableColGroup from "./table/TableColGroup";
-import TableHead from "./table/TableHead";
-import TableRow from "./table/TableRow";
-import Wrapper from "pages/common/loading/Wrapper";
+import CalanderSearch from 'pages/common/calanderSearch';
+import PrefixSum from 'pages/sales/history/PrefixSum';
+import SalesHistory from 'pages/sales/history/SalesHistory';
+import Pagination from 'pages/common/pagination';
+import Loading from 'pages/common/loading';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+import Sticky from 'pages/common/sticky';
+import TableColGroup from './table/TableColGroup';
+import TableHead from './table/TableHead';
+import TableRow from './table/TableRow';
+import Wrapper from 'pages/common/loading/Wrapper';
 
 const SalesHistoryContainer = () => {
 	// global state
 	const { userInfo } = useRecoilValue(loginState);
 	const fCode = useRecoilValue(franState);
-	const selectedFran = userInfo?.f_list.filter((info) => { return (info.f_code === fCode) });
+	const selectedFran = userInfo?.f_list.filter((info) => { return info.f_code === fCode; });
 	const fCodeName = selectedFran[0]?.f_code_name; // 가맹점명
-	
+
 	const today = new Date();
 
 	// query data on SalesHistory
@@ -39,8 +39,8 @@ const SalesHistoryContainer = () => {
 	const [filteredData, setFilteredData] = useState<SalesHistoryData[]>([]); // table data (filter o)
 
 	// filter options
-	const [historySearch, setHistorySearch] = useState<SalesHistorySearch>({ 
-		from: format(new Date(subDays(today, 6)), 'yyyy-MM-dd'), 
+	const [historySearch, setHistorySearch] = useState<SalesHistorySearch>({
+		from: format(new Date(subDays(today, 6)), 'yyyy-MM-dd'),
 		to: format(new Date(today), 'yyyy-MM-dd'),
 		searchOption: [
 			{ title: '주문유형 전체', value: 'total' },
@@ -48,12 +48,12 @@ const SalesHistoryContainer = () => {
 			{ title: '접수타입 전체', value: 'total' },
 			{ title: '결제방식 전체', value: 'total' },
 			{ title: '상품종류 전체', value: 'total' },
-		]
+		],
 	});
 
 	// queryTrigger for refetching
 	const [queryTrigger, setQueryTrigger] = useState({ from: historySearch.from, to: historySearch.to });
-	
+
 	// 취소 주문 표시 여부 0: 취소주문감추기 1: 취소주문표시
 	const [isCancelShow, setIsCancelShow] = useState<Bit>(1);
 	// 쿠팡/배민 주문 제외 여부 0: 쿠팡/배민표시 1:쿠팡/배민제외
@@ -108,50 +108,53 @@ const SalesHistoryContainer = () => {
 
 	/* sticky 기준 ref */
 	const stickyRef = useRef<HTMLTableRowElement>(null);
-    const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
-   
+	const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
+
 	/* excel download */
-    const excelRef = useRef<HTMLTableElement>(null); // excel 출력용 table
-  
-    const excelDownload = useCallback(() => {
-		const {from, to} = historySearch;
-        if (excelRef.current) {
-            // Excel - sheet options: 셀 시작 위치, 셀 크기
-            const options = {
-                type: 'table', // 필수 O
-                sheetOption: { origin: "A1" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: [{wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 13}, {wch: 28}, {wch: 6}, {wch: 15}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 11}, {wch: 14}, {wch: 14}, {wch: 14}, ], // 셀 너비 설정, 필수 X
-                addRowColor: { row: [1,2], color: ['d3d3d3','d3d3d3'] },
-                sheetName: '주문내역', // 시트이름, 필수 X
-            };
-            try { Utils.excelDownload(excelRef.current, options, `${fCodeName}_주문내역(${from}~${to})`); }
-            catch (error) { console.log(error); }
-        }		
+	const excelRef = useRef<HTMLTableElement>(null); // excel 출력용 table
+
+	const excelDownload = useCallback(() => {
+		const { from, to } = historySearch;
+		if (excelRef.current) {
+			// Excel - sheet options: 셀 시작 위치, 셀 크기
+			const options = {
+				type: 'table', // 필수 O
+				sheetOption: { origin: 'A1' }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+				colspan: [ { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 28 }, { wch: 6 }, { wch: 15 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 14 }, { wch: 14 }, { wch: 14 } ], // 셀 너비 설정, 필수 X
+				addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] },
+				sheetName: '주문내역', // 시트이름, 필수 X
+			};
+			try {
+				Utils.excelDownload(excelRef.current, options, `${fCodeName}_주문내역(${from}~${to})`);
+			} catch (error) {
+				console.log(error);
+			}
+		}
 		setIsDownloadExcel(false);
 		setIsLoadingExcel(false);
-    }, [fCodeName, historySearch]);
+	}, [fCodeName, historySearch]);
 
 	// queryKey changing function for search(refetch)
 	const handleSearch = () => {
 		const { from, to } = historySearch;
 		setQueryTrigger({ from, to });
-	}
+	};
 
 	// loading띄우고 excelDownload 진행
 	useEffect(() => {
 		isLoadingExcel && setIsDownloadExcel(true);
 	}, [isLoadingExcel]);
-	
+
 	useEffect(() => {
 		if (isDownloadExcel) {
 			excelDownload();
 		}
 	}, [excelDownload, isDownloadExcel]);
-	
+
 	// 검색마다 현재 페이지 번호 초기화
 	useEffect(() => {
-		setCurrentPage(1)
-	}, [queryTrigger])
+		setCurrentPage(1);
+	}, [queryTrigger]);
 
 	return (
 		<>
@@ -160,13 +163,13 @@ const SalesHistoryContainer = () => {
 			</div>
 			<div className='fixed-paid-point-wrap'>
 				{/* <!-- 공통 검색 Calendar with select --> */}
-				<CalanderSearch 
-					dateType='yyyy-MM-dd' 
-					searchInfo={historySearch} 
-					setSearchInfo={setHistorySearch} 
-					optionType='SELECT' 
+				<CalanderSearch
+					dateType='yyyy-MM-dd'
+					searchInfo={historySearch}
+					setSearchInfo={setHistorySearch}
+					optionType='SELECT'
 					selectOption={searchOptionList}
-					optionList={HISTORY_SEARCH_TYPE_LIST} // option 맵핑할 때 사용  
+					optionList={HISTORY_SEARCH_TYPE_LIST} // option 맵핑할 때 사용
 					handleSearch={handleSearch} // 실제 검색하는 함수 (ex. refetch)
 					minDate={subYears(today, 1)} // 검색가능한 기간(시작일) 설정
 				/>
@@ -230,31 +233,30 @@ const SalesHistoryContainer = () => {
 				<Wrapper isRender={isLoadingExcel} isFixed={true} width='100%' height='100%'>
 					<Loading marginTop={0} />
 				</Wrapper>
-				{
-					isDownloadExcel ? (
-						<>
-							<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
-								<TableColGroup />
-								<TableHead />
-								<tbody>
-									{
-										filteredData.map((data) => <TableRow data={data} key={`history_excel_${data.nOrderID}`} />)
-									}
-								</tbody>
-							</table>
-						</>
-					) : 
-					null
-				}
+				{isDownloadExcel ? (
+					<>
+						<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
+							<TableColGroup />
+							<TableHead />
+							<tbody>
+								{filteredData.map((data) => (
+									<TableRow data={data} key={`history_excel_${data.nOrderID}`} />
+								))}
+							</tbody>
+						</table>
+					</>
+				) : null}
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
 				<div className='function'>
-					<button className='goast-btn' onClick={() => setIsLoadingExcel(true)} disabled={filteredData.length === 0 || isDownloadExcel}>엑셀다운</button>
+					<button className='goast-btn' onClick={() => setIsLoadingExcel(true)} disabled={filteredData.length === 0 || isDownloadExcel}>
+						엑셀다운
+					</button>
 				</div>
 				<Pagination
 					dataCnt={filteredData.length}
-					pageInfo={{row: rowPerPage, currentPage}}
+					pageInfo={{ row: rowPerPage, currentPage }}
 					handlePageChange={setCurrentPage}
 					handlePageRow={setRowPerPage}
 				/>

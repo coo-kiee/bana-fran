@@ -18,7 +18,7 @@ const Today = () => {
 	const { data } = HOME_SERVICE.useSalesToday({ f_code: fCode });
 	
 	// 배달매출, 카드결제, 현금결제, 유상포인트결제, 본사쿠폰결제, 쿠팡/배민, 가맹점쿠폰결제, 바나포인트결제,
-	const [freeService, paidSales, totalSales, {delivery_charge, card_charge, cash_charge, paid_point, hd_coupon_charge, etc_delivery_charge, fran_coupon_charge, bana_point}] = useMemo(() => {
+	const [freeService, paidSales, totalSales, {delivery_charge, card_charge, cash_charge, paid_point, hd_coupon_charge, hd_coupon_charge_2, etc_delivery_charge, fran_coupon_charge, bana_point}] = useMemo(() => {
 		// 매출 상세 내역
 		let todayData = {
 			delivery_charge: 0, 
@@ -26,6 +26,7 @@ const Today = () => {
 			cash_charge: 0, 
 			paid_point: 0, 
 			hd_coupon_charge: 0, 
+			hd_coupon_charge_2: 0,
 			etc_delivery_charge: 0, 
 			fran_coupon_charge: 0, 
 			bana_point: 0
@@ -36,7 +37,7 @@ const Today = () => {
 			totalSales = 0;
 		if (data) {
 			todayData = data[0];
-			freeService = data[0].fran_coupon_charge + data[0].bana_point;
+			freeService = data[0].fran_coupon_charge + data[0].bana_point + data[0].hd_coupon_charge_2;
 			paidSales = data[0].card_charge + data[0].cash_charge + data[0].paid_point + data[0].hd_coupon_charge + data[0].etc_delivery_charge;
 			totalSales = freeService + paidSales;
 		}
@@ -68,7 +69,10 @@ const Today = () => {
 				{Utils.numberComma(etc_delivery_charge)}원<span className='percentage'>({(100 * etc_delivery_charge/totalSales || 0).toFixed(1)}%)</span>
 			</td>
 			<td className='point'>
-				{Utils.numberComma(fran_coupon_charge + bana_point)}원<span className='percentage'>({(100 * freeService/totalSales || 0).toFixed(1)}%)</span>
+				{Utils.numberComma(freeService)}원<span className='percentage'>({(100 * freeService/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+			<td>
+				{Utils.numberComma(hd_coupon_charge_2 || 0)}원<span className='percentage'>({(100 * hd_coupon_charge_2/totalSales || 0).toFixed(1)}%)</span>
 			</td>
 			<td>
 				{Utils.numberComma(fran_coupon_charge || 0)}원<span className='percentage'>({(100 * fran_coupon_charge/totalSales || 0).toFixed(1)}%)</span>
@@ -96,22 +100,24 @@ const TodayContainer = () => {
 					<col width='163' />
 					<col width='163' />
 					<col width='163' />
+					<col width='163' />
 				</colgroup>
 				<thead>
 					<tr>
 						<th rowSpan={2}>총매출 <br /> (부가세 포함)</th>
 						<th rowSpan={2}>배달매출 <br /> (부가세 포함) </th>
 						<th colSpan={6}>유상매출 (부가세 포함)</th>
-						<th colSpan={3}>무상 서비스 비용</th>
+						<th colSpan={4}>무상 서비스 비용</th>
 					</tr>
 					<tr>
 						<td className='sales'>합계</td>
 						<td className='sales'>카드결제</td>
 						<td className='sales'>현금결제</td>
 						<td className='sales'>유상포인트결제</td>
-						<td className='sales'>본사쿠폰결제</td>
+						<td className='sales'>본사쿠폰결제(보전)</td>
 						<td className='sales'>쿠팡/배민</td>
 						<td className='service'>합계</td>
+						<td className='service'>본사쿠폰결제(미보전)</td>
 						<td className='service'>가맹점쿠폰결제</td>
 						<td className='service'>바나포인트결제</td>
 					</tr>

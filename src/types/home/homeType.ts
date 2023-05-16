@@ -40,6 +40,7 @@ interface HomeSalesTodayData {
 	etc_delivery_charge: number;
 	fran_coupon_charge: number;
 	hd_coupon_charge: number;
+	hd_coupon_charge_2: number;
 	paid_point: number;
 }
 interface HomeSalesTermsData {

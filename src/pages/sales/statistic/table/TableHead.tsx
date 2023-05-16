@@ -23,7 +23,7 @@ const TableHead = forwardRef((_, forwardRef: React.LegacyRef<HTMLTableRowElement
                 <th rowSpan={2} className='bg-right'>
                     무상서비스 비용 합계
                 </th>
-                <th colSpan={2} className='bg-bottom'>
+                <th colSpan={3} className='bg-bottom'>
                     무상서비스 비용 상세
                 </th>
             </tr>
@@ -47,7 +47,10 @@ const TableHead = forwardRef((_, forwardRef: React.LegacyRef<HTMLTableRowElement
                     유상포인트<br />매출
                 </th>
                 <th className='bg-e height-63'>
-                    본사 쿠폰<br />매출
+                    본사 쿠폰 매출<br />(보전)
+                </th>
+                <th>
+                    본사 쿠폰 매출<br />(미보전)
                 </th>
                 <th>
                     바나포인트<br />사용금액
