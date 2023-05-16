@@ -29,40 +29,26 @@ interface CalculateCouponDetailTableProps {
     },
 };
 const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userInfo }) => {
-
     // 사용자 정보
     const { f_code, staff_no, f_code_name } = userInfo;
 
     // 쿠폰 종류
-    const [couponType, setCouponType] = useState({
+    const [couponType, setCouponType] = useState<CouponType>({
         // { {key: CouponType}: {title: string, value: CouponType} }
         [COUPON_TYPE.ALL]: COUPON_TYPE_OPTION[COUPON_TYPE.ALL], // 0: { title: '쿠폰 전체', value: 0 },
     });
-    const { data: useCalculateCouponList } = CALCULATE_SERVICE.useCalculateCouponList(f_code, staff_no);
-    useEffect(() => {
-        if (useCalculateCouponList) {
-            // initialTotalInfo - { {key: CouponType}: {title: string, sum: number} }
-            const [couponObj, initialTotalInfo] = useCalculateCouponList.reduce((res, cur) => {
-                const title = cur.code_name;
-                const value = cur.code;
-                res[0][value] = { title, value }; // couponObj
-                res[1][value] = { title, sum: 0 }; // initialTotalInfo
-                return res;
-            }, [{}, {}] as [CouponType, TotalInfo]);
-            initialTotalInfo[COUPON_TYPE.ALL] = { title: COUPON_TYPE_OPTION[COUPON_TYPE.ALL].title, sum: 0 };
-            setCouponType(prev => ({ ...prev, ...couponObj }));
-            setTableTopInfo(prev => ({ ...prev, totalInfo: initialTotalInfo }));
-        };
-    }, [useCalculateCouponList]);
 
     // 검색 조건
     const fromDate = format(subMonths(new Date(), 1), 'yyyy-MM-01');
     const toDate = format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd');
+
     const [searchCondition, setSearchCondition] = useState<SearchInfoSelectType>({
         from: fromDate, // 달력 선택 정보
         to: toDate, // 달력 선택 정보
         searchOption: [couponType[COUPON_TYPE.ALL], DEVICE_TYPE_OPTION[DEVICE_TYPE.ALL]], // 필터링 옵션
     });
+
+    // 조회 Trigger
     const [queryTriggerDate, setQueryTriggerDate] = useState({
         queryFromDate: searchCondition.from,
         queryToDate: searchCondition.to,
@@ -74,6 +60,30 @@ const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userI
         titleTo: toDate,
         totalInfo: {},
     });
+
+    const { data: calculateCouponList } = CALCULATE_SERVICE.useCalculateCouponList(f_code, staff_no);
+
+    useEffect(() => {
+        if (calculateCouponList) {
+            // initialTotalInfo - { {key: CouponType}: {title: string, sum: number} }
+            const [couponObj, initialTotalInfo] = calculateCouponList.reduce((res, cur, index) => {
+                const codeName = cur.code_name;
+                const code = cur.code;
+                
+                COUPON_TYPE[code] = index + 1
+                
+                res[0][index + 1] = { title: codeName, value: index + 1 }; // couponObj
+                res[1][index + 1] = { title: codeName, sum: 0 }; // initialTotalInfo
+
+                return res;
+            }, [{}, {}] as [CouponType, TotalInfo]);
+
+            initialTotalInfo[COUPON_TYPE.ALL] = { title: COUPON_TYPE_OPTION[COUPON_TYPE.ALL].title, sum: 0 };
+
+            setCouponType(prev => ({ ...prev, ...couponObj }));
+            setTableTopInfo(prev => ({ ...prev, totalInfo: initialTotalInfo }));
+        };
+    }, [calculateCouponList]);
 
     // 테이블 상단 검색영역 파라미터
     const calanderSearchOption = useMemo(() => ({
@@ -159,6 +169,7 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
             if (cur.value !== 0) arr[cur.value] = { title: cur.title, sum: 0 };
             return arr;
         }, {} as TotalInfo);
+
         // 쿠폰 사용 전체 금액 합계 렌더링할 때 맨 아래 위치시키기 위해서 999 키값 사용
         totalObj[999] = { title: COUPON_TOTAL_TITLE[COUPON_TYPE.ALL], sum: 0 };
 
@@ -169,7 +180,7 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
             const [date] = rcp_date.split(' '); // [date, time]
 
             // 합계 계산
-            totalObj[item_type_code].sum += total_amt;
+            totalObj[COUPON_TYPE[item_type_code]].sum += total_amt;
             totalObj[999].sum += total_amt;
 
             // 필터링 조건
@@ -235,7 +246,7 @@ const TABLE_COLUMN_INFO = {
     tdInfo: ['공급가', '부가세', '합계']
 } as const;
 
-const COUPON_TYPE = {
+const COUPON_TYPE: Record<string, number> = {
     ALL: 0,
 } as const;
 

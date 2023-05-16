@@ -48,7 +48,7 @@ const CalculateDetailTableTop: FC<CalculateDetailTableTopProps> = ({ calanderSea
                         <div className="search-date">
                             <p>조회기간: {titleFrom} ~ {titleTo}</p>
                         </div>
-                        <ul className="search-result">
+                        <ul className="search-result" style={{maxHeight: '220px'}}>
                             {totalInfo && Object.values(totalInfo).map((total, index) => <li key={index}>{total.title} : <span className="value">{Utils.numberComma(total.sum)}원</span></li>)}
                         </ul>
                     </>
