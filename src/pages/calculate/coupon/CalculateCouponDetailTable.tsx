@@ -195,7 +195,7 @@ const TableList: FC<TableListProps> = ({ couponType, fCode, staffNo, searchCondi
 
             // 필터링 조건
             const showCoupon = Number(searchOption[0].value);
-            const isCouponType = showCoupon === couponType[COUPON_TYPE.ALL].value || showCoupon === item_type_code;
+            const isCouponType = showCoupon === couponType[COUPON_TYPE.ALL].value || showCoupon === COUPON_TYPE[item_type_code];
             const isDeviceType = searchOption[1].value === DEVICE_TYPE_OPTION[DEVICE_TYPE.ALL].value || searchOption[1].value === rcp_type;
 
             if (isCouponType && isDeviceType) {
