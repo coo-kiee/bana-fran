@@ -13,7 +13,7 @@ const CalculateTableHeader = <Width, ThInfo, TdInfo>(props:CalculateTableHeaderP
             {/* Column Width */}
             <colgroup>{width.map((wd, index) => <col width={wd} key={index} />)}</colgroup>
             {/* Table Header  */}
-            <thead>
+            <thead style={{whiteSpace:'pre-line'}}>
                 <tr ref={props.stickyRef}>{thInfo.map((th, index) => <th key={index} className={th.className} colSpan={th.colSpan} rowSpan={th.rowSpan} >{th.text}</th>)}</tr>
                 {tdInfo && <tr>{tdInfo.map((text, index) => <th key={index} className="price-area" >{text}</th>)}</tr>}
             </thead>

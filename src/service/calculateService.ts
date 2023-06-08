@@ -6,7 +6,7 @@ import { useMutation, useQuery, UseQueryResult } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 
 // Type
-import { CalculateCouponDetailListQueryResult, CalculateLastMonthEachQueryResult, CalculateEtcDetailListQueryResult, CalculateFixListQueryResult, CalculatePointDetailListQueryResult, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY, CalculateLastMonthTotalQueryResult } from 'types/calculate/calculateType';
+import { CalculateCouponDetailListQueryResult, CalculateLastMonthEachQueryResult, CalculateEtcDetailListQueryResult, CalculateFixListQueryResult, CalculatePointDetailListQueryResult, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY, CalculateLastMonthTotalQueryResult, CalculateClaimDetailListQueryResult, CLAIM_TAB_TYPE } from 'types/calculate/calculateType';
 
 // 검색 월
 const useCalculateMonthList = (f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
@@ -236,17 +236,20 @@ const useCalculateCouponDetailList: CalculateCouponDetailListParameter = (f_code
 // 고객 클레임 보상내역 상세
 type CalculateClaimDetailListParameter = (
     queryKey: string | Array<string>,
+    tabType: string,
     f_code: number,
     staffNo: number,
     from_date: string,
     to_date: string,
     option?: { [key: string]: any },
-) => UseQueryResult<CalculatePointDetailListQueryResult[], unknown>;
-const useCalculateClaimDetailList: CalculateClaimDetailListParameter = (queryKey, f_code, staffNo, from_date, to_date, option = {}) => {
+) => UseQueryResult<CalculateClaimDetailListQueryResult[], unknown>;
+const useCalculateClaimDetailList: CalculateClaimDetailListParameter = (queryKey, tabType, f_code, staffNo, from_date, to_date, option = {}) => {
 
+    // web_fran_s_calculate_claim_coupon_list :  web_fran_s_calculate_claim_calculate_list
+    const query = tabType === CLAIM_TAB_TYPE.CLAIM ? 'CBGQY93OOIW9CXDSUJKA' : 'BC206IV3AOO0MB7PRRZE'
     const data = {
         ws: "fprocess",
-        query: "6HURAKO83BCYD8ZXBORH", // web_fran_s_calculate_paid_point_list
+        query,
         params: {
             f_code,
             from_date,
@@ -254,7 +257,7 @@ const useCalculateClaimDetailList: CalculateClaimDetailListParameter = (queryKey
         },
     };
 
-    return useQuery<any[]>(queryKey, () => queryFn.getDataList(data), {
+    return useQuery<CalculateClaimDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
         retry: false,

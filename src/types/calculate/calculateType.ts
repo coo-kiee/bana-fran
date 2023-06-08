@@ -89,6 +89,23 @@ type CalculateCouponDetailListQueryResult = {
     vat_amt: number, // 본사발행 쿠폰 결제내역 부가세
 };
 
+// 고객 클레임 보상 내역 상세
+type CalculateClaimDetailListQueryResult = {
+    send_date: string, // 쿠폰 발행일시
+    use_date: string, // 쿠폰 사용일시
+    use_flag: string, // 사용여부
+    coupon_title: string, // 쿠폰명
+    coupon_amt: number, // 쿠폰 발행 (최대)금액
+    expiration_date: string, // 유효기간
+    send_phone: string, // 발급 고객
+    claim_text: string, // 클레임 내용
+    use_f_name: string, // 사용매장
+    use_phone: string, // 사용자
+    coupon_charge: number, // 사용 금액
+    supply_amt: number, // 공급가
+    vat_amt: number, // 부가세
+};
+
 // 고객 클레임 보상내역 탭
 const CLAIM_TAB_TYPE = {
     CLAIM: 'claim',
@@ -128,6 +145,6 @@ export {
 
 export type {
     CalculateType, CalculateLastMonthTotalQueryResult, CalculateLastMonthTotalDetail, CalculateLastMonthOutput, CalculateStatusType, CalculateFixListQueryResult,
-    CalculateLastMonthEachQueryResult, CalculatePointDetailListQueryResult, CalculateCouponDetailListQueryResult, TabType, 
+    CalculateLastMonthEachQueryResult, CalculatePointDetailListQueryResult, CalculateCouponDetailListQueryResult, CalculateClaimDetailListQueryResult, TabType, 
     CalculateChargeType, CalculateChargeMultiplyKey, CalculateEtcDetailListQueryResult
 };

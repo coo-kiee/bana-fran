@@ -125,7 +125,7 @@ const TableTop: FC<TableTopProps> = ({ tabType, searchCondition, setSearchCondit
     return (
         <>
             <CalanderSearch
-                dateTitle={'발생일시'}
+                dateTitle={tabType === CLAIM_TAB_TYPE.CLAIM ? '발생일시' : '사용일시'}
                 dateType={'yyyy-MM-dd'}
                 searchInfo={searchCondition}
                 setSearchInfo={setSearchCondition}
@@ -173,7 +173,8 @@ const TableList: FC<TableListProps> = ({ tabType, fCode, staffNo, searchConditio
 
     // eslint-disable-next-line
     const listQueryKey = useMemo(() => ['calculateClaimDetail', JSON.stringify({ tabType, fCode, staffNo, fromDate, toDate })], [fCode, staffNo, searchTrigger]);
-    const { data: claimDetailList } = CALCULATE_SERVICE.useCalculateClaimDetailList(listQueryKey, fCode, 0, fromDate, toDate);
+    // Query
+    const { data: claimDetailList } = CALCULATE_SERVICE.useCalculateClaimDetailList(listQueryKey, tabType, fCode, staffNo, fromDate, toDate);
 
     // Table render Node 필터링, 클레임 보상 쿠폰 합계 계산
     const [renderTableList, totalSumObj] = useMemo(() => {
@@ -182,43 +183,40 @@ const TableList: FC<TableListProps> = ({ tabType, fCode, staffNo, searchConditio
             arr[cur[0] as SumList[number]['type']] = { ...cur[1], title: cur[1].title, sum: 0 };
             return arr;
         }, {} as TotalList);
-        // console.log('sumObj', sumObj);
 
         // 필터링 된 Table List 생성
         const tableList = claimDetailList?.reduce((arr, claimDetail, index) => {
 
-            const { rcp_date, item_name, phone, nChargeTotal, total_amt, use_point_type, rcp_type, supply_amt, vat_amt } = claimDetail;
-            const [date] = rcp_date.split(' '); // [date, time]
+            const { send_date, use_date, use_flag, coupon_title, coupon_amt, expiration_date, send_phone, claim_text, use_f_name, use_phone, coupon_charge, supply_amt, vat_amt } = claimDetail;
 
             // 합계 계산
-            // sumObj[item_type_code].sum += total_amt;
-            // sumObj.allCouponSum += total_amt;
-            // if (use_point_type === POINT_TYPE.CHARGE.value) ChargePointSum += total_amt;
-            // else if (use_point_type === POINT_TYPE.CHANGE.value) PointChangeSum += total_amt;
+            sumObj[SUM_TYPE.PUBLISH].sum += coupon_amt;
+            if(use_flag === SUM_TYPE.USE) sumObj[SUM_TYPE.USE].sum += coupon_charge
+            else if(use_flag === SUM_TYPE.EXPIRATION) sumObj[SUM_TYPE.EXPIRATION].sum += coupon_amt
 
             arr.push(
                 <tr key={index}>
-                    <td className="align-center">{date}</td>
-                    <td className="align-center">{date}</td>
-                    <td className="align-center">{rcp_type}</td>
-                    <td className="align-center">{use_point_type}</td>
-                    <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                    <td className="align-center">{date}</td>
-                    <td className="align-center">{rcp_type}</td>
-                    <td className="align-left">{item_name}</td>
-                    <td className="align-center">{rcp_type}</td>
-                    <td className="align-center">{phone}</td>
-                    <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                    <td className="align-center">{send_date.replace(' ', '\n')}</td>
+                    <td className="align-center">{use_date.replace(' ', '\n')}</td>
+                    <td className="align-center">{use_flag}</td>
+                    <td className="align-center">{coupon_title}</td>
+                    <td className="align-right">{Utils.numberComma(coupon_amt)}</td>
+                    <td className="align-center">{expiration_date.replace(' ', '\n')}</td>
+                    <td className="align-center">{send_phone}</td>
+                    <td className="align-left">{claim_text}</td>
+                    <td className="align-center">{use_f_name}</td>
+                    <td className="align-center">{use_phone}</td>
+                    <td className="align-right">{Utils.numberComma(coupon_charge)}</td>
                     <td className="align-right">{Utils.numberComma(supply_amt)}</td>
                     <td className="align-right">{Utils.numberComma(vat_amt)}</td>
-                    <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(coupon_charge)}</td>
                 </tr>
             )
             return arr;
         }, [] as ReactNode[]);
 
         return [tableList, sumObj];
-    }, [claimDetailList]);
+    }, [claimDetailList, listQueryKey]);
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
     useEffect(() => {
@@ -271,21 +269,17 @@ type TableTopInfo = {
     totalObj: TotalList,
 };
 
+const SUM_TYPE = {
+    PUBLISH: '발행',
+    EXPIRATION: '만료',
+    USE: '사용'
+} as const
+
 const SUM_LIST = [
-    { title: '클레임 보상 쿠폰 발행금액 합계', type: '1' },
-    { title: '클레임 보상 쿠폰 만료금액 합계', type: '2' },
-    { title: '클레임 보상 쿠폰 사용금액 합계', type: '3' },
+    { title: '클레임 보상 쿠폰 발행금액 합계', type: SUM_TYPE.PUBLISH },
+    { title: '클레임 보상 쿠폰 만료금액 합계', type: SUM_TYPE.EXPIRATION },
+    { title: '클레임 보상 쿠폰 사용금액 합계', type: SUM_TYPE.USE },
 ] as const;
 
-// const SUM_LIST = {
-//     [CLAIM_TAB_TYPE.CLAIM]: [
-//         { title: '클레임 보상 쿠폰 발행금액 합계', type: '1' },
-//         { title: '클레임 보상 쿠폰 만료금액 합계', type: '2' },
-//         { title: '클레임 보상 쿠폰 사용금액 합계', type: '3' },
-//     ],
-//     [CLAIM_TAB_TYPE.CALCULATE]: [
-//         { title: '', type: '' },
-//     ],
-// } as const;
 type SumList = typeof SUM_LIST;
 type TotalList = { [key in SumList[number]['type']]: { title: string, sum: number } };
