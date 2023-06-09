@@ -135,7 +135,7 @@ const TABLE_COLUMN_INFO = {
         headerText: ['정산기간', '품목', '공급가액', '부가세', '합계'],
     },
     [CALCULATE_TYPE.CLAIM]: {
-        title: '클레임 보상 내역',
+        title: '클레임 쿠폰 정산내역',
         width: ['218', '*', '130', '130', '130'],
         headerText: ['정산기간', '품목', '공급가액', '부가세', '합계'],
     },

@@ -11,7 +11,7 @@ import { SearchInfoType, SearchInfoSelectType, SearchInfoRadioType, isSelect, is
 
 interface CalendarSearchProps {
     title?: string, // 제목
-    dateTitle?: string, // 날짜제목
+    dateTitle?: string | JSX.Element, // 날짜제목
     dateType: string, // 날짜 형식 ... ex) yyyy-MM-dd  
     searchInfo: SearchInfoType | SearchInfoSelectType | SearchInfoRadioType, // 검색 날짜, 옵션 관련 상태
     setSearchInfo: any, // searchInfo setState

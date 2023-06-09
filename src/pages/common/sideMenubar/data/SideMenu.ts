@@ -85,7 +85,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
             },
             {
                 path: "/claim",
-                name: "고객 클레임 보상내역",
+                name: "클레임 쿠폰 정산내역",
                 icon: "",
                 id: 440,
                 component: CalculateClaim,

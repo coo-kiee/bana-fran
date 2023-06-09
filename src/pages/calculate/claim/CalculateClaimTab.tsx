@@ -34,5 +34,5 @@ export default CalculateClaimTab;
 // Component Type
 const TAB_TITLE = {
     [CLAIM_TAB_TYPE.CLAIM]: '클레임 내역전체',
-    [CLAIM_TAB_TYPE.CALCULATE]: '정산 내역 조회',
+    [CLAIM_TAB_TYPE.CALCULATE]: '정산 (보전)내역 조회',
 } as const;

@@ -241,20 +241,26 @@ type CalculateClaimDetailListParameter = (
     staffNo: number,
     from_date: string,
     to_date: string,
+    calenderSearchType: string,
     option?: { [key: string]: any },
 ) => UseQueryResult<CalculateClaimDetailListQueryResult[], unknown>;
-const useCalculateClaimDetailList: CalculateClaimDetailListParameter = (queryKey, tabType, f_code, staffNo, from_date, to_date, option = {}) => {
+const useCalculateClaimDetailList: CalculateClaimDetailListParameter = (queryKey, tabType, f_code, staffNo, from_date, to_date, calenderSearchType, option = {}) => {
 
     // web_fran_s_calculate_claim_coupon_list :  web_fran_s_calculate_claim_calculate_list
     const query = tabType === CLAIM_TAB_TYPE.CLAIM ? 'CBGQY93OOIW9CXDSUJKA' : 'BC206IV3AOO0MB7PRRZE'
     const data = {
         ws: "fprocess",
         query,
-        params: {
+        params: tabType === CLAIM_TAB_TYPE.CLAIM ? {
             f_code,
             from_date,
             to_date,
-        },
+            search_type: calenderSearchType,
+        } : {
+            f_code,
+            from_date,
+            to_date,
+        }
     };
 
     return useQuery<CalculateClaimDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
