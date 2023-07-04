@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+// styled components props
+interface StickyContainerProps {
+    root: HTMLDivElement | null;
+    contentsRef: HTMLTableElement | null;
+}
+
 interface StickyProps {
     reference: HTMLTableRowElement | null; // tableRow target ref (sticky 적용 기준이 될 tr 가리키는 ref.current)
     contentsRef: HTMLTableElement | null; // 실제 데이터가 그려진 table (sticky table) contentsRef가 viewport에 보여야 sticky 작동
@@ -43,19 +49,20 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
 	}, [contentsRef, root]);
 
 	return( 
-        isViewportIn && showSticky ? <StickyContainer className='board-wrap' root={root}>{children}</StickyContainer> : null
+        isViewportIn && showSticky ? <StickyContainer className='board-wrap' root={root} contentsRef={contentsRef}>{children}</StickyContainer> : null
     );
 };
 
 export default Sticky;
 
-const StickyContainer = styled.table<{root: HTMLDivElement | null}>`    
+const StickyContainer = styled.table<StickyContainerProps>`    
     position: ${(props) => (props.root ? 'sticky' : 'fixed')};
     top: 0;
 	z-index: 10;
     border-radius: 0 !important;
     margin-top: 0 !important;
     width: ${(props) => (props.root ? '100%' : 'calc(100% - 290px)')};
+    min-width: ${(props) => (props.contentsRef ? props.contentsRef.clientWidth : 0)}px;
 	border-spacing: 0;
 	padding: 0;
 `
