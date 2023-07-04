@@ -140,7 +140,12 @@ article { display: flex; position: relative;
     .container {
         width: calc(100% - 230px);
         background: #f8f8f8;
-
+        /* container 최소 width */
+        &.min-width {
+            &-2000 { min-width: 2000px; }
+            &-1800 { min-width: 1800px; }
+            &-1600 { min-width: 1600px; }
+        }
         header {
             line-height: 79px;
             padding-left: 20px;

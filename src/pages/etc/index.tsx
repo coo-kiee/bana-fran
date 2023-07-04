@@ -42,7 +42,7 @@ const EtcContainer = () => {
 
     return (
         <>
-            <section className="container">
+            <section className="container min-width-1600">
                 <header>
                     <div className="page-title etc">
                         <p className="present">기타내역</p>

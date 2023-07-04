@@ -10,7 +10,7 @@ interface CalculateSectionProps {
 const CalculateSection: FC<CalculateSectionProps> = ({ caculateType, children }) => {
 
     return (
-        <section className="container">
+        <section className={`container ${caculateType < 3 && 'min-width-1600'} ${caculateType === 3 && 'min-width-1800'}`}>
             <CalculateHeader caculateType={caculateType} />
             <section className={`contents-wrap ${SECTION_CLASSNAME[caculateType]}`}>
                 <div className="contents">

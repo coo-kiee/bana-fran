@@ -22,7 +22,7 @@ const HomeContainer: React.FC = () => {
 	})[0];
 
 	return (
-		<section className='container' style={{ minWidth: '1820px' }}>
+		<section className='container min-width-1800'>
 			<header>
 				<div className='page-title home'>
 					<p className='present'>HOME</p>

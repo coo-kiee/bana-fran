@@ -49,7 +49,7 @@ const ExtraContainer = () => {
     ];
 
     return (
-        <section className="container">
+        <section className="container min-width-1600">
             <header>
                 <div className="page-title membership">
                     <p className="present">멤버십현황</p>
