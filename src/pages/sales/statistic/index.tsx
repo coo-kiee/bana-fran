@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { format, isAfter, subDays, subMonths } from "date-fns";
@@ -28,7 +29,7 @@ const SalesStatistic = () => {
 	// global state
 	const { userInfo } = useRecoilValue(loginState);
 	const fCode = useRecoilValue(franState);
-	const selectedFran = userInfo?.f_list.filter((info) => { return (info.f_code === fCode) });
+	const selectedFran = userInfo?.f_list.filter((info) => info.f_code === fCode);
 	const fCodeName = selectedFran[0]?.f_code_name || ''; // 가맹점명
 	
 	// const today = today;
@@ -123,14 +124,12 @@ const SalesStatistic = () => {
 	}, [isLoadingExcel]);
 	
 	useEffect(() => {
-		if (isDownloadExcel) {
-			excelDownload();
-		}
+		if (isDownloadExcel) excelDownload();
 	}, [excelDownload, isDownloadExcel]);		
 	
 	// 검색하면 현재 페이지 번호 초기화
 	useEffect(() => {
-		setCurrentPage(1)
+		setCurrentPage(1);
 	}, [queryTrigger])
 
 	return (

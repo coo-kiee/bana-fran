@@ -29,7 +29,7 @@ const SalesHistoryContainer = () => {
 	// global state
 	const { userInfo } = useRecoilValue(loginState);
 	const fCode = useRecoilValue(franState);
-	const selectedFran = userInfo?.f_list.filter((info) => { return info.f_code === fCode; });
+	const selectedFran = userInfo?.f_list.filter((info) => info.f_code === fCode);
 	const fCodeName = selectedFran[0]?.f_code_name; // 가맹점명
 
 	const today = new Date();
@@ -146,9 +146,7 @@ const SalesHistoryContainer = () => {
 	}, [isLoadingExcel]);
 
 	useEffect(() => {
-		if (isDownloadExcel) {
-			excelDownload();
-		}
+		if (isDownloadExcel) excelDownload();
 	}, [excelDownload, isDownloadExcel]);
 
 	// 검색마다 현재 페이지 번호 초기화
