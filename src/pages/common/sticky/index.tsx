@@ -36,7 +36,7 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
     // sticky observe (showSticky)
 	useEffect(() => {
 		if (reference && isViewportIn) {
-            const observer = new IntersectionObserver(handleSticky, {root: root, rootMargin: '0px', threshold: 0.1});
+            const observer = new IntersectionObserver(handleSticky, { root: root, rootMargin: '0px', threshold: 0.1 });
             observer.observe(reference); // start observe
         }
 	}, [reference, root, isViewportIn]);
@@ -44,7 +44,7 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
     // table observe (isViewportIn)
 	useEffect(() => {
 		if (contentsRef) {
-            const observer = new IntersectionObserver(getTableReady, {root: root, rootMargin: '0px', threshold: 0.01});
+            const observer = new IntersectionObserver(getTableReady, { root: root, rootMargin: '0px', threshold: 0.01 });
             observer.observe(contentsRef); // start observe
         }
 	}, [contentsRef, root]);
@@ -52,9 +52,9 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
     // 가로 스크롤시 left값 변화
     useEffect(() => {
         const handleScrollLeft = () => {
-          const { scrollWidth, offsetWidth } = document.documentElement;
-          const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-          if (stickyRef.current && scrollWidth !== offsetWidth) stickyRef.current.style.transform = `translateX(${-scrollLeft}px)`;
+            const { scrollWidth, offsetWidth } = document.documentElement;
+            const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+            if (stickyRef.current && scrollWidth !== offsetWidth) stickyRef.current.style.transform = `translateX(${-scrollLeft}px)`;
         };
     
         window.addEventListener('scroll', handleScrollLeft);
@@ -62,7 +62,7 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
         return () => window.removeEventListener('scroll', handleScrollLeft);
     }, [])
 
-	return( 
+	return ( 
         isViewportIn && showSticky ? <StickyContainer className='board-wrap' root={root} contentsRef={contentsRef} ref={stickyRef} cellPadding={0} cellSpacing={0}>{children}</StickyContainer> : null
     );
 };
