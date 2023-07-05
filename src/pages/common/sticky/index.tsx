@@ -52,8 +52,9 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
     // 가로 스크롤시 left값 변화
     useEffect(() => {
         const handleScrollLeft = () => {
+          const { scrollWidth, offsetWidth } = document.documentElement;
           const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-          if (stickyRef.current && scrollLeft) stickyRef.current.style.transform = `translateX(${-scrollLeft}px)`;
+          if (stickyRef.current && scrollWidth !== offsetWidth) stickyRef.current.style.transform = `translateX(${-scrollLeft}px)`;
         };
     
         window.addEventListener('scroll', handleScrollLeft);
