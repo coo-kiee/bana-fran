@@ -104,8 +104,10 @@ const SideMenubar:React.FC = () => {
         }
         setFranCode(franCodeNum)
     }, [setFranCode])
-
-    console.log("SIDE MENU BAR RENDER!!", loginInfo, ' 선택매장 : ', franCode)
+    
+    // dev 환경에서만 출력
+    if (process.env.REACT_APP_MODE === 'dev') console.log("SIDE MENU BAR RENDER!!", loginInfo, ' 선택매장 : ', franCode)
+    
     return(
         <nav>
             <img className="logo" src={img_logo} alt="banapresso" width={146} height={18} onClick={() => navigation('/home')} />

@@ -42,7 +42,9 @@ export default class Axios {
             }
         }
         return axios.post(url, params, axiosConfig).then(function (json) {
-            console.log(`success(query: ${JSON.parse(json.config.data)?.query}) : `, json)
+            // dev 환경에서만 출력
+            if (process.env.REACT_APP_MODE === 'dev') console.log(`success(query: ${JSON.parse(json.config.data)?.query}) : `, json)
+
             const columns = json.data.columns ? json.data.columns.map((d) => {
                 return d.name
             }) : {}
