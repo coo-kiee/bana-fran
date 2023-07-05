@@ -6,7 +6,7 @@ import { MenuType, MENU_TYPE } from "types/board/boardType";
 const BoardSection: FC<{ menuType: MenuType, isDetail: boolean, children: ReactNode }> = ({ menuType, isDetail, children }) => {
 
     return (
-        <section className="container">
+        <section className="container min-width-1200">
             <BoardHeader menuType={menuType} />
             <section className={`contents-wrap ${isDetail ? `notice-view-wrap` : 'notice-wrap'}`}>
                 <div className="contents">

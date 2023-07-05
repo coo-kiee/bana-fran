@@ -20,7 +20,7 @@ const MonthRankContainer = () => {
     ];
     return (
         <>
-            <section className="container">
+            <section className="container min-width-1200">
                 <header>
                     <div className="page-title membership">
                         <p className="present">멤버십현황</p>
