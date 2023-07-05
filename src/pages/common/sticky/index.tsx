@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 // styled components props
-interface StickyContainerProps {
+interface StickyContainerProps extends React.HTMLAttributes<HTMLTableElement> {
     root: HTMLDivElement | null;
     contentsRef: HTMLTableElement | null;
 }
@@ -15,22 +15,22 @@ interface StickyProps {
 };
 
 const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) => {
-    // sticky header display states
+    // sticky header display state
 	const [showSticky, setShowSticky] = useState(false);
     // sticky table이 viewport 내에 존재하는지
     const [isViewportIn, setIsViewportIn] = useState(false);
 
+    // sticky container ref
+    const stickyRef = useRef<HTMLTableElement>(null);
+
     // isViewportIn handler
 	const getTableReady = (entries: IntersectionObserverEntry[]) => {
-        entries.forEach((entry) => {
-            setIsViewportIn(entry.isIntersecting);
-        });
+        entries.forEach((entry) => setIsViewportIn(entry.isIntersecting));
     }
+
 	// change sticky states (showSticky handler)
     const handleSticky = (entries: IntersectionObserverEntry[]) => {
-        entries.forEach((entry) => {
-            setShowSticky(!entry.isIntersecting);
-        });
+        entries.forEach((entry) => setShowSticky(!entry.isIntersecting));
     }
 
     // sticky observe (showSticky)
@@ -40,6 +40,7 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
             observer.observe(reference); // start observe
         }
 	}, [reference, root, isViewportIn]);
+
     // table observe (isViewportIn)
 	useEffect(() => {
 		if (contentsRef) {
@@ -47,9 +48,21 @@ const Sticky = ({ reference, contentsRef, children, root = null }: StickyProps) 
             observer.observe(contentsRef); // start observe
         }
 	}, [contentsRef, root]);
+    
+    // 가로 스크롤시 left값 변화
+    useEffect(() => {
+        const handleScrollLeft = () => {
+          const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+          if (stickyRef.current && scrollLeft) stickyRef.current.style.transform = `translateX(${-scrollLeft}px)`;
+        };
+    
+        window.addEventListener('scroll', handleScrollLeft);
+
+        return () => window.removeEventListener('scroll', handleScrollLeft);
+    }, [])
 
 	return( 
-        isViewportIn && showSticky ? <StickyContainer className='board-wrap' root={root} contentsRef={contentsRef}>{children}</StickyContainer> : null
+        isViewportIn && showSticky ? <StickyContainer className='board-wrap' root={root} contentsRef={contentsRef} ref={stickyRef} cellPadding={0} cellSpacing={0}>{children}</StickyContainer> : null
     );
 };
 
