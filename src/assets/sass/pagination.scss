@@ -1,10 +1,18 @@
 .btn-prev {
     &:disabled {
         background: url('../../assets/images/icon/i_num_prev_dim.svg') 0 0 no-repeat;
+        cursor: default;
     }
 }
 .btn-next {
     &:disabled {
         background: url('../../assets/images/icon/i_num_next_dim.svg') 0 0 no-repeat;
+        cursor: default;
     }
+}
+.paging {
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
 }
