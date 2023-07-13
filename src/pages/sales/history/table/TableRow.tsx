@@ -1,7 +1,12 @@
+import { useSetRecoilState } from 'recoil';
+
+// global state
+import { couponInfoState, couponModalState } from 'state';
+
 // Utils
 import Utils from 'utils/Utils';
 // Components
-import { DataProps, HISTORY_GIFT_CERT, HISTORY_ORDER_STATE, SalesHistoryData } from 'types/sales/salesType';
+import { CouponType, DataProps, HISTORY_GIFT_CERT, HISTORY_ORDER_STATE, SalesHistoryData } from 'types/sales/salesType';
 
 // filter options type
 const { CANCEL } = HISTORY_ORDER_STATE;
@@ -22,6 +27,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 		pay_type, // 결제방식. 0: 결제완료, 1: 현장카드, 2: 현장현금
 		nChargeTotal, // 주문금액(메뉴), 합계
 		nDeliveryCharge, // 배달비(앱주문)
+		nOrderID, // 주문번호
 		card_charge, // 카드
 		cash_charge, // 현금
 		bana_point, // 바나포인트
@@ -36,16 +42,27 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 		nSavingPoint, // 바나포인트(적립)
 	} = data;
 
+	const setCouponInfo = useSetRecoilState(couponInfoState);
+	const setOpenCouponModal = useSetRecoilState(couponModalState);
+
 	// 표시 날짜 줄바꿈 추가
 	const convertDateLineBreak = (dateText: string) => {
 		const text = dateText.split(/\s/);
 		return (
 			<>
-				{text[0]}<br />
+				{text[0]}
+				<br />
 				{text[1]}
 			</>
 		);
 	};
+
+	const handleClickPoint = (e: React.MouseEvent, type: CouponType) => {
+		// modal 열기
+		setOpenCouponModal({ isOpen: true, posX: e.pageX, posY: e.pageY, clientY: e.clientY });
+		// coupon api params
+		setCouponInfo({ nOrderID, type });
+	}
 
 	return (
 		<tr>
@@ -67,9 +84,33 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 			<td className='align-center'>{bana_point !== 0 ? Utils.numberComma(bana_point) : ''}</td>
 			<td className='align-center'>{paid_point !== 0 ? Utils.numberComma(paid_point) : ''}</td>
 			<td className='align-center'>{small_point !== 0 ? Utils.numberComma(small_point) : ''}</td>
-			<td className='align-center'>{fran_coupon_charge !== 0 ? Utils.numberComma(fran_coupon_charge) : ''}</td>
-			<td className='align-center'>{hd_coupon_charge !== 0 ? Utils.numberComma(hd_coupon_charge) : ''}</td>
-			<td className='align-center'>{hd_coupon_charge_2 !== 0 ? Utils.numberComma(hd_coupon_charge_2) : ''}</td>
+			<td className='align-center'>
+				{fran_coupon_charge !== 0 ? (
+					<span className='underline pointer' onClick={(e) => handleClickPoint(e, '가맹점쿠폰')}>
+						{Utils.numberComma(fran_coupon_charge)}
+					</span>
+				) : (
+					''
+				)}
+			</td>
+			<td className='align-center'>
+				{hd_coupon_charge !== 0 ? (
+					<span className='underline pointer' onClick={(e) => handleClickPoint(e, '본사쿠폰')}>
+						{Utils.numberComma(hd_coupon_charge)}
+					</span>
+				) : (
+					''
+				)}
+			</td>
+			<td className='align-center'>
+				{hd_coupon_charge_2 !== 0 ? (
+					<span className='underline pointer' onClick={(e) => handleClickPoint(e, '본사쿠폰미보전')}>
+						{Utils.numberComma(hd_coupon_charge_2)}
+					</span>
+				) : (
+					''
+				)}
+			</td>
 			<td className='align-center'>{etc_delivery_charge !== 0 ? Utils.numberComma(etc_delivery_charge) : ''}</td>
 			<td className='align-center'>{nEtcDeliveryCharge !== 0 ? Utils.numberComma(nEtcDeliveryCharge) : ''}</td>
 			<td className='align-center'>{nStampCount !== 0 ? nStampCount : '-'}</td>

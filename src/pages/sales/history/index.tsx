@@ -1,10 +1,10 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { format, subDays, subYears } from 'date-fns';
 
 // global state
-import { franState, loginState } from 'state';
+import { couponModalState, franState, loginState } from 'state';
 
 // Types
 import { Bit } from 'types/common';
@@ -14,16 +14,17 @@ import Utils from 'utils/Utils';
 
 // Components
 import CalanderSearch from 'pages/common/calanderSearch';
+import Pagination from 'pages/common/pagination';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+import Loading from 'pages/common/loading';
+import Wrapper from 'pages/common/loading/Wrapper';
+import Sticky from 'pages/common/sticky';
 import PrefixSum from 'pages/sales/history/PrefixSum';
 import SalesHistory from 'pages/sales/history/SalesHistory';
-import Pagination from 'pages/common/pagination';
-import Loading from 'pages/common/loading';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
-import Sticky from 'pages/common/sticky';
 import TableColGroup from './table/TableColGroup';
 import TableHead from './table/TableHead';
 import TableRow from './table/TableRow';
-import Wrapper from 'pages/common/loading/Wrapper';
+import CouponDetail from './couponDetail';
 
 const SalesHistoryContainer = () => {
 	// global state
@@ -31,6 +32,9 @@ const SalesHistoryContainer = () => {
 	const fCode = useRecoilValue(franState);
 	const selectedFran = userInfo?.f_list.filter((info) => info.f_code === fCode);
 	const fCodeName = selectedFran[0]?.f_code_name; // 가맹점명
+	
+	// 쿠폰 상세 내역 모달 열기
+	const [couponModal, setCouponModal] = useRecoilState(couponModalState);
 
 	const today = new Date();
 
@@ -152,7 +156,12 @@ const SalesHistoryContainer = () => {
 	// 검색마다 현재 페이지 번호 초기화
 	useEffect(() => {
 		setCurrentPage(1);
-	}, [queryTrigger]);
+	}, [queryTrigger, setCouponModal]);
+
+	// 페이지 바뀌면 쿠폰 상세 모달 제거
+	useEffect(() => {
+		setCouponModal((prev) => ({...prev, isOpen: false}));
+	}, [currentPage, setCouponModal])
 
 	return (
 		<>
@@ -173,7 +182,9 @@ const SalesHistoryContainer = () => {
 				/>
 				<div className='search-result-wrap'>
 					<div className='search-date'>
-						<p>조회기간: {historySearch.from} ~ {historySearch.to}</p>
+						<p>
+							조회기간: {historySearch.from} ~ {historySearch.to}
+						</p>
 					</div>
 					{/* 누적 합계 */}
 					<PrefixSum data={totalData} />
@@ -187,14 +198,36 @@ const SalesHistoryContainer = () => {
 								실물 상품권 주문금액은 어플 주문 건인 경우 본사계정으로 결제되며, 키오스크 주문건인 경우
 								가상계좌에서 자동으로 출금됩니다.
 							</p>
+							<p className='notification'>
+								- 본사쿠폰(미보전): 본사 발행 이벤트/프로모션 쿠폰 중 가맹점 부담 쿠폰. (23/5/1일부터{' '}
+								<span style={{ color: '#f1658a' }}>1,500원 앱전용 쿠폰</span> 가맹점 부담)
+							</p>
 						</div>
 						<div className='board-filter'>
 							<div className='check-box'>
-								<input className='check' type='checkbox' id='order' checked={isCancelShow === 1} onChange={(e) => {setIsCancelShow(e.target.value === '0' ? 1 : 0)}} value={isCancelShow} />
+								<input
+									className='check'
+									type='checkbox'
+									id='order'
+									checked={isCancelShow === 1}
+									onChange={(e) => {
+										setIsCancelShow(e.target.value === '0' ? 1 : 0);
+									}}
+									value={isCancelShow}
+								/>
 								<label htmlFor='order'>취소주문표시</label>
 							</div>
 							<div className='check-box'>
-								<input className='check' type='checkbox' id='delivery' checked={isExcludeCouBae === 1} onChange={(e) => {setIsExcludeCouBae(e.target.value === '0' ? 1 : 0)}} value={isExcludeCouBae} />
+								<input
+									className='check'
+									type='checkbox'
+									id='delivery'
+									checked={isExcludeCouBae === 1}
+									onChange={(e) => {
+										setIsExcludeCouBae(e.target.value === '0' ? 1 : 0);
+									}}
+									value={isExcludeCouBae}
+								/>
 								<label htmlFor='delivery'>쿠팡/배민 주문 제외</label>
 							</div>
 						</div>
@@ -209,7 +242,11 @@ const SalesHistoryContainer = () => {
 					<TableColGroup />
 					<TableHead ref={stickyRef} />
 					<tbody>
-						<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Today: ', e)}>
+						<ErrorBoundary
+							fallbackRender={({ resetErrorBoundary }) => (
+								<SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />
+							)}
+							onError={(e) => console.log('error on Today: ', e)}>
 							<Suspense fallback={<Loading width={100} height={100} marginTop={16} isTable={true} />}>
 								<SalesHistory
 									queryTrigger={queryTrigger}
@@ -226,6 +263,9 @@ const SalesHistoryContainer = () => {
 						</ErrorBoundary>
 					</tbody>
 				</table>
+				{/* 쿠폰 상세 내역 모달 */}
+				{couponModal.isOpen && <CouponDetail />}
+
 				{/* Excel Table */}
 				{/* Excel Loading */}
 				<Wrapper isRender={isLoadingExcel} isFixed={true} width='100%' height='100%'>
@@ -233,7 +273,11 @@ const SalesHistoryContainer = () => {
 				</Wrapper>
 				{isDownloadExcel ? (
 					<>
-						<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
+						<table
+							className='board-wrap board-top excel-table'
+							cellPadding='0'
+							cellSpacing='0'
+							ref={excelRef}>
 							<TableColGroup />
 							<TableHead />
 							<tbody>
@@ -248,7 +292,10 @@ const SalesHistoryContainer = () => {
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
 				<div className='function'>
-					<button className='goast-btn' onClick={() => setIsLoadingExcel(true)} disabled={filteredData.length === 0 || isDownloadExcel}>
+					<button
+						className='goast-btn'
+						onClick={() => setIsLoadingExcel(true)}
+						disabled={filteredData.length === 0 || isDownloadExcel}>
 						엑셀다운
 					</button>
 				</div>

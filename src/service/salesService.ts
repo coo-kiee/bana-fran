@@ -2,7 +2,15 @@
 import { useQuery } from 'react-query'
 import { queryFn } from 'hooks/useQuery'
 import { RequestParams } from 'types/common';
-import { SalesOrderParams, SalesQueryTrigger, SalesHistoryData, SalesStatisticParams, SalesStatisticData } from 'types/sales/salesType';
+import {
+	SalesOrderParams,
+	SalesQueryTrigger,
+	SalesHistoryData,
+	SalesStatisticParams,
+	SalesStatisticData,
+	SalesCouponDetailParams,
+	SalesCouponDetailData,
+} from 'types/sales/salesType';
 
 // 주문 내역 조회
 const useSalesOrderList = (params: SalesOrderParams, queryTrigger: SalesQueryTrigger) => {
@@ -33,7 +41,23 @@ const useSalesStatistic = (params: SalesStatisticParams, queryTrigger: SalesQuer
     });
 };
 
+// 쿠폰 상세 내역 조회
+const useSalesOrderCouponDetail = (params: SalesCouponDetailParams) => {
+    const reqData: RequestParams<SalesCouponDetailParams> = {
+        ws: 'fprocess',
+        query: 'LH3XVONJWEDX19MRXNNY',
+        params: params,
+    }; // web_fran_s_sales_order_use_coupon_info
+    return useQuery<SalesCouponDetailData[]>(['sales_coupon_detail', params], () => queryFn.getDataList(reqData), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        suspense: true,
+    });
+}
+
 export default {
     useSalesOrderList,
     useSalesStatistic,
+    useSalesOrderCouponDetail,
 }

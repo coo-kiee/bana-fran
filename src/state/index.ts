@@ -1,4 +1,5 @@
 import { atom } from 'recoil'
+import { CouponType } from 'types/sales/salesType';
 
 type UserInfoType = {
     staff_no: number,
@@ -10,6 +11,18 @@ type UserInfoType = {
 type LoginAuthType = {
     isLogin: boolean,
     userInfo: UserInfoType
+}
+
+type CouponInfoType = {
+    nOrderID: number,
+    type: CouponType,
+}
+
+type CouponModalType = {
+    isOpen: boolean,
+    posX: number,
+    posY: number,
+    clientY: number,
 }
 
 const loginState = atom<LoginAuthType>({
@@ -30,5 +43,23 @@ const franState = atom<number>({
     default: 0
 })
 
-export { loginState, franState }
-export type { LoginAuthType }
+const couponInfoState = atom<CouponInfoType>({
+    key: 'couponInfo',
+    default: {
+        nOrderID: 0,
+        type: '가맹점쿠폰',
+    }
+})
+
+const couponModalState = atom<CouponModalType>({
+    key: 'couponModal',
+    default: {
+        isOpen: false,
+        posX: 0,
+        posY: 0,
+        clientY: 0,
+    }
+})
+
+export { loginState, franState, couponInfoState, couponModalState }
+export type { LoginAuthType, CouponInfoType, CouponModalType }

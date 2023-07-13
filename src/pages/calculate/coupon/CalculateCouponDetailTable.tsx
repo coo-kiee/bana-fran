@@ -64,9 +64,7 @@ const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userI
     const { data: calculateCouponList } = CALCULATE_SERVICE.useCalculateCouponList(f_code, staff_no);
 
     useEffect(() => {
-        if(!calculateCouponList) return
-
-        
+        if(!calculateCouponList) return;
 
         // initialTotalInfo - { {key: CouponType}: {title: string, sum: number} }
         const [couponObj, initialTotalInfo] = calculateCouponList.reduce((res, cur, index) => {
@@ -111,22 +109,55 @@ const CalculateCouponDetailTable: FC<CalculateCouponDetailTableProps> = ({ userI
     const tableRef = useRef<HTMLTableElement | null>(null); // 엑셀 다운에 사용
 
     return (
-        <>
-            <CalculateDetailTableTop calanderSearchOption={calanderSearchOption} titleFrom={tableTopInfo.titleFrom} titleTo={tableTopInfo.titleTo} totalInfo={tableTopInfo.totalInfo} searchCondition={searchCondition} setSearchCondition={setSearchCondition} />
-            <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                <CalculateTableHeader width={width} thInfo={thInfo} tdInfo={tdInfo} />
-                <tbody>
-                    {/* List */}
-                    <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
-                        <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
-                            <TableList couponType={couponType} fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} queryTriggerDate={queryTriggerDate} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} />
-                        </Suspense>
-                    </ErrorBoundary>
-                </tbody>
-            </table>
-            <CalculateDetailTableBottom fCodeName={f_code_name} tableRef={tableRef} titleFrom={tableTopInfo.titleFrom} titleTo={tableTopInfo.titleTo} colspan={width} pageInfo={pageInfo} setPageInfo={setPageInfo} excelFileName={'본사 쿠폰 결제내역'} />
-        </>
-    );
+		<>
+			<CalculateDetailTableTop
+				calanderSearchOption={calanderSearchOption}
+				titleFrom={tableTopInfo.titleFrom}
+				titleTo={tableTopInfo.titleTo}
+				totalInfo={tableTopInfo.totalInfo}
+				searchCondition={searchCondition}
+				setSearchCondition={setSearchCondition}
+			/>
+			<p className='notification align-right'>
+				※ 앱설치 시 본사에서 제공하는 앱주문 전용 <span style={{ color: '#f1658a' }}>1,500원 할인쿠폰</span>은
+				2023년 5월 1일부터 가맹점 부담으로 변경되었습니다.
+			</p>
+			<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
+				<CalculateTableHeader width={width} thInfo={thInfo} tdInfo={tdInfo} />
+				<tbody>
+					{/* List */}
+					<ErrorBoundary
+						fallbackRender={({ resetErrorBoundary }) => (
+							<SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />
+						)}
+						onError={(e) => console.log('CouponDetail', e)}>
+						<Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
+							<TableList
+								couponType={couponType}
+								fCode={f_code}
+								staffNo={staff_no}
+								searchCondition={searchCondition}
+								queryTriggerDate={queryTriggerDate}
+								setTableTopInfo={setTableTopInfo}
+								pageInfo={pageInfo}
+								setPageInfo={setPageInfo}
+							/>
+						</Suspense>
+					</ErrorBoundary>
+				</tbody>
+			</table>
+			<CalculateDetailTableBottom
+				fCodeName={f_code_name}
+				tableRef={tableRef}
+				titleFrom={tableTopInfo.titleFrom}
+				titleTo={tableTopInfo.titleTo}
+				colspan={width}
+				pageInfo={pageInfo}
+				setPageInfo={setPageInfo}
+				excelFileName={'본사 쿠폰 결제내역'}
+			/>
+		</>
+	);
 }
 
 export default CalculateCouponDetailTable;

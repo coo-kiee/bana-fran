@@ -3,6 +3,7 @@ import { Bit, CommonParams } from "types/common";
 
 // common
 type SearchType = 'D'|'M';
+type CouponType = '가맹점쿠폰'|'본사쿠폰'|'본사쿠폰미보전';
 
 interface DataProps<T> {
 	data: T;
@@ -18,6 +19,11 @@ interface SalesOrderParams extends CommonParams {
 }
 interface SalesStatisticParams extends SalesOrderParams {
 	search_type: SearchType;
+}
+interface SalesCouponDetailParams {
+	f_code: number;
+	order_id: number;
+	coupon_type: CouponType;
 }
 interface SalesQueryTrigger {
 	from: string;
@@ -78,6 +84,12 @@ interface SalesStatisticData {
 	pos_cash_amt: number;
 	std_date: string;
 	total_sales_amt: number;
+}
+interface SalesCouponDetailData {
+	sTitle: string;
+	sEtc: string;
+	nApply: number;
+	nUseCouponAmt: number;
 }
 
 /* option value에 사용할 값 관련 타입들 */
@@ -199,6 +211,13 @@ interface SalesHistoryProps {
 	rowPerPage: number; //페이지 당 컨텐츠 수
 }
 
+// 쿠폰 상세 모달 관련
+interface CouponUsageDetailContainerProps {
+	posX: number;
+	posY: number;
+	clientY: number;
+}
+
 // statistic type
 interface SalesStatisticSearch {
     searchType: SearchType;
@@ -222,15 +241,19 @@ interface SalesLineChartTooltipProps {
 }
 
 export type {
+	CouponType,
     DataProps, 
 	DataArrayProps,
 	SalesOrderParams,
 	SalesStatisticParams,
+	SalesCouponDetailParams,
 	SalesQueryTrigger,
     SalesHistorySearch, 
 	SalesHistoryData,
 	SalesStatisticData,
+	SalesCouponDetailData,
 	SalesHistoryProps,
+	CouponUsageDetailContainerProps,
     SalesStatisticSearch, 
     ChartFilter, 
     SalesLineChartProps, 

@@ -135,20 +135,27 @@ const SalesStatistic = () => {
 	return (
 		<>
 			<div className='info-wrap'>
-				<p>※ 매출통계를 조회할 수 있습니다. (최대 {statisticSearch.searchType === 'M' ? '12개월' : '90일'} 이내)</p>
+				<p>
+					※ 매출통계를 조회할 수 있습니다. (최대 {statisticSearch.searchType === 'M' ? '12개월' : '90일'}{' '}
+					이내)
+				</p>
 			</div>
 			<div className='fixed-paid-point-wrap'>
 				<div className='chart-filter-wrap'>
 					{/* <!-- 공통 검색 Calendar with select --> */}
-					<CalanderSearch 
+					<CalanderSearch
 						dateType={statisticSearch.searchType === 'M' ? 'yyyy-MM' : 'yyyy-MM-dd'}
-						searchInfo={statisticSearch} 
-						setSearchInfo={setStatisticSearch}	
+						searchInfo={statisticSearch}
+						setSearchInfo={setStatisticSearch}
 						optionType='RADIO'
 						radioOption={searchOptionList}
 						optionList={STATISTIC_SEARCH_LIST}
 						handleSearch={handleSearch}
-						minDate={statisticSearch.searchType === 'M' ? new Date(today.getFullYear()-1, today.getMonth(), 1) : subDays(today, 90)}
+						minDate={
+							statisticSearch.searchType === 'M'
+								? new Date(today.getFullYear() - 1, today.getMonth(), 1)
+								: subDays(today, 90)
+						}
 						showMonthYearPicker={statisticSearch.searchType === 'M' ? true : false}
 						showFullMonthYearPicker={statisticSearch.searchType === 'M' ? true : false}
 					/>
@@ -162,7 +169,7 @@ const SalesStatistic = () => {
 								checked={chartFilter.total === 1}
 								value={chartFilter.total}
 								onChange={(e) => {
-									setChartFilter({ ...chartFilter, total: e.target.checked ? 1 : 0 })
+									setChartFilter({ ...chartFilter, total: e.target.checked ? 1 : 0 });
 								}}
 							/>
 							<label htmlFor='total-sales'>총 매출</label>
@@ -175,7 +182,7 @@ const SalesStatistic = () => {
 								checked={chartFilter.paid === 1}
 								value={chartFilter.paid}
 								onChange={(e) => {
-									setChartFilter({ ...chartFilter, paid: e.target.checked ? 1 : 0 })
+									setChartFilter({ ...chartFilter, paid: e.target.checked ? 1 : 0 });
 								}}
 							/>
 							<label htmlFor='paid-sales'>유상매출</label>
@@ -188,7 +195,7 @@ const SalesStatistic = () => {
 								checked={chartFilter.app === 1}
 								value={chartFilter.app}
 								onChange={(e) => {
-									setChartFilter({ ...chartFilter, app: e.target.checked ? 1 : 0 })
+									setChartFilter({ ...chartFilter, app: e.target.checked ? 1 : 0 });
 								}}
 							/>
 							<label htmlFor='delivery-sales'>배달매출</label>
@@ -201,7 +208,7 @@ const SalesStatistic = () => {
 								checked={chartFilter.free === 1}
 								value={chartFilter.free}
 								onChange={(e) => {
-									setChartFilter({ ...chartFilter, free: e.target.checked ? 1 : 0 })
+									setChartFilter({ ...chartFilter, free: e.target.checked ? 1 : 0 });
 								}}
 							/>
 							<label htmlFor='free-sales'>무상서비스</label>
@@ -211,10 +218,14 @@ const SalesStatistic = () => {
 				{/* <!-- 차트 --> */}
 				<div className='chart-wrap'>
 					<div className='line-chart chart'>
-						{!(isFetching) ? ( // loading, refetching 아닐 때
-							data ? 
-							<LineChart chartFilter={chartFilter} data={data} searchType={searchTypeMemo} /> : 
-							<div className="no-chart"><NoData /></div>
+						{!isFetching ? ( // loading, refetching 아닐 때
+							data ? (
+								<LineChart chartFilter={chartFilter} data={data} searchType={searchTypeMemo} />
+							) : (
+								<div className='no-chart'>
+									<NoData />
+								</div>
+							)
 						) : (
 							<div className='chart-loading-wrap'>
 								<Loading width={100} height={100} marginTop={0} />
@@ -224,8 +235,11 @@ const SalesStatistic = () => {
 				</div>
 				<div className='search-result-wrap'>
 					<div className='detail-info-wrap'>
-						<div className='price-info'>
+						<div className='price-info' style={{ display: 'flex', justifyContent: 'space-between' }}>
 							<p className='hyphen'>총 매출(자체 앱주문 배달비 포함): 유상매출+무상서비스</p>
+							<p className='notification'>
+								※ 본사 쿠폰 매출(미보전): 본사 발행 이벤트/프로모션 쿠폰 중 가맹점 부담 쿠폰 매출
+							</p>
 						</div>
 					</div>
 				</div>
@@ -238,22 +252,31 @@ const SalesStatistic = () => {
 					<TableColGroup />
 					<TableHead ref={stickyRef} />
 					<tbody>
-						{
-							(isFetching) ?
-							<Loading width={100} height={100} marginTop={16} isTable={true} /> :
+						{isFetching ? (
+							<Loading width={100} height={100} marginTop={16} isTable={true} />
+						) : (
 							<>
 								<TablePrefixSum data={data || []} />
 								{data && data.length > 0 ? (
 									sortedData.map((sData, idx) => {
 										// pagination
-										const isDisplay = (currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx;
-										return isDisplay ? <TableRow data={sData} key={`statistic_table_row_${idx}`} /> : null;
+										const isDisplay =
+											(currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx;
+										return isDisplay ? (
+											<TableRow data={sData} key={`statistic_table_row_${idx}`} />
+										) : null;
 									})
 								) : (
-									<NoData isTable={true} rowSpan={1} colSpan={15} paddingTop={20} paddingBottom={20} />
+									<NoData
+										isTable={true}
+										rowSpan={1}
+										colSpan={15}
+										paddingTop={20}
+										paddingBottom={20}
+									/>
 								)}
 							</>
-						}
+						)}
 					</tbody>
 				</table>
 				{/* Excel Table */}
@@ -261,37 +284,41 @@ const SalesStatistic = () => {
 				<Wrapper isRender={isLoadingExcel} isFixed={true} width='100%' height='100%'>
 					<Loading marginTop={0} />
 				</Wrapper>
-				{
-					isDownloadExcel ? (
-						<>
-							<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
-								<TableColGroup />
-								<TableHead />
-								<tbody>
-									<TablePrefixSum data={data || []} />
-									<>
-										{sortedData?.map((statisticData, idx) => {
-											return <TableRow data={statisticData} key={`statistic_excel_row_${idx}`} />
-										})}
-									</>
-								</tbody>
-							</table>
-						</>
-					) : 
-					null
-				}
+				{isDownloadExcel ? (
+					<>
+						<table
+							className='board-wrap board-top excel-table'
+							cellPadding='0'
+							cellSpacing='0'
+							ref={excelRef}>
+							<TableColGroup />
+							<TableHead />
+							<tbody>
+								<TablePrefixSum data={data || []} />
+								<>
+									{sortedData?.map((statisticData, idx) => {
+										return <TableRow data={statisticData} key={`statistic_excel_row_${idx}`} />;
+									})}
+								</>
+							</tbody>
+						</table>
+					</>
+				) : null}
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
 				<div className='function'>
-					<button className='goast-btn' onClick={() => setIsLoadingExcel(true)} disabled={isFetching || isDownloadExcel}>
+					<button
+						className='goast-btn'
+						onClick={() => setIsLoadingExcel(true)}
+						disabled={isFetching || isDownloadExcel}>
 						엑셀다운
 					</button>
 				</div>
-				<Pagination 
-					dataCnt={sortedData?.length} 
-					pageInfo={{row: rowPerPage, currentPage}} 
-					handlePageChange={setCurrentPage} 
+				<Pagination
+					dataCnt={sortedData?.length}
+					pageInfo={{ row: rowPerPage, currentPage }}
+					handlePageChange={setCurrentPage}
 					handlePageRow={setRowPerPage}
 				/>
 			</div>
