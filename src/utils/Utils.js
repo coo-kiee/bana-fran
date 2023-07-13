@@ -1,6 +1,7 @@
 import * as xlsx from 'xlsx-js-style'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
+import { Fragment } from 'react';
 
 /* eslint-disable */
 export default class Utils {
@@ -494,4 +495,37 @@ export default class Utils {
 		}
         return dayText;
     }
+
+    // 특정 문자 뒤의 공백에 줄바꿈 태그 추가
+    static addLineBreak = (orig, delimiter = '.') => {
+        const breakPoint = new RegExp(`(?<=\\${delimiter})\\s`, 'g'); // 구분자 뒤의 공백을 찾는 정규표현식
+        const result = orig.replace(breakPoint, '<br/>').split('<br/>').map((txt, idx) => {
+            return <Fragment key={idx}>{txt}<br/></Fragment> // 줄 바꿀 부분에 <br/> 문자열을 추가한 후, <br/>을 기준으로 문자를 나누고 br태그를 추가해 렌더링
+        })
+        return result;
+    }
+
+    // 특정 단어에 span+클래스(색상) 부여
+    static addWrapTextClass = (orig, target, className, mark) => {
+        const regExp = new RegExp(`${target}`, 'g')
+        const edit = orig.split(regExp); // 정규식에 따라 분리한 문장 배열
+        const result = edit.map((txt, idx) => {
+            return <Fragment key={idx}>
+                    {txt.includes(mark) ? <span className={className}>{target}</span> : ''}{txt} 
+                   </Fragment>
+        });
+        return result;
+    }
+
+    // 문장 끝마다 줄바꿈 태그 추가 & 특정 단어마다 span+클래스명 부여
+    static addLineBreakTextClass = (orig, target, delimiter = '.', className, mark) => {
+        const regExp = new RegExp(`${target}|(?<=\\${delimiter})\\s(?=\\D)`, 'g') // 줄바꿈 위치 찾기 (구분자 뒤 (default = '.'))
+        const edit = orig.split(regExp); // 색상적용할 텍스트 & 줄바꿈 위치 찾기
+        const result = edit.map((txt, idx) => {
+            return <Fragment key={idx}> {/* txt가 가장 마지막 어절이 아니면서 mark를 포함할 때 target 삽입 */}
+                    {txt.includes(mark) && idx !== (edit.length - 1) ? <span className={className}>{target}</span> : ''}{txt}{idx !== 0 ? <br /> : null} 
+                   </Fragment>
+        });
+        return result;
+    };
 }
