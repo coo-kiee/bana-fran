@@ -137,8 +137,8 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
         if (tableRef.current) {
             const options = {
                 type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
+                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X 
+                colspan: detailTableColGroup.map(wpx => ({ wpx: wpx !== '*' ? Number((Number(wpx.replace("%", "")) * 1540 / 100).toFixed(2)) : 400 })), 
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X
                 addRowColor: { row: [1], color: ['d3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
