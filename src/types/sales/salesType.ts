@@ -39,7 +39,10 @@ interface SalesHistoryData {
 	card_charge: number;
 	cash_charge: number;
 	dtRcp: string;
+	e_pay_charge: number; // 간편결제 금액
+	e_pay_type: string; // 간편결제 종류
 	etc_delivery_charge: number;
+	filter_pay_type: string; // 결제 수단
 	fran_coupon_charge: number;
 	hd_coupon_charge: number;
 	hd_coupon_charge_2: number;
@@ -71,6 +74,7 @@ interface SalesStatisticData {
 	app_card_amt: number;
 	app_delivery_amt: number;
 	app_delivery_charge: number;
+	app_e_pay_amt: number;
 	bana_point: number;
 	etc_delivery_amt: number;
 	etc_delivery_charge: number;
@@ -79,6 +83,7 @@ interface SalesStatisticData {
 	hd_coupon_charge: number;
 	hd_coupon_charge_2: number;
 	kiosk_card_amt: number;
+	kiosk_e_pay_amt: number;
 	paid_point: number;
 	paid_sales_amt: number;
 	pos_cash_amt: number;
@@ -132,6 +137,17 @@ const HISTORY_PAY_TYPE = {
 	CASH: '현장현금',
 	// CANCEL: '결제취소',
 }
+// 결제수단(PAY_WITH)
+const HISTORY_PAY_WITH = {
+	TOTAL: 'total',
+	CARD: '카드',
+	KAKAO: '카카오페이',
+	NAVER: '네이버페이',
+	APPLE: '애플페이',
+	CASH: '현금',
+	COUPON: '쿠폰(전체)',
+	POINT: '포인트(전체)'
+}
 // 상품종류(GIFT_CERT)
 const HISTORY_GIFT_CERT = {
 	TOTAL: 'total',
@@ -170,6 +186,16 @@ const HISTORY_SEARCH_TYPE_LIST = [
 		HISTORY_PAY_TYPE.CARD,
 		HISTORY_PAY_TYPE.CASH,
 		// HISTORY_PAY_TYPE.CANCEL,
+	],
+	[
+		HISTORY_PAY_WITH.TOTAL,
+		HISTORY_PAY_WITH.CARD,
+		HISTORY_PAY_WITH.KAKAO,
+		HISTORY_PAY_WITH.NAVER,
+		HISTORY_PAY_WITH.APPLE,
+		HISTORY_PAY_WITH.CASH,
+		HISTORY_PAY_WITH.COUPON,
+		HISTORY_PAY_WITH.POINT,
 	],
 	[
 		HISTORY_GIFT_CERT.TOTAL,
@@ -265,6 +291,7 @@ export {
     HISTORY_ORDER_STATE,
     HISTORY_RCP_TYPE,
     HISTORY_PAY_TYPE,
+    HISTORY_PAY_WITH,
     HISTORY_GIFT_CERT,
     HISTORY_SEARCH_TYPE_LIST,
     STATISTIC_SEARCH_TYPE,

@@ -40,7 +40,7 @@ const TableHead = forwardRef((_, forwardRef: React.LegacyRef<HTMLTableRowElement
 				<th rowSpan={2}>
 					배달비<br />(앱주문)
 				</th>
-				<th colSpan={11} className='price-area boder-th-b'>
+				<th colSpan={12} className='price-area boder-th-b'>
 					결제상세(앱주문 배달비 포함)
 				</th>
 				<th colSpan={2} className='price-area boder-th-b boder-th-l'>
@@ -51,6 +51,7 @@ const TableHead = forwardRef((_, forwardRef: React.LegacyRef<HTMLTableRowElement
 			<tr>
 				<td className='price-area boder-th-b'>합계</td>
 				<td className='price-area'>카드</td>
+				<td className='price-area'>간편결제</td>
 				<td className='price-area'>현금</td>
 				<td className='price-area'>바나포인트</td>
 				<td className='price-area'>충전포인트</td>

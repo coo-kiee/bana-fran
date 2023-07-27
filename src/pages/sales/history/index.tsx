@@ -8,7 +8,7 @@ import { couponModalState, franState, loginState } from 'state';
 
 // Types
 import { Bit } from 'types/common';
-import { HISTORY_GIFT_CERT,	HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE, HISTORY_PAY_TYPE, HISTORY_RCP_TYPE, HISTORY_SEARCH_TYPE_LIST, SalesHistoryData, SalesHistorySearch } from 'types/sales/salesType';
+import { HISTORY_GIFT_CERT,	HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE, HISTORY_PAY_TYPE, HISTORY_PAY_WITH, HISTORY_RCP_TYPE, HISTORY_SEARCH_TYPE_LIST, SalesHistoryData, SalesHistorySearch } from 'types/sales/salesType';
 // Utils
 import Utils from 'utils/Utils';
 
@@ -51,6 +51,7 @@ const SalesHistoryContainer = () => {
 			{ title: '주문상태 전체', value: 'total' },
 			{ title: '접수타입 전체', value: 'total' },
 			{ title: '결제방식 전체', value: 'total' },
+			{ title: '결제수단 전체', value: 'total' },
 			{ title: '상품종류 전체', value: 'total' },
 		],
 	});
@@ -102,6 +103,16 @@ const SalesHistoryContainer = () => {
 			[HISTORY_PAY_TYPE.CARD]: { title: '현장카드결제', value: '현장카드' },
 			[HISTORY_PAY_TYPE.CASH]: { title: '현장현금결제', value: '현장현금' },
 			// [HISTORY_PAY_TYPE.CANCEL]: { title: '결제취소', value: '결제취소' },
+		},
+		{
+			[HISTORY_PAY_WITH.TOTAL]: { title: '결제수단 전체', value: 'total' },
+			[HISTORY_PAY_WITH.CARD]: { title: '카드', value: '카드' },
+			[HISTORY_PAY_WITH.KAKAO]: { title: '카카오페이', value: '카카오페이' },
+			[HISTORY_PAY_WITH.NAVER]: { title: '네이버페이', value: '네이버페이' },
+			[HISTORY_PAY_WITH.APPLE]: { title: '애플페이', value: '애플페이' },
+			[HISTORY_PAY_WITH.CASH]: { title: '현금', value: '현금' },
+			[HISTORY_PAY_WITH.COUPON]: { title: '쿠폰(전체)', value: '쿠폰(전체)' },
+			[HISTORY_PAY_WITH.POINT]: { title: '포인트(전체)', value: '포인트(전체)' },
 		},
 		{
 			[HISTORY_GIFT_CERT.TOTAL]: { title: '상품종류 전체', value: 'total' },
@@ -162,7 +173,7 @@ const SalesHistoryContainer = () => {
 	useEffect(() => {
 		setCouponModal((prev) => ({...prev, isOpen: false}));
 	}, [currentPage, setCouponModal])
-
+	
 	return (
 		<>
 			<div className='info-wrap'>
@@ -246,7 +257,7 @@ const SalesHistoryContainer = () => {
 							fallbackRender={({ resetErrorBoundary }) => (
 								<SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />
 							)}
-							onError={(e) => console.log('error on Today: ', e)}>
+							onError={(e) => console.log('error on SalesHistory: ', e)}>
 							<Suspense fallback={<Loading width={100} height={100} marginTop={16} isTable={true} />}>
 								<SalesHistory
 									queryTrigger={queryTrigger}

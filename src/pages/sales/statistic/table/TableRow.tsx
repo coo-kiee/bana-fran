@@ -14,6 +14,8 @@ const TableRow = ({ data }: DataProps<SalesStatisticData>) => {
         paid_sales_amt,
         kiosk_card_amt,
         app_card_amt,
+        kiosk_e_pay_amt,
+        app_e_pay_amt,
         pos_cash_amt,
         paid_point,
         hd_coupon_charge,
@@ -34,6 +36,8 @@ const TableRow = ({ data }: DataProps<SalesStatisticData>) => {
             <td>{Utils.numberComma(paid_sales_amt)}</td>
             <td>{Utils.numberComma(kiosk_card_amt)}</td>
             <td>{Utils.numberComma(app_card_amt)}</td>
+            <td>{Utils.numberComma(kiosk_e_pay_amt)}</td>
+            <td>{Utils.numberComma(app_e_pay_amt)}</td>
             <td>{Utils.numberComma(pos_cash_amt)}</td>
             <td>{Utils.numberComma(etc_delivery_amt)}</td>
             <td>{Utils.numberComma(etc_delivery_charge)}</td>

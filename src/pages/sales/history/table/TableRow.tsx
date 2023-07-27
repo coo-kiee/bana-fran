@@ -29,6 +29,8 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 		nDeliveryCharge, // 배달비(앱주문)
 		nOrderID, // 주문번호
 		card_charge, // 카드
+		e_pay_charge, // 간편결제금액
+		e_pay_type, // 간편결제수단
 		cash_charge, // 현금
 		bana_point, // 바나포인트
 		paid_point, // 충전포인트
@@ -80,6 +82,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 			<td className='align-center'>{nDeliveryCharge !== 0 ? Utils.numberComma(nDeliveryCharge) : '-'}</td>
 			<td className='align-center'>{Utils.numberComma(nChargeTotal + nDeliveryCharge)}</td>
 			<td className='align-center'>{card_charge !== 0 ? Utils.numberComma(card_charge) : ''}</td>
+			<td className='align-center'>{e_pay_type ? <>{`${e_pay_charge}`}<br />{`(${e_pay_type})`}</>: ''}</td>
 			<td className='align-center'>{cash_charge !== 0 ? Utils.numberComma(cash_charge) : ''}</td>
 			<td className='align-center'>{bana_point !== 0 ? Utils.numberComma(bana_point) : ''}</td>
 			<td className='align-center'>{paid_point !== 0 ? Utils.numberComma(paid_point) : ''}</td>

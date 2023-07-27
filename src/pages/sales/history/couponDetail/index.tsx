@@ -35,7 +35,7 @@ const CouponDetail = () => {
 						</tr>
 					</thead>
 					<tbody>
-						<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Today: ', e)}>
+						<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage isTable={true} resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on History CouponDetail: ', e)}>
 							<Suspense fallback={<Loading width={16} height={16} marginTop={16} isTable={true} />}>
 								<CouponUsage />
 							</Suspense>

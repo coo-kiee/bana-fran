@@ -26,6 +26,7 @@ const TableColGroup = () => {
 			<col width='62' />
 			<col width='62' />
 			<col width='62' />
+			<col width='62' />
 			<col width='70' />
 		</colgroup>
 	);

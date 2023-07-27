@@ -20,6 +20,7 @@ const { APP, KIOSK, POS, FPROCESS, NA } = HISTORY_RCP_TYPE;
 const SalesHistory = ({ queryTrigger, historySearch, isCancelShow, isExcludeCouBae, tableData, setTableData, setTotalData, currentPage, rowPerPage}: SalesHistoryProps) => {
     // global state
 	const fCode = useRecoilValue(franState);
+    
 	// query
 	const { data, isSuccess } = SALES_SERVICE.useSalesOrderList({ from_date: historySearch.from, to_date: historySearch.to, f_code: fCode }, queryTrigger);
 
@@ -31,7 +32,8 @@ const SalesHistory = ({ queryTrigger, historySearch, isCancelShow, isExcludeCouB
             const orderState = historySearch.searchOption[1].value;
             const rcpType = historySearch.searchOption[2].value;
             const payType = historySearch.searchOption[3].value;
-            const giftCert = historySearch.searchOption[4].value;
+            const payWith = historySearch.searchOption[4].value;
+            const giftCert = historySearch.searchOption[5].value;
             
             let resultData = data;
             // selectbox
@@ -56,6 +58,9 @@ const SalesHistory = ({ queryTrigger, historySearch, isCancelShow, isExcludeCouB
             }
             if (payType !== 'total') {
                 resultData = resultData.filter((dd) => {return dd.pay_type === payType});
+            }
+            if (payWith !== 'total') {
+                resultData = resultData.filter((dd) => { if(dd.filter_pay_type === '카카오') {console.log(payWith)} return dd.filter_pay_type === payWith});
             }
             if (giftCert !== 'total') {
                 resultData = resultData.filter((dd) => {return dd.bOrderGiftCert === giftCert});

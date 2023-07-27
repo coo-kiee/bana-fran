@@ -14,6 +14,8 @@ const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
         paid_sales_amt, 
         kiosk_card_amt,
         app_card_amt,
+        kiosk_e_pay_amt,
+        app_e_pay_amt,
         pos_cash_amt,
         paid_point,
         hd_coupon_charge,
@@ -30,6 +32,8 @@ const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
 		paid_sales_amt: data?.reduce((acc, cur) => { return acc + cur.paid_sales_amt; }, 0),            // 유상매출 합계
 		kiosk_card_amt: data?.reduce((acc, cur) => { return acc + cur.kiosk_card_amt; }, 0),            // 카드(키오스크/POS)
 		app_card_amt: data?.reduce((acc, cur) => { return acc + cur.app_card_amt; }, 0),                // 카드매출(어플)
+		kiosk_e_pay_amt: data?.reduce((acc, cur) => { return acc + cur.kiosk_e_pay_amt; }, 0),          // 간편결제(키오스크/POS)
+		app_e_pay_amt: data?.reduce((acc, cur) => { return acc + cur.app_e_pay_amt; }, 0),              // 간편결제(어플)
 		pos_cash_amt: data?.reduce((acc, cur) => { return acc + cur.pos_cash_amt; }, 0),                // 현금매출
 		paid_point: data?.reduce((acc, cur) => { return acc + cur.paid_point; }, 0),                    // 유상포인트
 		hd_coupon_charge: data?.reduce((acc, cur) => { return acc + cur.hd_coupon_charge; }, 0),        // 본사쿠폰(보전)
@@ -44,7 +48,7 @@ const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
             <td className='total'>합계</td>
             <td className='total'>
                 {Utils.numberComma(total_sales_amt)}<br />
-                <span>({total_sales_amt !== 0 ? 100 : 0}%)</span>
+                <span>({total_sales_amt ? 100 : 0}%)</span>
             </td>
             <td className='total'>
                 {Utils.numberComma(app_delivery_amt)}<br />
@@ -69,6 +73,18 @@ const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
                 {Utils.numberComma(app_card_amt)}<br />
                 <span>
                     ({(100 * app_card_amt / total_sales_amt || 0).toFixed(1)}%)
+                </span>
+            </td>
+            <td className='total'>
+                {Utils.numberComma(kiosk_e_pay_amt)}<br />
+                <span>
+                    ({(100 * kiosk_e_pay_amt / total_sales_amt || 0).toFixed(1)}%)
+                </span>
+            </td>
+            <td className='total'>
+                {Utils.numberComma(app_e_pay_amt)}<br />
+                <span>
+                    ({(100 * app_e_pay_amt / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
             <td className='total'>

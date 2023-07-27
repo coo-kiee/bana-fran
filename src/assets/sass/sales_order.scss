@@ -1,5 +1,6 @@
 .sales_order {
     .contents { position: relative; width: 100%; padding-top: 40px; 
+        .search-result { max-height: 210px; }
         .detail-info-wrap { display: flex; justify-content: space-between;
             .board-filter { display: flex; gap: 20px;
                 .check-box { display: flex;

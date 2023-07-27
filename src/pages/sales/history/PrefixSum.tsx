@@ -12,11 +12,12 @@ const { GIFT_CERT } = HISTORY_GIFT_CERT;
 const PrefixSum = ({ data }: DataArrayProps<SalesHistoryData>) => {
 	// 기간별 상세내역 누적 합계
 	const {
-		chargeTotal, deliveryCharge, cardCharge, cashCharge, paidPoint, banaPoint, franCoupon, hdCoupon, hdCoupon2, savingPoint, giftCertCharge, couBaeCharge
+		chargeTotal, deliveryCharge, cardCharge, ePayCharge, cashCharge, paidPoint, banaPoint, franCoupon, hdCoupon, hdCoupon2, savingPoint, giftCertCharge, couBaeCharge
 	} = {
 		chargeTotal: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.nChargeTotal : acc}, 0),
 		deliveryCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.nDeliveryCharge : acc}, 0),
 		cardCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.card_charge : acc}, 0),
+		ePayCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.e_pay_charge : acc}, 0),
 		cashCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.cash_charge : acc}, 0),
 		paidPoint: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.paid_point : acc}, 0),
 		banaPoint: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.bana_point : acc}, 0),
@@ -34,6 +35,7 @@ const PrefixSum = ({ data }: DataArrayProps<SalesHistoryData>) => {
 		{title: '배달비 합계', charge: deliveryCharge},
 		{title: '주문금액+배달비 합계', charge: chargeTotal + deliveryCharge},
 		{title: '카드결제 합계', charge: cardCharge},
+		{title: '간편결제 합계', charge: ePayCharge},
 		{title: '현금결제 합계', charge: cashCharge},
 		{title: '유상포인트 결제 합계', charge: paidPoint},
 		{title: '바나포인트/가맹점무료쿠폰 결제 합계', charge: banaPoint + franCoupon},
