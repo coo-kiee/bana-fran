@@ -17,19 +17,20 @@ const Today = () => {
 	const fCode = useRecoilValue(franState);
 	const { data } = HOME_SERVICE.useSalesToday({ f_code: fCode });
 	
-	// 배달매출, 카드결제, 현금결제, 유상포인트결제, 본사쿠폰결제, 쿠팡/배민, 가맹점쿠폰결제, 바나포인트결제,
-	const [freeService, paidSales, totalSales, {delivery_charge, card_charge, cash_charge, paid_point, hd_coupon_charge, hd_coupon_charge_2, etc_delivery_charge, fran_coupon_charge, bana_point}] = useMemo(() => {
+	// 배달매출, 카드결제, 간편결제, 현금결제, 유상포인트결제, 본사쿠폰결제(보전), 쿠팡/배민, 가맹점쿠폰결제, 바나포인트결제, 본사쿠폰결제(미보전)
+	const [freeService, paidSales, totalSales, { delivery_charge, card_charge, e_pay_charge, cash_charge, paid_point, hd_coupon_charge, etc_delivery_charge, fran_coupon_charge, bana_point, hd_coupon_charge_2 }] = useMemo(() => {
 		// 매출 상세 내역
 		let todayData = {
 			delivery_charge: 0, 
 			card_charge: 0, 
+			e_pay_charge: 0,
 			cash_charge: 0, 
 			paid_point: 0, 
 			hd_coupon_charge: 0, 
-			hd_coupon_charge_2: 0,
 			etc_delivery_charge: 0, 
 			fran_coupon_charge: 0, 
-			bana_point: 0
+			bana_point: 0,
+			hd_coupon_charge_2: 0
 		}
 		// 무/유상 매출 합계
 		let	freeService = 0,
@@ -38,7 +39,7 @@ const Today = () => {
 		if (data) {
 			todayData = data[0];
 			freeService = data[0].fran_coupon_charge + data[0].bana_point + data[0].hd_coupon_charge_2;
-			paidSales = data[0].card_charge + data[0].cash_charge + data[0].paid_point + data[0].hd_coupon_charge + data[0].etc_delivery_charge;
+			paidSales = data[0].card_charge + data[0].cash_charge + data[0].e_pay_charge + data[0].paid_point + data[0].hd_coupon_charge + data[0].etc_delivery_charge;
 			totalSales = freeService + paidSales;
 		}
 		return [freeService, paidSales, totalSales, todayData]
@@ -55,6 +56,9 @@ const Today = () => {
 			</td>
 			<td>
 				{Utils.numberComma(card_charge || 0)}원<span className='percentage'>({(100 * card_charge/totalSales || 0).toFixed(1)}%)</span>
+			</td>
+			<td>
+				{Utils.numberComma(e_pay_charge || 0)}원<span className='percentage'>({(100 * e_pay_charge/totalSales || 0).toFixed(1)}%)</span>
 			</td>
 			<td>
 				{Utils.numberComma(cash_charge || 0)}원<span className='percentage'>({(100 * cash_charge/totalSales || 0).toFixed(1)}%)</span>
@@ -101,17 +105,19 @@ const TodayContainer = () => {
 					<col width='163' />
 					<col width='163' />
 					<col width='163' />
+					<col width='163' />
 				</colgroup>
 				<thead>
 					<tr>
 						<th rowSpan={2}>총매출 <br /> (부가세 포함)</th>
 						<th rowSpan={2}>배달매출 <br /> (부가세 포함) </th>
-						<th colSpan={6}>유상매출 (부가세 포함)</th>
+						<th colSpan={7}>유상매출 (부가세 포함)</th>
 						<th colSpan={4}>무상 서비스 비용</th>
 					</tr>
 					<tr>
 						<td className='sales'>합계</td>
 						<td className='sales'>카드결제</td>
+						<td className='sales'>간편결제</td>
 						<td className='sales'>현금결제</td>
 						<td className='sales'>유상포인트결제</td>
 						<td className='sales'>본사쿠폰결제(보전)</td>

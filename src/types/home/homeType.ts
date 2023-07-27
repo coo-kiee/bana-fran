@@ -34,6 +34,7 @@ interface HomeMembershipData {
 interface HomeSalesTodayData {
 	bana_point: number;
 	card_charge: number;
+	e_pay_charge: number;
 	cash_charge: number;
 	d_store_coupon_charge: number;
 	delivery_charge: number;

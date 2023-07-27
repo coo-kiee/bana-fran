@@ -38,7 +38,7 @@ const MonthlySalesConatiner = () => {
         <Board boardClass='month-sales' title='Month' url='/sales/statistic' suffix='총 매출'>
             <div className='contents-list calendar'>
                 <CalendarHeader selectedDate={selectedDate} prevMonth={prevMonth} nextMonth={nextMonth} />
-                <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on MonthlyOrder(Month 총 매출): ', e)}>
+                <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on MonthlySales(Month 총 매출): ', e)}>
                     <Suspense fallback={<Loading width={50} height={50} marginTop={100} />}>
                         <MonthlySales selectedDate={selectedDate} />
                     </Suspense>
