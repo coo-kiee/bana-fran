@@ -82,36 +82,38 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 			<td className='align-center'>{nDeliveryCharge !== 0 ? Utils.numberComma(nDeliveryCharge) : '-'}</td>
 			<td className='align-center'>{Utils.numberComma(nChargeTotal + nDeliveryCharge)}</td>
 			<td className='align-center'>{card_charge !== 0 ? Utils.numberComma(card_charge) : ''}</td>
-			<td className='align-center'>{e_pay_type ? <>{`${e_pay_charge}`}<br />{`(${e_pay_type})`}</>: ''}</td>
+			<td className='align-center'>
+				{e_pay_type && (
+					<>
+						{`${e_pay_charge}`}
+						<br />
+						{`(${e_pay_type})`}
+					</>
+				)}
+			</td>
 			<td className='align-center'>{cash_charge !== 0 ? Utils.numberComma(cash_charge) : ''}</td>
 			<td className='align-center'>{bana_point !== 0 ? Utils.numberComma(bana_point) : ''}</td>
 			<td className='align-center'>{paid_point !== 0 ? Utils.numberComma(paid_point) : ''}</td>
 			<td className='align-center'>{small_point !== 0 ? Utils.numberComma(small_point) : ''}</td>
 			<td className='align-center'>
-				{fran_coupon_charge !== 0 ? (
+				{fran_coupon_charge !== 0 && (
 					<span className='underline pointer' onClick={(e) => handleClickPoint(e, '가맹점쿠폰')}>
 						{Utils.numberComma(fran_coupon_charge)}
 					</span>
-				) : (
-					''
 				)}
 			</td>
 			<td className='align-center'>
-				{hd_coupon_charge !== 0 ? (
+				{hd_coupon_charge !== 0 && (
 					<span className='underline pointer' onClick={(e) => handleClickPoint(e, '본사쿠폰')}>
 						{Utils.numberComma(hd_coupon_charge)}
 					</span>
-				) : (
-					''
 				)}
 			</td>
 			<td className='align-center'>
-				{hd_coupon_charge_2 !== 0 ? (
+				{hd_coupon_charge_2 !== 0 && (
 					<span className='underline pointer' onClick={(e) => handleClickPoint(e, '본사쿠폰미보전')}>
 						{Utils.numberComma(hd_coupon_charge_2)}
 					</span>
-				) : (
-					''
 				)}
 			</td>
 			<td className='align-center'>{etc_delivery_charge !== 0 ? Utils.numberComma(etc_delivery_charge) : ''}</td>

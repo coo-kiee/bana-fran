@@ -1,33 +1,10 @@
 const TableColGroup = () => {
+	// const tableWidth = ['105', '105', '70', '70', '110', '70', '110', '42', '65', '65', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '70']
+	const tableWidth = ['5.60%', '5.60%', '3.74%', '3.74%', '5.87%', '3.74%', '5.87%', '2.24%', '3.47%', '3.47%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.31%', '3.74%']
+	
 	return (
 		<colgroup>
-			<col width='105' />
-			<col width='105' />
-			<col width='70' />
-			<col width='70' />
-			<col width='110' />
-			<col width='70' />
-			<col width='110' />
-			<col width='42' />
-			<col width='65' />
-			<col width='65' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='62' />
-			<col width='70' />
+			{tableWidth.map((width, idx) => <col width={width} key={width + idx} />)}
 		</colgroup>
 	);
 };
