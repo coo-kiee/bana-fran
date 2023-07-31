@@ -35,6 +35,7 @@ interface SalesHistoryData {
 	[key: string]: number|string;
 	bOrderGiftCert: '0'|'1';
 	bana_point: number;
+	bonus_point: number;
 	cancel_date: string;
 	card_charge: number;
 	cash_charge: number;

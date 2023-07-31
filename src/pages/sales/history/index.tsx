@@ -21,7 +21,7 @@ import Wrapper from 'pages/common/loading/Wrapper';
 import Sticky from 'pages/common/sticky';
 import PrefixSum from 'pages/sales/history/PrefixSum';
 import SalesHistory from 'pages/sales/history/SalesHistory';
-import TableColGroup from './table/TableColGroup';
+import TableColGroup from 'pages/sales/components/TableColGroup';
 import TableHead from './table/TableHead';
 import TableRow from './table/TableRow';
 import CouponDetail from './couponDetail';
@@ -121,6 +121,9 @@ const SalesHistoryContainer = () => {
 		}
 	];
 
+	// table colgroup 배열
+	const tableColGroup = ['105', '105', '70', '70', '110', '70', '110', '42', '65', '65', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '70'] // 총합 1936
+
 	/* sticky 기준 ref */
 	const stickyRef = useRef<HTMLTableRowElement>(null);
 	const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
@@ -135,7 +138,7 @@ const SalesHistoryContainer = () => {
 			const options = {
 				type: 'table', // 필수 O
 				sheetOption: { origin: 'A1' }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-				colspan: [ { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 28 }, { wch: 6 }, { wch: 15 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 14 }, { wch: 14 }, { wch: 14 } ], // 셀 너비 설정, 필수 X
+				colspan: [ { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 28 }, { wch: 6 }, { wch: 15 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 14 } ], // 셀 너비 설정, 필수 X
 				addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] },
 				sheetName: '주문내역', // 시트이름, 필수 X
 			};
@@ -246,11 +249,11 @@ const SalesHistoryContainer = () => {
 				</div>
 				{/* <!-- 주문내역 Table --> */}
 				<Sticky reference={stickyRef.current} contentsRef={tableRef.current}>
-					<TableColGroup />
+					<TableColGroup tableColGroup={tableColGroup} />
 					<TableHead />
 				</Sticky>
 				<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
-					<TableColGroup />
+					<TableColGroup tableColGroup={tableColGroup} />
 					<TableHead ref={stickyRef} />
 					<tbody>
 						<ErrorBoundary
@@ -289,7 +292,7 @@ const SalesHistoryContainer = () => {
 							cellPadding='0'
 							cellSpacing='0'
 							ref={excelRef}>
-							<TableColGroup />
+							<TableColGroup tableColGroup={tableColGroup} />
 							<TableHead />
 							<tbody>
 								{filteredData.map((data) => (

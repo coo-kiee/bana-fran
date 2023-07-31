@@ -34,6 +34,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 		cash_charge, // 현금
 		bana_point, // 바나포인트
 		paid_point, // 충전포인트
+		bonus_point, // 보너스 충전포인트
 		small_point, // 잔돈포인트
 		fran_coupon_charge, // 가맹점쿠폰
 		hd_coupon_charge, // 본사쿠폰(보전)
@@ -65,7 +66,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 		// coupon api params
 		setCouponInfo({ nOrderID, type });
 	}
-
+	
 	return (
 		<tr>
 			<td className='align-center'>{convertDateLineBreak(rcp_date)}</td>
@@ -94,6 +95,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 			<td className='align-center'>{cash_charge !== 0 ? Utils.numberComma(cash_charge) : ''}</td>
 			<td className='align-center'>{bana_point !== 0 ? Utils.numberComma(bana_point) : ''}</td>
 			<td className='align-center'>{paid_point !== 0 ? Utils.numberComma(paid_point) : ''}</td>
+			<td className='align-center'>{bonus_point !== 0 ? Utils.numberComma(bonus_point) : ''}</td>
 			<td className='align-center'>{small_point !== 0 ? Utils.numberComma(small_point) : ''}</td>
 			<td className='align-center'>
 				{fran_coupon_charge !== 0 && (

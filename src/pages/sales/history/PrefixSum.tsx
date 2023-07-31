@@ -19,7 +19,7 @@ const PrefixSum = ({ data }: DataArrayProps<SalesHistoryData>) => {
 		cardCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.card_charge : acc}, 0),
 		ePayCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.e_pay_charge : acc}, 0),
 		cashCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.cash_charge : acc}, 0),
-		paidPoint: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.paid_point : acc}, 0),
+		paidPoint: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.paid_point + cur.bonus_point : acc}, 0), // 보너스 충전포인트까지 합산
 		banaPoint: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.bana_point : acc}, 0),
 		franCoupon: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.fran_coupon_charge : acc}, 0),
 		hdCoupon: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.hd_coupon_charge : acc}, 0),

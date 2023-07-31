@@ -528,4 +528,8 @@ export default class Utils {
         });
         return result;
     };
+
+    static getPercent = (data, rootData) => {
+		return `${((data / rootData) * 100).toFixed(2)}%`;
+	}
 }

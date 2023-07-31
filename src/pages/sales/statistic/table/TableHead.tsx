@@ -21,7 +21,7 @@ const TableHead = forwardRef((_, forwardRef: React.LegacyRef<HTMLTableRowElement
                     유상 매출 상세 (부가세 포함)
                 </th>
                 <th rowSpan={2} className='bg-right'>
-                    무상서비스 비용 합계
+                    무상서비스<br/>비용 합계
                 </th>
                 <th colSpan={3} className='bg-bottom'>
                     무상서비스 비용 상세

@@ -19,11 +19,11 @@ import CalanderSearch from "pages/common/calanderSearch";
 import LineChart from "pages/sales/statistic/chart";
 import NoData from 'pages/common/noData';
 import Sticky from "pages/common/sticky";
-import TableColGroup from "./table/TableColGroup";
+import Wrapper from "pages/common/loading/Wrapper";
+import TableColGroup from "pages/sales/components/TableColGroup";
 import TableHead from "./table/TableHead";
 import TablePrefixSum from "./table/TablePrefixSum";
 import TableRow from "./table/TableRow";
-import Wrapper from "pages/common/loading/Wrapper";
 
 const SalesStatistic = () => {
 	// global state
@@ -71,6 +71,9 @@ const SalesStatistic = () => {
 		[STATISTIC_SEARCH_TYPE.MONTH]: { title: '월별', id: 'month', value: 'M' },
 	}];
 
+	// table colgroup 배열
+	const tableColGroup = ['122', '122', '122','122','122','122','122','122','122','122','122','122','122','122','122','122','122','122'];
+
 	/* sticky 기준 ref */
 	const stickyRef = useRef<HTMLTableRowElement>(null);
     const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
@@ -85,7 +88,7 @@ const SalesStatistic = () => {
             const options = {
                 type: 'table', // 필수 O
                 sheetOption: { origin: "A1" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: [{wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 22}, {wch: 16}, {wch: 16},], // 셀 너비 설정, 필수 X
+                colspan: [{wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 22}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}], // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','ffc89f'] },
                 sheetName: '매출통계', // 시트이름, 필수 X
             };
@@ -245,11 +248,11 @@ const SalesStatistic = () => {
 				</div>
 				{/* <!-- 매출통계 Table --> */}
 				<Sticky reference={stickyRef.current} contentsRef={tableRef.current}>
-					<TableColGroup />
+					<TableColGroup tableColGroup={tableColGroup} />
 					<TableHead />
 				</Sticky>
 				<table className='board-wrap board-top' cellPadding='0' cellSpacing='0' ref={tableRef}>
-					<TableColGroup />
+					<TableColGroup tableColGroup={tableColGroup} />
 					<TableHead ref={stickyRef} />
 					<tbody>
 						{isFetching ? (
@@ -291,7 +294,7 @@ const SalesStatistic = () => {
 							cellPadding='0'
 							cellSpacing='0'
 							ref={excelRef}>
-							<TableColGroup />
+							<TableColGroup tableColGroup={tableColGroup} />
 							<TableHead />
 							<tbody>
 								<TablePrefixSum data={data || []} />
