@@ -1,4 +1,4 @@
-import { FC, ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import React, { FC, ReactNode, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 // API
@@ -137,31 +137,49 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, queryT
 
         // 필터링 된 Table List 생성
         const tableList = pointDetailList?.reduce((arr, pointDetail, index) => {
-
-            const { rcp_date, item_name, phone, nChargeTotal, total_amt, use_point_type, rcp_type, supply_amt, vat_amt } = pointDetail;
-            const [date] = rcp_date.split(' '); // [date, time]
+            const isCurrentPage = (index >= (currentPage - 1) * row && index < currentPage * row);
 
             // 합계 계산
-            totalObj[use_point_type as keyof TotalInfo].sum += total_amt;
-            totalObj.전체포인트.sum += total_amt;
+            if (pointDetail.bonus_point_type) totalObj[pointDetail.bonus_point_type as keyof TotalInfo].sum += pointDetail.total_bonus_amt;
+            if (pointDetail.use_point_type) totalObj[pointDetail.use_point_type as keyof TotalInfo].sum += pointDetail.total_paid_amt;
+            totalObj.전체포인트.sum += pointDetail.total_amt;
 
             // 필터링 조건
-            const isPointType = searchOption[0].value === POINT_TYPE_OPTION[POINT_TYPE.ALL].value || searchOption[0].value === use_point_type;
-            const isDeviceType = searchOption[1].value === DEVICE_TYPE_OPTION[DEVICE_TYPE.ALL].value || searchOption[1].value === rcp_type;
+            const isPointType = searchOption[0].value === POINT_TYPE_OPTION[POINT_TYPE.ALL].value || searchOption[0].value === pointDetail.use_point_type || searchOption[0].value === pointDetail.bonus_point_type;
+            const isDeviceType = searchOption[1].value === DEVICE_TYPE_OPTION[DEVICE_TYPE.ALL].value || searchOption[1].value === pointDetail.rcp_type;
+
+            const rowSpan = pointDetail.bonus_point_type ? 2 : 1
 
             if (isPointType && isDeviceType) {
                 arr.push(
                     <>
-                        <td className="align-center">{date}</td>
-                        <td className="align-left">{item_name}</td>
-                        <td className="align-center">{phone}</td>
-                        <td className="align-right">{Utils.numberComma(nChargeTotal)}</td>
-                        <td className="align-right">{Utils.numberComma(total_amt)}</td>
-                        <td className="align-center">{use_point_type}</td>
-                        <td className="align-center">{rcp_type}</td>
-                        <td className="align-right">{Utils.numberComma(supply_amt)}</td>
-                        <td className="align-right">{Utils.numberComma(vat_amt)}</td>
-                        <td className="align-right">{Utils.numberComma(total_amt)}</td>
+                        <tr style={{ display: isCurrentPage ? '' : 'none' }}>
+                            <td className="align-center" rowSpan={rowSpan}>{pointDetail.rcp_date.split(' ')[0]}</td>
+                            <td className="align-left" rowSpan={rowSpan}>{pointDetail.item_name}</td>
+                            <td className="align-center" rowSpan={rowSpan}>{pointDetail.phone}</td>
+                            <td className="align-right" rowSpan={rowSpan}>{Utils.numberComma(pointDetail.nChargeTotal)}</td>
+                            <td className="align-right" rowSpan={rowSpan}>{Utils.numberComma(pointDetail.total_amt)}</td>
+                            <td className="align-center" >{pointDetail.use_point_type}</td>
+                            <td className="align-center" rowSpan={rowSpan}>{pointDetail.rcp_type}</td>
+                            <td className="align-right" >{Utils.numberComma(pointDetail.supply_amt)}</td>
+                            <td className="align-right" >{Utils.numberComma(pointDetail.vat_amt)}</td>
+                            <td className="align-right" >{Utils.numberComma(pointDetail.total_paid_amt)}</td>
+                            <td className="align-right" >{Utils.numberComma(pointDetail.fee_supply_amt)}</td>
+                            <td className="align-right" >{Utils.numberComma(pointDetail.fee_vat_amt)}</td>
+                            <td className="align-right" >{Utils.numberComma(pointDetail.fee_supply_amt + pointDetail.fee_vat_amt)}</td>
+                        </tr>
+                        {
+                            pointDetail.bonus_point_type &&
+                            <tr style={{ display: isCurrentPage ? '' : 'none' }}>
+                                <td className="align-center" >{pointDetail.bonus_point_type}</td>
+                                <td className="align-right" >{Utils.numberComma(pointDetail.bonus_supply_amt)}</td>
+                                <td className="align-right" >{Utils.numberComma(pointDetail.bonus_vat_amt)}</td>
+                                <td className="align-right" >{Utils.numberComma(pointDetail.total_bonus_amt)}</td>
+                                <td className="align-right" >{Utils.numberComma(pointDetail.fee_bonus_supply_amt)}</td>
+                                <td className="align-right" >{Utils.numberComma(pointDetail.fee_bonus_vat_amt)}</td>
+                                <td className="align-right" >{Utils.numberComma(pointDetail.fee_bonus_supply_amt + pointDetail.fee_bonus_vat_amt)}</td>
+                            </tr>
+                        }
                     </>
                 )
             }
@@ -169,12 +187,12 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, queryT
         }, [] as ReactNode[]);
 
         return [tableList, totalObj];
-    }, [pointDetailList, searchOption]);
+    }, [currentPage, pointDetailList, row, searchOption]);
 
     // 페이지 로딩 && 필터적용 시 페이지 정보 수정
     useEffect(() => {
-        if (renderTableList) setPageInfo(prev => ({ ...prev, dataCnt: renderTableList.length, currentPage: 1 }));
-    }, [setPageInfo, renderTableList]);
+        if (renderTableList?.length) setPageInfo(prev => ({ ...prev, dataCnt: renderTableList.length, currentPage: 1 }));
+    }, [setPageInfo, renderTableList?.length]);
 
     // 페이지 로딩 시 합계 값 대입
     useEffect(() => {
@@ -185,8 +203,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, queryT
         <>
             {/* 페이지네이션 적용 */}
             {renderTableList?.map((item, index) => {
-                const isCurrentPage = (index >= (currentPage - 1) * row && index < currentPage * row);
-                return (<tr key={index} style={{ display: isCurrentPage ? '' : 'none' }}>{item}</tr>);
+                return (<React.Fragment key={index} >{item}</React.Fragment>);
             })}
             {renderTableList?.length === 0 && <NoData isTable={true} />}
         </>
@@ -195,7 +212,7 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, searchCondition, queryT
 
 // Component Type
 const TABLE_COLUMN_INFO = {
-    width: ['188', '393', '136', '125', '160', '134', '92', '131', '131', '131'],
+    width: ['100', '250', '136', '100', '100', '134', '92', '100', '100', '100', '100', '100', '100'],
     thInfo: [
         { text: '결제일시', rowSpan: 2, colSpan: 1, className: '' },
         { text: '주문메뉴', rowSpan: 2, colSpan: 1, className: '' },
@@ -205,28 +222,32 @@ const TABLE_COLUMN_INFO = {
         { text: '유상포인트 구분', rowSpan: 2, colSpan: 1, className: '' },
         { text: '거래기기', rowSpan: 2, colSpan: 1, className: '' },
         { text: '유상포인트 결제금액', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
+        { text: '수수료 (2.2%)', rowSpan: 1, colSpan: 3, className: 'price-area boder-th-b' },
     ],
-    tdInfo: ['공급가', '부가세', '합계']
+    tdInfo: ['공급가', '부가세', '합계', '공급가 (2%)', '부가세 (0.2%)', '합계 (2.2%)']
 } as const;
 
 const POINT_TYPE = {
     CHARGE: '충전포인트',
     CHANGE: '잔돈포인트',
+    BONUS_CHARGE: '보너스 충전포인트',
     ALL: '전체포인트',
 } as const;
 type PointType = typeof POINT_TYPE[keyof typeof POINT_TYPE];
 
 const POINT_TYPE_OPTION = {
     [POINT_TYPE.ALL]: { title: '포인트 구분 전체', value: POINT_TYPE.ALL }, // Option default 값 전체로 오려면 ALL이 제일 위에 있어야함
-    [POINT_TYPE.CHARGE]: { title: '충전포인트', value: POINT_TYPE.CHARGE },
-    [POINT_TYPE.CHANGE]: { title: '잔돈포인트', value: POINT_TYPE.CHANGE },
+    [POINT_TYPE.CHARGE]: { title: POINT_TYPE.CHARGE, value: POINT_TYPE.CHARGE },
+    [POINT_TYPE.CHANGE]: { title: POINT_TYPE.CHANGE, value: POINT_TYPE.CHANGE },
+    [POINT_TYPE.BONUS_CHARGE]: { title: POINT_TYPE.BONUS_CHARGE, value: POINT_TYPE.BONUS_CHARGE },
 } as const;
 
 
 const POINT_TOTAL_TITLE = {
     [POINT_TYPE.CHARGE]: '충전포인트 사용금액 합계',
+    [POINT_TYPE.BONUS_CHARGE]: '충전포인트(보너스) 사용금액 합계',
     [POINT_TYPE.CHANGE]: '잔돈포인트 사용금액 합계',
-    [POINT_TYPE.ALL]: '유상(충전+잔돈)포인트 사용금액 합계',
+    [POINT_TYPE.ALL]: '유상(충전+보너스+잔돈)포인트 사용금액 합계',
 } as const;
 type PointTotalTitle = typeof POINT_TOTAL_TITLE[keyof typeof POINT_TOTAL_TITLE];
 

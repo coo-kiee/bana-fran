@@ -68,12 +68,21 @@ type CalculatePointDetailListQueryResult = {
     rcp_date: string, // 결제일시
     item_name: string, // 주문 메뉴
     phone: string, // 주문자
-    nChargeTotal: number, // 총 주문금액
-    total_amt: number, // 유상포인트 사용금액 / 유상포인트 결제금액 합계
-    use_point_type: string, // 유상포인트 구분
     rcp_type: string, // 거래기기
-    supply_amt: number, // 유상포인트 결제금액 공급가
-    vat_amt: number, // 유상포인트 결제금액 부가세
+    nChargeTotal: number, // 총 주문금액
+    use_point_type: string, // 유상포인트 구분
+    supply_amt: number, // 유상포인트 공급가
+    vat_amt: number, // 유상포인트 부가세
+    bonus_supply_amt: number,  // 보너스 포인트 공급가
+    bonus_vat_amt:number, // 보너스 포인트 부가세
+    bonus_point_type: string, // 보너스 충전포인트 필터값
+    fee_supply_amt: string, // 유상포인트 수수료 공급가
+    fee_vat_amt: number, // 유상포인트 수수료 부가세
+    fee_bonus_supply_amt: string, // 보너스 충전포인트 수수료 공급가
+    fee_bonus_vat_amt: number, // 보너스 충전포인트 수수료 부가세
+    total_paid_amt: number, // 유상 포인트 사용 금액 합계
+    total_bonus_amt: number, // 보너스 포인트 사용 금액 합계
+    total_amt: number, // 유상 + 보너스 포인트 사용 금액 합계
 };
 
 // 본사 쿠폰 결제내역 상세
