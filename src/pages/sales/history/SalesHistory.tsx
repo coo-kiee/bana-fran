@@ -85,7 +85,7 @@ const SalesHistory = ({ queryTrigger, historySearch, isCancelShow, isExcludeCouB
 					return isDisplay ? <TableRow data={data} key={`history_row_${idx}`} /> : null;
 				})
 			) : (
-				<NoData isTable={true} rowSpan={1} colSpan={25} paddingTop={20} paddingBottom={20} />
+				<NoData isTable={true} rowSpan={1} colSpan={28} paddingTop={20} paddingBottom={20} />
 			)}
 		</>
 	);

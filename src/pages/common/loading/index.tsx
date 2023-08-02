@@ -38,7 +38,7 @@ interface LoadingProps {
 const Loading: FC<LoadingProps> = ({ width = 200, height = 200, marginTop = 50, isTable = false }) => {
 
     return (
-        isTable ? <tr><td className="no-data" rowSpan={10} colSpan={26} style={{ background: '#fff' }}><Spinner width={width} height={height} marginTop={marginTop} /></td></tr>
+        isTable ? <tr><td className="no-data" rowSpan={10} colSpan={28} style={{ background: '#fff' }}><Spinner width={width} height={height} marginTop={marginTop} /></td></tr>
         : <Spinner width={width} height={height} marginTop={marginTop} />
     );
 }

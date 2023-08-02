@@ -273,7 +273,7 @@ const SalesStatistic = () => {
 									<NoData
 										isTable={true}
 										rowSpan={1}
-										colSpan={15}
+										colSpan={18}
 										paddingTop={20}
 										paddingBottom={20}
 									/>
