@@ -262,9 +262,7 @@ const SalesStatistic = () => {
 							isFetching={isFetching}
 							isData={data && data.length > 0}
 							loader={<Loading width={100} height={100} marginTop={16} isTable={true} />}
-							noData={
-								<NoData isTable={true} rowSpan={1} colSpan={18} paddingTop={20} paddingBottom={20} />
-							}>
+							noData={<NoData isTable={true} rowSpan={1} colSpan={18} paddingTop={20} paddingBottom={20} />}>
 							<TablePrefixSum data={data || []} />
 							{sortedData.map((sData, idx) => {
 								// pagination
@@ -275,7 +273,7 @@ const SalesStatistic = () => {
 					</tbody>
 				</table>
 				{/* Excel Table */}
-				<DataLoader isData={isDownloadExcel} noData={null}>
+				<DataLoader isData={isDownloadExcel}>
 					{/* Excel Loading */}
 					{/* isFetching, loader 옵션 미사용, 별도 처리 */}
 					<Wrapper isRender={isLoadingExcel} isFixed={true} width='100%' height='100%'>

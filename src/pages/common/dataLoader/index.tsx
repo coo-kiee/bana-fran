@@ -1,5 +1,4 @@
 import Loading from 'pages/common/loading';
-import NoData from 'pages/common/noData';
 
 interface DataLoaderProps {
 	children: React.ReactNode;
@@ -15,7 +14,7 @@ const DataLoader = ({
 	isData = true,
 	isFetching = false,
 	loader = <Loading width={100} height={100} marginTop={0} />,
-	noData = <NoData />,
+	noData = null,
 }: DataLoaderProps) => {
 	return <>{isFetching ? loader : isData ? children : noData}</>;
 };
