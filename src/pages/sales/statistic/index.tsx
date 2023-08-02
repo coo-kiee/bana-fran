@@ -125,12 +125,10 @@ const SalesStatistic = () => {
 	// loading띄우고 excelDownload 진행
 	useEffect(() => {
 		isLoadingExcel && setIsDownloadExcel(true);
-		console.log('isLoadingExcel: ', isLoadingExcel, excelRef.current);
 	}, [isLoadingExcel]);
 	
 	useEffect(() => {
 		if (isDownloadExcel) excelDownload();
-		console.log('isDownloadExcel: ', isDownloadExcel, excelRef.current);
 	}, [excelDownload, isDownloadExcel]);		
 	
 	// 검색하면 현재 페이지 번호 초기화
