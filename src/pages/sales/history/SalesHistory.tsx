@@ -8,6 +8,7 @@ import SALES_SERVICE from 'service/salesService';
 // Types
 import { SalesHistoryProps, HISTORY_ORDER_TYPE, HISTORY_ORDER_STATE, HISTORY_RCP_TYPE } from "types/sales/salesType";
 // Components
+import DataLoader from "pages/common/dataLoader";
 import NoData from "pages/common/noData";
 import TableRow from "./table/TableRow";
 
@@ -77,17 +78,15 @@ const SalesHistory = ({ queryTrigger, historySearch, isCancelShow, isExcludeCouB
     }, [data, isSuccess, historySearch.searchOption, isCancelShow, isExcludeCouBae, setTableData, setTotalData])
 
 	return (
-		<>
-			{data && data.length > 0 ? (
-				tableData.map((data, idx) => {
-					// pagination
-					const isDisplay = (currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx;
-					return isDisplay ? <TableRow data={data} key={`history_row_${idx}`} /> : null;
-				})
-			) : (
-				<NoData isTable={true} rowSpan={1} colSpan={28} paddingTop={20} paddingBottom={20} />
-			)}
-		</>
+        <DataLoader
+            isData={data && data.length > 0}
+            noData={<NoData isTable={true} rowSpan={1} colSpan={28} paddingTop={20} paddingBottom={20} />}>
+            {tableData.map((data, idx) => {
+                // pagination
+                const isDisplay = (currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx;
+                return isDisplay ? <TableRow data={data} key={`history_row_${idx}`} /> : null;
+            })}
+        </DataLoader>
 	);
 }
 

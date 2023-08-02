@@ -20,6 +20,7 @@ import LineChart from "pages/sales/statistic/chart";
 import NoData from 'pages/common/noData';
 import Sticky from "pages/common/sticky";
 import Wrapper from "pages/common/loading/Wrapper";
+import DataLoader from "pages/common/dataLoader";
 import TableColGroup from "pages/sales/components/TableColGroup";
 import TableHead from "./table/TableHead";
 import TablePrefixSum from "./table/TablePrefixSum";
@@ -124,10 +125,12 @@ const SalesStatistic = () => {
 	// loading띄우고 excelDownload 진행
 	useEffect(() => {
 		isLoadingExcel && setIsDownloadExcel(true);
+		console.log('isLoadingExcel: ', isLoadingExcel, excelRef.current);
 	}, [isLoadingExcel]);
 	
 	useEffect(() => {
 		if (isDownloadExcel) excelDownload();
+		console.log('isDownloadExcel: ', isDownloadExcel, excelRef.current);
 	}, [excelDownload, isDownloadExcel]);		
 	
 	// 검색하면 현재 페이지 번호 초기화
@@ -221,19 +224,21 @@ const SalesStatistic = () => {
 				{/* <!-- 차트 --> */}
 				<div className='chart-wrap'>
 					<div className='line-chart chart'>
-						{!isFetching ? ( // loading, refetching 아닐 때
-							data ? (
-								<LineChart chartFilter={chartFilter} data={data} searchType={searchTypeMemo} />
-							) : (
+						<DataLoader
+							isFetching={isFetching}
+							isData={Boolean(data)}
+							loader={
+								<div className='chart-loading-wrap'>
+									<Loading width={100} height={100} marginTop={0} />
+								</div>
+							}
+							noData={
 								<div className='no-chart'>
 									<NoData />
 								</div>
-							)
-						) : (
-							<div className='chart-loading-wrap'>
-								<Loading width={100} height={100} marginTop={0} />
-							</div>
-						)}
+							}>
+							<LineChart chartFilter={chartFilter} data={data || []} searchType={searchTypeMemo} />
+						</DataLoader>
 					</div>
 				</div>
 				<div className='search-result-wrap'>
@@ -255,58 +260,40 @@ const SalesStatistic = () => {
 					<TableColGroup tableColGroup={tableColGroup} />
 					<TableHead ref={stickyRef} />
 					<tbody>
-						{isFetching ? (
-							<Loading width={100} height={100} marginTop={16} isTable={true} />
-						) : (
-							<>
-								<TablePrefixSum data={data || []} />
-								{data && data.length > 0 ? (
-									sortedData.map((sData, idx) => {
-										// pagination
-										const isDisplay =
-											(currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx;
-										return isDisplay ? (
-											<TableRow data={sData} key={`statistic_table_row_${idx}`} />
-										) : null;
-									})
-								) : (
-									<NoData
-										isTable={true}
-										rowSpan={1}
-										colSpan={18}
-										paddingTop={20}
-										paddingBottom={20}
-									/>
-								)}
-							</>
-						)}
+						<DataLoader
+							isFetching={isFetching}
+							isData={data && data.length > 0}
+							loader={<Loading width={100} height={100} marginTop={16} isTable={true} />}
+							noData={
+								<NoData isTable={true} rowSpan={1} colSpan={18} paddingTop={20} paddingBottom={20} />
+							}>
+							<TablePrefixSum data={data || []} />
+							{sortedData.map((sData, idx) => {
+								// pagination
+								const isDisplay = (currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx;
+								return isDisplay ? <TableRow data={sData} key={`statistic_table_row_${idx}`} /> : null;
+							})}
+						</DataLoader>
 					</tbody>
 				</table>
 				{/* Excel Table */}
-				{/* Excel Loading */}
-				<Wrapper isRender={isLoadingExcel} isFixed={true} width='100%' height='100%'>
-					<Loading marginTop={0} />
-				</Wrapper>
-				{isDownloadExcel ? (
-					<>
-						<table
-							className='board-wrap board-top excel-table'
-							cellPadding='0'
-							cellSpacing='0'
-							ref={excelRef}>
-							<TableColGroup tableColGroup={tableColGroup} />
-							<TableHead />
-							<tbody>
-								<TablePrefixSum data={data || []} />
-								<>
-									{sortedData?.map((statisticData, idx) => {
-										return <TableRow data={statisticData} key={`statistic_excel_row_${idx}`} />;
-									})}
-								</>
-							</tbody>
-						</table>
-					</>
-				) : null}
+				<DataLoader isData={isDownloadExcel} noData={null}>
+					{/* Excel Loading */}
+					{/* isFetching, loader 옵션 미사용, 별도 처리 */}
+					<Wrapper isRender={isLoadingExcel} isFixed={true} width='100%' height='100%'>
+						<Loading marginTop={0} />
+					</Wrapper>
+					<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
+						<TableColGroup tableColGroup={tableColGroup} />
+						<TableHead />
+						<tbody>
+							<TablePrefixSum data={data || []} />
+							{sortedData?.map((statisticData, idx) => {
+								return <TableRow data={statisticData} key={`statistic_excel_row_${idx}`} />;
+							})}
+						</tbody>
+					</table>
+				</DataLoader>
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>

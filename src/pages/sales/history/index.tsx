@@ -19,6 +19,7 @@ import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import Loading from 'pages/common/loading';
 import Wrapper from 'pages/common/loading/Wrapper';
 import Sticky from 'pages/common/sticky';
+import DataLoader from 'pages/common/dataLoader';
 import PrefixSum from 'pages/sales/history/PrefixSum';
 import SalesHistory from 'pages/sales/history/SalesHistory';
 import TableColGroup from 'pages/sales/components/TableColGroup';
@@ -279,29 +280,23 @@ const SalesHistoryContainer = () => {
 				</table>
 				{/* 쿠폰 상세 내역 모달 */}
 				{couponModal.isOpen && <CouponDetail />}
-
 				{/* Excel Table */}
-				{/* Excel Loading */}
-				<Wrapper isRender={isLoadingExcel} isFixed={true} width='100%' height='100%'>
-					<Loading marginTop={0} />
-				</Wrapper>
-				{isDownloadExcel ? (
-					<>
-						<table
-							className='board-wrap board-top excel-table'
-							cellPadding='0'
-							cellSpacing='0'
-							ref={excelRef}>
-							<TableColGroup tableColGroup={tableColGroup} />
-							<TableHead />
-							<tbody>
-								{filteredData.map((data) => (
-									<TableRow data={data} key={`history_excel_${data.nOrderID}`} />
-								))}
-							</tbody>
-						</table>
-					</>
-				) : null}
+				<DataLoader isData={isDownloadExcel} noData={null}>
+					{/* Excel Loading */}
+					{/* isFetching, loader 옵션 미사용, 별도 처리 */}
+					<Wrapper isRender={isLoadingExcel} isFixed={true} width='100%' height='100%'>
+						<Loading marginTop={0} />
+					</Wrapper>
+					<table className='board-wrap board-top excel-table' cellPadding='0' cellSpacing='0' ref={excelRef}>
+						<TableColGroup tableColGroup={tableColGroup} />
+						<TableHead />
+						<tbody>
+							{filteredData.map((data) => (
+								<TableRow data={data} key={`history_excel_${data.nOrderID}`} />
+							))}
+						</tbody>
+					</table>
+				</DataLoader>
 			</div>
 			{/* <!-- 엑셀다운, 페이징, 정렬 --> */}
 			<div className='result-function-wrap'>
