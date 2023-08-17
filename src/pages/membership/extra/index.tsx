@@ -33,7 +33,7 @@ const ExtraContainer = () => {
             { itemName: ['일시'], rowSpan: 2 },
             { itemName: ['스탬프'], colSpan: 3, className: 'price-area boder-th-b' },
             { itemName: ['무료음료쿠폰(스탬프적립&월간랭킹보상)'], colSpan: 3, className: 'boder-th-a' },
-            { itemName: ['바나포인트 (적립&월간뱅킹보상)'], colSpan: 3, className: 'price-area boder-th-b' }
+            { itemName: ['바나포인트 (적립&월간랭킹보상)'], colSpan: 3, className: 'price-area boder-th-b' }
         ],
         [
             { itemName: ['지급 수'], className: 'price-area height-63' },
