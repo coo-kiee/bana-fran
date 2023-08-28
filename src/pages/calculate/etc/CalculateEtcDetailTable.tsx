@@ -11,7 +11,7 @@ import Utils from "utils/Utils";
 import { format, lastDayOfMonth, subMonths } from "date-fns";
 
 // Type
-import { SearchInfoSelectType } from "types/etc/etcType";
+import { OPTION_TYPE, SearchInfoSelectType } from "types/etc/etcType";
 
 // Component
 import Loading from "pages/common/loading";
@@ -58,7 +58,7 @@ const CalculateEtcDetailTable: FC<CalculateEtcDetailTableProps> = ({ userInfo })
     const calanderSearchOption = useMemo(() => ({
         title: '상세내역',
         dateType: 'yyyy-MM',
-        optionType: 'SELECT' as const,
+        optionType: OPTION_TYPE.SELECT, // 'SELECT' as const,
         selectOption: [ETC_TYPE_OPTION], // select로 나타날 옵션 정보
         optionList: [Object.keys(ETC_TYPE_OPTION)], // option 맵핑할 때 사용  
         showMonthYearPicker: true,

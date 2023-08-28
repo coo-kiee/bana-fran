@@ -6,7 +6,7 @@ import { useRecoilValue } from "recoil";
 import Utils from "utils/Utils";
 
 // type
-import { SearchInfoType, PageInfoType } from "types/etc/etcType";
+import { SearchInfoType, PageInfoType, FALLBACK_TYPE } from "types/etc/etcType";
 import { MonthRankDetailProps } from "types/membership/monthRankType";
 
 // component
@@ -25,8 +25,6 @@ const MonthRankDetail: FC<Omit<MonthRankDetailProps, 'searchInfo' | 'rankListKey
     const { reset } = useQueryErrorResetBoundary();
     const queryClient = useQueryClient();
     const franCode = useRecoilValue(franState);
-
-    // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
         to: format(new Date(), 'yyyy-MM'), // 2022-11
@@ -44,8 +42,8 @@ const MonthRankDetail: FC<Omit<MonthRankDetailProps, 'searchInfo' | 'rankListKey
     };
 
     // fallback props 정리 
-    const loadingFallbackProps = { ...props, fallbackType: 'LOADING' }
-    const errorFallbackProps = { ...props, fallbackType: 'ERROR' }
+    const loadingFallbackProps = { ...props, fallbackType: FALLBACK_TYPE.LOADING }
+    const errorFallbackProps = { ...props, fallbackType: FALLBACK_TYPE.ERROR }
 
     return (
         <>
@@ -72,16 +70,13 @@ export default MonthRankDetail;
 const MonthRankDetailData: FC<MonthRankDetailProps> = ({ searchInfo: { from, to }, rankListKey, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
-
-    // TODO: 상태
     const tableRef = useRef<null | HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, // 현재 페이지
-        row: 20, // 한 페이지에 나오는 리스트 개수 
+        currentPage: 1, 
+        row: 20, 
     });
 
-    // TODO: 데이터
     const { data } = MEMBERSHIP_SERVICE.useRankList(rankListKey, [ franCode, from, to ]);
 
     const renderTableList = useMemo(() => {
@@ -105,13 +100,12 @@ const MonthRankDetailData: FC<MonthRankDetailProps> = ({ searchInfo: { from, to 
         return tableList;
     }, [data]); 
 
-    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
         if (tableRef.current) {
             const options = {
                 type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                // sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X

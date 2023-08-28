@@ -19,7 +19,7 @@ import EtcDetailTableBottom from '../component/EtcDetailTableBottom';
 import ETC_SERVICE from 'service/etcService';
 
 // type
-import { PageInfoType, RoyaltyDetailProps, RoyaltyDetailListType, SearchInfoType } from 'types/etc/etcType'; 
+import { PageInfoType, RoyaltyDetailProps, RoyaltyDetailListType, SearchInfoType, FALLBACK_TYPE } from 'types/etc/etcType'; 
 
 const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'searchInfo' | 'etcRoyaltyListKey'>> = ( props ) => { 
     const { reset } = useQueryErrorResetBoundary(); 
@@ -52,8 +52,8 @@ const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'searchInfo' | 'etcRoyaltyListK
         ], 
         ...props
     }
-    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
-    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.LOADING }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.ERROR }
 
     return (
         <>
@@ -78,16 +78,13 @@ const RoyaltyDetail: FC<Omit<RoyaltyDetailProps, 'searchInfo' | 'etcRoyaltyListK
 const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detailTableHead, etcRoyaltyListKey, summaryInfo, searchInfo: {from, to} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
-
-    // TODO: 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, // 현재 페이지
-        row: 20, // 한 페이지에 나오는 리스트 개수 
+        currentPage: 1, 
+        row: 20, 
     });
     const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // TODO: 데이터
     const { data: listData } = ETC_SERVICE.useEtcList<RoyaltyDetailListType[]>('YGQA4CREHNZCZIXPF2AH', etcRoyaltyListKey, [ franCode, from, to ]); 
 
     const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
@@ -115,13 +112,12 @@ const RoyaltyDetailData: FC<RoyaltyDetailProps> = ({ detailTableColGroup, detail
         return [tableList, summaryResult];
     }, [listData]);
 
-    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
         if (tableRef.current) {
             const options = {
                 type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                // sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X

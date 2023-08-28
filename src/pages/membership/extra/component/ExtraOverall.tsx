@@ -93,6 +93,6 @@ const ExtraOverallData = () => {
             <td className="point">{Utils.numberComma(extraOverallTotal.not_used_point)}P</td>
         </tr>
     )
-} // 실제 컴포넌트
+}
 
 export default ExtraOverall;

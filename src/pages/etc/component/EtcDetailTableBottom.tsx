@@ -7,9 +7,9 @@ import { PageInfoType } from "types/etc/etcType"
 import Pagination from "pages/common/pagination"
 
 interface EtcDetailTableBottomProps {
-    handleExcelDownload: () => void,
     dataCnt: number,
     pageInfo: PageInfoType,
+    handleExcelDownload: () => void,
     setPageInfo: React.Dispatch<React.SetStateAction<PageInfoType>>,
 }
 
@@ -18,7 +18,7 @@ const EtcDetailTableBottom: FC<EtcDetailTableBottomProps> = ({ handleExcelDownlo
         setPageInfo((prevPageInfo) => ({ ...prevPageInfo, currentPage: changePage }))
     }
     const handlePageRow = (row: number) => {
-        setPageInfo((prevPageInfo) => ({ ...prevPageInfo, row: row }))
+        setPageInfo((prevPageInfo) => ({ ...prevPageInfo, row }))
     }
 
     return (

@@ -9,7 +9,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { franState, loginState } from "state";
 
 // type
-import { PageInfoType, MusicChargeDetailProps, MusicChargeDetailType, SearchInfoType } from "types/etc/etcType";
+import { PageInfoType, MusicChargeDetailProps, MusicChargeDetailType, SearchInfoType, FALLBACK_TYPE } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from 'service/etcService';
@@ -52,8 +52,8 @@ const MusicChargeDetail: FC<Omit<MusicChargeDetailProps, 'searchInfo' | 'etcMusi
         ], 
         ...props
     }
-    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
-    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.LOADING }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.ERROR }
 
     return (
         <>
@@ -80,11 +80,9 @@ export default MusicChargeDetail;
 const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from, to }, etcMusicListKey, summaryInfo, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
-
-    // 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, // 현재 페이지
-        row: 20, // 한 페이지에 나오는 리스트 개수 
+        currentPage: 1, 
+        row: 20, 
     });
     const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
@@ -116,13 +114,12 @@ const MusicChargeDetailData: FC<MusicChargeDetailProps> = ({ searchInfo: { from,
         return [tableList, summaryResult];
     }, [listData]) 
 
-    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
         if (tableRef.current) {
             const options = {
                 type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                // sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X

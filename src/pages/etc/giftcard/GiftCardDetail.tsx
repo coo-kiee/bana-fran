@@ -12,7 +12,7 @@ import { franState, loginState } from "state";
 import { 
     PageInfoType, GiftcardDetailProps, SearchInfoSelectType, 
     ETC_GIFTCARD_SEARCH_CATEGORY_TYPE, ETC_GIFTCARD_SEARCH_CARD_TYPE, ETC_GIFTCARD_SEARCH_DEVICE_TYPE,
-    ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST 
+    ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST, FALLBACK_TYPE, OPTION_TYPE 
 } from "types/etc/etcType";
 
 // API
@@ -61,18 +61,18 @@ const GiftCardDetail: FC<Omit<GiftcardDetailProps, 'searchInfo' | 'etcGiftcardLi
         ], 
         ...props
     }
-    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
-    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
-
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.LOADING }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.ERROR }
     return (
         <>
             <CalanderSearch
                 title={`상세내역`}
                 dateType={'yyyy-MM'}
                 searchInfo={searchInfo}
-                setSearchInfo={setSearchInfo}
+                setSearchInfo={setSearchInfo} 
+                optionType={OPTION_TYPE.SELECT}
                 selectOption={searchOptionList}
-                optionList={[ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST]}
+                optionList={[ ETC_GIFTCARD_SEARCH_CATEGORY_LIST, ETC_GIFTCARD_SEARCH_CARD_LIST, ETC_GIFTCARD_SEARCH_DEVICE_LIST ]}
                 handleSearch={handleRefetch}
                 showMonthYearPicker={true}
             />
@@ -91,16 +91,13 @@ export default GiftCardDetail
 const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({ detailTableHead, detailTableColGroup, etcGiftcardListKey, summaryInfo, searchInfo: {from, to, searchOption} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
-
-    // 상태 
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, // 현재 페이지
-        row: 20, // 한 페이지에 나오는 리스트 개수 
+        currentPage: 1, 
+        row: 20,
     });
     const tableRef = useRef<HTMLTableElement>(null); 
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // TODO: 데이터 
     const { data: listData } = ETC_SERVICE.useGiftCardList(etcGiftcardListKey, [ franCode, from, to ]);
     // etc_gift_card_list
     const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
@@ -137,22 +134,21 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
         const totalCancel = listData?.filter((el:any) => el.gubun === '판매취소(폐기)').reduce((acc: any, cur:any) => acc += cur.item_amt ,0);
 
         const summaryResult = [
-            ['키오스크/POS 판매금액 합계', Utils.numberComma(KioskPosTotalSell || 0)], // 키오스크/POS 판매금액 합계 (330,000)
-            ['어플 판매금액 합계', Utils.numberComma(AppTotalSell || 0)], // 어플 판매금액 합계 (0)
-            ['판매취소(폐기)금액 합계', Utils.numberComma(totalCancel || 0)] // 판매취소(폐기)금액 합계 (2,340,000)
+            ['키오스크/POS 판매금액 합계', Utils.numberComma(KioskPosTotalSell || 0)], 
+            ['어플 판매금액 합계', Utils.numberComma(AppTotalSell || 0)], 
+            ['판매취소(폐기)금액 합계', Utils.numberComma(totalCancel || 0)] 
         ]
 
         setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
         return [tableList, summaryResult];
     }, [listData, searchOption ])
 
-    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
         if (tableRef.current) {
             const options = {
                 type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                // sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X
@@ -178,8 +174,8 @@ const GiftCardDetailData: FC<Omit<GiftcardDetailProps, 'handleSearchInfo'>> = ({
         </>
     )
 }
-
-const searchOptionList = [
+ 
+const searchOptionList: Array<{ [x: string]: { title: string, value: string | number } }> = [
     {
         [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.CATEGORY_ALL]: { title: '포인트 구분 전체', value: 'CATEGORY_ALL' },
         [ETC_GIFTCARD_SEARCH_CATEGORY_TYPE.SELL]: { title: '판매', value: '판매' },

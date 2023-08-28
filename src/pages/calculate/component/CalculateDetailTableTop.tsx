@@ -1,7 +1,7 @@
 import { FC } from "react";
 
 // Type
-import { SearchInfoRadioType, SearchInfoSelectType, SearchInfoType } from "types/etc/etcType";
+import { OPTION_TYPE, SearchInfoRadioType, SearchInfoSelectType, SearchInfoType } from "types/etc/etcType";
 
 // Component
 import CalanderSearch from "pages/common/calanderSearch";
@@ -12,7 +12,7 @@ interface CalculateDetailTableTopProps {
         title?: string,
         dateTitle?: string,
         dateType?: string,
-        optionType?: 'SELECT' | 'RADIO',
+        optionType?: OPTION_TYPE,
         selectOption?: Array<{ [key: string | number]: { title: string, value: string | number } }>,
         optionList?: Array<any>,
         showMonthYearPicker?: boolean,

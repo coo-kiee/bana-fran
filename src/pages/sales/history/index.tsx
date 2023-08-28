@@ -9,6 +9,7 @@ import { couponModalState, franState, loginState } from 'state';
 // Types
 import { Bit } from 'types/common';
 import { HISTORY_GIFT_CERT,	HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE, HISTORY_PAY_TYPE, HISTORY_PAY_WITH, HISTORY_RCP_TYPE, HISTORY_SEARCH_TYPE_LIST, SalesHistoryData, SalesHistorySearch } from 'types/sales/salesType';
+import { OPTION_TYPE } from 'types/etc/etcType';
 // Utils
 import Utils from 'utils/Utils';
 
@@ -189,7 +190,7 @@ const SalesHistoryContainer = () => {
 					dateType='yyyy-MM-dd'
 					searchInfo={historySearch}
 					setSearchInfo={setHistorySearch}
-					optionType='SELECT'
+					optionType={OPTION_TYPE.SELECT} // 'SELECT'
 					selectOption={searchOptionList}
 					optionList={HISTORY_SEARCH_TYPE_LIST} // option 맵핑할 때 사용
 					handleSearch={handleSearch} // 실제 검색하는 함수 (ex. refetch)

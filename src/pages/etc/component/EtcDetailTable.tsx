@@ -7,15 +7,14 @@ import NoData from "pages/common/noData";
 import EtcDetailSummary from "./EtcDetailSummary";
 
 // type
-import { PageInfoType, TableHeadItemType } from "types/etc/etcType";
+import { FALLBACK_TYPE, PageInfoType, TableHeadItemType } from "types/etc/etcType";
 import { ExtraOverallTableRowItemType } from "types/membership/extraType";
-
+ 
 interface EtcDetailTableProps {
-    tbodyData: ReactNode[] | undefined, // ? 프로시저 데이터 확인하기
+    tbodyData: ReactNode[] | undefined,
     pageInfo: PageInfoType, // 페이지네이션 관련 정보 
 }
 
-// TODO: 상세 내역 테이블 관련 (.board-wrap 부분)
 const EtcDetailTable: FC<EtcDetailTableProps> = ({ tbodyData, pageInfo: { currentPage, row } }) => { 
     return (
         <tbody>
@@ -67,7 +66,7 @@ const EtcDetailTableHead = forwardRef<HTMLTableRowElement | null, EtcDetailTable
 })
 
 interface EtcDetailTableFallbackProps {
-    fallbackType: string,
+    fallbackType: keyof typeof FALLBACK_TYPE,
     resetErrorBoundary?: () => void,
     searchDate?: string,
     summaryResult?: string[][],

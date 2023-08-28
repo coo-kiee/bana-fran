@@ -21,6 +21,7 @@ const useMembershipTotal = (params: { fran_store: number }) => {
         refetchOnWindowFocus: false,
         retry: false,
         suspense: true,
+        useErrorBoundary: true,
     });
 };
 
@@ -36,6 +37,7 @@ const useMembershipList = (queryKey: string[], [ franCode, from, to ]: [number, 
         refetchOnWindowFocus: false,
         retry: false,
         suspense: false,  
+        useErrorBoundary: true,
         select: (data: MembershipListType[]) => {
             const tempData = data.map((el, idx) => {
                 let tempData: any = {}

@@ -10,6 +10,7 @@ import { franState, loginState } from "state";
 import SALES_SERVICE from 'service/salesService';
 // Types
 import { SalesStatisticSearch, ChartFilter, STATISTIC_SEARCH_LIST, STATISTIC_SEARCH_TYPE } from "types/sales/salesType";
+import { OPTION_TYPE } from "types/etc/etcType";
 // Utils
 import Utils from "utils/Utils";
 // Components
@@ -151,7 +152,7 @@ const SalesStatistic = () => {
 						dateType={statisticSearch.searchType === 'M' ? 'yyyy-MM' : 'yyyy-MM-dd'}
 						searchInfo={statisticSearch}
 						setSearchInfo={setStatisticSearch}
-						optionType='RADIO'
+						optionType={OPTION_TYPE.RADIO}
 						radioOption={searchOptionList}
 						optionList={STATISTIC_SEARCH_LIST}
 						handleSearch={handleSearch}

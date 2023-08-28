@@ -11,7 +11,7 @@ import Utils from "utils/Utils";
 import { format, lastDayOfMonth, subMonths } from "date-fns";
 
 // Type
-import { SearchInfoSelectType } from "types/etc/etcType";
+import { OPTION_TYPE, SearchInfoSelectType } from "types/etc/etcType";
 
 // Component
 import Loading from "pages/common/loading";
@@ -57,7 +57,7 @@ const CalculatePointDetailTable: FC<CalculatePointDetailTableProps> = ({ userInf
     const calanderSearchOption = useMemo(() => ({
         title: '상세내역',
         dateType: 'yyyy-MM-dd',
-        optionType: 'SELECT' as const,
+        optionType: OPTION_TYPE.SELECT, // 'SELECT' as const,
         selectOption: [POINT_TYPE_OPTION, DEVICE_TYPE_OPTION], // select로 나타날 옵션 정보
         optionList: [Object.keys(POINT_TYPE_OPTION), Object.keys(DEVICE_TYPE_OPTION)], // option 맵핑할 때 사용  
         handleSearch: () => setQueryTriggerDate(prev => ({ queryFromDate: searchCondition.from, queryToDate: searchCondition.to, })),

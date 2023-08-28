@@ -9,7 +9,7 @@ import { format, lastDayOfMonth, subMonths } from "date-fns";
 import { franState, loginState } from "state";
 
 // type
-import { PageInfoType, DeliveryChargeDetailProps, ETC_DELIVERY_SEARCH_OPTION_TYPE, DeliveryDetailListType, SearchInfoSelectType, ETC_DELIVERY_SEARCH_OPTION_LIST } from "types/etc/etcType";
+import { PageInfoType, DeliveryChargeDetailProps, ETC_DELIVERY_SEARCH_OPTION_TYPE, DeliveryDetailListType, SearchInfoSelectType, ETC_DELIVERY_SEARCH_OPTION_LIST, FALLBACK_TYPE, OPTION_TYPE } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from 'service/etcService';
@@ -25,8 +25,6 @@ const DeliveryChargeDetail: FC<Omit<DeliveryChargeDetailProps, 'searchInfo' | 's
     const { reset } = useQueryErrorResetBoundary();
     const queryClient = useQueryClient();
     const franCode = useRecoilValue(franState);
-
-    // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
         from: format(subMonths(new Date(), 1), 'yyyy-MM-01'),
         to: format(lastDayOfMonth(subMonths(new Date(), 1)), 'yyyy-MM-dd'),
@@ -48,14 +46,14 @@ const DeliveryChargeDetail: FC<Omit<DeliveryChargeDetailProps, 'searchInfo' | 's
     const defaultFallbackProps = { 
         searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
         summaryResult: [
-            ['바나 딜리버리 주문금액 합계', '0' ], // 바나 딜리버리 주문금액 합계
-            ['바나 딜리버리 수수료 공급가(주문금액*2%) 합계', '0'], // 바나 딜리버리 수수료 공급가(주문금액*2%) 합계
-            ['바나 딜리버리 수수료(수수료 공급가+부가세) 합계', '0'], // 바나 딜리버리 수수료(수수료 공급가+부가세) 합계
+            ['바나 딜리버리 주문금액 합계', '0' ], 
+            ['바나 딜리버리 수수료 공급가(주문금액*2%) 합계', '0'], 
+            ['바나 딜리버리 수수료(수수료 공급가+부가세) 합계', '0'], 
         ], 
         ...props
     }
-    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
-    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.LOADING }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.ERROR }
 
     return (
         <>
@@ -64,8 +62,9 @@ const DeliveryChargeDetail: FC<Omit<DeliveryChargeDetailProps, 'searchInfo' | 's
                 dateType={'yyyy-MM-dd'}
                 searchInfo={searchInfo}
                 setSearchInfo={setSearchInfo}
+                optionType={OPTION_TYPE.SELECT}
                 selectOption={searchOptionList}
-                optionList={ETC_DELIVERY_SEARCH_OPTION_LIST}
+                optionList={[ ETC_DELIVERY_SEARCH_OPTION_LIST ]}
                 handleSearch={handleRefetch}
             />
 
@@ -83,16 +82,13 @@ export default DeliveryChargeDetail;
 const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableColGroup, detailTableHead, summaryInfo, etcDeliveryListKey, searchInfo: { from, to, searchOption } }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState); 
-
-    // TODO: 상태
     const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null); 
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, // 현재 페이지 tempSearchInfo
-        row: 20, // 한 페이지에 나오는 리스트 개수 
-    }) // etcDetailFooter 관련 내용 
-
-    // TODO: 데이터  
+        currentPage: 1, 
+        row: 20, 
+    })  
+  
     const { data: listData } = ETC_SERVICE.useEtcList<DeliveryDetailListType[]>('YOCYKBCBC6MTUH9AXBM7', etcDeliveryListKey, [franCode, from, to] );
     const [renderTableList, summaryResult ]: [ReactNode[] | undefined, string[][]] = useMemo(() => {
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
@@ -119,23 +115,22 @@ const DeliveryChargeDetailData: FC<DeliveryChargeDetailProps> = ({ detailTableCo
         }, [] as ReactNode[]);
 
         const summaryResult = [
-            ['바나 딜리버리 주문금액 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += cur.total_charge, 0) || 0) ], // 바나 딜리버리 주문금액 합계
-            ['바나 딜리버리 수수료 공급가(주문금액*2%) 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += cur.suply_fee, 0) || 0)], // 바나 딜리버리 수수료 공급가(주문금액*2%) 합계
-            ['바나 딜리버리 수수료(수수료 공급가+부가세) 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += (cur.suply_fee + cur.suply_fee_tax), 0) || 0)], // 바나 딜리버리 수수료(수수료 공급가+부가세) 합계
+            ['바나 딜리버리 주문금액 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += cur.total_charge, 0) || 0) ],
+            ['바나 딜리버리 수수료 공급가(주문금액*2%) 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += cur.suply_fee, 0) || 0)],
+            ['바나 딜리버리 수수료(수수료 공급가+부가세) 합계', Utils.numberComma(listData?.reduce((acc: any, cur: any) => acc += (cur.suply_fee + cur.suply_fee_tax), 0) || 0)],
         ]
 
         setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
         return [tableList, summaryResult];
     }, [listData, searchOption]) 
 
-    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
 
         if (tableRef.current) {
             const options = {
                 type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                // sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X

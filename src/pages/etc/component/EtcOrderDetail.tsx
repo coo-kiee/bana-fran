@@ -4,7 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 
 // type
-import { OrderDetailModalItemType, EtcOrderDetailProps } from 'types/etc/etcType';
+import { OrderDetailModalItemType } from 'types/etc/etcType';
 
 // service 
 import ETC_SERVICE from 'service/etcService';
@@ -14,6 +14,11 @@ import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import { EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
 import Sticky from 'pages/common/sticky';
+
+interface EtcOrderDetailProps { 
+    showOrderDetail: { show: boolean, orderCode: number },
+    closeOrderDetailModal: () => void
+}
 
 const EtcOrderDetail:FC<EtcOrderDetailProps> = ( props ) => { 
     const { reset } = useQueryErrorResetBoundary();  
@@ -55,8 +60,8 @@ const EtcOrderDetailData:FC<EtcOrderDetailProps> = ({ showOrderDetail, closeOrde
     };
 
 	/* sticky ref */
-    const stickyRootRef = useRef<HTMLDivElement>(null);      // sticky wrapper, viewport 역할 ref
-	const stickyRef = useRef<HTMLTableRowElement>(null);     // sticky 기준 ref
+    const stickyRootRef = useRef<HTMLDivElement>(null); // sticky wrapper, viewport 역할 ref
+	const stickyRef = useRef<HTMLTableRowElement>(null); // sticky 기준 ref
     const contentsRefRef = useRef<HTMLTableElement>(null); // 실제 data table ref (sticky 작동용)
 
     return (

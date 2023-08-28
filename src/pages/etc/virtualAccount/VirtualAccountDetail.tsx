@@ -12,16 +12,17 @@ import { franState, loginState } from 'state';
 import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
 import EtcDetailSummary from '../component/EtcDetailSummary';
 import Sticky from 'pages/common/sticky'; 
-import Loading from 'pages/common/loading';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage'; 
+import Loading from 'pages/common/loading'; 
 import CalanderSearch from 'pages/common/calanderSearch';
 import EtcDetailTableBottom from '../component/EtcDetailTableBottom';
+import DataLoader from 'pages/common/dataLoader';
+import NoData from 'pages/common/noData';
 
 // api
 import ETC_SERVICE from 'service/etcService';
 
 // type
-import { PageInfoType, VirtualAccountDetailProps, SearchInfoType } from 'types/etc/etcType'   
+import { PageInfoType, VirtualAccountDetailProps, SearchInfoType, FALLBACK_TYPE } from 'types/etc/etcType'   
 
 const VirtualAccountDetail: FC<Omit<VirtualAccountDetailProps, 'searchInfo' | 'etcVirtualAccBalanceListKey'>> = (props) => { 
     const { reset } = useQueryErrorResetBoundary();
@@ -54,8 +55,8 @@ const VirtualAccountDetail: FC<Omit<VirtualAccountDetailProps, 'searchInfo' | 'e
         ], 
         ...props
     }
-    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
-    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.LOADING }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.ERROR }
 
     return (
         <>
@@ -80,17 +81,14 @@ const VirtualAccountDetail: FC<Omit<VirtualAccountDetailProps, 'searchInfo' | 'e
 const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableColGroup, detailTableHead, etcVirtualAccBalanceListKey, searchInfo: {from, to} }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState);
-
-    // TODO: 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, // 현재 페이지
-        row: 20, // 한 페이지에 나오는 리스트 개수 
-    }) // etcDetailFooter 관련 내용
+        currentPage: 1, 
+        row: 20, 
+    }) 
     const tableRef = useRef<HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
 
-    // TODO: 데이터 
-    const { data: listData, isSuccess, isError, isLoading, isRefetching } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [franCode, from, to ]);
+    const { data: listData, isLoading, isRefetching } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [franCode, from, to ]);
 
     const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
@@ -118,26 +116,12 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
         return [tableList, summaryResult];
     }, [listData]);
 
-    const virtualAccDetailTablebody = useMemo(() => {  
-        const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
-        const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
-
-        if( isTableSuccess ) {
-            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
-        } else if( isError ) { 
-            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
-        } else if( isTableLoading ){
-            return <tbody><Loading isTable={true} /></tbody>
-        } 
-    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]); 
-
-    // TODO: 엑셀, 페이지네이션 관련
     const handleExcelDownload = () => {
         const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
         if (tableRef.current) {
             const options = {
                 type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X 
+                // sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X 
                 colspan: detailTableColGroup.map(wpx => ({ wpx: wpx !== '*' ? Number((Number(wpx.replace("%", "")) * 1540 / 100).toFixed(2)) : 400 })), 
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X
@@ -157,7 +141,18 @@ const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableCo
             </Sticky>
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
-                {virtualAccDetailTablebody}
+                <DataLoader
+                    isData={Boolean(renderTableList)}
+                    isFetching={isLoading || isRefetching}
+                    loader={
+                        <tbody>
+                            <Loading isTable={true} />
+                        </tbody>
+                    }
+                    noData={<tbody><NoData isTable={true} /></tbody>}
+                >
+                    <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />    
+                </DataLoader>  
             </table>
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={renderTableList.length} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
         </>

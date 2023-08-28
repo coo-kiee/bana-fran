@@ -10,11 +10,12 @@ import CalanderSearch from "pages/common/calanderSearch";
 import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import EtcDetailTableBottom from "pages/etc/component/EtcDetailTableBottom";
 import Sticky from "pages/common/sticky";  
-import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import Loading from "pages/common/loading"; 
+import DataLoader from "pages/common/dataLoader";
+import NoData from "pages/common/noData";
 
 // type 
-import { SearchInfoType, PageInfoType } from 'types/etc/etcType';
+import { SearchInfoType, PageInfoType, FALLBACK_TYPE } from 'types/etc/etcType';
 import { ExtraDetailProps } from "types/membership/extraType";
 
 // service
@@ -54,8 +55,8 @@ const ExtraDetail: FC<Omit<ExtraDetailProps, 'searchInfo' | 'membershipListKey'>
         searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
         ...props
     }
-    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
-    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.LOADING }
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.ERROR }
 
     return (
         <>
@@ -81,18 +82,15 @@ export default ExtraDetail;
 
 const ExtraDetailData: FC<ExtraDetailProps> = ({ searchInfo: { from, to }, membershipListKey, detailTableColGroup, detailTableHead }) => {
     const franCode = useRecoilValue(franState);
-    const { userInfo: { f_list } } = useRecoilValue(loginState); 
-    
-    // TODO: 상태
+    const { userInfo: { f_list } } = useRecoilValue(loginState);  
     const tableRef = useRef<null | HTMLTableElement>(null);
     const thRef = useRef<HTMLTableRowElement>(null);
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, // 현재 페이지
-        row: 20, // 한 페이지에 나오는 리스트 개수 
+        currentPage: 1, 
+        row: 20, 
     });
-
-    // TODO: 데이터 
-    const { data, isError, isLoading, isSuccess, isRefetching } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [franCode, from, to ]);
+ 
+    const { data, isLoading, isRefetching } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [franCode, from, to ]);
 
     const renderTableList: ReactNode[] = useMemo(() => {  
         const tableList = data?.filter((data, idx) => isSameOrBeforeToday(data.std_date) || idx === 0) // 가장 첫번째 데이터(=총 합 데이터) || 오늘 포함한 오늘 이전 데이터
@@ -123,27 +121,13 @@ const ExtraDetailData: FC<ExtraDetailProps> = ({ searchInfo: { from, to }, membe
         setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
         return tableList
     }, [data]);
-    
-    const extraDetailTablebody = useMemo(() => { 
-        const isTableSuccess = isSuccess && !isLoading && !isRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
-        const isTableLoading = isLoading || isRefetching ; // 처음으로 요청 || refetch 하는 경우 
-
-        if( isTableSuccess ) {
-            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
-        } else if( isError ) { // 실패한 경우 
-            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
-        } else if( isTableLoading ){
-            return <tbody><Loading isTable={true} /></tbody>
-        } 
-    }, [isSuccess, isLoading, isRefetching, isError, pageInfo, renderTableList]);
-
-    // TODO: 엑셀, 페이지네이션 관련
+     
     const handleExcelDownload = () => {
         const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
         if (tableRef.current) {
             const options = {
                 type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                // sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X
@@ -167,7 +151,22 @@ const ExtraDetailData: FC<ExtraDetailProps> = ({ searchInfo: { from, to }, membe
             </Sticky>
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} /> 
-                {extraDetailTablebody}
+                <DataLoader
+                    isData={Boolean(renderTableList)}
+                    isFetching={isLoading || isRefetching}
+                    loader={
+                        <tbody>
+                            <Loading isTable={true} />
+                        </tbody>
+                    }
+                    noData={
+                        <tbody>
+                            <NoData isTable={true} />
+                        </tbody>
+                    }
+                >
+                    <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />    
+                </DataLoader>
             </table>
             {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={renderTableList.length} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
 

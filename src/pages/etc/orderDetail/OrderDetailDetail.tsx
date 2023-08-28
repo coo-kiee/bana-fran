@@ -9,17 +9,18 @@ import { format, subMonths } from "date-fns";
 import { franState, loginState } from "state";
 
 // type
-import { PageInfoType, OrderDetailDetailProps, SearchInfoSelectType, ETC_ORDER_SEARCH_STATE_TYPE, ETC_ORDER_SEARCH_STATE_LIST } from "types/etc/etcType";
+import { PageInfoType, OrderDetailDetailProps, SearchInfoSelectType, ETC_ORDER_SEARCH_STATE_TYPE, ETC_ORDER_SEARCH_STATE_LIST, FALLBACK_TYPE, OPTION_TYPE } from "types/etc/etcType";
 
 // API
 import ETC_SERVICE from "service/etcService";
 
 // component     
 import Sticky from "pages/common/sticky";
+import DataLoader from "pages/common/dataLoader";
+import NoData from "pages/common/noData";
 import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
 import CalanderSearch from "pages/common/calanderSearch";
-import Loading from "pages/common/loading";
-import SuspenseErrorPage from "pages/common/suspenseErrorPage";
+import Loading from "pages/common/loading"; 
 import OrderDetailExcelBody from './OrderDetailExcelBody';
 import EtcDetailTableBottom from "../component/EtcDetailTableBottom";
 import EtcDetailSummary from "../component/EtcDetailSummary";
@@ -28,11 +29,9 @@ const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo' | 'etcOrde
     const { reset } = useQueryErrorResetBoundary(); 
     const queryClient = useQueryClient();
     const franCode = useRecoilValue(franState);
-
-    // state
     const [searchInfo, setSearchInfo] = useState<SearchInfoSelectType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'), // 2022-10
-        to: format(new Date(), 'yyyy-MM-dd'), // 2022-11
+        from: format(subMonths(new Date(), 1), 'yyyy-MM-dd'), 
+        to: format(new Date(), 'yyyy-MM-dd'), 
         searchTrigger: false,
         searchOption: [{title: '상태 전체', value: ETC_ORDER_SEARCH_STATE_TYPE.STATE_ALL}]
     });
@@ -60,8 +59,8 @@ const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo' | 'etcOrde
         detailTableColGroup: props.detailTableColGroup, 
         detailTableHead: props.detailTableHead
     }
-    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: 'LOADING' }
-    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: 'ERROR' }
+    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.LOADING}
+    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.ERROR}
 
     return (
         <>
@@ -70,8 +69,9 @@ const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo' | 'etcOrde
                 dateType={'yyyy-MM-dd'}
                 searchInfo={searchInfo}
                 setSearchInfo={setSearchInfo}
+                optionType={OPTION_TYPE.SELECT}
                 selectOption={searchOptionList}
-                optionList={ETC_ORDER_SEARCH_STATE_LIST}
+                optionList={[ ETC_ORDER_SEARCH_STATE_LIST ]}
                 handleSearch={handleRefetch}
             />
 
@@ -87,21 +87,18 @@ const OrderDetailDetail: FC<Omit<OrderDetailDetailProps, 'searchInfo' | 'etcOrde
 const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup, detailTableHead, etcOrderDetailListKey, etcOrderDetailExcelListKey, searchInfo: { from, to, searchOption }, openOrderDetailModal }) => {
     const franCode = useRecoilValue(franState);
     const { userInfo: { f_list } } = useRecoilValue(loginState); 
-
-    // 상태
     const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, // 현재 페이지
-        row: 20, // 한 페이지에 나오는 리스트 개수 
+        currentPage: 1, 
+        row: 20,  
     });
     const tableRef = useRef<HTMLTableElement>(null);  
     const thRef = useRef<HTMLTableRowElement>(null);
     const viewportTableRef = useRef<HTMLTableElement>(null);
 
-    // TODO: 데이터
     // table data 
-    const { data: listData, isSuccess, isError, isLoading, isRefetching} = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]);
+    const { data: listData, isSuccess, isLoading, isRefetching} = ETC_SERVICE.useDetailList(etcOrderDetailListKey, [ franCode, from, to ]);
     // Excel 다운로드용 
-    const { data: listExcelData, isSuccess: isExcelSuccess, isError: isExcelError, isLoading: isExcelLoading, isRefetching:isExcelRefetching } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
+    const { data: listExcelData, isSuccess: isExcelSuccess, isLoading: isExcelLoading, isRefetching:isExcelRefetching } = ETC_SERVICE.useDetailListExcel(etcOrderDetailExcelListKey, [ franCode, from, to ]);
 
     const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
         const { value: searchOptionValue } = searchOption[0]; // 검색 상태값 (주문 상태)
@@ -142,21 +139,6 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
         return [tableList, summaryResult];
     }, [listData, openOrderDetailModal, searchOption]); 
 
-    const orderDetailTablebody = useMemo(() => { 
-        const isTableSuccess = isSuccess && isExcelSuccess && !isLoading && !isExcelLoading && !isRefetching && !isExcelRefetching; // 모두 성공 + refetch나 loading 안하고 있을때 
-        const isTableLoading = isLoading || isExcelLoading || isRefetching || isExcelRefetching; // 처음으로 요청 || refetch 하는 경우 
-        const isTableError = isError || isExcelError; // 모두 실패한 경우 
-
-        if( isTableSuccess ) {
-            return <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />
-        } else if( isTableError ) {
-            return <tbody><SuspenseErrorPage isTable={true} /></tbody>
-        } else if( isTableLoading ){
-            return <tbody><Loading isTable={true} /></tbody>
-        } 
-    }, [isSuccess, isExcelSuccess, isLoading, isExcelLoading, isRefetching, isExcelRefetching, isError, isExcelError, pageInfo, renderTableList]);
-
-    // TODO: 엑셀, 페이지네이션 관련
     const excelTableColGroup = ['170', '170', '170', '84', '104', '84', '98', '98', '*', '120', '80', '120', '110', '150'];
     const excelTableHead = [
         [{ itemName: '일시' }, { itemName: '최종수정일', }, { itemName: '취소일' }, { itemName: '접수자' }, { itemName: '최종수정자' }, { itemName: '취소자' }, { itemName: '상태' }, { itemName: '발주 건 수' }, { itemName: '품목 상세' }, { itemName: '단가' },{ itemName: '수량' }, { itemName: '공급가' }, { itemName: '부가세' }, { itemName: '발주 금액' }]
@@ -166,7 +148,7 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
         if (tableRef.current) {
             const options = {
                 type: 'table',
-                sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
+                // sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
                 colspan: excelTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
                 rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
                 sheetName: '', // 시트이름, 필수 X
@@ -185,8 +167,19 @@ const OrderDetailDetailData: FC<OrderDetailDetailProps> = ({ detailTableColGroup
                 <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
             </Sticky>
             <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={viewportTableRef}>
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/>  
-                {orderDetailTablebody} 
+                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
+                <DataLoader
+                    isData={Boolean(renderTableList)}
+                    isFetching={isLoading || isExcelLoading || isRefetching || isExcelRefetching}
+                    loader={
+                        <tbody>
+                        <Loading isTable={true} />
+                        </tbody>
+                    }
+                    noData={<tbody><NoData isTable={true} /></tbody>}
+                >
+                    <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />    
+                </DataLoader>  
             </table>
             {isSuccess && isExcelSuccess && (
                 <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef} style={{display: 'none'}}> 
