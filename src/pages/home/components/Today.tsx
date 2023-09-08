@@ -126,7 +126,7 @@ const TodayContainer = () => {
 						<td className='sales'>현금결제</td>
 						<td className='sales'>유상포인트결제</td>
 						<td className='sales'>본사쿠폰결제(보전)</td>
-						<td className='sales'>제휴사쿠폰<br />/포인트결제</td>
+						<td className='sales'>제휴사쿠폰/포인트결제</td>
 						<td className='sales'>쿠팡/배민</td>
 						<td className='service'>합계</td>
 						<td className='service'>가맹점쿠폰결제</td>
