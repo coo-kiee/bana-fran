@@ -124,7 +124,7 @@ const SalesHistoryContainer = () => {
 	];
 
 	// table colgroup 배열
-	const tableColGroup = ['105', '105', '70', '70', '110', '70', '110', '42', '65', '65', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '70'] // 총합 1936
+	const tableColGroup = ['105', '105', '70', '70', '110', '70', '110', '42', '65', '65', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62', '62'] // 총합 1990
 
 	/* sticky 기준 ref */
 	const stickyRef = useRef<HTMLTableRowElement>(null);
@@ -140,7 +140,7 @@ const SalesHistoryContainer = () => {
 			const options = {
 				type: 'table', // 필수 O
 				sheetOption: { origin: 'A1' }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-				colspan: [ { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 28 }, { wch: 6 }, { wch: 15 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 14 } ], // 셀 너비 설정, 필수 X
+				colspan: [ { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 13 }, { wch: 28 }, { wch: 6 }, { wch: 15 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 }, { wch: 11 } ], // 셀 너비 설정, 필수 X
 				addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] },
 				sheetName: '주문내역', // 시트이름, 필수 X
 			};
@@ -169,10 +169,10 @@ const SalesHistoryContainer = () => {
 		if (isDownloadExcel) excelDownload();
 	}, [excelDownload, isDownloadExcel]);
 
-	// 검색마다 현재 페이지 번호 초기화
+	// 검색/필터 조건 변경시 현재 페이지 번호 초기화
 	useEffect(() => {
 		setCurrentPage(1);
-	}, [queryTrigger, setCouponModal]);
+	}, [queryTrigger, historySearch.searchOption]);
 
 	// 페이지 바뀌면 쿠폰 상세 모달 제거
 	useEffect(() => {

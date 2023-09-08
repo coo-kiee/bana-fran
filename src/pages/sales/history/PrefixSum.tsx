@@ -12,7 +12,7 @@ const { GIFT_CERT } = HISTORY_GIFT_CERT;
 const PrefixSum = ({ data }: DataArrayProps<SalesHistoryData>) => {
 	// 기간별 상세내역 누적 합계
 	const {
-		chargeTotal, deliveryCharge, cardCharge, ePayCharge, cashCharge, paidPoint, banaPoint, franCoupon, hdCoupon, hdCoupon2, savingPoint, giftCertCharge, couBaeCharge
+		chargeTotal, deliveryCharge, cardCharge, ePayCharge, cashCharge, paidPoint, banaPoint, franCoupon, hdCoupon, hdCoupon2, savingPoint, giftCertCharge, couBaeCharge, eCouponCharge
 	} = {
 		chargeTotal: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.nChargeTotal : acc}, 0),
 		deliveryCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.nDeliveryCharge : acc}, 0),
@@ -27,6 +27,7 @@ const PrefixSum = ({ data }: DataArrayProps<SalesHistoryData>) => {
 		savingPoint: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.nSavingPoint : acc}, 0),
 		giftCertCharge: data.reduce((acc, cur) => {return Number(cur.bOrderGiftCert) === GIFT_CERT && cur.order_state !== CANCEL ? acc + cur.nChargeTotal : acc}, 0),
 		couBaeCharge: data.reduce((acc, cur) => {return (cur.order_type === COUPANG || cur.order_type === BAEMIN) && cur.order_state !== CANCEL ? acc + cur.nChargeTotal : acc}, 0),
+		eCouponCharge: data.reduce((acc, cur) => {return cur.order_state !== CANCEL ? acc + cur.e_coupon_charge : acc}, 0),
 	};
 	
 	// 렌더용 배열
@@ -44,6 +45,7 @@ const PrefixSum = ({ data }: DataArrayProps<SalesHistoryData>) => {
 		{title: '적립 바나포인트 금액 합계', charge: savingPoint},
 		{title: '실물 상품권 판매 금액 합계', charge: giftCertCharge},
 		{title: '쿠팡/배민주문 금액 합계', charge: couBaeCharge},
+		{title: '제휴사 쿠폰 결제 금액 합계', charge: eCouponCharge},
 	]
 
 	return (

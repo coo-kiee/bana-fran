@@ -8,7 +8,7 @@ const SalesContainer = () => {
     const path = pathname.replace('/sales/', ''); // URL path 
 
 	return (
-		<section className='container min-width-2000'>
+		<section className='container min-width-2200'>
 			<header>
 				<div className='page-title sales'>
 					<p className='present'>매출관리</p>

@@ -34,11 +34,12 @@ interface HomeMembershipData {
 interface HomeSalesTodayData {
 	bana_point: number;
 	card_charge: number;
-	e_pay_charge: number;
 	cash_charge: number;
 	d_store_coupon_charge: number;
 	delivery_charge: number;
 	etc_delivery_charge: number;
+	e_coupon_charge: number;
+	e_pay_charge: number;
 	fran_coupon_charge: number;
 	hd_coupon_charge: number;
 	hd_coupon_charge_2: number;

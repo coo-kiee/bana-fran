@@ -74,7 +74,7 @@ const SalesStatistic = () => {
 	}];
 
 	// table colgroup 배열
-	const tableColGroup = ['122', '122', '122','122','122','122','122','122','122','122','122','122','122','122','122','122','122','122'];
+	const tableColGroup = ['122', '122', '122','122','122','122','122','122','122','122','122','122','122','122','122','122','122','122','122'];
 
 	/* sticky 기준 ref */
 	const stickyRef = useRef<HTMLTableRowElement>(null);
@@ -90,7 +90,7 @@ const SalesStatistic = () => {
             const options = {
                 type: 'table', // 필수 O
                 sheetOption: { origin: "A1" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: [{wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 22}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}], // 셀 너비 설정, 필수 X
+                colspan: [{wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 22}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}, {wch: 16}], // 셀 너비 설정, 필수 X
                 addRowColor: { row: [1,2,3], color: ['d3d3d3','d3d3d3','ffc89f'] },
                 sheetName: '매출통계', // 시트이름, 필수 X
             };

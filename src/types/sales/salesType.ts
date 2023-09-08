@@ -3,7 +3,7 @@ import { Bit, CommonParams } from "types/common";
 
 // common
 type SearchType = 'D'|'M';
-type CouponType = '가맹점쿠폰'|'본사쿠폰'|'본사쿠폰미보전';
+type CouponType = '가맹점쿠폰'|'본사쿠폰'|'본사쿠폰미보전'|'제휴사쿠폰';
 
 interface DataProps<T> {
 	data: T;
@@ -40,9 +40,10 @@ interface SalesHistoryData {
 	card_charge: number;
 	cash_charge: number;
 	dtRcp: string;
+	etc_delivery_charge: number;
+	e_coupon_charge: number; // 제휴사 쿠폰 금액
 	e_pay_charge: number; // 간편결제 금액
 	e_pay_type: string; // 간편결제 종류
-	etc_delivery_charge: number;
 	filter_pay_type: string; // 결제 수단
 	fran_coupon_charge: number;
 	hd_coupon_charge: number;
@@ -77,6 +78,7 @@ interface SalesStatisticData {
 	app_delivery_charge: number;
 	app_e_pay_amt: number;
 	bana_point: number;
+	e_coupon_charge: number;
 	etc_delivery_amt: number;
 	etc_delivery_charge: number;
 	fran_coupon_charge: number; 

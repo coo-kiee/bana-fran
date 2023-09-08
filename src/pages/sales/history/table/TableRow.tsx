@@ -29,6 +29,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 		nDeliveryCharge, // 배달비(앱주문)
 		nOrderID, // 주문번호
 		card_charge, // 카드
+		e_coupon_charge, // 간편결제금액
 		e_pay_charge, // 간편결제금액
 		e_pay_type, // 간편결제수단
 		cash_charge, // 현금
@@ -86,7 +87,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 			<td className='align-center'>
 				{e_pay_type && (
 					<>
-						{`${e_pay_charge}`}
+						{`${Utils.numberComma(e_pay_charge)}`}
 						<br />
 						{`(${e_pay_type})`}
 					</>
@@ -97,6 +98,13 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
 			<td className='align-center'>{paid_point !== 0 ? Utils.numberComma(paid_point) : ''}</td>
 			<td className='align-center'>{bonus_point !== 0 ? Utils.numberComma(bonus_point) : ''}</td>
 			<td className='align-center'>{small_point !== 0 ? Utils.numberComma(small_point) : ''}</td>
+			<td className='align-center'>
+				{e_coupon_charge !== 0 && (
+					<span className='underline pointer' onClick={(e) => handleClickPoint(e, '제휴사쿠폰')}>
+						{Utils.numberComma(e_coupon_charge)}
+					</span>
+				)}
+			</td>
 			<td className='align-center'>
 				{fran_coupon_charge !== 0 && (
 					<span className='underline pointer' onClick={(e) => handleClickPoint(e, '가맹점쿠폰')}>

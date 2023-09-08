@@ -8,6 +8,7 @@ const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
 	const {
         total_sales_amt, 
         app_delivery_amt, 
+        e_coupon_charge,
         etc_delivery_amt, 
         etc_delivery_charge, 
         app_delivery_charge, 
@@ -36,6 +37,7 @@ const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
 		app_e_pay_amt: data?.reduce((acc, cur) => { return acc + cur.app_e_pay_amt; }, 0),              // 간편결제(어플)
 		pos_cash_amt: data?.reduce((acc, cur) => { return acc + cur.pos_cash_amt; }, 0),                // 현금매출
 		paid_point: data?.reduce((acc, cur) => { return acc + cur.paid_point; }, 0),                    // 유상포인트
+		e_coupon_charge: data?.reduce((acc, cur) => { return acc + cur.e_coupon_charge; }, 0),          // 제휴사 쿠폰 매출
 		hd_coupon_charge: data?.reduce((acc, cur) => { return acc + cur.hd_coupon_charge; }, 0),        // 본사쿠폰(보전)
 		hd_coupon_charge_2: data?.reduce((acc, cur) => { return acc + cur.hd_coupon_charge_2; }, 0),    // 본사쿠폰(미보전)
 		free_sales_amt: data?.reduce((acc, cur) => { return acc + cur.free_sales_amt; }, 0),            // 무상서비스
@@ -108,6 +110,12 @@ const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
             <td className='total'>
                 {Utils.numberComma(paid_point)}<br />
                 <span>({(100 * paid_point / total_sales_amt || 0).toFixed(1)}%)</span>
+            </td>
+            <td className='total'>
+                {Utils.numberComma(e_coupon_charge)}<br />
+                <span>
+                    ({(100 * e_coupon_charge / total_sales_amt || 0).toFixed(1)}%)
+                </span>
             </td>
             <td className='total'>
                 {Utils.numberComma(hd_coupon_charge)}<br />
