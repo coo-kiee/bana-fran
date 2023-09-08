@@ -5,7 +5,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import CALCULATE_SERVICE from "service/calculateService";
 
 // Type
-import { CalculateType, CALCULATE_TYPE, CALCULATE_CHARGE_TYPE, CALCULATE_CHARGE_MULTIPLY } from "types/calculate/calculateType";
+import { CalculateType, CALCULATE_TYPE, CALCULATE_CHARGE_TYPE, CALCULATE_CHARGE_MULTIPLY, AffilateTabType, AFFILIATE_TAB_TYPE } from "types/calculate/calculateType";
 
 // Util
 import Utils from "utils/Utils";
@@ -21,7 +21,7 @@ interface CalculateLastMonthTableProps {
         f_code_name: string,
         staff_no: number
     },
-    caculateType: CalculateType,
+    caculateType: CalculateType | AffilateTabType,
 };
 const CalculateLastMonthTable: FC<CalculateLastMonthTableProps> = ({ userInfo, caculateType }) => {
 
@@ -65,7 +65,7 @@ interface TableListProps {
     fCode: number,
     staffNo: number,
     colSpan: number,
-    caculateType: CalculateType,
+    caculateType: CalculateType | AffilateTabType,
 };
 const TableList: FC<TableListProps> = ({ fCode, staffNo, colSpan, caculateType }) => {
 
@@ -89,6 +89,22 @@ const TableList: FC<TableListProps> = ({ fCode, staffNo, colSpan, caculateType }
                         totalInfo.supply += supplyAmt;
                         totalInfo.vat += vatAmt;
                         totalInfo.total += totalAmt;
+                    };
+
+                    //  // 기타 정산 내역 합계 Row 추가
+                     if (caculateType === AFFILIATE_TAB_TYPE.COUPON) {
+                        res.push(
+                            <tr key={index}>
+                            <td className="align-center">{`${from_date}~${to_date}`}</td>
+                            {calculate_type && <td className="align-center">{calculate_type}</td>}
+                            <td className="align-left">{item_name}</td>
+                            <td className="align-center">{calculateDetailSum.publisher}</td>
+                            <td className="align-right">{Utils.numberComma(supplyAmt)}</td>
+                            <td className="align-right">{Utils.numberComma(vatAmt)}</td>
+                            <td className="align-right">{Utils.numberComma(totalAmt)}</td>
+                        </tr>
+                        );
+                        return res
                     };
 
                     res.push(
@@ -143,5 +159,10 @@ const TABLE_COLUMN_INFO = {
         title: '기타 정산 내역',
         width: ['188', '70', '*', '130', '130', '130'],
         headerText: ['정산기간', '구분', '품목', '공급가액', '부가세', '합계'],
+    },
+    [AFFILIATE_TAB_TYPE.COUPON]: {
+        title: '제휴사 쿠폰/포인트 결제내역',
+        width: ['188', '*', '*', '130', '130', '130'],
+        headerText: ['정산기간', '품목', '발행사', '공급가액', '부가세', '합계'],
     },
 } as const;

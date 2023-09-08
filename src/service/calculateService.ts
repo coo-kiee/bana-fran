@@ -6,7 +6,7 @@ import { useMutation, useQuery, UseQueryResult } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 
 // Type
-import { CalculateCouponDetailListQueryResult, CalculateLastMonthEachQueryResult, CalculateEtcDetailListQueryResult, CalculateFixListQueryResult, CalculatePointDetailListQueryResult, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY, CalculateLastMonthTotalQueryResult, CalculateClaimDetailListQueryResult, CLAIM_TAB_TYPE } from 'types/calculate/calculateType';
+import { CalculateCouponDetailListQueryResult, CalculateLastMonthEachQueryResult, CalculateEtcDetailListQueryResult, CalculateFixListQueryResult, CalculatePointDetailListQueryResult, CalculateChargeMultiplyKey, CALCULATE_CHARGE_MULTIPLY, CalculateLastMonthTotalQueryResult, CalculateClaimDetailListQueryResult, CLAIM_TAB_TYPE, AFFILIATE_TAB_TYPE, CalculateAffiliateDetailListQueryResult } from 'types/calculate/calculateType';
 
 // 검색 월
 const useCalculateMonthList = (f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
@@ -302,6 +302,39 @@ const useCalculateEtcDetailList: CalculateEtcDetailListParameter = (f_code, staf
     });
 };
 
+// 고객 클레임 보상내역 상세
+type UseCalculateAffiliateDetailList = (
+    queryKey: string | Array<string>,
+    tabType: number,
+    f_code: number,
+    staffNo: number,
+    from_date: string,
+    to_date: string,
+    option?: { [key: string]: any },
+) => UseQueryResult<CalculateAffiliateDetailListQueryResult[], unknown>;
+const useCalculateAffiliateDetailList: UseCalculateAffiliateDetailList = (queryKey, tabType, f_code, staffNo, from_date, to_date, option = {}) => {
+
+    // web_fran_s_calculate_external_coupon_list :  
+    const query = tabType === AFFILIATE_TAB_TYPE.COUPON ? 'F3A2PGABD6HJXQ1SDNDK' : ''
+    const data = {
+        ws: "fprocess",
+        query,
+        params: {
+            f_code,
+            from_date,
+            to_date,
+        }
+    };
+
+    return useQuery<CalculateAffiliateDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
+        keepPreviousData: false,
+        refetchOnWindowFocus: false,
+        retry: false,
+        suspense: option.suspense ? option.suspense : true,
+        enabled: staffNo > 0,
+    });
+};
+
 export default {
     useCalculateMonthList,
     useCalculateLastMonthTotal,
@@ -314,6 +347,7 @@ export default {
     useCalculateCouponDetailList,
     useCalculateClaimDetailList,
     useCalculateEtcDetailList,
+    useCalculateAffiliateDetailList
 };
 
 export const CALCULATE_QUERY_KEY = {
@@ -326,4 +360,5 @@ export const CALCULATE_QUERY_KEY = {
     CALCULATE_COUPON_DETAIL_LIST: 'calculateCouponDetailList',
     CALCULATE_CLAIM_DETAIL_LIST: 'calculateClaimDetailList',
     CALCULATE_ETC_DETAIL_LIST: 'calculateEtcDetailList',
+    CALCULATE_AFFILIATE_DETAIL_LIST: 'calculateAffiliateDetailList',
 } as const;

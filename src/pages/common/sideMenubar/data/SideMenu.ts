@@ -8,6 +8,7 @@ const CalculatePoint = loadable(() => import('pages/calculate/point'));
 const CalculateCoupon = loadable(() => import('pages/calculate/coupon'));
 const CalculateClaim = loadable(() => import('pages/calculate/claim'));
 const CalculateEtc = loadable(() => import('pages/calculate/etc'));
+const CalculateAffiliate = loadable(() => import('pages/calculate/affiliate'));
 const Etc = loadable(() => import('pages/etc'));
 const Extra = loadable(() => import('pages/membership/extra'));
 const MonthRank = loadable(() => import('pages/membership/monthRank'));
@@ -97,6 +98,14 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
                 icon: "",
                 id: 450,
                 component: CalculateEtc,
+                addPath: []
+            },
+            {
+                path: "/affiliate",
+                name: "제휴사 쿠폰/포인트 결제내역",
+                icon: "",
+                id: 460,
+                component: CalculateAffiliate,
                 addPath: []
             }
         ],

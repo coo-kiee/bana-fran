@@ -44,6 +44,7 @@ const HEADER_SUBTITLE = {
     [CALCULATE_TYPE.COUPON]: '본사 쿠폰 결제내역',
     [CALCULATE_TYPE.CLAIM]: '클레임 쿠폰 정산내역',
     [CALCULATE_TYPE.ETC]: '기타 정산 내역',
+    [CALCULATE_TYPE.AFFILIATE]: '제휴사 쿠폰/포인트 결제내역',
 } as const;
 
 const SECTION_CLASSNAME = {
@@ -52,4 +53,5 @@ const SECTION_CLASSNAME = {
     [CALCULATE_TYPE.COUPON]: 'paid-point-wrap',
     [CALCULATE_TYPE.CLAIM]: 'claim-wrap',
     [CALCULATE_TYPE.ETC]: 'cal-etc-wrap',
+    [CALCULATE_TYPE.AFFILIATE]: 'affiliate-wrap',
 } as const;

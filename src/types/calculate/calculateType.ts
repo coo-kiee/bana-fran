@@ -4,6 +4,7 @@ const enum CALCULATE_TYPE {
     COUPON,
     CLAIM,
     ETC,
+    AFFILIATE,
 };
 
 type CalculateType = typeof CALCULATE_TYPE[keyof typeof CALCULATE_TYPE];
@@ -58,6 +59,7 @@ type CalculateLastMonthEachQueryResult = {
     to_date:string, // 정산기간
     calculate_type?:string, // 기타 - 구분
     item_name: string, // 품목
+    publisher: string, // 발행사
     supply_amt: number, // 공급가액
     vat_amt: number, // 부가세
     total_amt: number, // 합계
@@ -115,6 +117,19 @@ type CalculateClaimDetailListQueryResult = {
     vat_amt: number, // 부가세
 };
 
+// 제휴사 쿠폰/포인트 상세
+type CalculateAffiliateDetailListQueryResult = {
+    use_date: string, // 결제일시
+    coupon_title: string, // 쿠폰명
+    publisher: number, // 공급사
+    menu_name: string, // 메뉴명
+    phone: string, // 사용자
+    apply_charge: number, // 사용 금액
+    supply_amt: number, // 공급가
+    vat_amt: number, // 부가세
+    total_amt: number, // 합계
+};
+
 // 고객 클레임 보상내역 탭
 const CLAIM_TAB_TYPE = {
     CLAIM: 'claim',
@@ -147,13 +162,19 @@ type CalculateEtcDetailListQueryResult = {
     total_amt: number, // 기타 정산 금액 합계
 };
 
+// 제휴사 쿠폰/포인트 탭
+const AFFILIATE_TAB_TYPE = {
+    COUPON: 5,
+    POINT: 6,
+} as const;
+type AffilateTabType = typeof AFFILIATE_TAB_TYPE[keyof typeof AFFILIATE_TAB_TYPE];
 
 export {
-    CALCULATE_TYPE, CALCULATE_STATUS, CLAIM_TAB_TYPE, CALCULATE_CHARGE_TYPE, CALCULATE_CHARGE_MULTIPLY
+    CALCULATE_TYPE, CALCULATE_STATUS, CLAIM_TAB_TYPE, CALCULATE_CHARGE_TYPE, CALCULATE_CHARGE_MULTIPLY, AFFILIATE_TAB_TYPE
 };
 
 export type {
     CalculateType, CalculateLastMonthTotalQueryResult, CalculateLastMonthTotalDetail, CalculateLastMonthOutput, CalculateStatusType, CalculateFixListQueryResult,
     CalculateLastMonthEachQueryResult, CalculatePointDetailListQueryResult, CalculateCouponDetailListQueryResult, CalculateClaimDetailListQueryResult, TabType, 
-    CalculateChargeType, CalculateChargeMultiplyKey, CalculateEtcDetailListQueryResult
+    CalculateChargeType, CalculateChargeMultiplyKey, CalculateEtcDetailListQueryResult, AffilateTabType, CalculateAffiliateDetailListQueryResult
 };

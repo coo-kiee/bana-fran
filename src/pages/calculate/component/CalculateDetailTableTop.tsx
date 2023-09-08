@@ -13,8 +13,8 @@ interface CalculateDetailTableTopProps {
         dateTitle?: string,
         dateType?: string,
         optionType?: OPTION_TYPE,
-        selectOption?: Array<{ [key: string | number]: { title: string, value: string | number } }>,
-        optionList?: Array<any>,
+        selectOption?: Array<{ [key: string | number]: { title: string, value: string | number } }>, // select로 나타날 옵션 정보
+        optionList?: Array<any>, // option 맵핑할 때 사용  
         showMonthYearPicker?: boolean,
         handleSearch?: () => void,
     },
