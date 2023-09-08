@@ -16,6 +16,16 @@ interface CommonParams {
     f_code: number;
 }
 
+interface IUserInfo {
+    login_id: number,
+    f_list: Array<{
+        f_code: number,
+        f_code_name: string,
+    }>,
+    staff_name: string
+    staff_no: number
+}
+
 export { RES_DATA_TYPE }
 
-export type { Bit, RequestParams, CommonParams }
+export type { Bit, RequestParams, CommonParams, IUserInfo }

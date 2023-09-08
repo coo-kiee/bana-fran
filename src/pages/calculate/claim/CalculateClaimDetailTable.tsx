@@ -81,7 +81,9 @@ const CalculateClaimDetailTable: FC<CalculateClaimDetailTableProps> = ({ tabType
     });
 
     const TABLE_COLUMN_INFO = {
-        width: CLAIM_TAB_TYPE.CLAIM === tabType ? ['130', '130', '88', '150', '109', '130', '136', '*', '130', '130', '109', '130', '130', '130'] : ['130', '130', '88', '150', '109', '130', '136', '130', '130', '109', '130', '130', '130'],
+        width: CLAIM_TAB_TYPE.CLAIM === tabType
+        ? ['130', '130', '88', '150', '109', '130', '136', '*', '130', '130', '*', '*', '130', '130', '130']
+        : ['130', '130', '88', '150', '109', '130', '136', '130', '130', '*', '*', '130', '130', '130'],
         thInfo: CLAIM_TAB_TYPE.CLAIM === tabType ? [
             { text: '쿠폰 발행일시', rowSpan: 2, colSpan: 1, className: '' },
             { text: '쿠폰 사용일시', rowSpan: 2, colSpan: 1, className: '' },
@@ -91,6 +93,7 @@ const CalculateClaimDetailTable: FC<CalculateClaimDetailTableProps> = ({ tabType
             { text: '유효기간', rowSpan: 2, colSpan: 1, className: '' },
             { text: '발급고객', rowSpan: 2, colSpan: 1, className: '' },
             { text: '클레임 내용', rowSpan: 2, colSpan: 1, className: '' },
+            { text: '발급매장', rowSpan: 2, colSpan: 1, className: '' },
             { text: '사용매장', rowSpan: 2, colSpan: 1, className: '' },
             { text: '사용자', rowSpan: 2, colSpan: 1, className: '' },
             { text: '사용금액', rowSpan: 2, colSpan: 1, className: '' },
@@ -103,6 +106,7 @@ const CalculateClaimDetailTable: FC<CalculateClaimDetailTableProps> = ({ tabType
             { text: `쿠폰발행\n(최대)금액`, rowSpan: 2, colSpan: 1, className: '' },
             { text: '유효기간', rowSpan: 2, colSpan: 1, className: '' },
             { text: '발급고객', rowSpan: 2, colSpan: 1, className: '' },
+            { text: '발급매장', rowSpan: 2, colSpan: 1, className: '' },
             { text: '사용매장', rowSpan: 2, colSpan: 1, className: '' },
             { text: '사용자', rowSpan: 2, colSpan: 1, className: '' },
             { text: '사용금액', rowSpan: 2, colSpan: 1, className: '' },
@@ -123,7 +127,7 @@ const CalculateClaimDetailTable: FC<CalculateClaimDetailTableProps> = ({ tabType
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
                         <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
-                            <TableList tabType={tabType} fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} tableTopInfo={tableTopInfo} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} calenderSearchType={calenderSearchType} />
+                            <TableList tabType={tabType} fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} tableTopInfo={tableTopInfo} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} userInfo={userInfo} calenderSearchType={calenderSearchType} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
@@ -215,9 +219,14 @@ interface TableListProps {
         currentPage: number;
         row: number;
     }>>,
+    userInfo: {
+        f_code: number,
+        f_code_name: string,
+        staff_no: number
+    },
     calenderSearchType: string,
 };
-const TableList: FC<TableListProps> = ({ tabType, fCode, staffNo, searchCondition, tableTopInfo, setTableTopInfo, pageInfo, setPageInfo, calenderSearchType }) => {
+const TableList: FC<TableListProps> = ({ tabType, fCode, staffNo, searchCondition, tableTopInfo, setTableTopInfo, pageInfo, setPageInfo, userInfo, calenderSearchType }) => {
 
     const { from, to, searchTrigger } = searchCondition;
     const fromDate = Utils.converDateFormat(from, '-');
@@ -240,29 +249,28 @@ const TableList: FC<TableListProps> = ({ tabType, fCode, staffNo, searchConditio
         // 필터링 된 Table List 생성
         const tableList = claimDetailList?.reduce((arr, claimDetail, index) => {
 
-            const { send_date, use_date, use_flag, coupon_title, coupon_amt, expiration_date, send_phone, claim_text, use_f_name, use_phone, coupon_charge, supply_amt, vat_amt } = claimDetail;
-
             // 합계 계산
-            if (SUM_TYPE.PUBLISH in sumObj) sumObj[SUM_TYPE.PUBLISH].sum += coupon_amt;
-            if (use_flag === SUM_TYPE.USE && SUM_TYPE.USE in sumObj) sumObj[SUM_TYPE.USE].sum += coupon_charge;
-            else if (use_flag === SUM_TYPE.EXPIRATION && SUM_TYPE.EXPIRATION in sumObj) sumObj[SUM_TYPE.EXPIRATION].sum += coupon_amt;
+            if (SUM_TYPE.PUBLISH in sumObj) sumObj[SUM_TYPE.PUBLISH].sum += claimDetail.coupon_amt;
+            if (claimDetail.use_flag === SUM_TYPE.USE && SUM_TYPE.USE in sumObj) sumObj[SUM_TYPE.USE].sum += claimDetail.coupon_charge;
+            else if (claimDetail.use_flag === SUM_TYPE.EXPIRATION && SUM_TYPE.EXPIRATION in sumObj) sumObj[SUM_TYPE.EXPIRATION].sum += claimDetail.coupon_amt;
 
             arr.push(
                 <tr key={index}>
-                    <td className="align-center">{send_date.replace(' ', '\n')}</td>
-                    <td className="align-center">{use_date.replace(' ', '\n')}</td>
-                    <td className="align-center">{use_flag}</td>
-                    <td className="align-center">{coupon_title}</td>
-                    <td className="align-right">{Utils.numberComma(coupon_amt)}</td>
-                    <td className="align-center">{expiration_date.replace(' ', '\n')}</td>
-                    <td className="align-center">{send_phone}</td>
-                    {tabType === CLAIM_TAB_TYPE.CLAIM && <td className="align-left">{claim_text}</td>}
-                    <td className="align-center">{use_f_name}</td>
-                    <td className="align-center">{use_phone}</td>
-                    <td className="align-right">{Utils.numberComma(coupon_charge)}</td>
-                    <td className="align-right">{Utils.numberComma(supply_amt)}</td>
-                    <td className="align-right">{Utils.numberComma(vat_amt)}</td>
-                    <td className="align-right">{Utils.numberComma(coupon_charge)}</td>
+                    <td className="align-center">{claimDetail.send_date.replace(' ', '\n')}</td>
+                    <td className="align-center">{claimDetail.use_date.replace(' ', '\n')}</td>
+                    <td className="align-center">{claimDetail.use_flag}</td>
+                    <td className="align-center">{claimDetail.coupon_title}</td>
+                    <td className="align-right">{Utils.numberComma(claimDetail.coupon_amt)}</td>
+                    <td className="align-center">{claimDetail.expiration_date.replace(' ', '\n')}</td>
+                    <td className="align-center">{claimDetail.send_phone}</td>
+                    {tabType === CLAIM_TAB_TYPE.CLAIM && <td className="align-left">{claimDetail.claim_text}</td>}
+                    <td className="align-center">{userInfo.f_code_name === claimDetail.send_f_name ? claimDetail.send_f_name : '타매장'}</td>
+                    <td className="align-center">{userInfo.f_code_name === claimDetail.use_f_name ? claimDetail.use_f_name : '타매장'}</td>
+                    <td className="align-center">{claimDetail.use_phone}</td>
+                    <td className="align-right">{Utils.numberComma(claimDetail.coupon_charge)}</td>
+                    <td className="align-right">{Utils.numberComma(claimDetail.supply_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(claimDetail.vat_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(claimDetail.coupon_charge)}</td>
                 </tr>
             )
             return arr;

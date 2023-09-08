@@ -110,6 +110,7 @@ type CalculateClaimDetailListQueryResult = {
     expiration_date: string, // 유효기간
     send_phone: string, // 발급 고객
     claim_text: string, // 클레임 내용
+    send_f_name : string, //발급매장
     use_f_name: string, // 사용매장
     use_phone: string, // 사용자
     coupon_charge: number, // 사용 금액
