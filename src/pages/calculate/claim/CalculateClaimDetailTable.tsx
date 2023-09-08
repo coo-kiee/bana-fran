@@ -127,7 +127,7 @@ const CalculateClaimDetailTable: FC<CalculateClaimDetailTableProps> = ({ tabType
                     {/* List */}
                     <ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />} onError={(e) => console.log('CouponDetail', e)}>
                         <Suspense fallback={<Loading height={80} width={80} marginTop={0} isTable={true} />}>
-                            <TableList tabType={tabType} fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} tableTopInfo={tableTopInfo} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} userInfo={userInfo} calenderSearchType={calenderSearchType} />
+                            <TableList tabType={tabType} fCode={f_code} staffNo={staff_no} searchCondition={searchCondition} tableTopInfo={tableTopInfo} setTableTopInfo={setTableTopInfo} pageInfo={pageInfo} setPageInfo={setPageInfo} calenderSearchType={calenderSearchType} />
                         </Suspense>
                     </ErrorBoundary>
                 </tbody>
@@ -219,14 +219,9 @@ interface TableListProps {
         currentPage: number;
         row: number;
     }>>,
-    userInfo: {
-        f_code: number,
-        f_code_name: string,
-        staff_no: number
-    },
     calenderSearchType: string,
 };
-const TableList: FC<TableListProps> = ({ tabType, fCode, staffNo, searchCondition, tableTopInfo, setTableTopInfo, pageInfo, setPageInfo, userInfo, calenderSearchType }) => {
+const TableList: FC<TableListProps> = ({ tabType, fCode, staffNo, searchCondition, tableTopInfo, setTableTopInfo, pageInfo, setPageInfo, calenderSearchType }) => {
 
     const { from, to, searchTrigger } = searchCondition;
     const fromDate = Utils.converDateFormat(from, '-');
@@ -264,8 +259,8 @@ const TableList: FC<TableListProps> = ({ tabType, fCode, staffNo, searchConditio
                     <td className="align-center">{claimDetail.expiration_date.replace(' ', '\n')}</td>
                     <td className="align-center">{claimDetail.send_phone}</td>
                     {tabType === CLAIM_TAB_TYPE.CLAIM && <td className="align-left">{claimDetail.claim_text}</td>}
-                    <td className="align-center">{userInfo.f_code_name === claimDetail.send_f_name ? claimDetail.send_f_name : '타매장'}</td>
-                    <td className="align-center">{userInfo.f_code_name === claimDetail.use_f_name ? claimDetail.use_f_name : '타매장'}</td>
+                    <td className="align-center">{claimDetail.send_f_name}</td>
+                    <td className="align-center">{claimDetail.use_f_name}</td>
                     <td className="align-center">{claimDetail.use_phone}</td>
                     <td className="align-right">{Utils.numberComma(claimDetail.coupon_charge)}</td>
                     <td className="align-right">{Utils.numberComma(claimDetail.supply_amt)}</td>
