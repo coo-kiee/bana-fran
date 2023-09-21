@@ -5,7 +5,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { useLogin } from 'hooks/useLogin';
 import { franState, loginState } from 'state';
 
-import img_logo from 'assets/images/common/logo.svg';
+import img_logo from 'assets/images/common/logo2.svg';
 
 type SideMenuBarType = {
     index : number,
