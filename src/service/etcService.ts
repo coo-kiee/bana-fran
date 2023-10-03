@@ -85,7 +85,7 @@ const useOrderDetailStatistic = (params: { fran_store: number }, option: { [key:
         suspense: true, 
         select: (data: any) => { 
             let previousMonths: { [key: string]: any }[] = [];
-            Array.from({ length: 11 }, (_, idx1) => idx1).forEach((el, idx2) => {
+            Array.from({ length: 13 }, (_, idx1) => idx1).forEach((el, idx2) => {
                 const month = format(subMonths(new Date(), el), 'yyyy-MM');
                 previousMonths[idx2] = { date_monthly: month, amount: 0, supply_amt: 0, vat_amt: 0 }
             }); // previousMonths = [ {date_monthly: '2022-11', amount: 0}, ...,  {date_monthly: '2022-01', amount: 0}], 최근을 앞에 오게

@@ -251,8 +251,8 @@ const tabList = [
     },
     {
         title: `월별 발주금액 통계`,
-        colgroup: ['147', '147', '147', '147', '147', '147', '147', '147', '147', '147', '147', '147'],
-        thead: Array.from({ length: 12 }, (_, idx1) => idx1).map((el, idx, thisArg) => idx + 1 !== thisArg.length ? format(subMonths(new Date(), el), 'yyyy-MM') : '구분').reverse(),
+        colgroup: ['147', '147', '147', '147', '147', '147', '147', '147', '147', '147', '147', '147','147','147'],
+        thead: Array.from({ length: 14 }, (_, idx1) => idx1).map((el, idx, thisArg) => idx + 1 !== thisArg.length ? format(subMonths(new Date(), el), 'yyyy-MM') : '구분').reverse(),
         query: '2Q65LKD2JBSZ3OWKWTWY',
         queryKey: 'etc_order_detail_statistic',
     }, {
