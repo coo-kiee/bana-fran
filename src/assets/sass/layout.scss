@@ -1,5 +1,7 @@
 article { display: flex; position: relative;
     nav { 
+        display: flex;
+        flex-direction: column;
         width: 230px;
         min-width: 230px;
         min-height: 1020px;
@@ -119,24 +121,32 @@ article { display: flex; position: relative;
             }
         }
 
-        .user-function {
-            position: absolute;
-            bottom: 30px;
-            left: 20px;
-            width: 190px;
-            padding-top: 30px;
-            border-top: 1px solid #575767;
-            font-size: 14px;
-            color: #aaaaaa;
-            text-align: center;
-            text-decoration: underline;
+        .user-function-layout {
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+            flex: 1;
 
-            p {
-                &:last-child {
-                    padding-top: 12px;
+            .user-function {
+                // position: absolute;
+                // bottom: 30px;
+                // left: 20px;
+                width: 100%;
+                padding: 30px 0;
+                border-top: 1px solid #575767;
+                font-size: 14px;
+                color: #aaaaaa;
+                text-align: center;
+                text-decoration: underline;
+    
+                p {
+                    &:last-child {
+                        padding-top: 12px;
+                    }
                 }
             }
         }
+        
     }
 
     .container {
