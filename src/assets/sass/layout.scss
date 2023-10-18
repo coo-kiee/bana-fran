@@ -124,7 +124,7 @@ article { display: flex; position: relative;
         .user-function-layout {
             display: flex;
             flex-direction: column;
-            justify-content: end;
+            justify-content: flex-end;
             flex: 1;
 
             .user-function {
