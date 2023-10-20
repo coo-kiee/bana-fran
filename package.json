@@ -64,6 +64,7 @@
     "@types/loadable__component": "^5.13.4",
     "@types/react-datepicker": "^4.4.2",
     "@types/styled-components": "^5.1.26",
-    "gzipper": "^7.1.0"
+    "gzipper": "^7.1.0",
+    "prettier": "^3.0.3"
   }
 }
