@@ -1,4 +1,4 @@
-import { Children } from 'react';
+import { Children, ReactNode } from 'react';
 
 // Type
 import { IPageInfo } from '../pagination/PageInfoProvider';
@@ -10,7 +10,7 @@ import NoData from '../noData';
 
 interface ITableList<T> {
   queryRes: UseQueryResult<T, unknown>;
-  render: (datas: T | undefined) => JSX.Element;
+  render: (datas: T | undefined) => ReactNode;
   pageInfo?: IPageInfo;
 }
 const TableList = <T extends unknown[]>({ queryRes, render, pageInfo }: ITableList<T>) => {

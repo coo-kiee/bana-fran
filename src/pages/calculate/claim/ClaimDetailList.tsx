@@ -53,29 +53,27 @@ const ClaimDetailList: FC<IClaimDetailList> = ({ tabType, sortType, searchDate, 
     <TableList
       queryRes={claimDetailListRes}
       pageInfo={pageInfo}
-      render={(datas) => (
-        <>
-          {datas?.map((claimData, index) => (
-            <tr key={index}>
-              <td className="align-center">{claimData.send_date.replace(' ', '\n')}</td>
-              <td className="align-center">{claimData.use_date.replace(' ', '\n')}</td>
-              <td className="align-center">{claimData.use_flag}</td>
-              <td className="align-center">{claimData.coupon_title}</td>
-              <td className="align-right">{Utils.numberComma(claimData.coupon_amt)}</td>
-              <td className="align-center">{claimData.expiration_date.replace(' ', '\n')}</td>
-              <td className="align-center">{claimData.send_phone}</td>
-              {tabType === CLAIM_TAB_TYPE.ALL && <td className="align-left">{claimData.claim_text}</td>}
-              <td className="align-center">{claimData.send_f_name}</td>
-              <td className="align-center">{claimData.use_f_name}</td>
-              <td className="align-center">{claimData.use_phone}</td>
-              <td className="align-right">{Utils.numberComma(claimData.coupon_charge)}</td>
-              <td className="align-right">{Utils.numberComma(claimData.supply_amt)}</td>
-              <td className="align-right">{Utils.numberComma(claimData.vat_amt)}</td>
-              <td className="align-right">{Utils.numberComma(claimData.coupon_charge)}</td>
-            </tr>
-          ))}
-        </>
-      )}
+      render={(datas) =>
+        datas?.map((claimData, index) => (
+          <tr key={index}>
+            <td className="align-center">{claimData.send_date.replace(' ', '\n')}</td>
+            <td className="align-center">{claimData.use_date.replace(' ', '\n')}</td>
+            <td className="align-center">{claimData.use_flag}</td>
+            <td className="align-center">{claimData.coupon_title}</td>
+            <td className="align-right">{Utils.numberComma(claimData.coupon_amt)}</td>
+            <td className="align-center">{claimData.expiration_date.replace(' ', '\n')}</td>
+            <td className="align-center">{claimData.send_phone}</td>
+            {tabType === CLAIM_TAB_TYPE.ALL && <td className="align-left">{claimData.claim_text}</td>}
+            <td className="align-center">{claimData.send_f_name}</td>
+            <td className="align-center">{claimData.use_f_name}</td>
+            <td className="align-center">{claimData.use_phone}</td>
+            <td className="align-right">{Utils.numberComma(claimData.coupon_charge)}</td>
+            <td className="align-right">{Utils.numberComma(claimData.supply_amt)}</td>
+            <td className="align-right">{Utils.numberComma(claimData.vat_amt)}</td>
+            <td className="align-right">{Utils.numberComma(claimData.coupon_charge)}</td>
+          </tr>
+        ))
+      }
     />
   );
 };
