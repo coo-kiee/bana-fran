@@ -1,7 +1,7 @@
 import { ChangeEventHandler, FC } from 'react';
 
 // Const
-import { CLAIM_TAB_TYPE, CLAIM_DETAIL_FILTER_TYPE, CLAIM_FILTER_OPTIONS } from 'constants/calculate/claim';
+import { CLAIM_TAB_TYPE, CLAIM_DETAIL_FILTER_TYPE, CLAIM_DETAIL_FILTER_OPTION } from 'constants/calculate/claim';
 
 // Type
 import { ClaimTabType } from 'constants/calculate/claim';
@@ -26,7 +26,7 @@ const ClaimDetailSort: FC<IClaimDetailSort> = ({ tabType, filterCondition, handl
         <CalculateDetailFilter
           name={CLAIM_DETAIL_FILTER_TYPE.SORT}
           value={filterCondition[tabType][CLAIM_DETAIL_FILTER_TYPE.SORT]}
-          options={CLAIM_FILTER_OPTIONS[tabType][CLAIM_DETAIL_FILTER_TYPE.SORT]}
+          options={CLAIM_DETAIL_FILTER_OPTION[tabType][CLAIM_DETAIL_FILTER_TYPE.SORT]}
           handleOnChange={handleAllFilterCondition}
         />
       )}

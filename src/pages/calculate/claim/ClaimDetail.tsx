@@ -3,6 +3,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { format, lastDayOfMonth } from 'date-fns';
 
 // Const
+import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE } from 'constants/calculate/common';
 import {
   CLAIM_TAB_TYPE,
   CLAIM_DETAIL_TABLE_COLGROUP_INFO,
@@ -97,7 +98,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
             titleFrom={searchDate[tabType].fromDate}
             titleTo={searchDate[tabType].toDate}
             colspan={Object.values(CLAIM_DETAIL_TABLE_COLGROUP_INFO[tabType]).flatMap((item) => item.width)}
-            excelFileName={'고객 클레임 보상내역'}
+            excelFileName={CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.CLAIM]}
           />
           <Pages />
         </div>
