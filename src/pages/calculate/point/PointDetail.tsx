@@ -48,10 +48,8 @@ const PointDetail = () => {
       <div className="search-wrap">
         <CalculateDetailCalander
           searchDate={searchDate}
-          render={(props) => (
-            <CalculateDetailSearchButton handleSearch={() => handleSearchDate(props.calanderSearchDate)}>
-              {props.children}
-            </CalculateDetailSearchButton>
+          render={(calanderSearchDate) => (
+            <CalculateDetailSearchButton handleSearch={() => handleSearchDate(calanderSearchDate)} />
           )}
         >
           <div className="select-wrap">

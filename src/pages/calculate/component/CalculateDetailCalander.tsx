@@ -5,13 +5,9 @@ import useDatePicker from 'hooks/datePicker/useDatePicker';
 
 // Component
 import Calander from 'pages/common/calander';
-
-interface IRenderProps extends PropsWithChildren {
-  calanderSearchDate: { fromDate: string; toDate: string };
-}
 interface ICalculateDetailCalander<T> extends PropsWithChildren {
   searchDate: T;
-  render: (props: IRenderProps) => JSX.Element;
+  render: (calanderSearchDate: { fromDate: string; toDate: string }) => JSX.Element;
 }
 const CalculateDetailCalander = <T extends { fromDate: string; toDate: string }>({
   searchDate,
@@ -34,7 +30,8 @@ const CalculateDetailCalander = <T extends { fromDate: string; toDate: string }>
           onChange={(date) => validateSearchDate(fromDate, date) && handleToDate(date)}
         />
       </Calander>
-      {render({ calanderSearchDate: { fromDate, toDate }, children })}
+      {children}
+      {render({ fromDate, toDate })}
     </>
   );
 };

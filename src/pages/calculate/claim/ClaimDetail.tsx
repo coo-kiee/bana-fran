@@ -65,10 +65,8 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
         />
         <CalculateDetailCalander
           searchDate={searchDate[tabType]}
-          render={(props) => (
-            <CalculateDetailSearchButton handleSearch={() => handleSearchDate(props.calanderSearchDate)}>
-              {props.children}
-            </CalculateDetailSearchButton>
+          render={(calanderSearchDate) => (
+            <CalculateDetailSearchButton handleSearch={() => handleSearchDate(calanderSearchDate)} />
           )}
         />
       </div>

@@ -1,16 +1,11 @@
-import { PropsWithChildren } from 'react';
-
-interface ICalculateDetailSearchButton extends PropsWithChildren {
+interface ICalculateDetailSearchButton {
   handleSearch: () => void;
 }
-const CalculateDetailSearchButton = ({ children, handleSearch }: ICalculateDetailSearchButton) => {
+const CalculateDetailSearchButton = ({ handleSearch }: ICalculateDetailSearchButton) => {
   return (
-    <>
-      {children}
-      <button className="btn-search" onClick={handleSearch}>
-        조회
-      </button>
-    </>
+    <button className="btn-search" onClick={handleSearch}>
+      조회
+    </button>
   );
 };
 
