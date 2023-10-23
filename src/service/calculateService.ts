@@ -180,36 +180,28 @@ const useCalculateLastMonthEach = (
 };
 
 // 유상포인트 결제내역 상세
-type CalculatePointDetailListParameter = (
-  f_code: number,
-  staffNo: number,
-  from_date: string,
-  to_date: string,
-  option?: { [key: string]: any },
-) => UseQueryResult<CalculatePointDetailListQueryResult[], unknown>;
-const useCalculatePointDetailList: CalculatePointDetailListParameter = (
-  f_code,
-  staffNo,
-  from_date,
-  to_date,
-  option = {},
-) => {
-  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_POINT_DETAIL_LIST, f_code, staffNo, from_date, to_date];
+interface IUseCalculatePointDetailList {
+  staffNo: number;
+  params: {
+    f_code: number;
+    from_date: string;
+    to_date: string;
+  };
+}
+
+export const useCalculatePointDetailList = ({ staffNo, params }: IUseCalculatePointDetailList) => {
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_POINT_DETAIL_LIST, staffNo, ...Object.values(params)];
   const data = {
     ws: 'fprocess',
     query: '6HURAKO83BCYD8ZXBORH', // web_fran_s_calculate_paid_point_list
-    params: {
-      f_code,
-      from_date,
-      to_date,
-    },
+    params,
   };
 
   return useQuery<CalculatePointDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: option.suspense ? option.suspense : true,
+    suspense: false,
     enabled: staffNo > 0,
   });
 };

@@ -7,16 +7,24 @@ import { SetPageInfoContext } from 'pages/common/pagination/PageInfoProvider';
 // Hook
 import useHandlePageInfo from './useHandlePageInfo';
 
-const useHandlePageDataCnt = <T extends unknown[]>(queryRes: UseQueryResult<T, unknown>) => {
+const useHandlePageDataCnt = <T extends unknown[], F>(
+  queryRes: UseQueryResult<T, unknown>,
+  filterCondition?: F,
+  filterFn?: (filterCondition: F, data: T[number]) => boolean,
+) => {
   const setPageInfo = useContext(SetPageInfoContext);
   const { handleDataCnt } = useHandlePageInfo(setPageInfo);
 
   useLayoutEffect(() => {
     if (!queryRes.data) return;
 
-    const dataCnt = queryRes.data.length;
+    const dataCnt =
+      filterCondition && filterFn
+        ? queryRes.data.filter((item) => filterFn(filterCondition, item)).length
+        : queryRes.data.length;
+
     handleDataCnt(dataCnt);
-  }, [handleDataCnt, queryRes.data]);
+  }, [filterCondition, filterFn, handleDataCnt, queryRes.data]);
 };
 
 export default useHandlePageDataCnt;

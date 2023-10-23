@@ -1,5 +1,5 @@
+import { useState } from 'react';
 import { format } from 'date-fns';
-import { useLayoutEffect, useState } from 'react';
 
 interface IUseDatePicker {
   initial?: Date | string;
@@ -16,11 +16,15 @@ const useDatePicker = (props: IUseDatePicker = {}) => {
     setDate(format(new Date(date), dateFormat));
   };
 
-  useLayoutEffect(() => {
-    setDate(format(new Date(initial), dateFormat));
-  }, [dateFormat, initial]);
+  const validateSearchDate = (fromDate: Date | string | null, toDate: Date | string | null) => {
+    const res = fromDate && toDate && new Date(fromDate) < new Date(toDate);
 
-  return { date, handleDate };
+    if (!res) alert('날짜를 확인해 주세요');
+
+    return res;
+  };
+
+  return { date, handleDate, validateSearchDate };
 };
 
 export default useDatePicker;

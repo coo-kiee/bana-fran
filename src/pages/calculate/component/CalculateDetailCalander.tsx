@@ -19,14 +19,20 @@ const CalculateDetailCalander = <T extends { fromDate: string; toDate: string }>
   render,
 }: ICalculateDetailCalander<T>) => {
   const { date: fromDate, handleDate: handleFromDate } = useDatePicker({ initial: searchDate.fromDate });
-  const { date: toDate, handleDate: handleToDate } = useDatePicker({ initial: searchDate.toDate });
+  const { date: toDate, handleDate: handleToDate, validateSearchDate } = useDatePicker({ initial: searchDate.toDate });
 
   return (
     <>
       <Calander>
-        <Calander.DatePicker selected={new Date(fromDate)} onChange={handleFromDate} />
+        <Calander.DatePicker
+          selected={new Date(fromDate)}
+          onChange={(date) => validateSearchDate(date, toDate) && handleFromDate(date)}
+        />
         <i>~</i>
-        <Calander.DatePicker selected={new Date(toDate)} onChange={handleToDate} />
+        <Calander.DatePicker
+          selected={new Date(toDate)}
+          onChange={(date) => validateSearchDate(fromDate, date) && handleToDate(date)}
+        />
       </Calander>
       {render({ calanderSearchDate: { fromDate, toDate }, children })}
     </>

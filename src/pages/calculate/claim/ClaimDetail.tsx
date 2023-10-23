@@ -1,6 +1,6 @@
 import { FC, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { format, lastDayOfMonth } from 'date-fns';
+import { format, lastDayOfMonth, setDate, setMonth } from 'date-fns';
 
 // Const
 import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE } from 'constants/calculate/common';
@@ -38,11 +38,12 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
 
   const { filterCondition, handleAllFilterCondition } = useClaimFilterCondition();
 
+  const lastMonth = setMonth(new Date(), new Date().getMonth() - 1);
   // 검색 조건
   const [searchDate, setSearchDate] = useState({
     [CLAIM_TAB_TYPE.ALL]: {
-      fromDate: format(new Date(), 'yyyy-MM-dd'),
-      toDate: format(lastDayOfMonth(new Date()), 'yyyy-MM-dd'),
+      fromDate: format(setDate(lastMonth, 1), 'yyyy-MM-dd'),
+      toDate: format(lastDayOfMonth(lastMonth), 'yyyy-MM-dd'),
     },
     [CLAIM_TAB_TYPE.CALCULATE]: {
       fromDate: format(new Date(), 'yyyy-MM-dd'),

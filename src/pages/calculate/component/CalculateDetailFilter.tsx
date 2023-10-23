@@ -3,10 +3,10 @@ import { ChangeEventHandler, FC } from 'react';
 interface ICalculateDetailFilter {
   name: string;
   value: string | number;
-  options: Array<{
+  options: readonly {
     label: string;
     value: string | number;
-  }>;
+  }[];
   handleOnChange: ChangeEventHandler;
 }
 const CalculateDetailFilter: FC<ICalculateDetailFilter> = ({

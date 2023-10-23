@@ -16,7 +16,7 @@ interface ITableList<T> {
 const TableList = <T extends unknown[]>({ queryRes, render, pageInfo }: ITableList<T>) => {
   if (queryRes.isFetching) return <Loading height={80} width={80} marginTop={0} isTable={true} />;
 
-  if (!queryRes.data?.length) return <NoData isTable={true} />;
+  if (!queryRes.data?.length || pageInfo?.dataCnt === 0) return <NoData isTable={true} />;
 
   const isRender = (index: number) => {
     if (!pageInfo) return true;
