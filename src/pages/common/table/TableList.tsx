@@ -14,9 +14,19 @@ interface ITableList<T> {
   pageInfo?: IPageInfo;
 }
 const TableList = <T extends unknown[]>({ queryRes, render, pageInfo }: ITableList<T>) => {
-  if (queryRes.isFetching) return <Loading height={80} width={80} marginTop={0} isTable={true} />;
+  if (queryRes.isFetching)
+    return (
+      <tbody>
+        <Loading height={80} width={80} marginTop={0} isTable={true} />
+      </tbody>
+    );
 
-  if (!queryRes.data?.length || pageInfo?.dataCnt === 0) return <NoData isTable={true} />;
+  if (!queryRes.data?.length || pageInfo?.dataCnt === 0)
+    return (
+      <tbody>
+        <NoData isTable={true} />
+      </tbody>
+    );
 
   const isRender = (index: number) => {
     if (!pageInfo) return true;
@@ -25,11 +35,11 @@ const TableList = <T extends unknown[]>({ queryRes, render, pageInfo }: ITableLi
   };
 
   return (
-    <>
+    <tbody>
       {Children.map(render(queryRes.data), (item, index) => {
         return isRender(index) ? item : null;
       })}
-    </>
+    </tbody>
   );
 };
 

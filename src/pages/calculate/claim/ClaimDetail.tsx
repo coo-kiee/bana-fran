@@ -80,16 +80,14 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
             <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
               <Table.ColGroup colGroupAttributes={CLAIM_DETAIL_TABLE_COLGROUP_INFO[tabType]} />
               <Table.TableHead style={{ whiteSpace: 'pre-line' }} thData={CLAIM_DETAIL_TABLE_THEAD_INFO[tabType]} />
-              <tbody>
-                <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage isTable={true} />}>
-                  <ClaimDetailList
-                    tabType={tabType}
-                    sortType={filterCondition[CLAIM_TAB_TYPE.ALL][CLAIM_DETAIL_FILTER_TYPE.SORT]}
-                    searchDate={searchDate[tabType]}
-                    setDetailTotalInfo={setDetailTotalInfo}
-                  />
-                </ErrorBoundary>
-              </tbody>
+              <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage isTable={true} />}>
+                <ClaimDetailList
+                  tabType={tabType}
+                  sortType={filterCondition[CLAIM_TAB_TYPE.ALL][CLAIM_DETAIL_FILTER_TYPE.SORT]}
+                  searchDate={searchDate[tabType]}
+                  setDetailTotalInfo={setDetailTotalInfo}
+                />
+              </ErrorBoundary>
             </Table>
           )}
         />

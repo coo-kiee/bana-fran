@@ -79,15 +79,13 @@ const PointDetail = () => {
             <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
               <Table.ColGroup colGroupAttributes={POINT_DETAIL_COLGROUP_INFO} />
               <Table.TableHead style={{ whiteSpace: 'pre-line' }} thData={POINT_DETAIL_THEAD_INFO} />
-              <tbody>
-                <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage isTable={true} />}>
-                  <PointDetailList
-                    searchDate={searchDate}
-                    filterCondition={filterCondition}
-                    setDetailTotalInfo={setDetailTotalInfo}
-                  />
-                </ErrorBoundary>
-              </tbody>
+              <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage isTable={true} />}>
+                <PointDetailList
+                  searchDate={searchDate}
+                  filterCondition={filterCondition}
+                  setDetailTotalInfo={setDetailTotalInfo}
+                />
+              </ErrorBoundary>
             </Table>
           )}
         />
