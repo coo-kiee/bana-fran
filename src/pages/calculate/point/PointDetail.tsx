@@ -31,7 +31,6 @@ const PointDetail = () => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
 
   const { filterCondition, handleFilterCondition } = usePointFilterCondition();
-  console.log(filterCondition);
 
   const lastMonth = setMonth(new Date(), new Date().getMonth() - 1);
   const [searchDate, setSearchDate] = useState({

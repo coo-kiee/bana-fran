@@ -17,7 +17,7 @@ const useDatePicker = (props: IUseDatePicker = {}) => {
   };
 
   const validateSearchDate = (fromDate: Date | string | null, toDate: Date | string | null) => {
-    const res = fromDate && toDate && new Date(fromDate) < new Date(toDate);
+    const res = fromDate && toDate && new Date(fromDate) <= new Date(toDate);
 
     if (!res) alert('날짜를 확인해 주세요');
 

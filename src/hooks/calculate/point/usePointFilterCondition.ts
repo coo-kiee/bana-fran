@@ -21,8 +21,8 @@ const usePointFilterCondition = () => {
 
   const [filterData] = useState(
     () => (condition: typeof filterCondition, data: CalculatePointDetailListQueryResult) => {
-      return Object.values(condition).every((item) =>
-        [data.use_point_type, data.bonus_point_type, data.rcp_type].includes(item),
+      return Object.values(condition).every(
+        (item) => !item || [data.use_point_type, data.bonus_point_type, data.rcp_type].includes(item),
       );
     },
   );
