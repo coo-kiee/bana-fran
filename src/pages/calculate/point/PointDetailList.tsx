@@ -50,8 +50,10 @@ const PointDetailList = ({ searchDate, filterCondition, setDetailTotalInfo }: IP
       queryRes={pointDetailListRes}
       render={(datas) =>
         datas?.map((pointDetail, index) => {
+          if (!filterData(filterCondition, pointDetail)) return null;
+
           const rowSpan = pointDetail.bonus_point_type ? 2 : 1;
-          const display = checkCurrentPageData(index) && filterData(filterCondition, pointDetail) ? '' : 'none';
+          const display = checkCurrentPageData(index) ? '' : 'none';
 
           return (
             <React.Fragment key={index}>
