@@ -49,59 +49,59 @@ const PointDetailList = ({ searchDate, filterCondition, setDetailTotalInfo }: IP
     <TableList
       queryRes={pointDetailListRes}
       render={(datas) =>
-        datas?.map((pointDetail, index) => {
-          if (!filterData(filterCondition, pointDetail)) return null;
+        datas
+          ?.filter((pointDetail) => filterData(filterCondition, pointDetail))
+          .map((pointDetail, index) => {
+            const rowSpan = pointDetail.bonus_point_type ? 2 : 1;
+            const display = checkCurrentPageData(index) ? '' : 'none';
 
-          const rowSpan = pointDetail.bonus_point_type ? 2 : 1;
-          const display = checkCurrentPageData(index) ? '' : 'none';
-
-          return (
-            <React.Fragment key={index}>
-              <tr style={{ display }}>
-                <td className="align-center" rowSpan={rowSpan}>
-                  {pointDetail.rcp_date.split(' ')[0]}
-                </td>
-                <td className="align-left" rowSpan={rowSpan}>
-                  {pointDetail.item_name}
-                </td>
-                <td className="align-center" rowSpan={rowSpan}>
-                  {pointDetail.phone}
-                </td>
-                <td className="align-right" rowSpan={rowSpan}>
-                  {Utils.numberComma(pointDetail.nChargeTotal)}
-                </td>
-                <td className="align-right" rowSpan={rowSpan}>
-                  {Utils.numberComma(pointDetail.total_amt)}
-                </td>
-                <td className="align-center">{pointDetail.use_point_type}</td>
-                <td className="align-center" rowSpan={rowSpan}>
-                  {pointDetail.rcp_type}
-                </td>
-                <td className="align-right">{Utils.numberComma(pointDetail.supply_amt)}</td>
-                <td className="align-right">{Utils.numberComma(pointDetail.vat_amt)}</td>
-                <td className="align-right">{Utils.numberComma(pointDetail.total_paid_amt)}</td>
-                <td className="align-right">{Utils.numberComma(pointDetail.fee_supply_amt)}</td>
-                <td className="align-right">{Utils.numberComma(pointDetail.fee_vat_amt)}</td>
-                <td className="align-right">
-                  {Utils.numberComma(pointDetail.fee_supply_amt + pointDetail.fee_vat_amt)}
-                </td>
-              </tr>
-              {pointDetail.bonus_point_type && (
+            return (
+              <React.Fragment key={index}>
                 <tr style={{ display }}>
-                  <td className="align-center">{pointDetail.bonus_point_type}</td>
-                  <td className="align-right">{Utils.numberComma(pointDetail.bonus_supply_amt)}</td>
-                  <td className="align-right">{Utils.numberComma(pointDetail.bonus_vat_amt)}</td>
-                  <td className="align-right">{Utils.numberComma(pointDetail.total_bonus_amt)}</td>
-                  <td className="align-right">{Utils.numberComma(pointDetail.fee_bonus_supply_amt)}</td>
-                  <td className="align-right">{Utils.numberComma(pointDetail.fee_bonus_vat_amt)}</td>
+                  <td className="align-center" rowSpan={rowSpan}>
+                    {pointDetail.rcp_date.split(' ')[0]}
+                  </td>
+                  <td className="align-left" rowSpan={rowSpan}>
+                    {pointDetail.item_name}
+                  </td>
+                  <td className="align-center" rowSpan={rowSpan}>
+                    {pointDetail.phone}
+                  </td>
+                  <td className="align-right" rowSpan={rowSpan}>
+                    {Utils.numberComma(pointDetail.nChargeTotal)}
+                  </td>
+                  <td className="align-right" rowSpan={rowSpan}>
+                    {Utils.numberComma(pointDetail.total_amt)}
+                  </td>
+                  <td className="align-center">{pointDetail.use_point_type}</td>
+                  <td className="align-center" rowSpan={rowSpan}>
+                    {pointDetail.rcp_type}
+                  </td>
+                  <td className="align-right">{Utils.numberComma(pointDetail.supply_amt)}</td>
+                  <td className="align-right">{Utils.numberComma(pointDetail.vat_amt)}</td>
+                  <td className="align-right">{Utils.numberComma(pointDetail.total_paid_amt)}</td>
+                  <td className="align-right">{Utils.numberComma(pointDetail.fee_supply_amt)}</td>
+                  <td className="align-right">{Utils.numberComma(pointDetail.fee_vat_amt)}</td>
                   <td className="align-right">
-                    {Utils.numberComma(pointDetail.fee_bonus_supply_amt + pointDetail.fee_bonus_vat_amt)}
+                    {Utils.numberComma(pointDetail.fee_supply_amt + pointDetail.fee_vat_amt)}
                   </td>
                 </tr>
-              )}
-            </React.Fragment>
-          );
-        })
+                {pointDetail.bonus_point_type && (
+                  <tr style={{ display }}>
+                    <td className="align-center">{pointDetail.bonus_point_type}</td>
+                    <td className="align-right">{Utils.numberComma(pointDetail.bonus_supply_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(pointDetail.bonus_vat_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(pointDetail.total_bonus_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(pointDetail.fee_bonus_supply_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(pointDetail.fee_bonus_vat_amt)}</td>
+                    <td className="align-right">
+                      {Utils.numberComma(pointDetail.fee_bonus_supply_amt + pointDetail.fee_bonus_vat_amt)}
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            );
+          })
       }
     />
   );
