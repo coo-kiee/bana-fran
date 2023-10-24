@@ -17,6 +17,7 @@ import { ClaimTabType } from 'constants/calculate/claim';
 
 // Hook
 import useClaimFilterCondition from 'hooks/calculate/claim/useClaimFilterCondition';
+import useUserInfo from 'hooks/user/useUser';
 
 // Component
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
@@ -36,6 +37,7 @@ interface IClaimDetail {
 const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
 
+  const { user } = useUserInfo();
   const { filterCondition, handleAllFilterCondition } = useClaimFilterCondition();
 
   const lastMonth = setMonth(new Date(), new Date().getMonth() - 1);
@@ -91,11 +93,17 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
         />
         <div className="result-function-wrap">
           <ExcelButton
+            type={'table'}
+            target={tableRef}
             tableRef={tableRef}
-            titleFrom={searchDate[tabType].fromDate}
-            titleTo={searchDate[tabType].toDate}
-            colspan={Object.values(CLAIM_DETAIL_TABLE_COLGROUP_INFO[tabType]).flatMap((item) => item.width)}
-            excelFileName={CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.CLAIM]}
+            fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.CLAIM]}(${
+              searchDate[tabType].fromDate
+            }~${searchDate[tabType].toDate})`}
+            sheetOption={{ origin: 'B3' }}
+            colWidths={Object.values(CLAIM_DETAIL_TABLE_COLGROUP_INFO[tabType]).flatMap((item) =>
+              item.width !== '*' ? { wpx: Number(item.width) * 1.2 } : { wpx: 400 },
+            )}
+            addRowColor={{ rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] }}
           />
           <Pages />
         </div>

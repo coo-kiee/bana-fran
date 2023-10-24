@@ -14,6 +14,7 @@ import {
 
 // Hook
 import usePointFilterCondition from 'hooks/calculate/point/usePointFilterCondition';
+import useUserInfo from 'hooks/user/useUser';
 
 // Component
 import ExcelButton from 'pages/common/excel/ExcelButton';
@@ -30,6 +31,7 @@ import CalculateDetailFilter from '../component/CalculateDetailFilter';
 const PointDetail = () => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
 
+  const { user } = useUserInfo();
   const { filterCondition, handleFilterCondition } = usePointFilterCondition();
 
   const lastMonth = setMonth(new Date(), new Date().getMonth() - 1);
@@ -89,11 +91,17 @@ const PointDetail = () => {
         />
         <div className="result-function-wrap">
           <ExcelButton
+            type={'table'}
+            target={tableRef}
             tableRef={tableRef}
-            titleFrom={searchDate.fromDate}
-            titleTo={searchDate.toDate}
-            colspan={Object.values(POINT_DETAIL_COLGROUP_INFO).flatMap((item) => item.width)}
-            excelFileName={CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.POINT]}
+            fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.POINT]}(${searchDate.fromDate}~${
+              searchDate.toDate
+            })`}
+            sheetOption={{ origin: 'B3' }}
+            colWidths={Object.values(POINT_DETAIL_COLGROUP_INFO).flatMap((item) =>
+              item.width !== '*' ? { wpx: Number(item.width) * 1.2 } : { wpx: 400 },
+            )}
+            addRowColor={{ rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] }}
           />
           <Pages />
         </div>

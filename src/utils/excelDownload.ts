@@ -1,11 +1,32 @@
-import { utils, WorkSheet, writeFile } from 'xlsx-js-style';
+import { ColInfo, utils, WorkSheet, writeFile } from 'xlsx-js-style';
 
+/**
+ * @param type - 'array' | 'object' | 'table'
+ * @param target - 엑셀 데이터 대상
+ * @param fileName - 엑셀파일 이름, .xlsx 제외
+ * @param colWidths - 컬럼 Size
+ * @param sheetOption - 해당 셀부터 데이터 표시
+ * @param sheetName - 시트 이름
+ * @param addRowColor - 색상 넣을 행
+ * @param addLineHeader - 줄바꿈 원하는 곳, br Tag 외 \n, p, span 등 줄바꿈 안되는 헤더명 입력
+ *
+ * @example - {
+ *  type: 'table',
+ *  target: tableRef.current
+ *  fileName?: '엑셀',
+ *  colWidths?: { wpx: number }[],
+ *  sheetOption?: { origin: 'A1' },
+ *  sheetName?: '시트',
+ *  addRowColor?: { rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] },
+ *  addLineHeader?: ['발행일시\nTT'],
+ * }
+ */
 export interface IExcelDownload {
+  type: 'table' | 'array' | 'object';
   target: any;
   fileName?: string;
-  type: 'table' | 'array' | 'object';
+  colWidths?: ColInfo[];
   sheetOption?: { origin: string };
-  colWidths?: Array<{ wpx: number }>;
   sheetName?: string;
   addRowColor?: { rowNums: number[]; colors: string[] };
   addLineHeader?: string[];
