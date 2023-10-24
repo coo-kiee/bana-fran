@@ -15,10 +15,12 @@ const ExcelButton = ({ tableRef, ...excelDownloadOption }: IExcelButton) => {
   const excelDownload = () => {
     if (!tableRef?.current) return;
 
-    downloadExcel({
+    const resMsg = downloadExcel({
       ...excelDownloadOption,
       target: tableRef?.current || excelDownloadOption.target,
     });
+
+    if (resMsg) alert(resMsg);
   };
 
   return (
