@@ -1,21 +1,15 @@
-import { FC, useContext } from 'react';
+import { FC } from 'react';
 
 // Hook
-import useHandlePageInfo from 'hooks/pagination/useHandlePageInfo';
+import usePageInfo from 'hooks/pagination/usePageInfo';
 import usePages from 'hooks/pagination/usePages';
-
-// Context
-import { PageInfoContext, SetPageInfoContext } from './PageInfoProvider';
 
 // Component
 import SelectListRow from './SelectListRow';
 
 const Pages: FC = () => {
-  const pageInfo = useContext(PageInfoContext);
-  const setPageInfo = useContext(SetPageInfoContext);
-  const { handleCurrentPage } = useHandlePageInfo(setPageInfo);
-
-  const { pages, startPageIdx, lastPageIdx, showPageCnt, maxPage } = usePages(pageInfo);
+  const { pageInfo, handleCurrentPage } = usePageInfo();
+  const { pages, showPageCnt, maxPage, showPage } = usePages(pageInfo);
 
   if (!pageInfo.dataCnt) return null;
 
@@ -35,9 +29,8 @@ const Pages: FC = () => {
         <button className="btn-prev" onClick={handlePrev} disabled={pageInfo.currentPage === 1}></button>
         <ul className="paging">
           {pages.map(
-            (page, idx) =>
-              idx >= startPageIdx &&
-              idx <= lastPageIdx && (
+            (page, index) =>
+              showPage(index) && (
                 <li
                   key={page}
                   onClick={() => handleCurrentPage(page)}

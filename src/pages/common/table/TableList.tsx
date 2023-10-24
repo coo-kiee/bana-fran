@@ -1,8 +1,8 @@
-import { Children, ReactNode } from 'react';
-
-// Type
-import { IPageInfo } from '../pagination/PageInfoProvider';
+import { ReactNode } from 'react';
 import { UseQueryResult } from 'react-query';
+
+// Hook
+import usePageInfo from 'hooks/pagination/usePageInfo';
 
 // Component
 import Loading from '../loading';
@@ -11,9 +11,10 @@ import NoData from '../noData';
 interface ITableList<T> {
   queryRes: UseQueryResult<T, unknown>;
   render: (datas: T | undefined) => ReactNode;
-  pageInfo?: IPageInfo;
 }
-const TableList = <T extends unknown[]>({ queryRes, render, pageInfo }: ITableList<T>) => {
+const TableList = <T extends unknown[]>({ queryRes, render }: ITableList<T>) => {
+  const { pageInfo } = usePageInfo();
+
   if (queryRes.isFetching)
     return (
       <tbody>
@@ -28,19 +29,7 @@ const TableList = <T extends unknown[]>({ queryRes, render, pageInfo }: ITableLi
       </tbody>
     );
 
-  const isRender = (index: number) => {
-    if (!pageInfo) return true;
-
-    return index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row;
-  };
-
-  return (
-    <tbody>
-      {Children.map(render(queryRes.data), (item, index) => {
-        return isRender(index) ? item : null;
-      })}
-    </tbody>
-  );
+  return <tbody>{render(queryRes.data)}</tbody>;
 };
 
 export default TableList;

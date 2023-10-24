@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useContext } from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 
 // Type
 import { SearchDate } from 'constants/calculate/common';
@@ -13,12 +13,10 @@ import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
 import useSumPointDetailTotalInfo from 'hooks/calculate/point/useSumPointDetailTotalInfo';
 import useHandleDetailTotalInfo from 'hooks/calculate/common/useHandleDetailTotalInfo';
 import usePointFilterCondition from 'hooks/calculate/point/usePointFilterCondition';
+import usePageInfo from 'hooks/pagination/usePageInfo';
 
 // Util
 import Utils from 'utils/Utils';
-
-// Context
-import { PageInfoContext } from 'pages/common/pagination/PageInfoProvider';
 
 // Component
 import TableList from 'pages/common/table/TableList';
@@ -32,7 +30,7 @@ const PointDetailList = ({ searchDate, filterCondition, setDetailTotalInfo }: IP
   const { user } = useUserInfo();
   const { filterData } = usePointFilterCondition();
 
-  const pageInfo = useContext(PageInfoContext);
+  const { checkCurrentPageData } = usePageInfo();
 
   const params = {
     f_code: user.fCode,
@@ -50,16 +48,14 @@ const PointDetailList = ({ searchDate, filterCondition, setDetailTotalInfo }: IP
   return (
     <TableList
       queryRes={pointDetailListRes}
-      pageInfo={pageInfo}
       render={(datas) =>
         datas?.map((pointDetail, index) => {
-          if (!filterData(filterCondition, pointDetail)) return null;
-
           const rowSpan = pointDetail.bonus_point_type ? 2 : 1;
+          const display = checkCurrentPageData(index) && filterData(filterCondition, pointDetail) ? '' : 'none';
 
           return (
             <React.Fragment key={index}>
-              <tr>
+              <tr style={{ display }}>
                 <td className="align-center" rowSpan={rowSpan}>
                   {pointDetail.rcp_date.split(' ')[0]}
                 </td>
@@ -89,7 +85,7 @@ const PointDetailList = ({ searchDate, filterCondition, setDetailTotalInfo }: IP
                 </td>
               </tr>
               {pointDetail.bonus_point_type && (
-                <tr>
+                <tr style={{ display }}>
                   <td className="align-center">{pointDetail.bonus_point_type}</td>
                   <td className="align-right">{Utils.numberComma(pointDetail.bonus_supply_amt)}</td>
                   <td className="align-right">{Utils.numberComma(pointDetail.bonus_vat_amt)}</td>

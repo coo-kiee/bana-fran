@@ -10,7 +10,11 @@ const usePages = (pageInfo: IPageInfo) => {
   const lastPageIdx = Math.min(Math.ceil(pageInfo.currentPage / showPageCnt) * showPageCnt - 1, maxPage);
   const startPageIdx = Math.max(lastPageIdx - (showPageCnt - 1), 0);
 
-  return { pages, startPageIdx, lastPageIdx, showPageCnt, maxPage };
+  const showPage = (index: number) => {
+    return index >= startPageIdx && index <= lastPageIdx;
+  };
+
+  return { pages, startPageIdx, lastPageIdx, showPageCnt, maxPage, showPage };
 };
 
 export default usePages;

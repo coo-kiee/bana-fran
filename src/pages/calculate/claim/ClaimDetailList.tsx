@@ -1,10 +1,4 @@
-import { Dispatch, FC, SetStateAction, useContext } from 'react';
-
-// Hook
-import useSumClaimDetailTotalInfo from 'hooks/calculate/claim/useSumClaimDetailTotalInfo';
-import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
-import useUserInfo from 'hooks/user/useUser';
-import useHandleDetailTotalInfo from 'hooks/calculate/common/useHandleDetailTotalInfo';
+import { Dispatch, FC, SetStateAction } from 'react';
 
 // Type
 import { SearchDate } from 'constants/calculate/common';
@@ -17,8 +11,12 @@ import Utils from 'utils/Utils';
 // API
 import { useCalculateClaimDetailList } from 'service/calculateService';
 
-// Context
-import { PageInfoContext } from 'pages/common/pagination/PageInfoProvider';
+// Hook
+import useSumClaimDetailTotalInfo from 'hooks/calculate/claim/useSumClaimDetailTotalInfo';
+import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
+import useUserInfo from 'hooks/user/useUser';
+import useHandleDetailTotalInfo from 'hooks/calculate/common/useHandleDetailTotalInfo';
+import usePageInfo from 'hooks/pagination/usePageInfo';
 
 // Component
 import TableList from 'pages/common/table/TableList';
@@ -32,7 +30,7 @@ interface IClaimDetailList {
 const ClaimDetailList: FC<IClaimDetailList> = ({ tabType, sortType, searchDate, setDetailTotalInfo }) => {
   const { user } = useUserInfo();
 
-  const pageInfo = useContext(PageInfoContext);
+  const { checkCurrentPageData } = usePageInfo();
 
   const params = {
     f_code: user.fCode,
@@ -52,10 +50,9 @@ const ClaimDetailList: FC<IClaimDetailList> = ({ tabType, sortType, searchDate, 
   return (
     <TableList
       queryRes={claimDetailListRes}
-      pageInfo={pageInfo}
       render={(datas) =>
         datas?.map((claimData, index) => (
-          <tr key={index}>
+          <tr key={index} style={{ display: checkCurrentPageData(index) ? '' : 'none' }}>
             <td className="align-center">{claimData.send_date.replace(' ', '\n')}</td>
             <td className="align-center">{claimData.use_date.replace(' ', '\n')}</td>
             <td className="align-center">{claimData.use_flag}</td>

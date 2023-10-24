@@ -1,19 +1,15 @@
-import { useContext, useLayoutEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { UseQueryResult } from 'react-query';
 
-// Type
-import { SetPageInfoContext } from 'pages/common/pagination/PageInfoProvider';
-
 // Hook
-import useHandlePageInfo from './useHandlePageInfo';
+import usePageInfo from './usePageInfo';
 
 const useHandlePageDataCnt = <T extends unknown[], F>(
   queryRes: UseQueryResult<T, unknown>,
   filterCondition?: F,
   filterFn?: (filterCondition: F, data: T[number]) => boolean,
 ) => {
-  const setPageInfo = useContext(SetPageInfoContext);
-  const { handleDataCnt } = useHandlePageInfo(setPageInfo);
+  const { handleDataCnt } = usePageInfo();
 
   useLayoutEffect(() => {
     if (!queryRes.data) return;
