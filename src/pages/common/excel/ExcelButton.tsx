@@ -1,3 +1,5 @@
+import { useIsFetching } from 'react-query';
+
 // Util
 import { downloadExcel, IExcelDownload } from 'utils/excelDownload';
 
@@ -9,8 +11,9 @@ interface IExcelButton extends IExcelDownload {
 }
 const ExcelButton = ({ tableRef, ...excelDownloadOption }: IExcelButton) => {
   const { pageInfo } = usePageInfo();
+  const fetchingCnt = useIsFetching();
 
-  if (pageInfo?.dataCnt === 0) return null;
+  if (pageInfo?.dataCnt === 0 || fetchingCnt > 0) return null;
 
   const excelDownload = () => {
     if (!tableRef?.current) return;

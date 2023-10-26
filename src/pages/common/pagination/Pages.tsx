@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import { useIsFetching } from 'react-query';
 
 // Hook
 import usePageInfo from 'hooks/pagination/usePageInfo';
@@ -10,8 +11,9 @@ import SelectListRow from './SelectListRow';
 const Pages: FC = () => {
   const { pageInfo, handleCurrentPage } = usePageInfo();
   const { pages, showPageCnt, maxPage, showPage } = usePages(pageInfo);
+  const fetchingCnt = useIsFetching();
 
-  if (!pageInfo.dataCnt) return null;
+  if (!pageInfo.dataCnt || fetchingCnt > 0) return null;
 
   const handlePrev = () => {
     const updatePage = Math.max(pageInfo.currentPage - showPageCnt, 1);
