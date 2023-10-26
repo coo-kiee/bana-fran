@@ -48,8 +48,8 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
       toDate: format(lastDayOfMonth(lastMonth), 'yyyy-MM-dd'),
     },
     [CLAIM_TAB_TYPE.CALCULATE]: {
-      fromDate: format(new Date(), 'yyyy-MM-dd'),
-      toDate: format(lastDayOfMonth(new Date()), 'yyyy-MM-dd'),
+      fromDate: format(setDate(lastMonth, 1), 'yyyy-MM-dd'),
+      toDate: format(lastDayOfMonth(lastMonth), 'yyyy-MM-dd'),
     },
   });
 
