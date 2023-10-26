@@ -92,6 +92,8 @@ type CalculatePointDetailListQueryResult = {
   total_amt: number; // 유상 + 보너스 포인트 사용 금액 합계
 };
 
+type CalculateCouponListQueryResult = { code: number; code_name: string };
+
 // 본사 쿠폰 결제내역 상세
 type CalculateCouponDetailListQueryResult = {
   rcp_date: string; // 결제일시
@@ -200,4 +202,5 @@ export type {
   CalculateEtcDetailListQueryResult,
   AffilateTabType,
   CalculateAffiliateDetailListQueryResult,
+  CalculateCouponListQueryResult,
 };

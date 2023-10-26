@@ -17,6 +17,7 @@ import {
   CLAIM_TAB_TYPE,
   AFFILIATE_TAB_TYPE,
   CalculateAffiliateDetailListQueryResult,
+  CalculateCouponListQueryResult,
 } from 'types/calculate/calculateType';
 
 // 검색 월
@@ -207,7 +208,7 @@ export const useCalculatePointDetailList = ({ staffNo, params }: IUseCalculatePo
 };
 
 // 본사 쿠폰 결제내역 상세 - 쿠폰 리스트
-const useCalculateCouponList = (f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
+export const useCalculateCouponList = (f_code: number, staffNo: number) => {
   const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_COUPON_LIST, f_code, staffNo];
   const data = {
     ws: 'fprocess',
@@ -217,46 +218,37 @@ const useCalculateCouponList = (f_code: number, staffNo: number, option: { [key:
     },
   };
 
-  return useQuery<{ code: number; code_name: string }[]>(queryKey, () => queryFn.getDataList(data), {
+  return useQuery<CalculateCouponListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: option.suspense ? option.suspense : false,
+    suspense: false,
     enabled: staffNo > 0,
   });
 };
 
-// 본사 쿠폰 결제내역 상세
-type CalculateCouponDetailListParameter = (
-  f_code: number,
-  staffNo: number,
-  from_date: string,
-  to_date: string,
-  option?: { [key: string]: any },
-) => UseQueryResult<CalculateCouponDetailListQueryResult[], unknown>;
-const useCalculateCouponDetailList: CalculateCouponDetailListParameter = (
-  f_code,
-  staffNo,
-  from_date,
-  to_date,
-  option = {},
-) => {
-  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_COUPON_DETAIL_LIST, f_code, staffNo, from_date, to_date];
+interface IUseCalculateCouponDetailList {
+  staffNo: number;
+  params: {
+    f_code: number;
+    from_date: string;
+    to_date: string;
+  };
+}
+
+export const useCalculateCouponDetailList = ({ staffNo, params }: IUseCalculateCouponDetailList) => {
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_COUPON_DETAIL_LIST, staffNo, ...Object.values(params)];
   const data = {
     ws: 'fprocess',
     query: 'NQSZNEAMQLUNQXDTAD70', // web_fran_s_calculate_hq_coupon_list
-    params: {
-      f_code,
-      from_date,
-      to_date,
-    },
+    params,
   };
 
   return useQuery<CalculateCouponDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: option.suspense ? option.suspense : true,
+    suspense: false,
     enabled: staffNo > 0,
   });
 };

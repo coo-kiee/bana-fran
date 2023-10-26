@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useLayoutEffect, useState } from 'react';
 import { useIsFetching } from 'react-query';
 
 // Util
@@ -12,7 +12,7 @@ interface ICalculateDetailTotalInfo<T> {
   initialDetailTotalInfo: T;
   render: (setDetailTotalInfo: Dispatch<SetStateAction<T>>) => JSX.Element;
 }
-const CalculateDetailTotalInfo = <T extends Record<string, { title: string; sum: number }>>({
+const CalculateDetailTotalInfo = <T extends Record<string | number, { title: string; sum: number }>>({
   searchDate,
   initialDetailTotalInfo,
   render,
@@ -20,6 +20,10 @@ const CalculateDetailTotalInfo = <T extends Record<string, { title: string; sum:
   const fetchingCnt = useIsFetching();
 
   const [detailTotalInfo, setDetailTotalInfo] = useState(initialDetailTotalInfo);
+
+  useLayoutEffect(() => {
+    setDetailTotalInfo(initialDetailTotalInfo);
+  }, [initialDetailTotalInfo]);
 
   return (
     <>

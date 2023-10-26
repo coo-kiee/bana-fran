@@ -13,34 +13,6 @@ const LIST_DETAIL_COLGROUP_INFO = [
   { width: '130' },
 ];
 
-const POINT_DETAIL_COLGROUP_INFO = [
-  { width: '100' },
-  { width: '250' },
-  { width: '136' },
-  { width: '100' },
-  { width: '100' },
-  { width: '134' },
-  { width: '92' },
-  { width: '100' },
-  { width: '100' },
-  { width: '100' },
-  { width: '100' },
-  { width: '100' },
-  { width: '100' },
-];
-
-const COUPON_DETAIL_COLGROUP_INFO = [
-  { width: '188' },
-  { width: '393' },
-  { width: '262' },
-  { width: '116' },
-  { width: '134' },
-  { width: '136' },
-  { width: '136' },
-  { width: '136' },
-  { width: '136' },
-];
-
 const ETC_DETAIL_COLGROUP_INFO = [
   { width: '130' },
   { width: '130' },
@@ -84,8 +56,6 @@ const AFFILIATE_POINT_DETAIL_COLGROUP_INFO = [
 
 export const CALCULATE_DETAIL_TABLE_COLGROUP_INFO = {
   [CALCULATE_TYPE.LIST]: LIST_DETAIL_COLGROUP_INFO,
-  [CALCULATE_TYPE.POINT]: POINT_DETAIL_COLGROUP_INFO,
-  [CALCULATE_TYPE.COUPON]: COUPON_DETAIL_COLGROUP_INFO,
   [CALCULATE_TYPE.ETC]: ETC_DETAIL_COLGROUP_INFO,
   [AFFILIATE_TAB_TYPE.COUPON]: AFFILIATE_COUPON_DETAIL_COLGROUP_INFO,
   [AFFILIATE_TAB_TYPE.POINT]: AFFILIATE_POINT_DETAIL_COLGROUP_INFO,
@@ -104,41 +74,6 @@ const LIST_DETAIL_THEAD_INFO = [
     { children: '합계' },
     { children: '비고' },
   ],
-];
-
-const POINT_DETAIL_THEAD_INFO = [
-  [
-    { children: '결제일시', rowSpan: 2 },
-    { children: '주문메뉴', rowSpan: 2 },
-    { children: '주문자', rowSpan: 2 },
-    { children: '총 주문금액', rowSpan: 2 },
-    { children: '유상포인트 사용금액', rowSpan: 2 },
-    { children: '유상포인트 구분', rowSpan: 2 },
-    { children: '거래기기', rowSpan: 2 },
-    { children: '유상포인트 결제금액', rowSpan: 2, colSpan: 3, className: 'price-area boder-th-b' },
-    { children: '수수료 (2.2%)', rowSpan: 2, colSpan: 3, className: 'price-area boder-th-b' },
-  ],
-  [
-    { children: '공급가' },
-    { children: '부가세' },
-    { children: '합계' },
-    { children: '공급가 (2%)' },
-    { children: '부가세 (0.2%)' },
-    { children: '합계 (2.2%)' },
-  ],
-];
-
-const COUPON_DETAIL_THEAD_INFO = [
-  [
-    { children: '결제일시', rowSpan: 2 },
-    { children: '쿠폰', rowSpan: 2 },
-    { children: '사용메뉴', rowSpan: 2 },
-    { children: '쿠폰 사용금액', rowSpan: 2 },
-    { children: '거래기기', rowSpan: 2 },
-    { children: '주문자', rowSpan: 2 },
-    { children: '본사발행 쿠폰 결제내역', rowSpan: 2, colSpan: 3, className: 'price-area boder-th-b' },
-  ],
-  [{ children: '공급가' }, { children: '부가세' }, { children: '합계' }],
 ];
 
 const ETC_DETAIL_THEAD_INFO = [
@@ -189,8 +124,6 @@ const AFFILIATE_POINT_DETAIL_THEAD_INFO = [
 
 export const CALCULATE_DETAIL_TABLE_THEAD_INFO = {
   [CALCULATE_TYPE.LIST]: LIST_DETAIL_THEAD_INFO,
-  [CALCULATE_TYPE.POINT]: POINT_DETAIL_THEAD_INFO,
-  [CALCULATE_TYPE.COUPON]: COUPON_DETAIL_THEAD_INFO,
   [CALCULATE_TYPE.ETC]: ETC_DETAIL_THEAD_INFO,
   [AFFILIATE_TAB_TYPE.COUPON]: AFFILIATE_COUPON_DETAIL_THEAD_INFO,
   [AFFILIATE_TAB_TYPE.POINT]: AFFILIATE_POINT_DETAIL_THEAD_INFO,
