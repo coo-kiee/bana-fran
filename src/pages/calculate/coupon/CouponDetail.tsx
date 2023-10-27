@@ -32,7 +32,7 @@ const CouponDetail = () => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
 
   const { user } = useUserInfo();
-  const { couponFilters } = useCouponFilters();
+  const couponFilters = useCouponFilters();
   const { filterCondition, handleFilterCondition } = useCouponFilterCondition();
 
   const lastMonth = setMonth(new Date(), new Date().getMonth() - 1);
