@@ -24,8 +24,7 @@ import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import Table from 'pages/common/table';
 import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
-import CalculateDetailCalander from '../component/CalculateDetailCalander';
-import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
+import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import CalculateDetailFilter from '../component/CalculateDetailFilter';
 import CouponDetailList from './CouponDetailList';
 
@@ -42,20 +41,11 @@ const CouponDetail = () => {
     toDate: format(lastDayOfMonth(lastMonth), 'yyyy-MM-dd'),
   });
 
-  const handleSearchDate = (props: { fromDate: string; toDate: string }) => {
-    setSearchDate(props);
-  };
-
   return (
     <>
       <p className="title bullet">상세내역</p>
       <div className="search-wrap">
-        <CalculateDetailCalander
-          searchDate={searchDate}
-          render={(calanderSearchDate) => (
-            <CalculateDetailSearchButton handleSearch={() => handleSearchDate(calanderSearchDate)} />
-          )}
-        >
+        <CalculateDetailSearch searchDate={searchDate} handleSearchDate={setSearchDate}>
           <div className="select-wrap">
             <CalculateDetailFilter
               name={COUPON_DETAIL_FILTER_TYPE.COUPON}
@@ -71,7 +61,7 @@ const CouponDetail = () => {
               handleOnChange={handleFilterCondition}
             />
           </div>
-        </CalculateDetailCalander>
+        </CalculateDetailSearch>
       </div>
       <PageInfoProvider>
         <CalculateDetailTotalInfo

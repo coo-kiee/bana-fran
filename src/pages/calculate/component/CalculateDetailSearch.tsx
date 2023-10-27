@@ -3,17 +3,18 @@ import { PropsWithChildren } from 'react';
 // Hook
 import useDatePicker from 'hooks/datePicker/useDatePicker';
 
+// Type
+import { SearchDate } from 'constants/calculate/common';
+
 // Component
 import Calander from 'pages/common/calander';
-interface ICalculateDetailCalander<T> extends PropsWithChildren {
-  searchDate: T;
-  render: (calanderSearchDate: { fromDate: string; toDate: string }) => JSX.Element;
+import CalculateDetailSearchButton from './CalculateDetailSearchButton';
+
+interface ICalculateDetailSearch extends PropsWithChildren {
+  searchDate: SearchDate;
+  handleSearchDate: (searchDate: SearchDate) => void;
 }
-const CalculateDetailCalander = <T extends { fromDate: string; toDate: string }>({
-  searchDate,
-  children,
-  render,
-}: ICalculateDetailCalander<T>) => {
+const CalculateDetailSearch = ({ searchDate, children, handleSearchDate }: ICalculateDetailSearch) => {
   const { date: fromDate, handleDate: handleFromDate } = useDatePicker({ initial: searchDate.fromDate });
   const { date: toDate, handleDate: handleToDate, validateSearchDate } = useDatePicker({ initial: searchDate.toDate });
 
@@ -31,9 +32,9 @@ const CalculateDetailCalander = <T extends { fromDate: string; toDate: string }>
         />
       </Calander>
       {children}
-      {render({ fromDate, toDate })}
+      <CalculateDetailSearchButton handleSearch={() => handleSearchDate({ fromDate, toDate })} />
     </>
   );
 };
 
-export default CalculateDetailCalander;
+export default CalculateDetailSearch;

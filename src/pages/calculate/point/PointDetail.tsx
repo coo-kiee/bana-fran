@@ -24,8 +24,7 @@ import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import Table from 'pages/common/table';
 import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
 import PointDetailList from './PointDetailList';
-import CalculateDetailCalander from '../component/CalculateDetailCalander';
-import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
+import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import CalculateDetailFilter from '../component/CalculateDetailFilter';
 
 const PointDetail = () => {
@@ -40,20 +39,11 @@ const PointDetail = () => {
     toDate: format(lastDayOfMonth(lastMonth), 'yyyy-MM-dd'),
   });
 
-  const handleSearchDate = (props: { fromDate: string; toDate: string }) => {
-    setSearchDate(props);
-  };
-
   return (
     <>
       <p className="title bullet">상세내역</p>
       <div className="search-wrap">
-        <CalculateDetailCalander
-          searchDate={searchDate}
-          render={(calanderSearchDate) => (
-            <CalculateDetailSearchButton handleSearch={() => handleSearchDate(calanderSearchDate)} />
-          )}
-        >
+        <CalculateDetailSearch searchDate={searchDate} handleSearchDate={setSearchDate}>
           <div className="select-wrap">
             <CalculateDetailFilter
               name={POINT_DETAIL_FILTER_TYPE.POINT}
@@ -69,7 +59,7 @@ const PointDetail = () => {
               handleOnChange={handleFilterCondition}
             />
           </div>
-        </CalculateDetailCalander>
+        </CalculateDetailSearch>
       </div>
       <PageInfoProvider>
         <CalculateDetailTotalInfo

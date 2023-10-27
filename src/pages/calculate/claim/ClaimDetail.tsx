@@ -22,10 +22,9 @@ import useUserInfo from 'hooks/user/useUser';
 // Component
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import ClaimDetailSort from './ClaimDetailSort';
-import CalculateDetailCalander from '../component/CalculateDetailCalander';
+import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import ClaimDetailList from './ClaimDetailList';
 import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
-import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import Pages from 'pages/common/pagination/Pages';
@@ -53,9 +52,9 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
     },
   });
 
-  const handleSearchDate = (props: { fromDate: string; toDate: string }) => {
+  const [handleSearchDate] = useState(() => (props: { fromDate: string; toDate: string }) => {
     setSearchDate((prev) => ({ ...prev, [tabType]: { ...prev[tabType], ...props } }));
-  };
+  });
 
   return (
     <>
@@ -65,13 +64,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
           filterCondition={filterCondition}
           handleFilterCondition={handleFilterCondition}
         />
-        <CalculateDetailCalander
-          key={tabType}
-          searchDate={searchDate[tabType]}
-          render={(calanderSearchDate) => (
-            <CalculateDetailSearchButton handleSearch={() => handleSearchDate(calanderSearchDate)} />
-          )}
-        />
+        <CalculateDetailSearch key={tabType} searchDate={searchDate[tabType]} handleSearchDate={handleSearchDate} />
       </div>
       <PageInfoProvider>
         <CalculateDetailTotalInfo
