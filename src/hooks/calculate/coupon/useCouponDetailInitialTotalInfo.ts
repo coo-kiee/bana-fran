@@ -1,5 +1,3 @@
-import { useLayoutEffect, useState } from 'react';
-
 // Hook
 import useUserInfo from 'hooks/user/useUser';
 
@@ -11,26 +9,17 @@ import { useCalculateCouponList } from 'service/calculateService';
 
 const useCouponDetailInitialTotalInfo = () => {
   const { user } = useUserInfo();
-  const [couponDetailInitialTotalInfo, setCouponDetailInitialTotalInfo] = useState(COUPON_DETAIL_TOTAL_INFO);
 
   // Query
   const calculateCouponListRes = useCalculateCouponList(user.fCode, user.staffNo);
 
-  useLayoutEffect(() => {
-    if (!calculateCouponListRes?.data) return;
+  const couponDetailTotalInfo = calculateCouponListRes?.data?.reduce((arr, cur) => {
+    arr[cur.code] = { title: cur.code_name, sum: 0 };
 
-    const updateCouponDetailTotalInfo = calculateCouponListRes.data.reduce(
-      (arr, cur) => {
-        arr[cur.code] = { title: cur.code_name, sum: 0 };
-        return arr;
-      },
-      {} as typeof couponDetailInitialTotalInfo,
-    );
+    return arr;
+  }, COUPON_DETAIL_TOTAL_INFO);
 
-    setCouponDetailInitialTotalInfo({ ...updateCouponDetailTotalInfo, ...COUPON_DETAIL_TOTAL_INFO });
-  }, [calculateCouponListRes?.data]);
-
-  return { couponDetailInitialTotalInfo };
+  return couponDetailTotalInfo;
 };
 
 export default useCouponDetailInitialTotalInfo;

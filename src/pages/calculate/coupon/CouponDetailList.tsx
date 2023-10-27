@@ -24,15 +24,9 @@ import useSumCouponDetailTotalInfo from 'hooks/calculate/coupon/useSumCouponDeta
 interface ICouponDetailList {
   searchDate: SearchDate;
   filterCondition: Record<keyof CouponDetailFilterOption, string>;
-  initialDetailTotalInfo: CouponDetailTotalInfo;
   setDetailTotalInfo: Dispatch<SetStateAction<CouponDetailTotalInfo>>;
 }
-const CouponDetailList = ({
-  searchDate,
-  filterCondition,
-  initialDetailTotalInfo,
-  setDetailTotalInfo,
-}: ICouponDetailList) => {
+const CouponDetailList = ({ searchDate, filterCondition, setDetailTotalInfo }: ICouponDetailList) => {
   const { user } = useUserInfo();
   const { filterData } = useCouponFilterCondition();
 
@@ -48,7 +42,7 @@ const CouponDetailList = ({
   const couponDetailListRes = useCalculateCouponDetailList({ staffNo: user.staffNo, params });
   useHandlePageDataCnt(couponDetailListRes, filterCondition, filterData);
 
-  const couponDetailTotalInfo = useSumCouponDetailTotalInfo(initialDetailTotalInfo);
+  const couponDetailTotalInfo = useSumCouponDetailTotalInfo(params);
   useHandleDetailTotalInfo(couponDetailTotalInfo, setDetailTotalInfo);
 
   return (

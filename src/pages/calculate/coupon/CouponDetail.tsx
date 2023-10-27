@@ -9,6 +9,7 @@ import {
   COUPON_DETAIL_FILTER_OPTION,
   COUPON_DETAIL_FILTER_TYPE,
   COUPON_DETAIL_THEAD_INFO,
+  COUPON_DETAIL_TOTAL_INFO,
 } from 'constants/calculate/coupon';
 
 // Hook
@@ -26,7 +27,6 @@ import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
 import CalculateDetailCalander from '../component/CalculateDetailCalander';
 import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
 import CalculateDetailFilter from '../component/CalculateDetailFilter';
-import useCouponDetailInitialTotalInfo from 'hooks/calculate/coupon/useCouponDetailInitialTotalInfo';
 import CouponDetailList from './CouponDetailList';
 
 const CouponDetail = () => {
@@ -34,7 +34,6 @@ const CouponDetail = () => {
 
   const { user } = useUserInfo();
   const { couponFilters } = useCouponFilters();
-  const { couponDetailInitialTotalInfo } = useCouponDetailInitialTotalInfo();
   const { filterCondition, handleFilterCondition } = useCouponFilterCondition();
 
   const lastMonth = setMonth(new Date(), new Date().getMonth() - 1);
@@ -77,7 +76,7 @@ const CouponDetail = () => {
       <PageInfoProvider>
         <CalculateDetailTotalInfo
           searchDate={searchDate}
-          initialDetailTotalInfo={couponDetailInitialTotalInfo}
+          initialDetailTotalInfo={COUPON_DETAIL_TOTAL_INFO}
           render={(setDetailTotalInfo) => (
             <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
               <Table.ColGroup colGroupAttributes={COUPON_DETAIL_COLGROUP_INFO} />
@@ -86,7 +85,6 @@ const CouponDetail = () => {
                 <CouponDetailList
                   searchDate={searchDate}
                   filterCondition={filterCondition}
-                  initialDetailTotalInfo={couponDetailInitialTotalInfo}
                   setDetailTotalInfo={setDetailTotalInfo}
                 />
               </ErrorBoundary>

@@ -227,7 +227,7 @@ export const useCalculateCouponList = (f_code: number, staffNo: number) => {
   });
 };
 
-interface IUseCalculateCouponDetailList {
+export interface IUseCalculateCouponDetailList {
   staffNo: number;
   params: {
     f_code: number;
