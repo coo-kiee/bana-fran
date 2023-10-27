@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect } from 'react';
+import { useState } from 'react';
 
 // Const
 import { ClaimFilterOption, CLAIM_DETAIL_FILTER_OPTION } from 'constants/calculate/claim';
@@ -7,9 +7,9 @@ import { ClaimFilterOption, CLAIM_DETAIL_FILTER_OPTION } from 'constants/calcula
 import useOnChange from 'hooks/useOnChange';
 
 // Type
-import { CLAIM_TAB_TYPE } from 'types/calculate/calculateType';
+import { ClaimTabType, CLAIM_TAB_TYPE } from 'types/calculate/calculateType';
 
-const useClaimFilterCondition = () => {
+const useClaimFilterCondition = (tabType: ClaimTabType) => {
   const [allFilterCondition, setAllFilterCondition] = useState(
     Object.entries(CLAIM_DETAIL_FILTER_OPTION[CLAIM_TAB_TYPE.ALL]).reduce(
       (arr, [key, value]) => ({ ...arr, [key]: value[0].value }),
@@ -18,16 +18,10 @@ const useClaimFilterCondition = () => {
   );
   const handleAllFilterCondition = useOnChange(setAllFilterCondition);
 
-  const [filterCondition, setFilterCondition] = useState({
-    [CLAIM_TAB_TYPE.ALL]: allFilterCondition,
-    [CLAIM_TAB_TYPE.CALCULATE]: {},
-  });
-
-  useLayoutEffect(() => {
-    setFilterCondition((prev) => ({ ...prev, [CLAIM_TAB_TYPE.ALL]: allFilterCondition }));
-  }, [allFilterCondition]);
-
-  return { filterCondition, handleAllFilterCondition };
+  return {
+    filterCondition: tabType ? allFilterCondition : {},
+    handleFilterCondition: tabType ? handleAllFilterCondition : handleAllFilterCondition,
+  };
 };
 
 export default useClaimFilterCondition;

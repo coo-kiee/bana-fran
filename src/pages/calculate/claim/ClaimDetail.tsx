@@ -38,7 +38,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
 
   const { user } = useUserInfo();
-  const { filterCondition, handleAllFilterCondition } = useClaimFilterCondition();
+  const { filterCondition, handleFilterCondition } = useClaimFilterCondition(tabType);
 
   const lastMonth = setMonth(new Date(), new Date().getMonth() - 1);
   // 검색 조건
@@ -63,9 +63,10 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
         <ClaimDetailSort
           tabType={tabType}
           filterCondition={filterCondition}
-          handleAllFilterCondition={handleAllFilterCondition}
+          handleFilterCondition={handleFilterCondition}
         />
         <CalculateDetailCalander
+          key={tabType}
           searchDate={searchDate[tabType]}
           render={(calanderSearchDate) => (
             <CalculateDetailSearchButton handleSearch={() => handleSearchDate(calanderSearchDate)} />
@@ -74,6 +75,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
       </div>
       <PageInfoProvider>
         <CalculateDetailTotalInfo
+          key={tabType}
           searchDate={searchDate[tabType]}
           initialDetailTotalInfo={CLAIM_DETAIL_TOTAL_INFO[tabType]}
           render={(setDetailTotalInfo) => (
@@ -83,7 +85,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
               <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage isTable={true} />}>
                 <ClaimDetailList
                   tabType={tabType}
-                  sortType={filterCondition[CLAIM_TAB_TYPE.ALL][CLAIM_DETAIL_FILTER_TYPE.SORT]}
+                  sortType={filterCondition[CLAIM_DETAIL_FILTER_TYPE.SORT]}
                   searchDate={searchDate[tabType]}
                   setDetailTotalInfo={setDetailTotalInfo}
                 />

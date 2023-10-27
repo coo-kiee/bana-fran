@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useState } from 'react';
 import { format } from 'date-fns';
 
 interface IUseDatePicker {
@@ -23,10 +23,6 @@ const useDatePicker = (props: IUseDatePicker = {}) => {
 
     return res;
   };
-
-  useLayoutEffect(() => {
-    setDate(format(new Date(initial), dateFormat));
-  }, [dateFormat, initial]);
 
   return { date, handleDate, validateSearchDate };
 };

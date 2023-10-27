@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 // Context
 import { PageInfoContext, SetPageInfoContext } from 'pages/common/pagination/PageInfoProvider';
@@ -23,7 +23,7 @@ const usePageInfo = () => {
     return index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row;
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setPageInfo((prev) => ({ ...prev, currentPage: 1 }));
   }, [pageInfo.dataCnt, pageInfo.row, setPageInfo]);
 

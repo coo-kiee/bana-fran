@@ -11,13 +11,11 @@ import CalculateDetailFilter from '../component/CalculateDetailFilter';
 
 interface IClaimDetailSort {
   tabType: ClaimTabType;
-  filterCondition: {
-    [key in ClaimTabType]: Record<string | number, string>;
-  };
-  handleAllFilterCondition: ChangeEventHandler<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+  filterCondition: Record<string | number, string>;
+  handleFilterCondition: ChangeEventHandler<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
 }
 
-const ClaimDetailSort: FC<IClaimDetailSort> = ({ tabType, filterCondition, handleAllFilterCondition }) => {
+const ClaimDetailSort: FC<IClaimDetailSort> = ({ tabType, filterCondition, handleFilterCondition }) => {
   return (
     <>
       {tabType === CLAIM_TAB_TYPE.CALCULATE ? (
@@ -25,9 +23,9 @@ const ClaimDetailSort: FC<IClaimDetailSort> = ({ tabType, filterCondition, handl
       ) : (
         <CalculateDetailFilter
           name={CLAIM_DETAIL_FILTER_TYPE.SORT}
-          value={filterCondition[tabType][CLAIM_DETAIL_FILTER_TYPE.SORT]}
+          value={filterCondition[CLAIM_DETAIL_FILTER_TYPE.SORT]}
           options={CLAIM_DETAIL_FILTER_OPTION[tabType][CLAIM_DETAIL_FILTER_TYPE.SORT]}
-          handleOnChange={handleAllFilterCondition}
+          handleOnChange={handleFilterCondition}
         />
       )}
     </>

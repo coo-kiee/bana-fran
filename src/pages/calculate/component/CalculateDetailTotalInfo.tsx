@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useLayoutEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { useIsFetching } from 'react-query';
 
 // Util
@@ -20,10 +20,6 @@ const CalculateDetailTotalInfo = <T extends Record<string | number, { title: str
   const fetchingCnt = useIsFetching();
 
   const [detailTotalInfo, setDetailTotalInfo] = useState(initialDetailTotalInfo);
-
-  useLayoutEffect(() => {
-    setDetailTotalInfo(initialDetailTotalInfo);
-  }, [initialDetailTotalInfo]);
 
   return (
     <>
