@@ -25,6 +25,7 @@ const useSumPointDetailTotalInfo = (
       if (cur.bonus_point_type) arr[POINT_SUM_TYPE.BONUS_CHARGE].sum += cur.total_bonus_amt;
       if (cur.use_point_type in arr) arr[cur.use_point_type as keyof PointDetailTotalInfo].sum += cur.total_paid_amt;
 
+      arr[POINT_SUM_TYPE.ALL].sum += cur.total_bonus_amt;
       arr[POINT_SUM_TYPE.ALL].sum += cur.total_paid_amt;
 
       return arr;
