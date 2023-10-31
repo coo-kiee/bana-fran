@@ -57,7 +57,7 @@ export const COUPON_DETAIL_FILTER_OPTION = {
 export type CouponDetailFilterOption = typeof COUPON_DETAIL_FILTER_OPTION;
 
 export const COUPON_SUM_TYPE = {
-  ALL: '전체',
+  ALL: 89,
 } as const;
 
 export const COUPON_DETAIL_TOTAL_INFO = {

@@ -222,7 +222,7 @@ export const useCalculateCouponList = (params: { f_code: number }) => {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: true,
+    suspense: false,
     enabled: user.staffNo > 0,
   });
 };
