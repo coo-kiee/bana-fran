@@ -12,9 +12,10 @@ import { useCalculateCouponList } from 'service/calculateService';
 
 const useCouponFilters = () => {
   const { user } = useUserInfo();
+  const params = { f_code: user.fCode };
 
   // Query
-  const calculateCouponListRes = useCalculateCouponList(user.fCode, user.staffNo);
+  const calculateCouponListRes = useCalculateCouponList(params);
 
   const couponFilters = calculateCouponListRes.data?.reduce((arr, cur) => {
     arr.push({ label: cur.code_name, value: cur.code });

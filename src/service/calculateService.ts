@@ -19,6 +19,7 @@ import {
   CalculateAffiliateDetailListQueryResult,
   CalculateCouponListQueryResult,
 } from 'types/calculate/calculateType';
+import useUserInfo from 'hooks/user/useUser';
 
 // 검색 월
 const useCalculateMonthList = (f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
@@ -182,16 +183,15 @@ const useCalculateLastMonthEach = (
 
 // 유상포인트 결제내역 상세
 interface IUseCalculatePointDetailList {
-  staffNo: number;
-  params: {
-    f_code: number;
-    from_date: string;
-    to_date: string;
-  };
+  f_code: number;
+  from_date: string;
+  to_date: string;
 }
 
-export const useCalculatePointDetailList = ({ staffNo, params }: IUseCalculatePointDetailList) => {
-  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_POINT_DETAIL_LIST, staffNo, ...Object.values(params)];
+export const useCalculatePointDetailList = (params: IUseCalculatePointDetailList) => {
+  const { user } = useUserInfo();
+
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_POINT_DETAIL_LIST, params, user];
   const data = {
     ws: 'fprocess',
     query: '6HURAKO83BCYD8ZXBORH', // web_fran_s_calculate_paid_point_list
@@ -203,41 +203,41 @@ export const useCalculatePointDetailList = ({ staffNo, params }: IUseCalculatePo
     refetchOnWindowFocus: false,
     retry: false,
     suspense: false,
-    enabled: staffNo > 0,
+    enabled: user.staffNo > 0,
   });
 };
 
 // 본사 쿠폰 결제내역 상세 - 쿠폰 리스트
-export const useCalculateCouponList = (f_code: number, staffNo: number) => {
-  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_COUPON_LIST, f_code, staffNo];
+export const useCalculateCouponList = (params: { f_code: number }) => {
+  const { user } = useUserInfo();
+
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_COUPON_LIST, params, user];
   const data = {
     ws: 'fprocess',
     query: '1ERHH8TI5ER8Z2SNLA5K', // web_fran_s_calculate_hq_coupon_code
-    params: {
-      f_code,
-    },
+    params,
   };
 
   return useQuery<CalculateCouponListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: false,
-    enabled: staffNo > 0,
+    suspense: true,
+    enabled: user.staffNo > 0,
   });
 };
 
+// 본사 쿠폰 결제내역 상세 - 쿠폰 리스트
 export interface IUseCalculateCouponDetailList {
-  staffNo: number;
-  params: {
-    f_code: number;
-    from_date: string;
-    to_date: string;
-  };
+  f_code: number;
+  from_date: string;
+  to_date: string;
 }
 
-export const useCalculateCouponDetailList = ({ staffNo, params }: IUseCalculateCouponDetailList) => {
-  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_COUPON_DETAIL_LIST, staffNo, ...Object.values(params)];
+export const useCalculateCouponDetailList = (params: IUseCalculateCouponDetailList) => {
+  const { user } = useUserInfo();
+
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_COUPON_DETAIL_LIST, params, user];
   const data = {
     ws: 'fprocess',
     query: 'NQSZNEAMQLUNQXDTAD70', // web_fran_s_calculate_hq_coupon_list
@@ -249,14 +249,13 @@ export const useCalculateCouponDetailList = ({ staffNo, params }: IUseCalculateC
     refetchOnWindowFocus: false,
     retry: false,
     suspense: false,
-    enabled: staffNo > 0,
+    enabled: user.staffNo > 0,
   });
 };
 
 // 고객 클레임 보상내역 상세
 interface IUseCalculateClaimDetailList {
   tabType: string;
-  staffNo: number;
   params: {
     search_type?: string | undefined;
     f_code: number;
@@ -264,7 +263,9 @@ interface IUseCalculateClaimDetailList {
     to_date: string;
   };
 }
-export const useCalculateClaimDetailList = ({ params, staffNo, tabType }: IUseCalculateClaimDetailList) => {
+export const useCalculateClaimDetailList = ({ params, tabType }: IUseCalculateClaimDetailList) => {
+  const { user } = useUserInfo();
+
   // web_fran_s_calculate_claim_coupon_list :  web_fran_s_calculate_claim_calculate_list
   const query = tabType === CLAIM_TAB_TYPE.ALL ? 'CBGQY93OOIW9CXDSUJKA' : 'BC206IV3AOO0MB7PRRZE';
   const data = {
@@ -274,14 +275,14 @@ export const useCalculateClaimDetailList = ({ params, staffNo, tabType }: IUseCa
   };
 
   return useQuery<CalculateClaimDetailListQueryResult[]>(
-    [CALCULATE_QUERY_KEY.CALCULATE_CLAIM_DETAIL_LIST, ...Object.values(data)],
+    [CALCULATE_QUERY_KEY.CALCULATE_CLAIM_DETAIL_LIST, params, user, tabType],
     () => queryFn.getDataList(data),
     {
       keepPreviousData: false,
       refetchOnWindowFocus: false,
       retry: false,
       suspense: false,
-      enabled: staffNo > 0,
+      enabled: user.staffNo > 0,
     },
   );
 };

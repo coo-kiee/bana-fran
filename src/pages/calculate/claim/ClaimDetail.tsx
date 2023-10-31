@@ -1,16 +1,10 @@
-import { FC, useRef, useState } from 'react';
+import React, { FC, useRef, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { format, lastDayOfMonth, setDate, setMonth } from 'date-fns';
 
 // Const
 import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE } from 'constants/calculate/common';
-import {
-  CLAIM_TAB_TYPE,
-  CLAIM_DETAIL_TABLE_COLGROUP_INFO,
-  CLAIM_DETAIL_TABLE_THEAD_INFO,
-  CLAIM_DETAIL_FILTER_TYPE,
-  CLAIM_DETAIL_TOTAL_INFO,
-} from 'constants/calculate/claim';
+import { CLAIM_TAB_TYPE, CLAIM_DETAIL_TABLE_COLGROUP_INFO, CLAIM_DETAIL_FILTER_TYPE } from 'constants/calculate/claim';
 
 // Type
 import { ClaimTabType } from 'constants/calculate/claim';
@@ -23,12 +17,10 @@ import useUserInfo from 'hooks/user/useUser';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import ClaimDetailSort from './ClaimDetailSort';
 import CalculateDetailSearch from '../component/CalculateDetailSearch';
-import ClaimDetailList from './ClaimDetailList';
-import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
+import ClaimDetailTable from './ClaimDetailTable';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import Pages from 'pages/common/pagination/Pages';
-import Table from 'pages/common/table';
 
 interface IClaimDetail {
   tabType: ClaimTabType;
@@ -52,40 +44,29 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
     },
   });
 
-  const [handleSearchDate] = useState(() => (props: { fromDate: string; toDate: string }) => {
+  const handleSearchDate = (props: { fromDate: string; toDate: string }) => {
     setSearchDate((prev) => ({ ...prev, [tabType]: { ...prev[tabType], ...props } }));
-  });
+  };
 
   return (
-    <>
+    <React.Fragment key={tabType}>
       <div className="search-wrap">
         <ClaimDetailSort
           tabType={tabType}
           filterCondition={filterCondition}
           handleFilterCondition={handleFilterCondition}
         />
-        <CalculateDetailSearch key={tabType} searchDate={searchDate[tabType]} handleSearchDate={handleSearchDate} />
+        <CalculateDetailSearch searchDate={searchDate[tabType]} handleSearchDate={handleSearchDate} />
       </div>
       <PageInfoProvider>
-        <CalculateDetailTotalInfo
-          key={tabType}
-          searchDate={searchDate[tabType]}
-          initialDetailTotalInfo={CLAIM_DETAIL_TOTAL_INFO[tabType]}
-          render={(setDetailTotalInfo) => (
-            <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
-              <Table.ColGroup colGroupAttributes={CLAIM_DETAIL_TABLE_COLGROUP_INFO[tabType]} />
-              <Table.TableHead style={{ whiteSpace: 'pre-line' }} thData={CLAIM_DETAIL_TABLE_THEAD_INFO[tabType]} />
-              <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage isTable={true} />}>
-                <ClaimDetailList
-                  tabType={tabType}
-                  sortType={filterCondition[CLAIM_DETAIL_FILTER_TYPE.SORT]}
-                  searchDate={searchDate[tabType]}
-                  setDetailTotalInfo={setDetailTotalInfo}
-                />
-              </ErrorBoundary>
-            </Table>
-          )}
-        />
+        <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage />}>
+          <ClaimDetailTable
+            tableRef={tableRef}
+            tabType={tabType}
+            sortType={filterCondition[CLAIM_DETAIL_FILTER_TYPE.SORT]}
+            searchDate={searchDate[tabType]}
+          />
+        </ErrorBoundary>
         <div className="result-function-wrap">
           <ExcelButton
             type={'table'}
@@ -103,7 +84,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
           <Pages />
         </div>
       </PageInfoProvider>
-    </>
+    </React.Fragment>
   );
 };
 

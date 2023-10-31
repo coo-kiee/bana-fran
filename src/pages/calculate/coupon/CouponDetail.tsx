@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
-import { format, lastDayOfMonth, setMonth, setDate } from 'date-fns';
 import { ErrorBoundary } from 'react-error-boundary';
+import { format, lastDayOfMonth, setMonth, setDate } from 'date-fns';
 
 // Const
 import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE } from 'constants/calculate/common';
@@ -8,8 +8,6 @@ import {
   COUPON_DETAIL_COLGROUP_INFO,
   COUPON_DETAIL_FILTER_OPTION,
   COUPON_DETAIL_FILTER_TYPE,
-  COUPON_DETAIL_THEAD_INFO,
-  COUPON_DETAIL_TOTAL_INFO,
 } from 'constants/calculate/coupon';
 
 // Hook
@@ -21,18 +19,18 @@ import useUserInfo from 'hooks/user/useUser';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import Pages from 'pages/common/pagination/Pages';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
-import Table from 'pages/common/table';
-import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
 import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import CalculateDetailFilter from '../component/CalculateDetailFilter';
-import CouponDetailList from './CouponDetailList';
+import CouponDetailTable from './CouponDetailTable';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const CouponDetail = () => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
 
   const { user } = useUserInfo();
+
   const couponFilters = useCouponFilters();
+
   const { filterCondition, handleFilterCondition } = useCouponFilterCondition();
 
   const lastMonth = setMonth(new Date(), new Date().getMonth() - 1);
@@ -64,23 +62,9 @@ const CouponDetail = () => {
         </CalculateDetailSearch>
       </div>
       <PageInfoProvider>
-        <CalculateDetailTotalInfo
-          searchDate={searchDate}
-          initialDetailTotalInfo={COUPON_DETAIL_TOTAL_INFO}
-          render={(setDetailTotalInfo) => (
-            <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
-              <Table.ColGroup colGroupAttributes={COUPON_DETAIL_COLGROUP_INFO} />
-              <Table.TableHead style={{ whiteSpace: 'pre-line' }} thData={COUPON_DETAIL_THEAD_INFO} />
-              <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage isTable={true} />}>
-                <CouponDetailList
-                  searchDate={searchDate}
-                  filterCondition={filterCondition}
-                  setDetailTotalInfo={setDetailTotalInfo}
-                />
-              </ErrorBoundary>
-            </Table>
-          )}
-        />
+        <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage />}>
+          <CouponDetailTable tableRef={tableRef} searchDate={searchDate} filterCondition={filterCondition} />
+        </ErrorBoundary>
         <div className="result-function-wrap">
           <ExcelButton
             type={'table'}

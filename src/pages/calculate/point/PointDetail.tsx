@@ -8,8 +8,6 @@ import {
   POINT_DETAIL_COLGROUP_INFO,
   POINT_DETAIL_FILTER_OPTION,
   POINT_DETAIL_FILTER_TYPE,
-  POINT_DETAIL_THEAD_INFO,
-  POINT_DETAIL_TOTAL_INFO,
 } from 'constants/calculate/point';
 
 // Hook
@@ -21,9 +19,7 @@ import ExcelButton from 'pages/common/excel/ExcelButton';
 import Pages from 'pages/common/pagination/Pages';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
-import Table from 'pages/common/table';
-import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
-import PointDetailList from './PointDetailList';
+import PointDetailTable from './PointDetailTable';
 import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import CalculateDetailFilter from '../component/CalculateDetailFilter';
 
@@ -62,23 +58,9 @@ const PointDetail = () => {
         </CalculateDetailSearch>
       </div>
       <PageInfoProvider>
-        <CalculateDetailTotalInfo
-          searchDate={searchDate}
-          initialDetailTotalInfo={POINT_DETAIL_TOTAL_INFO}
-          render={(setDetailTotalInfo) => (
-            <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
-              <Table.ColGroup colGroupAttributes={POINT_DETAIL_COLGROUP_INFO} />
-              <Table.TableHead style={{ whiteSpace: 'pre-line' }} thData={POINT_DETAIL_THEAD_INFO} />
-              <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage isTable={true} />}>
-                <PointDetailList
-                  searchDate={searchDate}
-                  filterCondition={filterCondition}
-                  setDetailTotalInfo={setDetailTotalInfo}
-                />
-              </ErrorBoundary>
-            </Table>
-          )}
-        />
+        <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage />}>
+          <PointDetailTable tableRef={tableRef} searchDate={searchDate} filterCondition={filterCondition} />
+        </ErrorBoundary>
         <div className="result-function-wrap">
           <ExcelButton
             type={'table'}

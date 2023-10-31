@@ -1,4 +1,4 @@
-import { useLayoutEffect } from 'react';
+import { useEffect } from 'react';
 import { UseQueryResult } from 'react-query';
 
 // Hook
@@ -11,7 +11,7 @@ const useHandlePageDataCnt = <T extends unknown[], F>(
 ) => {
   const { handleDataCnt } = usePageInfo();
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!queryRes.data) return;
 
     const dataCnt =

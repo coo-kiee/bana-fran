@@ -1,25 +1,24 @@
-import { Dispatch, SetStateAction, useState } from 'react';
-import { useIsFetching } from 'react-query';
+// Type
+import { SearchDate } from 'constants/calculate/common';
+import { UseQueryResult } from 'react-query';
 
 // Util
 import Utils from 'utils/Utils';
 
-interface ICalculateDetailTotalInfo<T> {
-  searchDate: {
-    fromDate: string;
-    toDate: string;
-  };
+interface ICalculateDetailTotalInfo<T, Q> {
+  queryRes: UseQueryResult<Q, unknown>;
+  searchDate: SearchDate;
   initialDetailTotalInfo: T;
-  render: (setDetailTotalInfo: Dispatch<SetStateAction<T>>) => JSX.Element;
+  sumFn: (initial: T, datas: Q) => T;
 }
-const CalculateDetailTotalInfo = <T extends Record<string | number, { title: string; sum: number }>>({
-  searchDate,
-  initialDetailTotalInfo,
-  render,
-}: ICalculateDetailTotalInfo<T>) => {
-  const fetchingCnt = useIsFetching();
 
-  const [detailTotalInfo, setDetailTotalInfo] = useState(initialDetailTotalInfo);
+const CalculateDetailTotalInfo = <T extends Record<string | number, { title: string; sum: number }>, Q>({
+  queryRes,
+  initialDetailTotalInfo,
+  sumFn,
+  searchDate,
+}: ICalculateDetailTotalInfo<T, Q>) => {
+  const detailTotalInfo = !queryRes?.data ? initialDetailTotalInfo : sumFn(initialDetailTotalInfo, queryRes.data);
 
   return (
     <>
@@ -30,15 +29,13 @@ const CalculateDetailTotalInfo = <T extends Record<string | number, { title: str
           </p>
         </div>
         <ul className="search-result">
-          {!fetchingCnt &&
-            Object.values(detailTotalInfo).map((totalInfo, index) => (
-              <li key={index}>
-                {totalInfo.title} : <span className="value">{Utils.numberComma(totalInfo.sum)}원</span>
-              </li>
-            ))}
+          {Object.values(detailTotalInfo).map((totalInfo, index) => (
+            <li key={index}>
+              {totalInfo.title} : <span className="value">{Utils.numberComma(totalInfo.sum)}원</span>
+            </li>
+          ))}
         </ul>
       </div>
-      {render(setDetailTotalInfo)}
     </>
   );
 };
