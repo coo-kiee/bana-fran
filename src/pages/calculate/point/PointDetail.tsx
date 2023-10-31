@@ -1,5 +1,4 @@
-import { useRef, useState } from 'react';
-import { format, lastDayOfMonth, setMonth, setDate } from 'date-fns';
+import { useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 // Const
@@ -13,6 +12,7 @@ import {
 // Hook
 import usePointFilterCondition from 'hooks/calculate/point/usePointFilterCondition';
 import useUserInfo from 'hooks/user/useUser';
+import useSearchDate from 'hooks/common/useSearchDate';
 
 // Component
 import ExcelButton from 'pages/common/excel/ExcelButton';
@@ -28,18 +28,13 @@ const PointDetail = () => {
 
   const { user } = useUserInfo();
   const { filterCondition, handleFilterCondition } = usePointFilterCondition();
-
-  const lastMonth = setMonth(new Date(), new Date().getMonth() - 1);
-  const [searchDate, setSearchDate] = useState({
-    fromDate: format(setDate(lastMonth, 1), 'yyyy-MM-dd'),
-    toDate: format(lastDayOfMonth(lastMonth), 'yyyy-MM-dd'),
-  });
+  const { searchDate, handleSearchDate } = useSearchDate();
 
   return (
     <>
       <p className="title bullet">상세내역</p>
       <div className="search-wrap">
-        <CalculateDetailSearch searchDate={searchDate} handleSearchDate={setSearchDate}>
+        <CalculateDetailSearch searchDate={searchDate} handleSearchDate={handleSearchDate}>
           <div className="select-wrap">
             <CalculateDetailFilter
               name={POINT_DETAIL_FILTER_TYPE.POINT}

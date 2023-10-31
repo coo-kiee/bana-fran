@@ -1,6 +1,5 @@
-import React, { FC, useRef, useState } from 'react';
+import React, { FC, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { format, lastDayOfMonth, setDate, setMonth } from 'date-fns';
 
 // Const
 import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE } from 'constants/calculate/common';
@@ -12,6 +11,7 @@ import { ClaimTabType } from 'constants/calculate/claim';
 // Hook
 import useClaimFilterCondition from 'hooks/calculate/claim/useClaimFilterCondition';
 import useUserInfo from 'hooks/user/useUser';
+import useSearchDate from 'hooks/common/useSearchDate';
 
 // Component
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
@@ -30,23 +30,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
 
   const { user } = useUserInfo();
   const { filterCondition, handleFilterCondition } = useClaimFilterCondition(tabType);
-
-  const lastMonth = setMonth(new Date(), new Date().getMonth() - 1);
-  // 검색 조건
-  const [searchDate, setSearchDate] = useState({
-    [CLAIM_TAB_TYPE.ALL]: {
-      fromDate: format(setDate(lastMonth, 1), 'yyyy-MM-dd'),
-      toDate: format(lastDayOfMonth(lastMonth), 'yyyy-MM-dd'),
-    },
-    [CLAIM_TAB_TYPE.CALCULATE]: {
-      fromDate: format(setDate(lastMonth, 1), 'yyyy-MM-dd'),
-      toDate: format(lastDayOfMonth(lastMonth), 'yyyy-MM-dd'),
-    },
-  });
-
-  const handleSearchDate = (props: { fromDate: string; toDate: string }) => {
-    setSearchDate((prev) => ({ ...prev, [tabType]: { ...prev[tabType], ...props } }));
-  };
+  const { searchDate, handleSearchDate } = useSearchDate({ tabTypeObj: CLAIM_TAB_TYPE, tabType });
 
   return (
     <React.Fragment key={tabType}>
@@ -56,7 +40,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
           filterCondition={filterCondition}
           handleFilterCondition={handleFilterCondition}
         />
-        <CalculateDetailSearch searchDate={searchDate[tabType]} handleSearchDate={handleSearchDate} />
+        <CalculateDetailSearch searchDate={searchDate} handleSearchDate={handleSearchDate} />
       </div>
       <PageInfoProvider>
         <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage />}>
@@ -64,7 +48,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
             tableRef={tableRef}
             tabType={tabType}
             sortType={filterCondition[CLAIM_DETAIL_FILTER_TYPE.SORT]}
-            searchDate={searchDate[tabType]}
+            searchDate={searchDate}
           />
         </ErrorBoundary>
         <div className="result-function-wrap">
@@ -72,9 +56,9 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
             type={'table'}
             target={tableRef}
             tableRef={tableRef}
-            fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.CLAIM]}(${
-              searchDate[tabType].fromDate
-            }~${searchDate[tabType].toDate})`}
+            fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.CLAIM]}(${searchDate.fromDate}~${
+              searchDate.toDate
+            })`}
             sheetOption={{ origin: 'B3' }}
             colWidths={Object.values(CLAIM_DETAIL_TABLE_COLGROUP_INFO[tabType]).flatMap((item) =>
               item.width !== '*' ? { wpx: Number(item.width) * 1.2 } : { wpx: 400 },

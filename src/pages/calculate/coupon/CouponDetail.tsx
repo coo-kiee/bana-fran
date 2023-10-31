@@ -1,6 +1,5 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { format, lastDayOfMonth, setMonth, setDate } from 'date-fns';
 
 // Const
 import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE } from 'constants/calculate/common';
@@ -14,6 +13,7 @@ import {
 import useCouponFilterCondition from 'hooks/calculate/coupon/useCouponFilterCondition';
 import useCouponFilters from 'hooks/calculate/coupon/useCouponFilters';
 import useUserInfo from 'hooks/user/useUser';
+import useSearchDate from 'hooks/common/useSearchDate';
 
 // Component
 import ExcelButton from 'pages/common/excel/ExcelButton';
@@ -32,18 +32,13 @@ const CouponDetail = () => {
   const couponFilters = useCouponFilters();
 
   const { filterCondition, handleFilterCondition } = useCouponFilterCondition();
-
-  const lastMonth = setMonth(new Date(), new Date().getMonth() - 1);
-  const [searchDate, setSearchDate] = useState({
-    fromDate: format(setDate(lastMonth, 1), 'yyyy-MM-dd'),
-    toDate: format(lastDayOfMonth(lastMonth), 'yyyy-MM-dd'),
-  });
+  const { searchDate, handleSearchDate } = useSearchDate();
 
   return (
     <>
       <p className="title bullet">상세내역</p>
       <div className="search-wrap">
-        <CalculateDetailSearch searchDate={searchDate} handleSearchDate={setSearchDate}>
+        <CalculateDetailSearch searchDate={searchDate} handleSearchDate={handleSearchDate}>
           <div className="select-wrap">
             <CalculateDetailFilter
               name={COUPON_DETAIL_FILTER_TYPE.COUPON}
