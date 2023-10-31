@@ -13,21 +13,37 @@ import CalculateDetailSearchButton from './CalculateDetailSearchButton';
 interface ICalculateDetailSearch extends PropsWithChildren {
   searchDate: SearchDate;
   handleSearchDate: (searchDate: SearchDate) => void;
+  dateFormat?: string;
+  showMonthYearPicker?: boolean;
 }
-const CalculateDetailSearch = ({ searchDate, children, handleSearchDate }: ICalculateDetailSearch) => {
-  const { date: fromDate, handleDate: handleFromDate } = useDatePicker({ initial: searchDate.fromDate });
-  const { date: toDate, handleDate: handleToDate, validateSearchDate } = useDatePicker({ initial: searchDate.toDate });
+const CalculateDetailSearch = ({
+  searchDate,
+  children,
+  handleSearchDate,
+  dateFormat = 'yyyy-MM-dd',
+  showMonthYearPicker,
+}: ICalculateDetailSearch) => {
+  const { date: fromDate, handleDate: handleFromDate } = useDatePicker({ initial: searchDate.fromDate, dateFormat });
+  const {
+    date: toDate,
+    handleDate: handleToDate,
+    validateSearchDate,
+  } = useDatePicker({ initial: searchDate.toDate, dateFormat });
 
   return (
     <>
       <Calander>
         <Calander.DatePicker
           selected={new Date(fromDate)}
+          showMonthYearPicker={showMonthYearPicker}
+          dateFormat={dateFormat}
           onChange={(date) => validateSearchDate(date, toDate) && handleFromDate(date)}
         />
         <i>~</i>
         <Calander.DatePicker
           selected={new Date(toDate)}
+          showMonthYearPicker={showMonthYearPicker}
+          dateFormat={dateFormat}
           onChange={(date) => validateSearchDate(fromDate, date) && handleToDate(date)}
         />
       </Calander>

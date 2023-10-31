@@ -267,6 +267,7 @@ export const useCalculateClaimDetailList = ({ params, tabType }: IUseCalculateCl
   const { user } = useUserInfo();
 
   // web_fran_s_calculate_claim_coupon_list :  web_fran_s_calculate_claim_calculate_list
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_CLAIM_DETAIL_LIST, params, user, tabType];
   const query = tabType === CLAIM_TAB_TYPE.ALL ? 'CBGQY93OOIW9CXDSUJKA' : 'BC206IV3AOO0MB7PRRZE';
   const data = {
     ws: 'fprocess',
@@ -274,51 +275,37 @@ export const useCalculateClaimDetailList = ({ params, tabType }: IUseCalculateCl
     params,
   };
 
-  return useQuery<CalculateClaimDetailListQueryResult[]>(
-    [CALCULATE_QUERY_KEY.CALCULATE_CLAIM_DETAIL_LIST, params, user, tabType],
-    () => queryFn.getDataList(data),
-    {
-      keepPreviousData: false,
-      refetchOnWindowFocus: false,
-      retry: false,
-      suspense: false,
-      enabled: user.staffNo > 0,
-    },
-  );
+  return useQuery<CalculateClaimDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
+    keepPreviousData: false,
+    refetchOnWindowFocus: false,
+    retry: false,
+    suspense: false,
+    enabled: user.staffNo > 0,
+  });
 };
 
 // 기타 정산 내역 상세
-type CalculateEtcDetailListParameter = (
-  f_code: number,
-  staffNo: number,
-  from_date: string,
-  to_date: string,
-  option?: { [key: string]: any },
-) => UseQueryResult<CalculateEtcDetailListQueryResult[], unknown>;
-const useCalculateEtcDetailList: CalculateEtcDetailListParameter = (
-  f_code,
-  staffNo,
-  from_date,
-  to_date,
-  option = {},
-) => {
-  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_ETC_DETAIL_LIST, f_code, staffNo, from_date, to_date];
+interface IUseCalculateEtcDetailList {
+  f_code: number;
+  from_date: string;
+  to_date: string;
+}
+export const useCalculateEtcDetailList = (params: IUseCalculateEtcDetailList) => {
+  const { user } = useUserInfo();
+
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_ETC_DETAIL_LIST, params, user];
   const data = {
     ws: 'fprocess',
     query: 'SBGCJDVEODLVS2XGQX1D', // web_fran_s_calculate_etc_list
-    params: {
-      f_code,
-      from_date,
-      to_date,
-    },
+    params,
   };
 
   return useQuery<CalculateEtcDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: option.suspense ? option.suspense : true,
-    enabled: staffNo > 0,
+    suspense: false,
+    enabled: user.staffNo > 0,
   });
 };
 

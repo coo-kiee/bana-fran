@@ -22,7 +22,6 @@ import useUserInfo from 'hooks/user/useUser';
 import usePageInfo from 'hooks/pagination/usePageInfo';
 
 // Component
-import TableList from 'pages/common/table/TableList';
 import Table from 'pages/common/table';
 import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
 
@@ -59,7 +58,7 @@ const ClaimDetailTable: FC<IClaimDetailTable> = ({ tableRef, tabType, sortType, 
       <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
         <Table.ColGroup colGroupAttributes={CLAIM_DETAIL_TABLE_COLGROUP_INFO[tabType]} />
         <Table.TableHead style={{ whiteSpace: 'pre-line' }} thData={CLAIM_DETAIL_TABLE_THEAD_INFO[tabType]} />
-        <TableList
+        <Table.TableList
           queryRes={claimDetailListRes}
           render={(datas) =>
             datas?.map((claimData, index) => (

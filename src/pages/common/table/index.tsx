@@ -3,6 +3,7 @@ import { FC, PropsWithChildren, RefObject, TableHTMLAttributes } from 'react';
 // Component
 import ColGroup from './ColGroup';
 import TableHead from './TableHead';
+import TableList from './TableList';
 
 interface ITable extends TableHTMLAttributes<HTMLTableElement>, PropsWithChildren {
   tableRef?: RefObject<HTMLTableElement>;
@@ -11,6 +12,7 @@ interface ITable extends TableHTMLAttributes<HTMLTableElement>, PropsWithChildre
 interface ITableComposition {
   ColGroup: typeof ColGroup;
   TableHead: typeof TableHead;
+  TableList: typeof TableList;
 }
 
 const Table: FC<ITable> & ITableComposition = ({ tableRef, children, ...tableAttributes }) => {
@@ -25,3 +27,4 @@ export default Table;
 
 Table.ColGroup = ColGroup;
 Table.TableHead = TableHead;
+Table.TableList = TableList;

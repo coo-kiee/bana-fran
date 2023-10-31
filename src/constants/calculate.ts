@@ -13,23 +13,6 @@ const LIST_DETAIL_COLGROUP_INFO = [
   { width: '130' },
 ];
 
-const ETC_DETAIL_COLGROUP_INFO = [
-  { width: '130' },
-  { width: '130' },
-  { width: '88' },
-  { width: '150' },
-  { width: '109' },
-  { width: '130' },
-  { width: '136' },
-  { width: '130' },
-  { width: '130' },
-  { width: '*' },
-  { width: '*' },
-  { width: '130' },
-  { width: '130' },
-  { width: '130' },
-];
-
 const AFFILIATE_COUPON_DETAIL_COLGROUP_INFO = [
   { width: '130' },
   { width: '*' },
@@ -56,7 +39,6 @@ const AFFILIATE_POINT_DETAIL_COLGROUP_INFO = [
 
 export const CALCULATE_DETAIL_TABLE_COLGROUP_INFO = {
   [CALCULATE_TYPE.LIST]: LIST_DETAIL_COLGROUP_INFO,
-  [CALCULATE_TYPE.ETC]: ETC_DETAIL_COLGROUP_INFO,
   [AFFILIATE_TAB_TYPE.COUPON]: AFFILIATE_COUPON_DETAIL_COLGROUP_INFO,
   [AFFILIATE_TAB_TYPE.POINT]: AFFILIATE_POINT_DETAIL_COLGROUP_INFO,
 } as const;
@@ -74,16 +56,6 @@ const LIST_DETAIL_THEAD_INFO = [
     { children: '합계' },
     { children: '비고' },
   ],
-];
-
-const ETC_DETAIL_THEAD_INFO = [
-  [
-    { children: '정산월', rowSpan: 2 },
-    { children: '구분', rowSpan: 2 },
-    { children: '내용', rowSpan: 2 },
-    { children: '기타 정산 금액', rowSpan: 2, colSpan: 3, className: 'price-area boder-th-b' },
-  ],
-  [{ children: '공급가' }, { children: '부가세' }, { children: '합계' }],
 ];
 
 const AFFILIATE_COUPON_DETAIL_THEAD_INFO = [
@@ -124,7 +96,6 @@ const AFFILIATE_POINT_DETAIL_THEAD_INFO = [
 
 export const CALCULATE_DETAIL_TABLE_THEAD_INFO = {
   [CALCULATE_TYPE.LIST]: LIST_DETAIL_THEAD_INFO,
-  [CALCULATE_TYPE.ETC]: ETC_DETAIL_THEAD_INFO,
   [AFFILIATE_TAB_TYPE.COUPON]: AFFILIATE_COUPON_DETAIL_THEAD_INFO,
   [AFFILIATE_TAB_TYPE.POINT]: AFFILIATE_POINT_DETAIL_THEAD_INFO,
 } as const;

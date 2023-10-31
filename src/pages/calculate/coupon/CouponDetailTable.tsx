@@ -23,7 +23,6 @@ import Utils from 'utils/Utils';
 import { sumCouponDetailTotalInfo } from 'utils/calculate/sumCouponDetailTotalInfo';
 
 // Component
-import TableList from 'pages/common/table/TableList';
 import Table from 'pages/common/table';
 import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
 
@@ -61,7 +60,7 @@ const CouponDetailTable = ({ tableRef, searchDate, filterCondition }: ICouponDet
       <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
         <Table.ColGroup colGroupAttributes={COUPON_DETAIL_COLGROUP_INFO} />
         <Table.TableHead style={{ whiteSpace: 'pre-line' }} thData={COUPON_DETAIL_THEAD_INFO} />
-        <TableList
+        <Table.TableList
           queryRes={couponDetailListRes}
           render={(datas) =>
             datas

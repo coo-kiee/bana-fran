@@ -23,7 +23,6 @@ import Utils from 'utils/Utils';
 import { sumPointDetailTotalInfo } from 'utils/calculate/sumPointDetailTotalInfo';
 
 // Component
-import TableList from 'pages/common/table/TableList';
 import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
 import Table from 'pages/common/table';
 
@@ -59,7 +58,7 @@ const PointDetailTable = ({ tableRef, searchDate, filterCondition }: IPointDetai
       <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
         <Table.ColGroup colGroupAttributes={POINT_DETAIL_COLGROUP_INFO} />
         <Table.TableHead style={{ whiteSpace: 'pre-line' }} thData={POINT_DETAIL_THEAD_INFO} />
-        <TableList
+        <Table.TableList
           queryRes={pointDetailListRes}
           render={(datas) =>
             datas
