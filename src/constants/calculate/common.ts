@@ -1,3 +1,5 @@
+import { AFFILIATE_TAB_TYPE } from './affiliate';
+
 export const enum CALCULATE_TYPE {
   LIST,
   POINT,
@@ -13,7 +15,8 @@ export const CALCULATE_EXCEL_FILENAME = {
   [CALCULATE_TYPE.COUPON]: '본사 쿠폰 결제내역',
   [CALCULATE_TYPE.CLAIM]: '고객 클레임 보상내역',
   [CALCULATE_TYPE.ETC]: '기타 정산 내역',
-  [CALCULATE_TYPE.AFFILIATE]: '',
-};
+  [AFFILIATE_TAB_TYPE.COUPON]: '제휴사 쿠폰 결제내역',
+  [AFFILIATE_TAB_TYPE.POINT]: '제휴사 포인트 결제내역',
+} as const;
 
 export type SearchDate = { fromDate: string; toDate: string };

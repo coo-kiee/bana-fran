@@ -1,7 +1,8 @@
-import { useMutation, useQuery, UseQueryResult } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 
 // Hook
 import { queryFn } from 'hooks/useQuery';
+import useUserInfo from 'hooks/user/useUser';
 
 // Type
 import {
@@ -14,12 +15,13 @@ import {
   CALCULATE_CHARGE_MULTIPLY,
   CalculateLastMonthTotalQueryResult,
   CalculateClaimDetailListQueryResult,
-  CLAIM_TAB_TYPE,
-  AFFILIATE_TAB_TYPE,
   CalculateAffiliateDetailListQueryResult,
   CalculateCouponListQueryResult,
 } from 'types/calculate/calculateType';
-import useUserInfo from 'hooks/user/useUser';
+
+// Const
+import { ClaimTabType, CLAIM_TAB_TYPE } from 'constants/calculate/claim';
+import { AffiliateTabType, AFFILIATE_TAB_TYPE } from 'constants/calculate/affiliate';
 
 // 검색 월
 const useCalculateMonthList = (f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
@@ -227,7 +229,7 @@ export const useCalculateCouponList = (params: { f_code: number }) => {
   });
 };
 
-// 본사 쿠폰 결제내역 상세 - 쿠폰 리스트
+// 본사 쿠폰 결제내역 상세 - 사용 내역
 export interface IUseCalculateCouponDetailList {
   f_code: number;
   from_date: string;
@@ -255,7 +257,7 @@ export const useCalculateCouponDetailList = (params: IUseCalculateCouponDetailLi
 
 // 고객 클레임 보상내역 상세
 interface IUseCalculateClaimDetailList {
-  tabType: string;
+  tabType: ClaimTabType;
   params: {
     search_type?: string | undefined;
     f_code: number;
@@ -309,43 +311,33 @@ export const useCalculateEtcDetailList = (params: IUseCalculateEtcDetailList) =>
   });
 };
 
-// 고객 클레임 보상내역 상세
-type UseCalculateAffiliateDetailList = (
-  queryKey: string | Array<string>,
-  tabType: number,
-  f_code: number,
-  staffNo: number,
-  from_date: string,
-  to_date: string,
-  option?: { [key: string]: any },
-) => UseQueryResult<CalculateAffiliateDetailListQueryResult[], unknown>;
-const useCalculateAffiliateDetailList: UseCalculateAffiliateDetailList = (
-  queryKey,
-  tabType,
-  f_code,
-  staffNo,
-  from_date,
-  to_date,
-  option = {},
-) => {
+// 제휴사 결제내역 상세
+interface IUseCalculateAffiliateDetailList {
+  tabType: AffiliateTabType;
+  params: {
+    f_code: number;
+    from_date: string;
+    to_date: string;
+  };
+}
+export const useCalculateAffiliateDetailList = ({ params, tabType }: IUseCalculateAffiliateDetailList) => {
+  const { user } = useUserInfo();
+
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_AFFILIATE_DETAIL_LIST, params, user, tabType];
   // web_fran_s_calculate_external_coupon_list :
   const query = tabType === AFFILIATE_TAB_TYPE.COUPON ? 'F3A2PGABD6HJXQ1SDNDK' : '';
   const data = {
     ws: 'fprocess',
     query,
-    params: {
-      f_code,
-      from_date,
-      to_date,
-    },
+    params,
   };
 
   return useQuery<CalculateAffiliateDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: option.suspense ? option.suspense : true,
-    enabled: staffNo > 0,
+    suspense: false,
+    enabled: user.staffNo > 0,
   });
 };
 
@@ -356,12 +348,6 @@ export default {
   useCalculateRequestFix,
   useCalculateFixList,
   useCalculateLastMonthEach,
-  useCalculatePointDetailList,
-  useCalculateCouponList,
-  useCalculateCouponDetailList,
-  useCalculateClaimDetailList,
-  useCalculateEtcDetailList,
-  useCalculateAffiliateDetailList,
 };
 
 export const CALCULATE_QUERY_KEY = {
