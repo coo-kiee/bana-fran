@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 
 // Const
 import { CALCULATE_EXCEL_FILENAME } from 'constants/calculate/common';
@@ -15,7 +14,6 @@ import useEtcFilterCondition from 'hooks/calculate/etc/useEtcFilterCondition';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import Pages from 'pages/common/pagination/Pages';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import CalculateDetailFilter from '../component/CalculateDetailFilter';
 import EtcDetailTable from './EtcDetailTable';
@@ -49,9 +47,7 @@ const EtcDetail = () => {
         </CalculateDetailSearch>
       </div>
       <PageInfoProvider>
-        <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage />}>
-          <EtcDetailTable tableRef={tableRef} searchDate={searchDate} filterCondition={filterCondition} />
-        </ErrorBoundary>
+        <EtcDetailTable tableRef={tableRef} searchDate={searchDate} filterCondition={filterCondition} />
         <div className="result-function-wrap">
           <ExcelButton
             type={'table'}

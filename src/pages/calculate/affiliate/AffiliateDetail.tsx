@@ -1,5 +1,4 @@
 import React, { FC, useRef } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 
 // Const
 import { CALCULATE_EXCEL_FILENAME } from 'constants/calculate/common';
@@ -16,7 +15,6 @@ import useUserInfo from 'hooks/user/useUser';
 import useSearchDate from 'hooks/common/useSearchDate';
 
 // Component
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
@@ -39,9 +37,7 @@ const AffiliateDetail: FC<IAffiliateDetail> = ({ tabType }) => {
         <CalculateDetailSearch searchDate={searchDate} handleSearchDate={handleSearchDate} />
       </div>
       <PageInfoProvider>
-        <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage />}>
-          <AffiliateDetailTable tableRef={tableRef} tabType={tabType} searchDate={searchDate} />
-        </ErrorBoundary>
+        <AffiliateDetailTable tableRef={tableRef} tabType={tabType} searchDate={searchDate} />
         <div className="result-function-wrap">
           <ExcelButton
             type={'table'}

@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 
 // Const
 import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE } from 'constants/calculate/common';
@@ -18,7 +17,6 @@ import useSearchDate from 'hooks/common/useSearchDate';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import Pages from 'pages/common/pagination/Pages';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import PointDetailTable from './PointDetailTable';
 import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import CalculateDetailFilter from '../component/CalculateDetailFilter';
@@ -53,9 +51,7 @@ const PointDetail = () => {
         </CalculateDetailSearch>
       </div>
       <PageInfoProvider>
-        <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage />}>
-          <PointDetailTable tableRef={tableRef} searchDate={searchDate} filterCondition={filterCondition} />
-        </ErrorBoundary>
+        <PointDetailTable tableRef={tableRef} searchDate={searchDate} filterCondition={filterCondition} />
         <div className="result-function-wrap">
           <ExcelButton
             type={'table'}

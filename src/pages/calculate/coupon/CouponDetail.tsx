@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 
 // Const
 import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE } from 'constants/calculate/common';
@@ -22,7 +21,6 @@ import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import CalculateDetailFilter from '../component/CalculateDetailFilter';
 import CouponDetailTable from './CouponDetailTable';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const CouponDetail = () => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
@@ -57,9 +55,7 @@ const CouponDetail = () => {
         </CalculateDetailSearch>
       </div>
       <PageInfoProvider>
-        <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage />}>
-          <CouponDetailTable tableRef={tableRef} searchDate={searchDate} filterCondition={filterCondition} />
-        </ErrorBoundary>
+        <CouponDetailTable tableRef={tableRef} searchDate={searchDate} filterCondition={filterCondition} />
         <div className="result-function-wrap">
           <ExcelButton
             type={'table'}

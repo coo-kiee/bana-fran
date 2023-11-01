@@ -1,5 +1,4 @@
 import React, { FC, useRef } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
 
 // Const
 import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE } from 'constants/calculate/common';
@@ -14,7 +13,6 @@ import useUserInfo from 'hooks/user/useUser';
 import useSearchDate from 'hooks/common/useSearchDate';
 
 // Component
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import ClaimDetailSort from './ClaimDetailSort';
 import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import ClaimDetailTable from './ClaimDetailTable';
@@ -43,14 +41,12 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
         <CalculateDetailSearch searchDate={searchDate} handleSearchDate={handleSearchDate} />
       </div>
       <PageInfoProvider>
-        <ErrorBoundary FallbackComponent={() => <SuspenseErrorPage />}>
-          <ClaimDetailTable
-            tableRef={tableRef}
-            tabType={tabType}
-            sortType={filterCondition[CLAIM_DETAIL_FILTER_TYPE.SORT]}
-            searchDate={searchDate}
-          />
-        </ErrorBoundary>
+        <ClaimDetailTable
+          tableRef={tableRef}
+          tabType={tabType}
+          sortType={filterCondition[CLAIM_DETAIL_FILTER_TYPE.SORT]}
+          searchDate={searchDate}
+        />
         <div className="result-function-wrap">
           <ExcelButton
             type={'table'}
