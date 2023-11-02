@@ -8,7 +8,7 @@ import { CALCULATE_TYPE } from 'types/calculate/calculateType';
 import CalculateSection from 'pages/calculate/component/CalculateSection';
 import CalculatePrecautions from 'pages/calculate/component/CalculatePrecautions';
 import CalculateLastMonthTable from 'pages/calculate/component/CalculateLastMonthTable';
-import CalculateTab from '../component/CalculateTab';
+import Tab from '../../common/tab';
 import AffiliateDetail from './AffiliateDetail';
 
 const CalculateAffiliate: FC = () => {
@@ -20,7 +20,7 @@ const CalculateAffiliate: FC = () => {
       <div className="board-date-wrap">
         <CalculateLastMonthTable caculateType={caculateType} />
         <div id="tab1" className="tab-content active">
-          <CalculateTab tabTitleObj={AFFILIATE_TAB_TITLE} render={(tabType) => <AffiliateDetail tabType={tabType} />} />
+          <Tab tabTitleObj={AFFILIATE_TAB_TITLE} render={(tabType) => <AffiliateDetail tabType={tabType} />} />
         </div>
       </div>
     </CalculateSection>

@@ -5,28 +5,26 @@ import { UseQueryResult } from 'react-query';
 // Util
 import Utils from 'utils/Utils';
 
-interface ICalculateDetailTotalInfo<T, Q> {
+interface ITableTotalInfo<T, Q> extends Partial<SearchDate> {
   queryRes: UseQueryResult<Q, unknown>;
-  searchDate: SearchDate;
   initialDetailTotalInfo: T;
   sumFn: (initial: T, datas: Q) => T;
 }
 
-const CalculateDetailTotalInfo = <T extends Record<string | number, { title: string; sum: number }>, Q>({
+const TableTotalInfo = <T extends Record<string | number, { title: string; sum: number }>, Q>({
   queryRes,
   initialDetailTotalInfo,
   sumFn,
-  searchDate,
-}: ICalculateDetailTotalInfo<T, Q>) => {
+  fromDate,
+  toDate,
+}: ITableTotalInfo<T, Q>) => {
   const detailTotalInfo = !queryRes?.data ? initialDetailTotalInfo : sumFn(initialDetailTotalInfo, queryRes.data);
 
   return (
     <>
       <div className="search-result-wrap">
         <div className="search-date">
-          <p>
-            조회기간: {searchDate.fromDate} ~ {searchDate.toDate}
-          </p>
+          <p>조회기간: {fromDate + `${toDate ? ' ~ ' + toDate : ''}`}</p>
         </div>
         <ul className="search-result">
           {Object.values(detailTotalInfo).map((totalInfo, index) => (
@@ -40,4 +38,4 @@ const CalculateDetailTotalInfo = <T extends Record<string | number, { title: str
   );
 };
 
-export default CalculateDetailTotalInfo;
+export default TableTotalInfo;

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-interface ICalculateTab<T> {
+
+interface ITab<T> {
   tabTitleObj: T;
   render: (tabType: keyof T) => JSX.Element;
 }
 
-const CalculateTab = <T extends Record<string | number, string>>({ tabTitleObj, render }: ICalculateTab<T>) => {
+const Tab = <T extends Record<string | number, string>>({ tabTitleObj, render }: ITab<T>) => {
   const [tabType, setTabType] = useState(Object.keys(tabTitleObj)[0]);
 
   return (
@@ -21,4 +22,4 @@ const CalculateTab = <T extends Record<string | number, string>>({ tabTitleObj, 
   );
 };
 
-export default CalculateTab;
+export default Tab;

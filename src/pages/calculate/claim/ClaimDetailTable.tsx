@@ -23,7 +23,7 @@ import usePageInfo from 'hooks/pagination/usePageInfo';
 
 // Component
 import Table from 'pages/common/table';
-import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
+import TableTotalInfo from '../../common/table/TableTotalInfo';
 
 interface IClaimDetailTable {
   tableRef: RefObject<HTMLTableElement>;
@@ -49,8 +49,9 @@ const ClaimDetailTable: FC<IClaimDetailTable> = ({ tableRef, tabType, sortType, 
 
   return (
     <React.Fragment>
-      <CalculateDetailTotalInfo
-        searchDate={searchDate}
+      <TableTotalInfo
+        fromDate={searchDate.fromDate}
+        toDate={searchDate.toDate}
         queryRes={claimDetailListRes}
         initialDetailTotalInfo={CLAIM_DETAIL_TOTAL_INFO[tabType]}
         sumFn={sumClaimDetailTotalInfo}

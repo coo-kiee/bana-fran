@@ -1,6 +1,6 @@
-import { ChangeEventHandler, FC } from 'react';
+import { ChangeEventHandler } from 'react';
 
-interface ICalculateDetailFilter {
+interface ISelect {
   name: string;
   value: string | number;
   options: readonly {
@@ -9,12 +9,7 @@ interface ICalculateDetailFilter {
   }[];
   handleOnChange: ChangeEventHandler;
 }
-const CalculateDetailFilter: FC<ICalculateDetailFilter> = ({
-  name,
-  value,
-  options,
-  handleOnChange,
-}: ICalculateDetailFilter) => {
+const Select = ({ name, value, options, handleOnChange }: ISelect) => {
   return (
     <select onChange={handleOnChange} name={name} value={value}>
       {Object.values(options).map((item) => (
@@ -26,4 +21,4 @@ const CalculateDetailFilter: FC<ICalculateDetailFilter> = ({
   );
 };
 
-export default CalculateDetailFilter;
+export default Select;

@@ -24,7 +24,7 @@ import { sumCouponDetailTotalInfo } from 'utils/calculate/sumCouponDetailTotalIn
 
 // Component
 import Table from 'pages/common/table';
-import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
+import TableTotalInfo from '../../common/table/TableTotalInfo';
 
 interface ICouponDetailTable {
   tableRef: RefObject<HTMLTableElement>;
@@ -51,8 +51,9 @@ const CouponDetailTable = ({ tableRef, searchDate, filterCondition }: ICouponDet
 
   return (
     <>
-      <CalculateDetailTotalInfo
-        searchDate={searchDate}
+      <TableTotalInfo
+        fromDate={searchDate.fromDate}
+        toDate={searchDate.toDate}
         queryRes={couponDetailListRes}
         initialDetailTotalInfo={initialDetailTotalInfo}
         sumFn={sumCouponDetailTotalInfo}

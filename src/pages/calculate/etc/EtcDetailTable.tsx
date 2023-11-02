@@ -25,7 +25,7 @@ import { sumEtcDetailTotalInfo } from 'utils/calculate/sumEtcDetailTotalInfo';
 
 // Component
 import Table from 'pages/common/table';
-import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
+import TableTotalInfo from '../../common/table/TableTotalInfo';
 
 interface IEtcDetailTable {
   tableRef: RefObject<HTMLTableElement>;
@@ -50,8 +50,9 @@ const EtcDetailTable = ({ tableRef, searchDate, filterCondition }: IEtcDetailTab
 
   return (
     <>
-      <CalculateDetailTotalInfo
-        searchDate={searchDate}
+      <TableTotalInfo
+        fromDate={searchDate.fromDate}
+        toDate={searchDate.toDate}
         queryRes={etcDetailListRes}
         initialDetailTotalInfo={ETC_DETAIL_TOTAL_INFO}
         sumFn={sumEtcDetailTotalInfo}

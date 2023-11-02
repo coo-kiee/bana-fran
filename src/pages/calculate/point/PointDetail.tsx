@@ -18,9 +18,8 @@ import ExcelButton from 'pages/common/excel/ExcelButton';
 import Pages from 'pages/common/pagination/Pages';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import PointDetailTable from './PointDetailTable';
-import CalculateDetailSearch from '../component/CalculateDetailSearch';
-import CalculateDetailFilter from '../component/CalculateDetailFilter';
-import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
+import Select from '../../common/select';
+import Calander from 'pages/common/calander';
 
 const PointDetail = () => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
@@ -33,27 +32,29 @@ const PointDetail = () => {
     <>
       <p className="title bullet">상세내역</p>
       <div className="search-wrap">
-        <CalculateDetailSearch
+        <Calander
           fromDate={searchDate.fromDate}
           toDate={searchDate.toDate}
           render={({ fromDate, toDate }) => (
             <>
               <div className="select-wrap">
-                <CalculateDetailFilter
+                <Select
                   name={POINT_DETAIL_FILTER_TYPE.POINT}
                   value={filterCondition[POINT_DETAIL_FILTER_TYPE.POINT]}
                   options={POINT_DETAIL_FILTER_OPTION[POINT_DETAIL_FILTER_TYPE.POINT]}
                   handleOnChange={handleFilterCondition}
                 />
                 &nbsp;
-                <CalculateDetailFilter
+                <Select
                   name={POINT_DETAIL_FILTER_TYPE.DEVICE}
                   value={filterCondition[POINT_DETAIL_FILTER_TYPE.DEVICE]}
                   options={POINT_DETAIL_FILTER_OPTION[POINT_DETAIL_FILTER_TYPE.DEVICE]}
                   handleOnChange={handleFilterCondition}
                 />
               </div>
-              <CalculateDetailSearchButton handleSearch={() => handleSearchDate({ fromDate, toDate })} />
+              <button className="btn-search" onClick={() => handleSearchDate({ fromDate, toDate })}>
+                조회
+              </button>
             </>
           )}
         />

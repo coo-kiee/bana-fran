@@ -7,7 +7,7 @@ import { CLAIM_TAB_TYPE, CLAIM_DETAIL_FILTER_TYPE, CLAIM_DETAIL_FILTER_OPTION } 
 import { ClaimTabType } from 'constants/calculate/claim';
 
 // Component
-import CalculateDetailFilter from '../component/CalculateDetailFilter';
+import Select from '../../common/select';
 
 interface IClaimDetailSort {
   tabType: ClaimTabType;
@@ -21,7 +21,7 @@ const ClaimDetailSort: FC<IClaimDetailSort> = ({ tabType, filterCondition, handl
       {tabType === CLAIM_TAB_TYPE.CALCULATE ? (
         <p className="title">사용일시</p>
       ) : (
-        <CalculateDetailFilter
+        <Select
           name={CLAIM_DETAIL_FILTER_TYPE.SORT}
           value={filterCondition[CLAIM_DETAIL_FILTER_TYPE.SORT]}
           options={CLAIM_DETAIL_FILTER_OPTION[tabType][CLAIM_DETAIL_FILTER_TYPE.SORT]}

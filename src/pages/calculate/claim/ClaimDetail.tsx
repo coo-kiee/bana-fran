@@ -14,12 +14,11 @@ import useSearchDate from 'hooks/common/useSearchDate';
 
 // Component
 import ClaimDetailSort from './ClaimDetailSort';
-import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import ClaimDetailTable from './ClaimDetailTable';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import Pages from 'pages/common/pagination/Pages';
-import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
+import Calander from 'pages/common/calander';
 
 interface IClaimDetail {
   tabType: ClaimTabType;
@@ -39,11 +38,13 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
           filterCondition={filterCondition}
           handleFilterCondition={handleFilterCondition}
         />
-        <CalculateDetailSearch
+        <Calander
           fromDate={searchDate.fromDate}
           toDate={searchDate.toDate}
           render={({ fromDate, toDate }) => (
-            <CalculateDetailSearchButton handleSearch={() => handleSearchDate({ fromDate, toDate })} />
+            <button className="btn-search" onClick={() => handleSearchDate({ fromDate, toDate })}>
+              조회
+            </button>
           )}
         />
       </div>

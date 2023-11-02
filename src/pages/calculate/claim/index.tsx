@@ -9,7 +9,7 @@ import CalculateSection from 'pages/calculate/component/CalculateSection';
 import CalculatePrecautions from 'pages/calculate/component/CalculatePrecautions';
 import ClaimDetail from './ClaimDetail';
 import CalculateLastMonthTable from 'pages/calculate/component/CalculateLastMonthTable';
-import CalculateTab from '../component/CalculateTab';
+import Tab from '../../common/tab';
 
 const CalculateClaim: FC = () => {
   const caculateType = CALCULATE_TYPE.CLAIM;
@@ -20,7 +20,7 @@ const CalculateClaim: FC = () => {
       <div className="board-date-wrap">
         <CalculateLastMonthTable caculateType={caculateType} />
         <div id="tab1" className="tab-content active">
-          <CalculateTab tabTitleObj={CLAIM_TAB_TITLE} render={(tabType) => <ClaimDetail tabType={tabType} />} />
+          <Tab tabTitleObj={CLAIM_TAB_TITLE} render={(tabType) => <ClaimDetail tabType={tabType} />} />
         </div>
       </div>
     </CalculateSection>

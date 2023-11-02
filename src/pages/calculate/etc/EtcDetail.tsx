@@ -14,10 +14,9 @@ import useEtcFilterCondition from 'hooks/calculate/etc/useEtcFilterCondition';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import Pages from 'pages/common/pagination/Pages';
-import CalculateDetailSearch from '../component/CalculateDetailSearch';
-import CalculateDetailFilter from '../component/CalculateDetailFilter';
+import Select from '../../common/select';
 import EtcDetailTable from './EtcDetailTable';
-import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
+import Calander from 'pages/common/calander';
 
 const EtcDetail = () => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
@@ -31,7 +30,7 @@ const EtcDetail = () => {
     <>
       <p className="title bullet">상세내역</p>
       <div className="search-wrap">
-        <CalculateDetailSearch
+        <Calander
           fromDate={searchDate.fromDate}
           toDate={searchDate.toDate}
           dateFormat="yyyy-MM"
@@ -39,14 +38,16 @@ const EtcDetail = () => {
           render={({ fromDate, toDate }) => (
             <>
               <div className="select-wrap">
-                <CalculateDetailFilter
+                <Select
                   name={ETC_DETAIL_FILTER_TYPE.CHARGE}
                   value={filterCondition[ETC_DETAIL_FILTER_TYPE.CHARGE]}
                   options={ETC_DETAIL_FILTER_OPTION[ETC_DETAIL_FILTER_TYPE.CHARGE]}
                   handleOnChange={handleFilterCondition}
                 />
               </div>
-              <CalculateDetailSearchButton handleSearch={() => handleSearchDate({ fromDate, toDate })} />
+              <button className="btn-search" onClick={() => handleSearchDate({ fromDate, toDate })}>
+                조회
+              </button>
             </>
           )}
         />

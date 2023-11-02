@@ -15,12 +15,11 @@ import useUserInfo from 'hooks/user/useUser';
 import useSearchDate from 'hooks/common/useSearchDate';
 
 // Component
-import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import Pages from 'pages/common/pagination/Pages';
 import AffiliateDetailTable from './AffiliateDetailTable';
-import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
+import Calander from 'pages/common/calander';
 
 interface IAffiliateDetail {
   tabType: AffiliateTabType;
@@ -35,11 +34,13 @@ const AffiliateDetail: FC<IAffiliateDetail> = ({ tabType }) => {
     <React.Fragment key={tabType}>
       <div className="search-wrap">
         <p className="title">상세 내역</p>
-        <CalculateDetailSearch
+        <Calander
           fromDate={searchDate.fromDate}
           toDate={searchDate.toDate}
           render={({ fromDate, toDate }) => (
-            <CalculateDetailSearchButton handleSearch={() => handleSearchDate({ fromDate, toDate })} />
+            <button className="btn-search" onClick={() => handleSearchDate({ fromDate, toDate })}>
+              조회
+            </button>
           )}
         />
       </div>

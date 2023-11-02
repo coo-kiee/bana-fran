@@ -24,7 +24,7 @@ import Utils from 'utils/Utils';
 import { sumAffiliateDetailTotalInfo } from 'utils/calculate/sumAffiliateDetailTotalInfo';
 
 // Component
-import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
+import TableTotalInfo from '../../common/table/TableTotalInfo';
 import Table from 'pages/common/table';
 
 interface IAffiliateDetailTable {
@@ -49,8 +49,9 @@ const AffiliateDetailTable = ({ tableRef, searchDate, tabType }: IAffiliateDetai
 
   return (
     <>
-      <CalculateDetailTotalInfo
-        searchDate={searchDate}
+      <TableTotalInfo
+        fromDate={searchDate.fromDate}
+        toDate={searchDate.toDate}
         queryRes={affiliateDetailListRes}
         initialDetailTotalInfo={AFFILIATE_DETAIL_TOTAL_INFO[tabType]}
         sumFn={sumAffiliateDetailTotalInfo}

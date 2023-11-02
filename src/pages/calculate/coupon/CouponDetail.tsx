@@ -18,10 +18,9 @@ import useSearchDate from 'hooks/common/useSearchDate';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import Pages from 'pages/common/pagination/Pages';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
-import CalculateDetailSearch from '../component/CalculateDetailSearch';
-import CalculateDetailFilter from '../component/CalculateDetailFilter';
+import Select from '../../common/select';
 import CouponDetailTable from './CouponDetailTable';
-import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
+import Calander from 'pages/common/calander';
 
 const CouponDetail = () => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
@@ -37,27 +36,29 @@ const CouponDetail = () => {
     <>
       <p className="title bullet">상세내역</p>
       <div className="search-wrap">
-        <CalculateDetailSearch
+        <Calander
           fromDate={searchDate.fromDate}
           toDate={searchDate.toDate}
           render={({ fromDate, toDate }) => (
             <>
               <div className="select-wrap">
-                <CalculateDetailFilter
+                <Select
                   name={COUPON_DETAIL_FILTER_TYPE.COUPON}
                   value={filterCondition[COUPON_DETAIL_FILTER_TYPE.COUPON]}
                   options={couponFilters}
                   handleOnChange={handleFilterCondition}
                 />
                 &nbsp;
-                <CalculateDetailFilter
+                <Select
                   name={COUPON_DETAIL_FILTER_TYPE.DEVICE}
                   value={filterCondition[COUPON_DETAIL_FILTER_TYPE.DEVICE]}
                   options={COUPON_DETAIL_FILTER_OPTION[COUPON_DETAIL_FILTER_TYPE.DEVICE]}
                   handleOnChange={handleFilterCondition}
                 />
               </div>
-              <CalculateDetailSearchButton handleSearch={() => handleSearchDate({ fromDate, toDate })} />
+              <button className="btn-search" onClick={() => handleSearchDate({ fromDate, toDate })}>
+                조회
+              </button>
             </>
           )}
         />

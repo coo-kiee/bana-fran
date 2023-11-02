@@ -23,7 +23,7 @@ import Utils from 'utils/Utils';
 import { sumPointDetailTotalInfo } from 'utils/calculate/sumPointDetailTotalInfo';
 
 // Component
-import CalculateDetailTotalInfo from '../component/CalculateDetailTotalInfo';
+import TableTotalInfo from '../../common/table/TableTotalInfo';
 import Table from 'pages/common/table';
 
 interface IPointDetailTable {
@@ -49,8 +49,9 @@ const PointDetailTable = ({ tableRef, searchDate, filterCondition }: IPointDetai
 
   return (
     <>
-      <CalculateDetailTotalInfo
-        searchDate={searchDate}
+      <TableTotalInfo
+        fromDate={searchDate.fromDate}
+        toDate={searchDate.toDate}
         queryRes={pointDetailListRes}
         initialDetailTotalInfo={POINT_DETAIL_TOTAL_INFO}
         sumFn={sumPointDetailTotalInfo}
