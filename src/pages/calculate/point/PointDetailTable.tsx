@@ -1,7 +1,7 @@
-import React, { RefObject } from 'react';
+import React, { useRef } from 'react';
 
 // Type
-import { SearchDate } from 'constants/calculate/common';
+import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE, SearchDate } from 'constants/calculate/common';
 import {
   PointDetailFilterOption,
   POINT_DETAIL_COLGROUP_INFO,
@@ -25,13 +25,16 @@ import { sumPointDetailTotalInfo } from 'utils/calculate/sumPointDetailTotalInfo
 // Component
 import TableTotalInfo from '../../common/table/TableTotalInfo';
 import Table from 'pages/common/table';
+import ExcelButton from 'pages/common/excel/ExcelButton';
+import Pages from 'pages/common/pagination/Pages';
 
 interface IPointDetailTable {
-  tableRef: RefObject<HTMLTableElement>;
   searchDate: SearchDate;
   filterCondition: Record<keyof PointDetailFilterOption, string>;
 }
-const PointDetailTable = ({ tableRef, searchDate, filterCondition }: IPointDetailTable) => {
+const PointDetailTable = ({ searchDate, filterCondition }: IPointDetailTable) => {
+  const tableRef = useRef<HTMLTableElement>(null);
+
   const { user } = useUserInfo();
   const { filterData } = usePointFilterCondition();
 
@@ -118,6 +121,22 @@ const PointDetailTable = ({ tableRef, searchDate, filterCondition }: IPointDetai
           }
         />
       </Table>
+      <div className="result-function-wrap">
+        <ExcelButton
+          type={'table'}
+          target={tableRef}
+          tableRef={tableRef}
+          fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.POINT]}(${searchDate.fromDate}~${
+            searchDate.toDate
+          })`}
+          sheetOption={{ origin: 'B3' }}
+          colWidths={Object.values(POINT_DETAIL_COLGROUP_INFO).flatMap((item) =>
+            item.width !== '*' ? { wpx: Number(item.width) * 1.2 } : { wpx: 400 },
+          )}
+          addRowColor={{ rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] }}
+        />
+        <Pages />
+      </div>
     </>
   );
 };

@@ -1,4 +1,4 @@
-import { RefObject } from 'react';
+import { useRef } from 'react';
 
 // Const
 import {
@@ -9,7 +9,7 @@ import {
 } from 'constants/calculate/affiliate';
 
 // Type
-import { SearchDate } from 'constants/calculate/common';
+import { CALCULATE_EXCEL_FILENAME, SearchDate } from 'constants/calculate/common';
 
 // Hook
 import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
@@ -26,13 +26,16 @@ import { sumAffiliateDetailTotalInfo } from 'utils/calculate/sumAffiliateDetailT
 // Component
 import TableTotalInfo from '../../common/table/TableTotalInfo';
 import Table from 'pages/common/table';
+import ExcelButton from 'pages/common/excel/ExcelButton';
+import Pages from 'pages/common/pagination/Pages';
 
 interface IAffiliateDetailTable {
-  tableRef: RefObject<HTMLTableElement>;
   tabType: AffiliateTabType;
   searchDate: SearchDate;
 }
-const AffiliateDetailTable = ({ tableRef, searchDate, tabType }: IAffiliateDetailTable) => {
+const AffiliateDetailTable = ({ searchDate, tabType }: IAffiliateDetailTable) => {
+  const tableRef = useRef<HTMLTableElement>(null);
+
   const { user } = useUserInfo();
 
   const { checkCurrentPageData } = usePageInfo();
@@ -78,6 +81,20 @@ const AffiliateDetailTable = ({ tableRef, searchDate, tabType }: IAffiliateDetai
           }
         />
       </Table>
+      <div className="result-function-wrap">
+        <ExcelButton
+          type={'table'}
+          target={tableRef}
+          tableRef={tableRef}
+          fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[tabType]}(${searchDate.fromDate}~${searchDate.toDate})`}
+          sheetOption={{ origin: 'B3' }}
+          colWidths={Object.values(AFFILIATE_DETAIL_TABLE_COLGROUP_INFO[tabType]).flatMap((item) =>
+            item.width !== '*' ? { wpx: Number(item.width) * 1.2 } : { wpx: 400 },
+          )}
+          addRowColor={{ rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] }}
+        />
+        <Pages />
+      </div>
     </>
   );
 };

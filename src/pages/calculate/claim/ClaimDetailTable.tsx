@@ -1,8 +1,8 @@
-import React, { FC, RefObject } from 'react';
+import { FC, useRef } from 'react';
 
 // Type
-import { SearchDate } from 'constants/calculate/common';
-import { ClaimTabType, CLAIM_TAB_TYPE } from 'types/calculate/calculateType';
+import { CALCULATE_EXCEL_FILENAME, SearchDate } from 'constants/calculate/common';
+import { CALCULATE_TYPE, ClaimTabType, CLAIM_TAB_TYPE } from 'types/calculate/calculateType';
 import {
   CLAIM_DETAIL_TABLE_COLGROUP_INFO,
   CLAIM_DETAIL_TABLE_THEAD_INFO,
@@ -24,14 +24,17 @@ import usePageInfo from 'hooks/pagination/usePageInfo';
 // Component
 import Table from 'pages/common/table';
 import TableTotalInfo from '../../common/table/TableTotalInfo';
+import ExcelButton from 'pages/common/excel/ExcelButton';
+import Pages from 'pages/common/pagination/Pages';
 
 interface IClaimDetailTable {
-  tableRef: RefObject<HTMLTableElement>;
   tabType: ClaimTabType;
   sortType: string;
   searchDate: SearchDate;
 }
-const ClaimDetailTable: FC<IClaimDetailTable> = ({ tableRef, tabType, sortType, searchDate }) => {
+const ClaimDetailTable: FC<IClaimDetailTable> = ({ tabType, sortType, searchDate }) => {
+  const tableRef = useRef<HTMLTableElement>(null);
+
   const { user } = useUserInfo();
 
   const { checkCurrentPageData } = usePageInfo();
@@ -48,7 +51,7 @@ const ClaimDetailTable: FC<IClaimDetailTable> = ({ tableRef, tabType, sortType, 
   useHandlePageDataCnt(claimDetailListRes);
 
   return (
-    <React.Fragment>
+    <>
       <TableTotalInfo
         fromDate={searchDate.fromDate}
         toDate={searchDate.toDate}
@@ -84,7 +87,23 @@ const ClaimDetailTable: FC<IClaimDetailTable> = ({ tableRef, tabType, sortType, 
           }
         />
       </Table>
-    </React.Fragment>
+      <div className="result-function-wrap">
+        <ExcelButton
+          type={'table'}
+          target={tableRef}
+          tableRef={tableRef}
+          fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.CLAIM]}(${searchDate.fromDate}~${
+            searchDate.toDate
+          })`}
+          sheetOption={{ origin: 'B3' }}
+          colWidths={Object.values(CLAIM_DETAIL_TABLE_COLGROUP_INFO[tabType]).flatMap((item) =>
+            item.width !== '*' ? { wpx: Number(item.width) * 1.2 } : { wpx: 400 },
+          )}
+          addRowColor={{ rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] }}
+        />
+        <Pages />
+      </div>
+    </>
   );
 };
 

@@ -1,7 +1,7 @@
-import React, { RefObject } from 'react';
+import { useRef } from 'react';
 
 // Type
-import { SearchDate } from 'constants/calculate/common';
+import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE, SearchDate } from 'constants/calculate/common';
 import {
   CouponDetailFilterOption,
   COUPON_DETAIL_COLGROUP_INFO,
@@ -25,13 +25,16 @@ import { sumCouponDetailTotalInfo } from 'utils/calculate/sumCouponDetailTotalIn
 // Component
 import Table from 'pages/common/table';
 import TableTotalInfo from '../../common/table/TableTotalInfo';
+import ExcelButton from 'pages/common/excel/ExcelButton';
+import Pages from 'pages/common/pagination/Pages';
 
 interface ICouponDetailTable {
-  tableRef: RefObject<HTMLTableElement>;
   searchDate: SearchDate;
   filterCondition: Record<keyof CouponDetailFilterOption, string>;
 }
-const CouponDetailTable = ({ tableRef, searchDate, filterCondition }: ICouponDetailTable) => {
+const CouponDetailTable = ({ searchDate, filterCondition }: ICouponDetailTable) => {
+  const tableRef = useRef<HTMLTableElement>(null);
+
   const { user } = useUserInfo();
   const { filterData } = useCouponFilterCondition();
 
@@ -70,24 +73,38 @@ const CouponDetailTable = ({ tableRef, searchDate, filterCondition }: ICouponDet
                 const display = checkCurrentPageData(index) ? '' : 'none';
 
                 return (
-                  <React.Fragment key={index}>
-                    <tr style={{ display }}>
-                      <td className="align-center">{couponDetail.rcp_date.split(' ')[0]}</td>
-                      <td className="align-left">{couponDetail.item_type}</td>
-                      <td className="align-center">{couponDetail.sItem}</td>
-                      <td className="align-right">{Utils.numberComma(couponDetail.total_amt)}</td>
-                      <td className="align-center">{couponDetail.rcp_type}</td>
-                      <td className="align-center">{couponDetail.phone}</td>
-                      <td className="align-right">{Utils.numberComma(couponDetail.supply_amt)}</td>
-                      <td className="align-right">{Utils.numberComma(couponDetail.vat_amt)}</td>
-                      <td className="align-right">{Utils.numberComma(couponDetail.total_amt)}</td>
-                    </tr>
-                  </React.Fragment>
+                  <tr key={index} style={{ display }}>
+                    <td className="align-center">{couponDetail.rcp_date.split(' ')[0]}</td>
+                    <td className="align-left">{couponDetail.item_type}</td>
+                    <td className="align-center">{couponDetail.sItem}</td>
+                    <td className="align-right">{Utils.numberComma(couponDetail.total_amt)}</td>
+                    <td className="align-center">{couponDetail.rcp_type}</td>
+                    <td className="align-center">{couponDetail.phone}</td>
+                    <td className="align-right">{Utils.numberComma(couponDetail.supply_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(couponDetail.vat_amt)}</td>
+                    <td className="align-right">{Utils.numberComma(couponDetail.total_amt)}</td>
+                  </tr>
                 );
               })
           }
         />
       </Table>
+      <div className="result-function-wrap">
+        <ExcelButton
+          type={'table'}
+          target={tableRef}
+          tableRef={tableRef}
+          fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.COUPON]}(${searchDate.fromDate}~${
+            searchDate.toDate
+          })`}
+          sheetOption={{ origin: 'B3' }}
+          colWidths={Object.values(COUPON_DETAIL_COLGROUP_INFO).flatMap((item) =>
+            item.width !== '*' ? { wpx: Number(item.width) * 1.2 } : { wpx: 400 },
+          )}
+          addRowColor={{ rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] }}
+        />
+        <Pages />
+      </div>
     </>
   );
 };
