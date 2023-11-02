@@ -3,6 +3,9 @@ import { setMonth, format, setDate, lastDayOfMonth } from 'date-fns';
 
 // Type
 import { SearchDate } from 'constants/calculate/common';
+
+// Util
+import { deepClone } from 'utils/deepClone';
 interface IUseSearchDate<T> {
   fromDate?: Date;
   toDate?: Date;
@@ -21,25 +24,23 @@ const useSearchDate = <T extends Record<string | number, string | number>>(param
     toDate: format(params.toDate || lastDayOfMonth(lastMonthDate), dateFormat),
   };
 
-  const [searchDate, setSearchDate] = useState(() => {
-    if (!tabTypeObj || !tabType) return initialSearchDate;
+  const tabSearchDate = Object.values(tabTypeObj || {}).reduce(
+    (arr, cur) => ({ ...arr, [cur]: { ...initialSearchDate } }),
+    {} as Record<T[keyof T], SearchDate>,
+  );
 
-    return Object.values(tabTypeObj).reduce(
-      (arr, cur) => ({ ...arr, [cur]: { ...initialSearchDate } }),
-      {} as Record<T[keyof T], SearchDate>,
-    );
-  });
+  const [searchDate, setSearchDate] = useState({ ...initialSearchDate, ...deepClone(tabSearchDate) });
 
-  const handleSearchDate = !tabType
-    ? setSearchDate
-    : (searchDate: SearchDate) => {
-        setSearchDate((prev) => ({ ...prev, [tabType]: searchDate }));
-      };
+  const handleSearchDate = (searchDate: Partial<SearchDate>) => {
+    setSearchDate((prev) => {
+      return tabType ? { ...prev, [tabType]: { ...prev[tabType], ...searchDate } } : { ...prev, ...searchDate };
+    });
+  };
 
   return {
-    searchDate: !tabType ? searchDate : (searchDate as Record<T[keyof T], SearchDate>)[tabType],
+    searchDate: !tabType ? searchDate : searchDate[tabType],
     handleSearchDate,
-  } as { searchDate: SearchDate; handleSearchDate: typeof handleSearchDate };
+  };
 };
 
 export default useSearchDate;

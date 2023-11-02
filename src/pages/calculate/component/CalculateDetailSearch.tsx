@@ -1,5 +1,3 @@
-import { PropsWithChildren } from 'react';
-
 // Hook
 import useDatePicker from 'hooks/datePicker/useDatePicker';
 
@@ -8,47 +6,51 @@ import { SearchDate } from 'constants/calculate/common';
 
 // Component
 import Calander from 'pages/common/calander';
-import CalculateDetailSearchButton from './CalculateDetailSearchButton';
 
-interface ICalculateDetailSearch extends PropsWithChildren {
-  searchDate: SearchDate;
-  handleSearchDate: (searchDate: SearchDate) => void;
+interface ICalculateDetailSearch extends Partial<SearchDate> {
   dateFormat?: string;
   showMonthYearPicker?: boolean;
+  render: (params: SearchDate) => JSX.Element;
 }
 const CalculateDetailSearch = ({
-  searchDate,
-  children,
-  handleSearchDate,
+  fromDate,
+  toDate,
   dateFormat = 'yyyy-MM-dd',
   showMonthYearPicker,
+  render,
 }: ICalculateDetailSearch) => {
-  const { date: fromDate, handleDate: handleFromDate } = useDatePicker({ initial: searchDate.fromDate, dateFormat });
+  const { date: calanderFromDate, handleDate: handleCalanderFromDate } = useDatePicker({
+    initial: fromDate,
+    dateFormat,
+  });
   const {
-    date: toDate,
-    handleDate: handleToDate,
+    date: calanderToDate,
+    handleDate: handleCalanderToDate,
     validateSearchDate,
-  } = useDatePicker({ initial: searchDate.toDate, dateFormat });
+  } = useDatePicker({ initial: toDate, dateFormat });
 
   return (
     <>
       <Calander>
         <Calander.DatePicker
-          selected={new Date(fromDate)}
+          selected={new Date(calanderFromDate)}
           showMonthYearPicker={showMonthYearPicker}
           dateFormat={dateFormat}
-          onChange={(date) => validateSearchDate(date, toDate) && handleFromDate(date)}
+          onChange={(date) => validateSearchDate(date, calanderToDate) && handleCalanderFromDate(date)}
         />
-        <i>~</i>
-        <Calander.DatePicker
-          selected={new Date(toDate)}
-          showMonthYearPicker={showMonthYearPicker}
-          dateFormat={dateFormat}
-          onChange={(date) => validateSearchDate(fromDate, date) && handleToDate(date)}
-        />
+        {toDate && (
+          <>
+            <i>~</i>
+            <Calander.DatePicker
+              selected={new Date(calanderToDate)}
+              showMonthYearPicker={showMonthYearPicker}
+              dateFormat={dateFormat}
+              onChange={(date) => validateSearchDate(calanderFromDate, date) && handleCalanderToDate(date)}
+            />
+          </>
+        )}
       </Calander>
-      {children}
-      <CalculateDetailSearchButton handleSearch={() => handleSearchDate({ fromDate, toDate })} />
+      {render({ fromDate: calanderFromDate, toDate: calanderToDate })}
     </>
   );
 };

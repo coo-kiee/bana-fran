@@ -20,6 +20,7 @@ import ExcelButton from 'pages/common/excel/ExcelButton';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import Pages from 'pages/common/pagination/Pages';
 import AffiliateDetailTable from './AffiliateDetailTable';
+import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
 
 interface IAffiliateDetail {
   tabType: AffiliateTabType;
@@ -34,7 +35,13 @@ const AffiliateDetail: FC<IAffiliateDetail> = ({ tabType }) => {
     <React.Fragment key={tabType}>
       <div className="search-wrap">
         <p className="title">상세 내역</p>
-        <CalculateDetailSearch searchDate={searchDate} handleSearchDate={handleSearchDate} />
+        <CalculateDetailSearch
+          fromDate={searchDate.fromDate}
+          toDate={searchDate.toDate}
+          render={({ fromDate, toDate }) => (
+            <CalculateDetailSearchButton handleSearch={() => handleSearchDate({ fromDate, toDate })} />
+          )}
+        />
       </div>
       <PageInfoProvider>
         <AffiliateDetailTable tableRef={tableRef} tabType={tabType} searchDate={searchDate} />

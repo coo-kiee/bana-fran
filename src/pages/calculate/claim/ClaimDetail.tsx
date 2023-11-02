@@ -19,6 +19,7 @@ import ClaimDetailTable from './ClaimDetailTable';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import Pages from 'pages/common/pagination/Pages';
+import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
 
 interface IClaimDetail {
   tabType: ClaimTabType;
@@ -38,7 +39,13 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
           filterCondition={filterCondition}
           handleFilterCondition={handleFilterCondition}
         />
-        <CalculateDetailSearch searchDate={searchDate} handleSearchDate={handleSearchDate} />
+        <CalculateDetailSearch
+          fromDate={searchDate.fromDate}
+          toDate={searchDate.toDate}
+          render={({ fromDate, toDate }) => (
+            <CalculateDetailSearchButton handleSearch={() => handleSearchDate({ fromDate, toDate })} />
+          )}
+        />
       </div>
       <PageInfoProvider>
         <ClaimDetailTable

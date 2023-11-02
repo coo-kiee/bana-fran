@@ -20,6 +20,7 @@ import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import PointDetailTable from './PointDetailTable';
 import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import CalculateDetailFilter from '../component/CalculateDetailFilter';
+import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
 
 const PointDetail = () => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
@@ -32,23 +33,30 @@ const PointDetail = () => {
     <>
       <p className="title bullet">상세내역</p>
       <div className="search-wrap">
-        <CalculateDetailSearch searchDate={searchDate} handleSearchDate={handleSearchDate}>
-          <div className="select-wrap">
-            <CalculateDetailFilter
-              name={POINT_DETAIL_FILTER_TYPE.POINT}
-              value={filterCondition[POINT_DETAIL_FILTER_TYPE.POINT]}
-              options={POINT_DETAIL_FILTER_OPTION[POINT_DETAIL_FILTER_TYPE.POINT]}
-              handleOnChange={handleFilterCondition}
-            />
-            &nbsp;
-            <CalculateDetailFilter
-              name={POINT_DETAIL_FILTER_TYPE.DEVICE}
-              value={filterCondition[POINT_DETAIL_FILTER_TYPE.DEVICE]}
-              options={POINT_DETAIL_FILTER_OPTION[POINT_DETAIL_FILTER_TYPE.DEVICE]}
-              handleOnChange={handleFilterCondition}
-            />
-          </div>
-        </CalculateDetailSearch>
+        <CalculateDetailSearch
+          fromDate={searchDate.fromDate}
+          toDate={searchDate.toDate}
+          render={({ fromDate, toDate }) => (
+            <>
+              <div className="select-wrap">
+                <CalculateDetailFilter
+                  name={POINT_DETAIL_FILTER_TYPE.POINT}
+                  value={filterCondition[POINT_DETAIL_FILTER_TYPE.POINT]}
+                  options={POINT_DETAIL_FILTER_OPTION[POINT_DETAIL_FILTER_TYPE.POINT]}
+                  handleOnChange={handleFilterCondition}
+                />
+                &nbsp;
+                <CalculateDetailFilter
+                  name={POINT_DETAIL_FILTER_TYPE.DEVICE}
+                  value={filterCondition[POINT_DETAIL_FILTER_TYPE.DEVICE]}
+                  options={POINT_DETAIL_FILTER_OPTION[POINT_DETAIL_FILTER_TYPE.DEVICE]}
+                  handleOnChange={handleFilterCondition}
+                />
+              </div>
+              <CalculateDetailSearchButton handleSearch={() => handleSearchDate({ fromDate, toDate })} />
+            </>
+          )}
+        />
       </div>
       <PageInfoProvider>
         <PointDetailTable tableRef={tableRef} searchDate={searchDate} filterCondition={filterCondition} />

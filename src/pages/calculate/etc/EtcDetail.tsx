@@ -17,6 +17,7 @@ import Pages from 'pages/common/pagination/Pages';
 import CalculateDetailSearch from '../component/CalculateDetailSearch';
 import CalculateDetailFilter from '../component/CalculateDetailFilter';
 import EtcDetailTable from './EtcDetailTable';
+import CalculateDetailSearchButton from '../component/CalculateDetailSearchButton';
 
 const EtcDetail = () => {
   const tableRef = useRef<HTMLTableElement>(null); // 엑셀 다운에 사용
@@ -31,20 +32,24 @@ const EtcDetail = () => {
       <p className="title bullet">상세내역</p>
       <div className="search-wrap">
         <CalculateDetailSearch
-          searchDate={searchDate}
-          handleSearchDate={handleSearchDate}
+          fromDate={searchDate.fromDate}
+          toDate={searchDate.toDate}
           dateFormat="yyyy-MM"
           showMonthYearPicker
-        >
-          <div className="select-wrap">
-            <CalculateDetailFilter
-              name={ETC_DETAIL_FILTER_TYPE.CHARGE}
-              value={filterCondition[ETC_DETAIL_FILTER_TYPE.CHARGE]}
-              options={ETC_DETAIL_FILTER_OPTION[ETC_DETAIL_FILTER_TYPE.CHARGE]}
-              handleOnChange={handleFilterCondition}
-            />
-          </div>
-        </CalculateDetailSearch>
+          render={({ fromDate, toDate }) => (
+            <>
+              <div className="select-wrap">
+                <CalculateDetailFilter
+                  name={ETC_DETAIL_FILTER_TYPE.CHARGE}
+                  value={filterCondition[ETC_DETAIL_FILTER_TYPE.CHARGE]}
+                  options={ETC_DETAIL_FILTER_OPTION[ETC_DETAIL_FILTER_TYPE.CHARGE]}
+                  handleOnChange={handleFilterCondition}
+                />
+              </div>
+              <CalculateDetailSearchButton handleSearch={() => handleSearchDate({ fromDate, toDate })} />
+            </>
+          )}
+        />
       </div>
       <PageInfoProvider>
         <EtcDetailTable tableRef={tableRef} searchDate={searchDate} filterCondition={filterCondition} />
