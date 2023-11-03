@@ -11,6 +11,8 @@ import { QueryClient, QueryClientConfig, QueryClientProvider } from 'react-query
 
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { AxiosError } from 'axios';
+import React, { StrictMode } from 'react';
+import Modal from 'pages/common/modal';
 
 const defalutQueryOption: QueryClientConfig = {
   defaultOptions: {
@@ -47,7 +49,10 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   <RecoilRoot>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <StrictMode>
+        <App />
+        <Modal />
+      </StrictMode>
       <ReactQueryDevtools initialIsOpen />
     </QueryClientProvider>
   </RecoilRoot>,
