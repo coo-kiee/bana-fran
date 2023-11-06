@@ -1,162 +1,88 @@
-import { FC, useState, useRef, useMemo, ReactNode, Suspense } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-import { useQueryClient, useQueryErrorResetBoundary } from 'react-query';
-import { useRecoilValue } from 'recoil';
+import { useState } from 'react';
+import { subMonths } from 'date-fns';
 import Utils from 'utils/Utils';
-import { format, subMonths } from 'date-fns';
-
-// state
-import { franState, loginState } from 'state';
 
 // component
-import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";
+import EtcDetailTable from '../component/EtcDetailTable';
 import EtcDetailSummary from '../component/EtcDetailSummary';
-import Sticky from 'pages/common/sticky'; 
-import Loading from 'pages/common/loading'; 
-import CalanderSearch from 'pages/common/calanderSearch';
-import EtcDetailTableBottom from '../component/EtcDetailTableBottom';
-import DataLoader from 'pages/common/dataLoader';
-import NoData from 'pages/common/noData';
-
-// api
-import ETC_SERVICE from 'service/etcService';
+import VirtualAccountDetailTable from './VirtualAccountDetailTable';
 
 // type
-import { PageInfoType, VirtualAccountDetailProps, SearchInfoType, FALLBACK_TYPE } from 'types/etc/etcType'   
+import { VirtualAccListType, ETC_TAB_TYPE } from 'types/etc/etcType';
+import { ETC_COL_THEAD_LIST } from 'constants/etc';
 
-const VirtualAccountDetail: FC<Omit<VirtualAccountDetailProps, 'searchInfo' | 'etcVirtualAccBalanceListKey'>> = (props) => { 
-    const { reset } = useQueryErrorResetBoundary();
-    const queryClient = useQueryClient();
-    const franCode = useRecoilValue(franState);
+// hook
+import useSearchDate from 'hooks/common/useSearchDate';
+import useUserInfo from 'hooks/user/useUser';
+import Calander from 'pages/common/calander';
 
-    // state
-    const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM'), // 2022-10 
-        to: format(new Date(), 'yyyy-MM'), // 2022-11  
-        searchTrigger: false,
-    });
+const VirtualAccountDetail = () => {
+  const {
+    user: { fCodeName },
+  } = useUserInfo();
+  const [detailTotalInfo, setDetailTotalInfo] = useState([] as VirtualAccListType[]);
+  const { searchDate, handleSearchDate } = useSearchDate({
+    dateFormat: 'yyyy-MM',
+    fromDate: subMonths(new Date(), 1),
+    toDate: new Date(),
+  });
 
-    // key
-    // eslint-disable-next-line
-    const etcVirtualAccBalanceListKey = useMemo(() => ['etc_virtual_acc_detail_list', JSON.stringify({ franCode, from: searchInfo.from, to: searchInfo.to }) ], [franCode, searchInfo.searchTrigger]);
+  const summaryResult = [
+    {
+      title: '충전',
+      children: `${Utils.numberComma(
+        detailTotalInfo
+          .filter((el: any) => el.division === '충전')
+          .reduce((acc: any, cur: any) => (acc += cur.deposit), 0) || 0,
+      )}원`,
+    },
+    {
+      title: '차감',
+      children: `${Utils.numberComma(
+        detailTotalInfo
+          .filter((el: any) => el.division === '차감')
+          .reduce((acc: any, cur: any) => (acc += cur.deposit), 0) || 0,
+      )}원`,
+    },
+  ];
 
-    // 검색
-    const handleRefetch = () => {
-        queryClient.removeQueries({ queryKey:etcVirtualAccBalanceListKey, exact: true }); // 쿼리 제거 
-        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger })); // =refetch
-    };
+  return (
+    <>
+      <p className="title bullet">상세내역</p>
+      <div className="search-wrap">
+        <Calander
+          fromDate={searchDate.fromDate}
+          toDate={searchDate.toDate}
+          render={({ fromDate, toDate }) => (
+            <button type="button" className="btn-search" onClick={() => handleSearchDate({ fromDate, toDate })}>
+              조회
+            </button>
+          )}
+          dateFormat={'yyyy-MM'}
+          showMonthYearPicker
+        />
+      </div>
 
-    // fallback props 정리
-    const defaultFallbackProps = { 
-        searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
-        summaryResult: [
-            ['충전', '0'],
-            ['차감', '0'], 
-        ], 
-        ...props
-    }
-    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.LOADING }
-    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.ERROR }
-
-    return (
-        <>
-            <CalanderSearch
-                title={`상세내역`}
-                dateType={'yyyy-MM'}
-                searchInfo={searchInfo}
-                setSearchInfo={setSearchInfo}
-                handleSearch={handleRefetch}
-                showMonthYearPicker={true}
-            />
-
-            <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
-                    <VirtualAccountDetailData searchInfo={searchInfo} etcVirtualAccBalanceListKey={etcVirtualAccBalanceListKey} {...props} />
-                </ErrorBoundary>
-            </Suspense>
-        </>
-    )
-}
-
-const VirtualAccountDetailData: FC<VirtualAccountDetailProps> = ({ detailTableColGroup, detailTableHead, etcVirtualAccBalanceListKey, searchInfo: {from, to} }) => {
-    const franCode = useRecoilValue(franState);
-    const { userInfo: { f_list } } = useRecoilValue(loginState);
-    const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, 
-        row: 20, 
-    }) 
-    const tableRef = useRef<HTMLTableElement>(null);
-    const thRef = useRef<HTMLTableRowElement>(null);
-
-    const { data: listData, isLoading, isRefetching } = ETC_SERVICE.useVirtualAccList(etcVirtualAccBalanceListKey, [franCode, from, to ]);
-
-    const [renderTableList, summaryResult]: [ReactNode[] | undefined, string[][]] = useMemo(() => { 
-        const tableList = listData?.reduce((arr: ReactNode[], tbodyRow) => {
-            const { balance, deposit, division, log_date, etc, state } = tbodyRow; 
-
-            arr.push(
-                <>
-                    <td className='align-center'>{log_date}</td>
-                    <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{division}</td>
-                    <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{Utils.numberComma(deposit)}</td>
-                    <td className='align-center'>{state}</td>
-                    <td className='balance'>{Utils.numberComma(balance)}</td>
-                    <td className='align-left'>{etc}</td>
-                </>
-            )
-            return arr;
-        }, [] as ReactNode[]);
-
-        const summaryResult = [
-            ['충전', Utils.numberComma(listData?.filter((el: any) => el.division === '충전').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0)], // 총 충전 금액
-            ['차감', Utils.numberComma(listData?.filter((el: any) => el.division === '차감').reduce((acc: any, cur: any) => acc+= cur.deposit,0) || 0)] // 총 차감 금액
-        ]
-
-        setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
-        return [tableList, summaryResult];
-    }, [listData]);
-
-    const handleExcelDownload = () => {
-        const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
-        if (tableRef.current) {
-            const options = {
-                type: 'table',
-                // sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X 
-                colspan: detailTableColGroup.map(wpx => ({ wpx: wpx !== '*' ? Number((Number(wpx.replace("%", "")) * 1540 / 100).toFixed(2)) : 400 })), 
-                // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
-                sheetName: '', // 시트이름, 필수 X
-                addRowColor: { row: [1], color: ['d3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
-            };
-            const fileName = `${from}~${to}_${branchName}_가상계좌내역`;
-            Utils.excelDownload(tableRef.current, options, fileName);
-        };
-    }; 
-
-    return (
-        <> 
-            <EtcDetailSummary searchDate={`${from} ~ ${to}`} summaryResult={summaryResult} />
-
-            <Sticky reference={thRef.current} contentsRef={tableRef.current}>
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
-            </Sticky>
-            <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef}/> 
-                <DataLoader
-                    isData={Boolean(renderTableList)}
-                    isFetching={isLoading || isRefetching}
-                    loader={
-                        <tbody>
-                            <Loading isTable={true} />
-                        </tbody>
-                    }
-                    noData={<tbody><NoData isTable={true} /></tbody>}
-                >
-                    <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />    
-                </DataLoader>  
-            </table>
-            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={renderTableList.length} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
-        </>
-    )
-}
+      <EtcDetailSummary
+        searchDate={`${searchDate.fromDate} ~ ${searchDate.toDate}`}
+        summaryResult={summaryResult}
+        currentTab={ETC_TAB_TYPE.ACCOUNT}
+      />
+      <EtcDetailTable
+        colgroup={ETC_COL_THEAD_LIST[ETC_TAB_TYPE.ACCOUNT].colgroup}
+        thead={ETC_COL_THEAD_LIST[ETC_TAB_TYPE.ACCOUNT].thead}
+        excelOption={{
+          fileName: `${searchDate.fromDate}~${searchDate.toDate}_${fCodeName}_가상계좌내역`,
+          addRowColor: { rowNums: [1], colors: ['d3d3d3'] },
+          colWidths: ETC_COL_THEAD_LIST[ETC_TAB_TYPE.ACCOUNT].colgroup.map(({ width }) => ({
+            wpx: width !== '*' ? Number(((Number(width.replace('%', '')) * 1540) / 100).toFixed(2)) : 400,
+          })),
+        }}
+      >
+        <VirtualAccountDetailTable searchDate={searchDate} setDetailTotalInfo={setDetailTotalInfo} />
+      </EtcDetailTable>
+    </>
+  );
+};
 
 export default VirtualAccountDetail;

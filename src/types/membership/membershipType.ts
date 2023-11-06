@@ -1,0 +1,4 @@
+export enum MEMBERSHIP_PAGE_TYPE {
+  EXTRA,
+  MONTHRANK,
+}

@@ -1,175 +1,122 @@
-import { FC, useState, useRef, useMemo, ReactNode, Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
-import { useQueryClient, useQueryErrorResetBoundary } from 'react-query';
-import { format, isBefore, isSameDay, subMonths } from 'date-fns';
-import { useRecoilValue } from "recoil";
-import Utils from "utils/Utils";
+import { ErrorBoundary } from 'react-error-boundary';
+import { useQueryErrorResetBoundary } from 'react-query';
+import { subMonths } from 'date-fns';
 
 // component
-import CalanderSearch from "pages/common/calanderSearch"; 
-import EtcDetailTable, { EtcDetailTableFallback, EtcDetailTableHead } from "pages/etc/component/EtcDetailTable";  
-import EtcDetailTableBottom from "pages/etc/component/EtcDetailTableBottom";
-import Sticky from "pages/common/sticky";  
-import Loading from "pages/common/loading"; 
-import DataLoader from "pages/common/dataLoader";
-import NoData from "pages/common/noData";
+import EtcDetailTable from 'pages/etc/component/EtcDetailTable';
+import ExtraDetailTable from './ExtraDetailTable';
+import MembershipDetailTableFallback from 'pages/membership/component/MembershipDetailTableFallback';
+import Calander from 'pages/common/calander';
 
-// type 
-import { SearchInfoType, PageInfoType, FALLBACK_TYPE } from 'types/etc/etcType';
-import { ExtraDetailProps } from "types/membership/extraType";
+// type, constants
+import { MEMBERSHIP_PAGE_TYPE } from 'types/membership/membershipType';
+import { MEMBERSHIP_COL_THEAD_LIST } from 'constants/membership';
 
-// service
-import MEMBERSHIP_SERVICE from "service/membershipService";
+// hook
+import useUserInfo from 'hooks/user/useUser';
+import useSearchDate from 'hooks/common/useSearchDate';
 
-// state
-import { franState, loginState } from "state";  
+const ExtraDetail = () => {
+  const { reset } = useQueryErrorResetBoundary();
+  const {
+    user: { fCodeName },
+  } = useUserInfo();
+  const { searchDate, handleSearchDate } = useSearchDate({
+    dateFormat: 'yyyy-MM',
+    fromDate: subMonths(new Date(), 1),
+    toDate: new Date(),
+  });
 
-const isSameOrBeforeToday = (targetDate: string) => {
-    return isBefore(new Date(targetDate), new Date()) || isSameDay(new Date(targetDate), new Date())
+  return (
+    <>
+      <p className="title bullet">상세내역</p>
+      <div className="search-wrap">
+        <Calander
+          fromDate={searchDate.fromDate}
+          toDate={searchDate.toDate}
+          render={({ fromDate, toDate }) => (
+            <button type="button" className="btn-search" onClick={() => handleSearchDate({ fromDate, toDate })}>
+              조회
+            </button>
+          )}
+          showMonthYearPicker
+          dateFormat="yyyy-MM"
+        />
+      </div>
+
+      <div className="search-result-wrap">
+        <div className="search-date">
+          <p>
+            조회기간: {searchDate.fromDate} ~ {searchDate.toDate}
+          </p>
+        </div>
+      </div>
+
+      <ErrorBoundary
+        onReset={reset}
+        fallbackRender={({ resetErrorBoundary }) => (
+          <MembershipDetailTableFallback
+            currentTab={MEMBERSHIP_PAGE_TYPE.EXTRA}
+            resetErrorBoundary={resetErrorBoundary}
+          />
+        )}
+      >
+        <EtcDetailTable
+          colgroup={MEMBERSHIP_COL_THEAD_LIST[MEMBERSHIP_PAGE_TYPE.EXTRA].colgroup}
+          thead={EXTRA_DETAIL_LIST.thead}
+          excelOption={{
+            fileName: `${searchDate.fromDate}~${searchDate.toDate}_${fCodeName}_멤버십누적내역`,
+            addRowColor: { rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] },
+          }}
+        >
+          <ExtraDetailTable searchDate={searchDate} />
+        </EtcDetailTable>
+      </ErrorBoundary>
+    </>
+  );
 };
-
-const ExtraDetail: FC<Omit<ExtraDetailProps, 'searchInfo' | 'membershipListKey'>> = (props) => { 
-    const { reset } = useQueryErrorResetBoundary(); 
-    const queryClient = useQueryClient();
-    const franCode = useRecoilValue(franState);
-
-    // state
-    const [searchInfo, setSearchInfo] = useState<SearchInfoType>({
-        from: format(subMonths(new Date(), 1), 'yyyy-MM'), 
-        to: format(new Date(), 'yyyy-MM'),
-        searchTrigger: false,
-    }); 
-
-    // key
-    // eslint-disable-next-line
-    const membershipListKey = useMemo(() => ['membership_extra_list', JSON.stringify({ franCode, from: searchInfo.from, to: searchInfo.to }) ], [franCode, searchInfo.searchTrigger]);
-
-    // 검색
-    const handleRefetch = () => {
-        queryClient.removeQueries({ queryKey:membershipListKey, exact: true }); // 쿼리 제거 
-        setSearchInfo((prev) => ({...prev, searchTrigger: !prev.searchTrigger })); // =refetch
-    };
-
-    // fallback props 정리
-    const defaultFallbackProps = { 
-        searchDate: `${searchInfo.from} ~ ${searchInfo.to}`,
-        ...props
-    }
-    const loadingFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.LOADING }
-    const errorFallbackProps = { ...defaultFallbackProps, fallbackType: FALLBACK_TYPE.ERROR }
-
-    return (
-        <>
-            <CalanderSearch
-                title={`상세내역`}
-                dateType={'yyyy-MM'}
-                searchInfo={searchInfo}
-                setSearchInfo={setSearchInfo}
-                handleSearch={handleRefetch}
-                showMonthYearPicker={true}
-            />
-
-            <Suspense fallback={<EtcDetailTableFallback {...loadingFallbackProps} />}>
-                <ErrorBoundary onReset={reset} fallbackRender={({ resetErrorBoundary }) => <EtcDetailTableFallback {...errorFallbackProps} resetErrorBoundary={resetErrorBoundary} />} >
-                    <ExtraDetailData searchInfo={searchInfo} membershipListKey={membershipListKey} {...props} /> 
-                </ErrorBoundary>
-            </Suspense>
-        </>
-    )
-}
 
 export default ExtraDetail;
 
-const ExtraDetailData: FC<ExtraDetailProps> = ({ searchInfo: { from, to }, membershipListKey, detailTableColGroup, detailTableHead }) => {
-    const franCode = useRecoilValue(franState);
-    const { userInfo: { f_list } } = useRecoilValue(loginState);  
-    const tableRef = useRef<null | HTMLTableElement>(null);
-    const thRef = useRef<HTMLTableRowElement>(null);
-    const [pageInfo, setPageInfo] = useState<PageInfoType>({
-        currentPage: 1, 
-        row: 20, 
-    });
- 
-    const { data, isLoading, isRefetching } = MEMBERSHIP_SERVICE.useMembershipList(membershipListKey, [franCode, from, to ]);
-
-    const renderTableList: ReactNode[] = useMemo(() => {  
-        const tableList = data?.filter((data, idx) => isSameOrBeforeToday(data.std_date) || idx === 0) // 가장 첫번째 데이터(=총 합 데이터) || 오늘 포함한 오늘 이전 데이터
-        .reduce((arr: any, tbodyRow: any, index: number) => { 
-            const {
-                std_date, total_stamp_cnt, convert_coupon_stamp_cnt, expired_stamp_cnt, total_coupon_cnt, total_coupon_amount,
-                used_coupon_cnt, used_coupon_amount, expired_coupon_cnt, expired_coupon_amount, total_point, used_point, expired_point
-            } = tbodyRow;
-
-            arr.push(
-                <>
-                    <td className={index === 0 ? 'total' : ''}>{std_date}</td>
-                    <td className={index === 0 ? 'total' : ''}>{total_stamp_cnt}개</td>
-                    <td className={index === 0 ? 'total' : ''}>{convert_coupon_stamp_cnt}개</td>
-                    <td className={index === 0 ? 'total' : ''}>{expired_stamp_cnt}개</td>
-                    <td className={index === 0 ? 'total' : ''}>{total_coupon_cnt}개<p>({total_coupon_amount}원)</p></td>
-                    <td className={index === 0 ? 'total' : ''}>{used_coupon_cnt}개<p>({used_coupon_amount}원)</p></td>
-                    <td className={index === 0 ? 'total' : ''}>{expired_coupon_cnt}개<p>({expired_coupon_amount}원)</p></td>
-                    <td className={index === 0 ? 'total' : ''}>{total_point}P</td>
-                    <td className={index === 0 ? 'total' : ''}>{used_point}P</td>
-                    <td className={index === 0 ? 'total' : ''}>{expired_point}P</td>
-                </>
-            );
-
-            return arr;
-        }, [] as ReactNode[]) || [];   
-
-        setPageInfo((tempPageInfo) => ({...tempPageInfo, currentPage: 1})) // 검색 or 필터링 한 경우 1페이지로 이동
-        return tableList
-    }, [data]);
-     
-    const handleExcelDownload = () => {
-        const branchName = f_list.filter((el) => el.f_code === franCode)[0].f_code_name;
-        if (tableRef.current) {
-            const options = {
-                type: 'table',
-                // sheetOption: { origin: "B3" }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-                colspan: detailTableColGroup.map(wpx => (wpx !== '*' ? { wpx } : { wpx: 400 })), // 셀 너비 설정, 필수 X
-                // rowspan: [], // 픽셀단위:hpx, 셀 높이 설정, 필수 X 
-                sheetName: '', // 시트이름, 필수 X
-                addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] }, //  { row: [1, 2], color: ['3a3a4d', '3a3a4d'] }
-            };
-            const fileName = `${from}~${to}_${branchName}_멤버십누적내역`;
-            Utils.excelDownload(tableRef.current, options, fileName);
-        };
-    }; 
-    
-    return (
-        <> 
-            <div className="search-result-wrap">
-                <div className="search-date">
-                    <p>조회기간: {from} ~ {to}</p>
-                </div>
-            </div>
-
-            <Sticky reference={thRef.current} contentsRef={tableRef.current}>
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} />
-            </Sticky>
-            <table className="board-wrap" cellPadding="0" cellSpacing="0" ref={tableRef}>
-                <EtcDetailTableHead detailTableColGroup={detailTableColGroup} detailTableHead={detailTableHead} ref={thRef} /> 
-                <DataLoader
-                    isData={Boolean(renderTableList)}
-                    isFetching={isLoading || isRefetching}
-                    loader={
-                        <tbody>
-                            <Loading isTable={true} />
-                        </tbody>
-                    }
-                    noData={
-                        <tbody>
-                            <NoData isTable={true} />
-                        </tbody>
-                    }
-                >
-                    <EtcDetailTable tbodyData={renderTableList} pageInfo={pageInfo} />    
-                </DataLoader>
-            </table>
-            {!!renderTableList && renderTableList!.length > 0 && <EtcDetailTableBottom handleExcelDownload={handleExcelDownload} dataCnt={renderTableList.length} pageInfo={pageInfo} setPageInfo={setPageInfo} />}
-
-        </>
-    )
+const EXTRA_DETAIL_LIST = {
+  thead: [
+    [
+      { children: '일시', rowSpan: 2 },
+      { children: '스탬프', colSpan: 3, className: 'price-area boder-th-b' },
+      { children: '무료음료쿠폰(스탬프적립&월간랭킹보상)', colSpan: 3, className: 'boder-th-a' },
+      { children: '바나포인트 (적립&월간랭킹보상)', colSpan: 3, className: 'price-area boder-th-b' },
+    ],
+    [
+      { children: '지급 수', className: 'price-area height-63' },
+      { children: '쿠폰전환 수', className: 'price-area height-63' },
+      { children: '유효기간 소멸 수', className: 'price-area height-63' },
+      {
+        children: (
+          <>
+            발급 수<p>(금액)</p>
+          </>
+        ),
+        className: 'height-63',
+      },
+      {
+        children: (
+          <>
+            사용 수<p>(금액)</p>
+          </>
+        ),
+        className: 'height-63',
+      },
+      {
+        children: (
+          <>
+            유효기간 소멸 수<p>(금액)</p>
+          </>
+        ),
+        className: 'height-63',
+      },
+      { children: '적립', className: 'price-area height-63' },
+      { children: '사용', className: 'price-area height-63' },
+      { children: '유효기간 소멸', className: 'price-area height-63' },
+    ],
+  ],
 };
