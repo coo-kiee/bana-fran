@@ -39,12 +39,12 @@ const Modal = () => {
             <div className="msg-wrap">
               <p className="title">{component}</p>
               <button className="btn-close modify-close" onClick={() => closeModal(type)}></button>
-              <button className="cta-btn" style={{ background: '#3a3a4d' }} onClick={() => closeModal(type)}>
-                취 소
-              </button>
-              &nbsp;&nbsp;
               <button className="cta-btn" onClick={() => handleConfirm(type, callback)}>
                 확 인
+              </button>
+              &nbsp;&nbsp;
+              <button className="cta-btn" style={{ background: '#3a3a4d' }} onClick={() => closeModal(type)}>
+                취 소
               </button>
             </div>
           </div>

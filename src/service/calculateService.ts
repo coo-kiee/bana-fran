@@ -11,8 +11,6 @@ import {
   CalculateEtcDetailListQueryResult,
   CalculateFixListQueryResult,
   CalculatePointDetailListQueryResult,
-  CalculateChargeMultiplyKey,
-  CALCULATE_CHARGE_MULTIPLY,
   CalculateLastMonthTotalQueryResult,
   CalculateClaimDetailListQueryResult,
   CalculateAffiliateDetailListQueryResult,
@@ -22,138 +20,137 @@ import {
 // Const
 import { ClaimTabType, CLAIM_TAB_TYPE } from 'constants/calculate/claim';
 import { AffiliateTabType, AFFILIATE_TAB_TYPE } from 'constants/calculate/affiliate';
+import useModal from 'hooks/common/useModal';
 
 // 검색 월
-const useCalculateMonthList = (f_code: number, staffNo: number, option: { [key: string]: any } = {}) => {
-  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_MONTH_LIST, f_code, staffNo];
+interface IUseCalculateMonthList {
+  f_code: number;
+}
+
+export const useCalculateMonthList = (params: IUseCalculateMonthList) => {
+  const { user } = useUserInfo();
+
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_MONTH_LIST, params, user];
   const data = {
     ws: 'fprocess',
     query: 'YQULRZGJLB30OII4CFCJ', // web_fran_s_calculate_month_list
-    params: {
-      f_code,
-    },
+    params,
   };
 
   return useQuery<{ std_month: string }[]>(queryKey, () => queryFn.getDataList(data), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: option.suspense ? option.suspense : false,
-    enabled: staffNo > 0,
+    suspense: false,
+    enabled: user.staffNo > 0,
   });
 };
 
 // 정산내역 확인
-const useCalculateLastMonthTotal = (
-  f_code: number,
-  staffNo: number,
-  std_month: string,
-  isPDF: boolean,
-  option: { [key: string]: any } = {},
-) => {
-  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_LAST_MONTH_TOTAL, f_code, staffNo, std_month];
+
+interface IUseCalculateLastMonthTotal {
+  f_code: number;
+  std_month: string;
+}
+export const useCalculateLastMonthTotal = (params: IUseCalculateLastMonthTotal) => {
+  const { user } = useUserInfo();
+
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_LAST_MONTH_TOTAL, params, user];
   const data = {
     ws: 'fprocess',
     query: 'LHXFJMM3PJSB5YVRUFLS', // web_fran_s_calculate_detail_list
-    params: {
-      f_code,
-      std_month,
-    },
+    params,
   };
 
   return useQuery<CalculateLastMonthTotalQueryResult>(queryKey, () => queryFn.getDataOutputList(data), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: option.suspense ? option.suspense : true,
-    enabled: !isPDF && staffNo > 0,
-    onSuccess(data) {
-      if (data.list.length > 0) {
-        let sum = 0;
-        for (const calculateData of data.list) {
-          sum +=
-            calculateData.total_amt *
-            CALCULATE_CHARGE_MULTIPLY[calculateData.calculate_type as CalculateChargeMultiplyKey];
-        }
-        data.sumAll = sum;
-      }
-      return data;
-    },
+    suspense: false,
+    enabled: user.staffNo > 0,
+    // onSuccess(data) {
+    //   if (data.list.length > 0) {
+    //     let sum = 0;
+    //     for (const calculateData of data.list) {
+    //       sum +=
+    //         calculateData.total_amt *
+    //         CALCULATE_CHARGE_MULTIPLY[calculateData.calculate_type as CalculateChargeMultiplyKey];
+    //     }
+    //     data.sumAll = sum;
+    //   }
+    //   return data;
+    // },
   });
 };
 
 // 정산내역 확인 - 정산 확인
-const useCalculateConfirm = (
-  staffNo: number,
-  calculate_id: number,
-  listRefetchFn: () => Promise<void>,
-  closePopup: () => void,
-) => {
+interface IUseCalculateConfirm {
+  login_staff_no: number;
+  calculate_id: number;
+}
+export const useCalculateConfirm = () => {
+  const { openModal } = useModal();
+
   const data = {
     ws: 'fprocess',
     query: 'FCQFKBNEPSODBG4TA7SH', // web_fran_s_calculate_confirm
-    params: {
-      login_staff_no: staffNo,
-      calculate_id,
-    },
   };
 
   return useMutation({
-    mutationFn: () => queryFn.axiosPost('/query', data),
-    onSuccess: async () => {
-      await listRefetchFn();
-      closePopup();
-      alert('정산확인을 했습니다.');
+    mutationFn: (params: IUseCalculateConfirm) => queryFn.axiosPost('/query', { ...data, params }),
+    onError() {
+      openModal({ type: 'Alert', component: '정산확인 요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.' });
     },
-    onError: () => alert('정산확인 요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.'),
   });
 };
 
 // 정산내역 확인 - 수정요청
-const useCalculateRequestFix = (staffNo: number, calculate_id: number, comment: string, closePopup: () => void) => {
+interface IUseCalculateRequestFix {
+  login_staff_no: number;
+  calculate_id: number;
+  comment: string;
+}
+export const useCalculateRequestFix = () => {
+  const { openModal } = useModal();
+
   const data = {
     ws: 'fprocess',
     query: 'ZLKAMYA9AOODGMRFQIPT', // web_fran_s_calculate_log_update
-    params: {
-      login_staff_no: staffNo,
-      calculate_id,
-      comment,
-    },
   };
 
   return useMutation({
-    mutationFn: () => queryFn.axiosPost('/query', data),
-    onSuccess: () => {
-      closePopup();
-      alert('수정요청을 완료했습니다.');
+    mutationFn: (params: IUseCalculateRequestFix) => queryFn.axiosPost('/query', { ...data, params }),
+    // onSuccess: () => {
+    //   closePopup();
+    //   alert('수정요청을 완료했습니다.');
+    // },
+    onError() {
+      openModal({ type: 'Alert', component: '수정요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.' });
     },
-    onError: () => alert('수정요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.'),
   });
 };
 
 // 정산내역 확인 - 수정요청/변경이력 조회
-const useCalculateFixList = (
-  nFCode: number,
-  staffNo: number,
-  calculate_id: number,
-  option: { [key: string]: any } = {},
-) => {
-  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_FIX_LIST, nFCode, staffNo, calculate_id];
+interface IUseCalculateFixList {
+  nFCode: number;
+  calculate_id: number;
+}
+export const useCalculateFixList = (params: IUseCalculateFixList) => {
+  const { user } = useUserInfo();
+
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_FIX_LIST, params, user];
   const data = {
     ws: 'fprocess',
     query: 'BPXPHMQ8I53JRD2FVYGX', // web_bana_fran_calculate_log_list
-    params: {
-      nFCode,
-      calculate_id,
-    },
+    params,
   };
 
   return useQuery<CalculateFixListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: option.suspense ? option.suspense : true,
-    enabled: staffNo > 0,
+    suspense: false,
+    enabled: user.staffNo > 0,
   });
 };
 

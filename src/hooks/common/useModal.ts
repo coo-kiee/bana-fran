@@ -4,6 +4,9 @@ import { useSetRecoilState } from 'recoil';
 // State
 import { IModalParams, modal, ModalType } from 'state/modal';
 
+// Hook
+import { useEventKeyCode } from 'hooks/useEventKeyCode';
+
 // Util
 import { deepClone } from 'utils/deepClone';
 
@@ -51,6 +54,8 @@ const useModal = () => {
 
     setModalState({});
   });
+
+  useEventKeyCode(popModal, 'Escape');
 
   return { openModal, closeModal, popModal, resetModal };
 };

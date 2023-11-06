@@ -1,6 +1,7 @@
 import { ChangeEventHandler } from 'react';
 
 interface ISelect {
+  className?: string;
   name: string;
   value: string | number;
   options: readonly {
@@ -9,9 +10,9 @@ interface ISelect {
   }[];
   handleOnChange: ChangeEventHandler;
 }
-const Select = ({ name, value, options, handleOnChange }: ISelect) => {
+const Select = ({ className, name, value, options, handleOnChange }: ISelect) => {
   return (
-    <select onChange={handleOnChange} name={name} value={value}>
+    <select className={className} name={name} value={value} onChange={handleOnChange}>
       {Object.values(options).map((item) => (
         <option key={item.label} value={item.value}>
           {item.label}

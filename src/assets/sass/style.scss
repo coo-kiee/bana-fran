@@ -272,6 +272,9 @@ select { @include select-style; }
             height: 30px;
             background: url('../../assets/images/icon/i_layer_close.svg') 0 0 no-repeat;
         }
+        .spinner {
+            margin-top: 20px;
+        }
     }
     &.modify-layer { 
         display: none;

@@ -9,13 +9,6 @@ const enum CALCULATE_TYPE {
 
 type CalculateType = (typeof CALCULATE_TYPE)[keyof typeof CALCULATE_TYPE];
 
-// 정산내역 확인 쿼리 결과
-type CalculateLastMonthTotalQueryResult = {
-  list: CalculateLastMonthTotalDetail[];
-  out: CalculateLastMonthOutput;
-  sumAll: number;
-};
-
 // 정산내역 확인 데이터
 type CalculateLastMonthTotalDetail = {
   calculate_id: number; // 정산내역 리스트 id
@@ -35,7 +28,14 @@ type CalculateLastMonthTotalDetail = {
 };
 
 // 정산내역 확인 Output
-type CalculateLastMonthOutput = { calculate_id: number; calculate_status: CalculateStatusType; error_msg: string };
+type CalculateLastMonthOutput = { calculate_id: number; calculate_status: number; error_msg: string };
+
+// 정산내역 확인 쿼리 결과
+type CalculateLastMonthTotalQueryResult = {
+  list: CalculateLastMonthTotalDetail[];
+  out: CalculateLastMonthOutput;
+  return: 0 | 1;
+};
 
 // 정산내역 확인 정산상태
 const CALCULATE_STATUS = {
@@ -44,7 +44,7 @@ const CALCULATE_STATUS = {
   NOT_CONFIRM: 10, // 미확인
   FIX_REQUEST: 20, // 수정요청
   CONFIRM: 30, // 확인완료
-} as const;
+};
 type CalculateStatusType = (typeof CALCULATE_STATUS)[keyof typeof CALCULATE_STATUS];
 
 // 정산내역 확인 수정요청/변경이력 데이터

@@ -10,22 +10,23 @@ import NoData from '../noData';
 
 interface ITableList<T> {
   queryRes: UseQueryResult<T, unknown>;
-  render: (datas: T | undefined) => ReactNode;
+  render: (datas: T) => ReactNode;
+  isPagination?: boolean;
 }
-const TableList = <T extends unknown[]>({ queryRes, render }: ITableList<T>) => {
+const TableList = <T,>({ queryRes, render, isPagination = true }: ITableList<T>) => {
   const { pageInfo } = usePageInfo();
 
-  if (queryRes.isFetching)
+  if (queryRes.isFetching || !queryRes.data)
     return (
       <tbody>
-        <Loading height={80} width={80} marginTop={0} isTable={true} />
+        <Loading height={80} width={80} marginTop={0} isTable />
       </tbody>
     );
 
-  if (!queryRes.data?.length || pageInfo?.dataCnt === 0)
+  if ((Array.isArray(queryRes.data) && !queryRes.data.length) || (isPagination && pageInfo.dataCnt === 0))
     return (
       <tbody>
-        <NoData isTable={true} />
+        <NoData isTable />
       </tbody>
     );
 

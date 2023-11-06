@@ -8,12 +8,15 @@ import usePageInfo from 'hooks/pagination/usePageInfo';
 
 interface IExcelButton extends IExcelDownload {
   tableRef?: React.MutableRefObject<HTMLTableElement | null>;
+  dataCnt?: number;
 }
-const ExcelButton = ({ tableRef, ...excelDownloadOption }: IExcelButton) => {
+const ExcelButton = ({ tableRef, dataCnt, ...excelDownloadOption }: IExcelButton) => {
   const { pageInfo } = usePageInfo();
+  const pageDataCnt = dataCnt || pageInfo.dataCnt;
+
   const fetchingCnt = useIsFetching();
 
-  if (pageInfo?.dataCnt === 0 || fetchingCnt > 0) return null;
+  if (pageDataCnt === 0 || fetchingCnt > 0) return null;
 
   const excelDownload = () => {
     if (!tableRef?.current) return;
