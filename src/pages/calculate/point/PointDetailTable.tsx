@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
 // Type
-import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE, SearchDate } from 'constants/calculate/common';
+import { CALCULATE_TITLE, CALCULATE_TYPE, SearchDate } from 'constants/calculate/common';
 import {
   PointDetailFilterOption,
   POINT_DETAIL_COLGROUP_INFO,
@@ -126,7 +126,7 @@ const PointDetailTable = ({ searchDate, filterCondition }: IPointDetailTable) =>
           type={'table'}
           target={tableRef}
           tableRef={tableRef}
-          fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.POINT]}(${searchDate.fromDate}~${
+          fileName={`${user.fCodeName}_${CALCULATE_TITLE[CALCULATE_TYPE.POINT]}(${searchDate.fromDate}~${
             searchDate.toDate
           })`}
           sheetOption={{ origin: 'B3' }}

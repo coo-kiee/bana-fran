@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
-// Type
-import { CALCULATE_TYPE } from 'types/calculate/calculateType';
+// Const
+import { CALCULATE_TYPE } from 'constants/calculate/common';
 
 // Component
 import CalculateSection from 'pages/calculate/component/CalculateSection';

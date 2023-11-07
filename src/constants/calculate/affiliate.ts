@@ -1,8 +1,8 @@
 // 제휴사 쿠폰/포인트 탭
 export const AFFILIATE_TAB_TYPE = {
-  COUPON: 'coupon',
-  POINT: 'point',
-} as const;
+  COUPON: 5,
+  POINT: 6,
+};
 export type AffiliateTabType = (typeof AFFILIATE_TAB_TYPE)[keyof typeof AFFILIATE_TAB_TYPE];
 
 export const AFFILIATE_TAB_TITLE = {

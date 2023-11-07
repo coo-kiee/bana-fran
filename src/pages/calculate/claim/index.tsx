@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
 // Const
-import { CALCULATE_TYPE } from 'types/calculate/calculateType';
+import { CALCULATE_TYPE } from 'constants/calculate/common';
 import { CLAIM_TAB_TITLE } from 'constants/calculate/claim';
 
 // Component

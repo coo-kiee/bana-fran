@@ -1,4 +1,6 @@
-import { AFFILIATE_TAB_TYPE, CALCULATE_TYPE } from 'types/calculate/calculateType';
+// Const
+import { AFFILIATE_TAB_TYPE } from './calculate/affiliate';
+import { CALCULATE_TYPE } from './calculate/common';
 
 const LIST_DETAIL_COLGROUP_INFO = [
   { width: '188' },

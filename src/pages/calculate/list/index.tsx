@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { format, subMonths } from 'date-fns';
 
-// Type
-import { CALCULATE_TYPE } from 'types/calculate/calculateType';
+// Const
+import { CALCULATE_TYPE } from 'constants/calculate/common';
 
 // Hook
 import useUserInfo from 'hooks/user/useUser';

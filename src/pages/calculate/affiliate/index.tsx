@@ -2,7 +2,7 @@ import { FC } from 'react';
 
 // Const
 import { AFFILIATE_TAB_TITLE } from 'constants/calculate/affiliate';
-import { CALCULATE_TYPE } from 'types/calculate/calculateType';
+import { CALCULATE_TYPE } from 'constants/calculate/common';
 
 // Component
 import CalculateSection from 'pages/calculate/component/CalculateSection';

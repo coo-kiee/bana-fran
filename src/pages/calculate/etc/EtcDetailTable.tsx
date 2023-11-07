@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
 // Const
-import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE, SearchDate } from 'constants/calculate/common';
+import { CALCULATE_TITLE, CALCULATE_TYPE, SearchDate } from 'constants/calculate/common';
 import {
   EtcDetailFilterOption,
   ETC_DETAIL_TOTAL_INFO,
@@ -98,7 +98,7 @@ const EtcDetailTable = ({ searchDate, filterCondition }: IEtcDetailTable) => {
           type={'table'}
           target={tableRef}
           tableRef={tableRef}
-          fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.ETC]}(${searchDate.fromDate}~${
+          fileName={`${user.fCodeName}_${CALCULATE_TITLE[CALCULATE_TYPE.ETC]}(${searchDate.fromDate}~${
             searchDate.toDate
           })`}
           sheetOption={{ origin: 'B3' }}

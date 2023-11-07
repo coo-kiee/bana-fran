@@ -6,8 +6,7 @@ import useModal from 'hooks/common/useModal';
 
 // Const
 import { LIST_TABLE_COLUMN_INFO, LIST_THEAD_INFO } from 'constants/calculate/list';
-import { CALCULATE_EXCEL_FILENAME } from 'constants/calculate/common';
-import { CALCULATE_TYPE } from 'types/calculate/calculateType';
+import { CALCULATE_TITLE, CALCULATE_TYPE } from 'constants/calculate/common';
 import { ETC_CHARGE_MULTIPLY } from 'constants/calculate/etc';
 
 // API
@@ -97,7 +96,7 @@ const ListTable = ({ selectDate }: IListTable) => {
               type={'table'}
               target={tableRef}
               tableRef={tableRef}
-              fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.LIST]}(${selectDate}`}
+              fileName={`${user.fCodeName}_${CALCULATE_TITLE[CALCULATE_TYPE.LIST]}(${selectDate}`}
               sheetOption={{ origin: 'B3' }}
               colWidths={Object.values(LIST_TABLE_COLUMN_INFO).flatMap((item) =>
                 item.width !== '*' ? { wpx: Number(item.width) * 1.2 } : { wpx: 400 },

@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
 // Type
-import { CALCULATE_EXCEL_FILENAME, CALCULATE_TYPE, SearchDate } from 'constants/calculate/common';
+import { CALCULATE_TITLE, CALCULATE_TYPE, SearchDate } from 'constants/calculate/common';
 import {
   CouponDetailFilterOption,
   COUPON_DETAIL_COLGROUP_INFO,
@@ -94,7 +94,7 @@ const CouponDetailTable = ({ searchDate, filterCondition }: ICouponDetailTable) 
           type={'table'}
           target={tableRef}
           tableRef={tableRef}
-          fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.COUPON]}(${searchDate.fromDate}~${
+          fileName={`${user.fCodeName}_${CALCULATE_TITLE[CALCULATE_TYPE.COUPON]}(${searchDate.fromDate}~${
             searchDate.toDate
           })`}
           sheetOption={{ origin: 'B3' }}

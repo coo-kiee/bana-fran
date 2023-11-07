@@ -1,14 +1,3 @@
-const enum CALCULATE_TYPE {
-  LIST,
-  POINT,
-  COUPON,
-  CLAIM,
-  ETC,
-  AFFILIATE,
-}
-
-type CalculateType = (typeof CALCULATE_TYPE)[keyof typeof CALCULATE_TYPE];
-
 // 정산내역 확인 데이터
 type CalculateLastMonthTotalDetail = {
   calculate_id: number; // 정산내역 리스트 id
@@ -37,16 +26,6 @@ type CalculateLastMonthTotalQueryResult = {
   return: 0 | 1;
 };
 
-// 정산내역 확인 정산상태
-const CALCULATE_STATUS = {
-  ERROR: -1,
-  DISTRIBUTE: 5, // 미배포
-  NOT_CONFIRM: 10, // 미확인
-  FIX_REQUEST: 20, // 수정요청
-  CONFIRM: 30, // 확인완료
-};
-type CalculateStatusType = (typeof CALCULATE_STATUS)[keyof typeof CALCULATE_STATUS];
-
 // 정산내역 확인 수정요청/변경이력 데이터
 type CalculateFixListQueryResult = {
   log_date: string; // 일시
@@ -62,7 +41,7 @@ type CalculateFixListQueryResult = {
 type CalculateLastMonthEachQueryResult = {
   from_date: string; // 정산기간
   to_date: string; // 정산기간
-  calculate_type?: string; // 기타 - 구분
+  calculate_type: string; // 기타 - 구분
   item_name: string; // 품목
   publisher: string; // 발행사
   supply_amt: number; // 공급가액
@@ -138,27 +117,6 @@ type CalculateAffiliateDetailListQueryResult = {
   total_amt: number; // 합계
 };
 
-// 고객 클레임 보상내역 탭
-const CLAIM_TAB_TYPE = {
-  ALL: 'all',
-  CALCULATE: 'calculate',
-} as const;
-type ClaimTabType = (typeof CLAIM_TAB_TYPE)[keyof typeof CLAIM_TAB_TYPE];
-
-// 정산 관리 금액 타입
-const CALCULATE_CHARGE_TYPE = {
-  BILLING: '청구',
-  CONSERVATION: '보전',
-} as const;
-type CalculateChargeType = (typeof CALCULATE_CHARGE_TYPE)[keyof typeof CALCULATE_CHARGE_TYPE];
-
-// 정산 관리 금액 곱셈값
-const CALCULATE_CHARGE_MULTIPLY = {
-  [CALCULATE_CHARGE_TYPE.CONSERVATION]: 1, // 보전
-  [CALCULATE_CHARGE_TYPE.BILLING]: -1, // 청구
-} as const;
-type CalculateChargeMultiplyKey = keyof typeof CALCULATE_CHARGE_MULTIPLY;
-
 // 기타 정산 내역 상세
 type CalculateEtcDetailListQueryResult = {
   std_month: string; // 정산월
@@ -169,38 +127,16 @@ type CalculateEtcDetailListQueryResult = {
   total_amt: number; // 기타 정산 금액 합계
 };
 
-// 제휴사 쿠폰/포인트 탭
-const AFFILIATE_TAB_TYPE = {
-  COUPON: 5,
-  POINT: 6,
-} as const;
-type AffilateTabType = (typeof AFFILIATE_TAB_TYPE)[keyof typeof AFFILIATE_TAB_TYPE];
-
-export {
-  CALCULATE_TYPE,
-  CALCULATE_STATUS,
-  CLAIM_TAB_TYPE,
-  CALCULATE_CHARGE_TYPE,
-  CALCULATE_CHARGE_MULTIPLY,
-  AFFILIATE_TAB_TYPE,
-};
-
 export type {
-  CalculateType,
   CalculateLastMonthTotalQueryResult,
   CalculateLastMonthTotalDetail,
   CalculateLastMonthOutput,
-  CalculateStatusType,
   CalculateFixListQueryResult,
   CalculateLastMonthEachQueryResult,
   CalculatePointDetailListQueryResult,
   CalculateCouponDetailListQueryResult,
   CalculateClaimDetailListQueryResult,
-  ClaimTabType,
-  CalculateChargeType,
-  CalculateChargeMultiplyKey,
   CalculateEtcDetailListQueryResult,
-  AffilateTabType,
   CalculateAffiliateDetailListQueryResult,
   CalculateCouponListQueryResult,
 };

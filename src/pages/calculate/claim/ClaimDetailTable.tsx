@@ -1,12 +1,13 @@
 import { FC, useRef } from 'react';
 
 // Type
-import { CALCULATE_EXCEL_FILENAME, SearchDate } from 'constants/calculate/common';
-import { CALCULATE_TYPE, ClaimTabType, CLAIM_TAB_TYPE } from 'types/calculate/calculateType';
+import { CALCULATE_TITLE, CALCULATE_TYPE, SearchDate } from 'constants/calculate/common';
 import {
+  ClaimTabType,
   CLAIM_DETAIL_TABLE_COLGROUP_INFO,
   CLAIM_DETAIL_TABLE_THEAD_INFO,
   CLAIM_DETAIL_TOTAL_INFO,
+  CLAIM_TAB_TYPE,
 } from 'constants/calculate/claim';
 
 // Util
@@ -92,7 +93,7 @@ const ClaimDetailTable: FC<IClaimDetailTable> = ({ tabType, sortType, searchDate
           type={'table'}
           target={tableRef}
           tableRef={tableRef}
-          fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[CALCULATE_TYPE.CLAIM]}(${searchDate.fromDate}~${
+          fileName={`${user.fCodeName}_${CALCULATE_TITLE[CALCULATE_TYPE.CLAIM]}(${searchDate.fromDate}~${
             searchDate.toDate
           })`}
           sheetOption={{ origin: 'B3' }}

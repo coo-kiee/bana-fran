@@ -1,13 +1,10 @@
 import { useState } from 'react';
 
 // Const
-import { ClaimFilterOption, CLAIM_DETAIL_FILTER_OPTION } from 'constants/calculate/claim';
+import { ClaimFilterOption, ClaimTabType, CLAIM_DETAIL_FILTER_OPTION, CLAIM_TAB_TYPE } from 'constants/calculate/claim';
 
 // Hook
 import useOnChange from 'hooks/useOnChange';
-
-// Type
-import { ClaimTabType, CLAIM_TAB_TYPE } from 'types/calculate/calculateType';
 
 const useClaimFilterCondition = (tabType: ClaimTabType) => {
   const [allFilterCondition, setAllFilterCondition] = useState(

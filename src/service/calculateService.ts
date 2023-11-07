@@ -3,6 +3,7 @@ import { useMutation, useQuery } from 'react-query';
 // Hook
 import { queryFn } from 'hooks/useQuery';
 import useUserInfo from 'hooks/user/useUser';
+import useModal from 'hooks/common/useModal';
 
 // Type
 import {
@@ -20,13 +21,11 @@ import {
 // Const
 import { ClaimTabType, CLAIM_TAB_TYPE } from 'constants/calculate/claim';
 import { AffiliateTabType, AFFILIATE_TAB_TYPE } from 'constants/calculate/affiliate';
-import useModal from 'hooks/common/useModal';
 
 // 검색 월
 interface IUseCalculateMonthList {
   f_code: number;
 }
-
 export const useCalculateMonthList = (params: IUseCalculateMonthList) => {
   const { user } = useUserInfo();
 
@@ -68,18 +67,6 @@ export const useCalculateLastMonthTotal = (params: IUseCalculateLastMonthTotal) 
     retry: false,
     suspense: false,
     enabled: user.staffNo > 0,
-    // onSuccess(data) {
-    //   if (data.list.length > 0) {
-    //     let sum = 0;
-    //     for (const calculateData of data.list) {
-    //       sum +=
-    //         calculateData.total_amt *
-    //         CALCULATE_CHARGE_MULTIPLY[calculateData.calculate_type as CalculateChargeMultiplyKey];
-    //     }
-    //     data.sumAll = sum;
-    //   }
-    //   return data;
-    // },
   });
 };
 
@@ -155,28 +142,21 @@ export const useCalculateFixList = (params: IUseCalculateFixList) => {
 };
 
 // 포인트/쿠폰/클레임/기타 각각 전월 내역 리스트
-const useCalculateLastMonthEach = (
-  f_code: number,
-  staffNo: number,
-  search_item_type: number,
-  option: { [key: string]: any } = {},
-) => {
-  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_LAST_MONTH_EACH, f_code, staffNo, search_item_type];
+export const useCalculateLastMonthEach = (params: { f_code: number; search_item_type: number }) => {
+  const { user } = useUserInfo();
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_LAST_MONTH_EACH, params, user];
   const data = {
     ws: 'fprocess',
     query: '3ABXWMJURCDQJPLVBJJW', // web_fran_s_calculate_detail_item
-    params: {
-      f_code,
-      search_item_type,
-    },
+    params,
   };
 
   return useQuery<CalculateLastMonthEachQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: option.suspense ? option.suspense : true,
-    enabled: staffNo > 0,
+    suspense: false,
+    enabled: user.staffNo > 0,
   });
 };
 
@@ -186,7 +166,6 @@ interface IUseCalculatePointDetailList {
   from_date: string;
   to_date: string;
 }
-
 export const useCalculatePointDetailList = (params: IUseCalculatePointDetailList) => {
   const { user } = useUserInfo();
 
@@ -227,12 +206,11 @@ export const useCalculateCouponList = (params: { f_code: number }) => {
 };
 
 // 본사 쿠폰 결제내역 상세 - 사용 내역
-export interface IUseCalculateCouponDetailList {
+interface IUseCalculateCouponDetailList {
   f_code: number;
   from_date: string;
   to_date: string;
 }
-
 export const useCalculateCouponDetailList = (params: IUseCalculateCouponDetailList) => {
   const { user } = useUserInfo();
 

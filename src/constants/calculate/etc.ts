@@ -52,7 +52,7 @@ export const ETC_SUM_TYPE = {
 export const ETC_CHARGE_MULTIPLY = {
   [ETC_SUM_TYPE.CONSERVATION]: 1, // 보전
   [ETC_SUM_TYPE.BILLING]: -1, // 청구
-} as { [key: string]: number };
+} as { [key: string]: 1 | -1 };
 
 export const ETC_DETAIL_TOTAL_INFO = {
   [ETC_SUM_TYPE.BILLING]: { title: '청구 금액 합계', sum: 0 },

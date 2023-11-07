@@ -9,7 +9,7 @@ import {
 } from 'constants/calculate/affiliate';
 
 // Type
-import { CALCULATE_EXCEL_FILENAME, SearchDate } from 'constants/calculate/common';
+import { CALCULATE_TITLE, SearchDate } from 'constants/calculate/common';
 
 // Hook
 import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
@@ -86,7 +86,7 @@ const AffiliateDetailTable = ({ searchDate, tabType }: IAffiliateDetailTable) =>
           type={'table'}
           target={tableRef}
           tableRef={tableRef}
-          fileName={`${user.fCodeName}_${CALCULATE_EXCEL_FILENAME[tabType]}(${searchDate.fromDate}~${searchDate.toDate})`}
+          fileName={`${user.fCodeName}_${CALCULATE_TITLE[tabType]}(${searchDate.fromDate}~${searchDate.toDate})`}
           sheetOption={{ origin: 'B3' }}
           colWidths={Object.values(AFFILIATE_DETAIL_TABLE_COLGROUP_INFO[tabType]).flatMap((item) =>
             item.width !== '*' ? { wpx: Number(item.width) * 1.2 } : { wpx: 400 },
