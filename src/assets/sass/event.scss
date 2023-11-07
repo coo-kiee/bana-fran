@@ -1,0 +1,14 @@
+.event_current{
+    .contents { position: relative; width: 100%; padding-top: 20px;
+        .tab-wrap{
+            padding-top: 20px;
+        }
+        .board-date-wrap{
+            .search-wrap{ margin-top: 25px; }
+            .result-function-wrap { align-items: center; 
+                .paging-wrap { margin-top: 0px; }
+                .filter-number { position: static; }
+            }
+        }
+    }
+}

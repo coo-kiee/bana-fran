@@ -13,7 +13,6 @@ interface IUseSearchDate<T> {
   tabTypeObj?: T;
   tabType?: T[keyof T];
 }
-
 const useSearchDate = <T extends Record<string | number, string | number>>(params: IUseSearchDate<T> = {}) => {
   const { tabTypeObj, tabType, dateFormat = 'yyyy-MM-dd' } = params;
 

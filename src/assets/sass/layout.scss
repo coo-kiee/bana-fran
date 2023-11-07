@@ -58,7 +58,7 @@ article { display: flex; position: relative;
                 transition: .1s ease;
                 cursor: pointer;
 
-                @for $i from 1 through 7 {
+                @for $i from 1 through 8 {
                     &:nth-child(#{$i}) {
                         &:before {
                             content: '';
