@@ -24,7 +24,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
   const { searchDate, handleSearchDate } = useSearchDate({ tabTypeObj: CLAIM_TAB_TYPE, tabType });
 
   return (
-    <React.Fragment key={tabType}>
+    <>
       <div className="search-wrap">
         <ClaimDetailSort
           tabType={tabType}
@@ -32,6 +32,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
           handleFilterCondition={handleFilterCondition}
         />
         <Calander
+          key={tabType}
           fromDate={searchDate.fromDate}
           toDate={searchDate.toDate}
           render={({ fromDate, toDate }) => (
@@ -48,7 +49,7 @@ const ClaimDetail: FC<IClaimDetail> = ({ tabType }) => {
           searchDate={searchDate}
         />
       </PageInfoProvider>
-    </React.Fragment>
+    </>
   );
 };
 

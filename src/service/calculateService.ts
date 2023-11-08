@@ -107,10 +107,6 @@ export const useCalculateRequestFix = () => {
 
   return useMutation({
     mutationFn: (params: IUseCalculateRequestFix) => queryFn.axiosPost('/query', { ...data, params }),
-    // onSuccess: () => {
-    //   closePopup();
-    //   alert('수정요청을 완료했습니다.');
-    // },
     onError() {
       openModal({ type: 'Alert', component: '수정요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.' });
     },
@@ -314,15 +310,6 @@ export const useCalculateAffiliateDetailList = ({ params, tabType }: IUseCalcula
     suspense: false,
     enabled: user.staffNo > 0,
   });
-};
-
-export default {
-  useCalculateMonthList,
-  useCalculateLastMonthTotal,
-  useCalculateConfirm,
-  useCalculateRequestFix,
-  useCalculateFixList,
-  useCalculateLastMonthEach,
 };
 
 export const CALCULATE_QUERY_KEY = {
