@@ -4,7 +4,21 @@
             padding-top: 20px;
         }
         .board-date-wrap{
-            .search-wrap{ margin-top: 25px; }
+            .search-wrap{ margin-top: 25px; 
+                .search-text { display: flex; gap: 4px;
+                    input {
+                        width: 240px;
+                        height: 46px;
+                        font-size: 16px;
+                        font-weight: 300;
+                        border: 1px solid #ddd; 
+                        box-sizing: border-box;
+                        border-radius: 4px;
+                        text-indent: 10px;
+                        &::placeholder { color: #999; }
+                    }
+                }
+            }
             .result-function-wrap { align-items: center; 
                 .paging-wrap { margin-top: 0px; }
                 .filter-number { position: static; }

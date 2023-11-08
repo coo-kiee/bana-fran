@@ -1,9 +1,6 @@
 import { FC, useRef } from 'react';
 import { subMonths } from 'date-fns';
 
-// hook
-import useSearchDate from 'hooks/common/useSearchDate';
-
 // component
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import Table from 'pages/common/table';
@@ -13,7 +10,9 @@ import Pages from 'pages/common/pagination/Pages';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 
 // hook
+import useSearchDate from 'hooks/common/useSearchDate';
 import useUserInfo from 'hooks/user/useUser';
+import useEventTextFilter from 'hooks/event/useEventTextFilter';
 
 // type, constant
 import { EVENT_TAB_TYPE, EventTabType } from 'constants/event';
@@ -27,16 +26,17 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
 
   const excelFileName = tabType === EVENT_TAB_TYPE.COUPON_STATUS ? '쿠폰현황' : '사용내역';
   const addRowColor = {
-    rowNums: EVENT_TAB_TYPE.COUPON_STATUS ? [1, 2] : [1],
-    colors: EVENT_TAB_TYPE.COUPON_STATUS ? ['d3d3d3', 'd3d3d3'] : ['d3d3d3'],
+    rowNums: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? [1, 2] : [1],
+    colors: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? ['d3d3d3', 'd3d3d3'] : ['d3d3d3'],
   };
 
   const { searchDate, handleSearchDate } = useSearchDate({
-    tabTypeObj: EVENT_TAB_TYPE,
-    tabType,
-    fromDate: tabType === 'coupon_status' ? subMonths(new Date(), 11) : subMonths(new Date(), 3),
+    fromDate: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? subMonths(new Date(), 11) : subMonths(new Date(), 3),
     toDate: new Date(),
+    dateFormat: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? 'yyyy-MM' : 'yyyy-MM-dd',
   });
+
+  const { filterCondition, handleFilterCondition } = useEventTextFilter();
 
   return (
     <div className="board-date-wrap">
@@ -45,9 +45,29 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
           fromDate={searchDate.fromDate}
           toDate={searchDate.toDate}
           render={({ fromDate, toDate }) => (
-            <button className="btn-search" onClick={() => handleSearchDate({ fromDate, toDate })}>
-              조회
-            </button>
+            <>
+              {tabType === EVENT_TAB_TYPE.COUPON_USAGE && (
+                <div className="search-text">
+                  <input
+                    type="text"
+                    placeholder="쿠폰명"
+                    name="coupon_name"
+                    value={filterCondition.coupon_name}
+                    onChange={(e) => handleFilterCondition(e)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="쿠폰번호"
+                    name="coupon_code"
+                    value={filterCondition.coupon_code}
+                    onChange={(e) => handleFilterCondition(e)}
+                  />
+                </div>
+              )}
+              <button className="btn-search" onClick={() => handleSearchDate({ fromDate, toDate })}>
+                조회
+              </button>
+            </>
           )}
           showMonthYearPicker={tabType === EVENT_TAB_TYPE.COUPON_STATUS ? true : false}
           dateFormat={tabType === EVENT_TAB_TYPE.COUPON_STATUS ? 'yyyy-MM' : 'yyyy-MM-dd'}
@@ -55,10 +75,10 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
       </div>
 
       <PageInfoProvider>
-        <Table className="board-wrap" cellPadding="0" cellSpacing="0">
+        <Table className="board-wrap" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
           <Table.ColGroup colGroupAttributes={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].colgroup} />
           <Table.TableHead thData={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].thead} trRef={thRef} />
-          <EventDetailTable tabType={tabType} />
+          <EventDetailTable searchDate={searchDate} filterCondition={filterCondition} tabType={tabType} />
         </Table>
         <div className="result-function-wrap">
           <ExcelButton
@@ -71,7 +91,6 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
             )}
             fileName={`${searchDate.fromDate}~${searchDate.toDate}_${fCodeName}_${excelFileName}`}
             addRowColor={addRowColor}
-            // {...excelOption}
           />
           <Pages />
         </div>
