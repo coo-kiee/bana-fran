@@ -75,7 +75,7 @@ const EventDetailTable: FC<EventDetailTableProps> = ({ tabType, filterCondition,
                   <td>{Utils.numberComma(coupon_use_count)}개</td>
                   <td>{Utils.numberComma(coupon_not_use_cnt)}개</td>
                   <td>{Utils.numberComma(end_coupon_not_use_cnt)}개</td>
-                  <td>{print_cnt === 0 ? 0 : Math.ceil(coupon_use_count / print_cnt)}%</td>
+                  <td>{print_cnt === 0 ? 0 : Math.ceil((coupon_use_count / print_cnt) * 100)}%</td>
                   <td>{Utils.numberComma(discount_charge)}원</td>
                   <td>
                     <strong>{Utils.numberComma(use_coupon_charge)}</strong>원

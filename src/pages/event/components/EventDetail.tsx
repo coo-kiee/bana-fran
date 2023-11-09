@@ -8,6 +8,7 @@ import Calander from 'pages/common/calander';
 import EventDetailTable from './EventDetailTable';
 import Pages from 'pages/common/pagination/Pages';
 import ExcelButton from 'pages/common/excel/ExcelButton';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 // hook
 import useSearchDate from 'hooks/common/useSearchDate';
@@ -15,20 +16,13 @@ import useUserInfo from 'hooks/user/useUser';
 import useEventTextFilter from 'hooks/event/useEventTextFilter';
 
 // type, constant
-import { EVENT_TAB_TYPE, EventTabType } from 'constants/event';
+import { EVENT_COUPON_USAGE_FILTER_TYPE, EVENT_TAB_TYPE, EventTabType } from 'constants/event';
 
 const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
   const tableRef = useRef<HTMLTableElement>(null);
-  const thRef = useRef<HTMLTableRowElement>(null);
   const {
     user: { fCodeName },
   } = useUserInfo();
-
-  const excelFileName = tabType === EVENT_TAB_TYPE.COUPON_STATUS ? '쿠폰현황' : '사용내역';
-  const addRowColor = {
-    rowNums: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? [1, 2] : [1],
-    colors: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? ['d3d3d3', 'd3d3d3'] : ['d3d3d3'],
-  };
 
   const { searchDate, handleSearchDate } = useSearchDate({
     fromDate: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? subMonths(new Date(), 11) : subMonths(new Date(), 3),
@@ -36,7 +30,7 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
     dateFormat: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? 'yyyy-MM' : 'yyyy-MM-dd',
   });
 
-  const { filterCondition, handleFilterCondition } = useEventTextFilter();
+  const { filterCondition, debouncedFilterCondition, handleFilterCondition } = useEventTextFilter();
 
   return (
     <div className="board-date-wrap">
@@ -51,15 +45,15 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
                   <input
                     type="text"
                     placeholder="쿠폰명"
-                    name="coupon_name"
-                    value={filterCondition.coupon_name}
+                    name={EVENT_COUPON_USAGE_FILTER_TYPE.COUPON_NAME}
+                    value={filterCondition[EVENT_COUPON_USAGE_FILTER_TYPE.COUPON_NAME]}
                     onChange={(e) => handleFilterCondition(e)}
                   />
                   <input
                     type="text"
                     placeholder="쿠폰번호"
-                    name="coupon_code"
-                    value={filterCondition.coupon_code}
+                    name={EVENT_COUPON_USAGE_FILTER_TYPE.COUPON_CODE}
+                    value={filterCondition[EVENT_COUPON_USAGE_FILTER_TYPE.COUPON_CODE]}
                     onChange={(e) => handleFilterCondition(e)}
                   />
                 </div>
@@ -69,16 +63,24 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
               </button>
             </>
           )}
-          showMonthYearPicker={tabType === EVENT_TAB_TYPE.COUPON_STATUS ? true : false}
+          showMonthYearPicker={tabType === EVENT_TAB_TYPE.COUPON_STATUS}
           dateFormat={tabType === EVENT_TAB_TYPE.COUPON_STATUS ? 'yyyy-MM' : 'yyyy-MM-dd'}
         />
       </div>
 
-      <PageInfoProvider>
+      <PageInfoProvider
+        fallbackComponent={() => (
+          <Table className="board-wrap" cellPadding="0" cellSpacing="0">
+            <Table.ColGroup colGroupAttributes={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].colgroup} />
+            <Table.TableHead thData={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].thead} />
+            <SuspenseErrorPage isTable />
+          </Table>
+        )}
+      >
         <Table className="board-wrap" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
           <Table.ColGroup colGroupAttributes={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].colgroup} />
-          <Table.TableHead thData={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].thead} trRef={thRef} />
-          <EventDetailTable searchDate={searchDate} filterCondition={filterCondition} tabType={tabType} />
+          <Table.TableHead thData={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].thead} />
+          <EventDetailTable searchDate={searchDate} filterCondition={debouncedFilterCondition} tabType={tabType} />
         </Table>
         <div className="result-function-wrap">
           <ExcelButton
@@ -89,8 +91,8 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
             colWidths={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].colgroup.map(({ width }) =>
               width !== '*' ? { wpx: Number(width) } : { wpx: 400 },
             )}
-            fileName={`${searchDate.fromDate}~${searchDate.toDate}_${fCodeName}_${excelFileName}`}
-            addRowColor={addRowColor}
+            fileName={`${searchDate.fromDate}~${searchDate.toDate}_${fCodeName}_${EVENT_DETAIL_EXCEL_LIST[tabType].fileName}`}
+            addRowColor={EVENT_DETAIL_EXCEL_LIST[tabType].addRowColor}
           />
           <Pages />
         </div>
@@ -186,5 +188,22 @@ const EVENT_DETAIL_THEAD_COLGROUP_LIST = {
       { width: '180' },
       { width: '180' },
     ],
+  },
+};
+
+const EVENT_DETAIL_EXCEL_LIST = {
+  [EVENT_TAB_TYPE.COUPON_STATUS]: {
+    fileName: '쿠폰현황',
+    addRowColor: {
+      rowNums: [1, 2],
+      colors: ['d3d3d3', 'd3d3d3'],
+    },
+  },
+  [EVENT_TAB_TYPE.COUPON_USAGE]: {
+    fileName: '사용내역',
+    addRowColor: {
+      rowNums: [1],
+      colors: ['d3d3d3'],
+    },
   },
 };

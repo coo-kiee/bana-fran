@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // hook
 import useOnChange from 'hooks/useOnChange';
@@ -8,6 +8,7 @@ import { EventCouponStatusListItemType, EventCouponUsageListItemType } from 'typ
 import { EVENT_COUPON_USAGE_FILTER_TYPE, eventCouponUsageType } from 'constants/event';
 
 const useEventTextFilter = () => {
+  // text filter hook
   const [filterCondition, setFilterCondition] = useState(
     Object.entries(EVENT_COUPON_USAGE_FILTER_TYPE).reduce(
       (acc, [_, key]) => ({ ...acc, [key]: '' }),
@@ -15,7 +16,13 @@ const useEventTextFilter = () => {
     ),
   );
 
-  const handleFilterCondition = useOnChange(setFilterCondition);
+  // debounced text filter hook
+  const [debouncedFilterCondition, setDebouncedFilterCondition] = useState(
+    Object.entries(EVENT_COUPON_USAGE_FILTER_TYPE).reduce(
+      (acc, [_, key]) => ({ ...acc, [key]: '' }),
+      {} as Record<eventCouponUsageType, string>,
+    ),
+  );
 
   const [filterData] = useState(
     () => (condition: typeof filterCondition, data: EventCouponUsageListItemType | EventCouponStatusListItemType) => {
@@ -33,7 +40,15 @@ const useEventTextFilter = () => {
     },
   );
 
-  return { filterCondition, handleFilterCondition, filterData };
+  const handleFilterCondition = useOnChange(setFilterCondition);
+
+  useEffect(() => {
+    const timerId = setTimeout(() => setDebouncedFilterCondition(filterCondition), 300);
+
+    return () => clearTimeout(timerId);
+  }, [filterCondition]);
+
+  return { filterCondition, debouncedFilterCondition, handleFilterCondition, filterData };
 };
 
 export default useEventTextFilter;
