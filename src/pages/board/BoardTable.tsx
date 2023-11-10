@@ -55,7 +55,7 @@ const BoardTable = ({ tabType, category, searchText }: IBoardTable) => {
         <Table.TableHead thData={BOARD_THEAD_INFO} />
         <Table.TableList
           queryRes={boardListRes}
-          render={(data) => renderBoardList(data, `${PAGE_URL.NOTICE}/${tabType}`, navigate)}
+          render={(data) => renderBoardList(data, `${PAGE_URL.BOARD}/${tabType}`, navigate)}
         />
       </Table>
       <div className="result-function-wrap">
