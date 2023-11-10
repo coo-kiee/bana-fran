@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 
 // Context
 import { PageInfoContext, SetPageInfoContext } from 'pages/common/pagination/PageInfoProvider';
@@ -12,20 +12,16 @@ const usePageInfo = () => {
   });
 
   const [handleDataCnt] = useState(() => (dataCnt: number) => {
-    setPageInfo((prev) => ({ ...prev, dataCnt }));
+    setPageInfo((prev) => ({ ...prev, dataCnt, currentPage: 1 }));
   });
 
   const [handleRow] = useState(() => (row: number) => {
-    setPageInfo((prev) => ({ ...prev, row }));
+    setPageInfo((prev) => ({ ...prev, row, currentPage: 1 }));
   });
 
   const checkCurrentPageData = (index: number) => {
     return index >= (pageInfo.currentPage - 1) * pageInfo.row && index < pageInfo.currentPage * pageInfo.row;
   };
-
-  useEffect(() => {
-    setPageInfo((prev) => ({ ...prev, currentPage: 1 }));
-  }, [pageInfo.dataCnt, pageInfo.row, setPageInfo]);
 
   return { pageInfo, setPageInfo, handleCurrentPage, handleDataCnt, handleRow, checkCurrentPageData };
 };

@@ -15,6 +15,27 @@ const MonthRank = loadable(() => import('pages/membership/monthRank'));
 const SalesContainer = loadable(() => import('pages/sales'));
 const EventContainer = loadable(() => import('pages/event'));
 
+export const PAGE_URL = {
+  HOME: '/home',
+  NOTICE: '/notice',
+  BOARD: '/board',
+  CALCULATE: '/calculate',
+  CALCULATE_LIST: '/calculate/list',
+  CALCULATE_POINT: '/calculate/point',
+  CALCULATE_COUPON: '/calculate/coupon',
+  CALCULATE_CLAIM: '/calculate/claim',
+  CALCULATE_ETC: '/calculate/etc',
+  CALCULATE_AFFILIATE: '/calculate/affiliate',
+  ETC: '/etc',
+  SALES: '/sales',
+  SALES_HISTORY: '/sales/history',
+  SALES_STATISTIC: '/sales/statistic',
+  MEMBERSHIP: '/membership',
+  MEMBERSHIP_EXTRA: '/membership/extra',
+  MEMBERSHIP_MONTHRANK: '/membership/monthRank',
+  EVENT: '/event',
+} as const;
+
 // 사이드 메뉴
 type SIDE_MENU_TYPE = {
   path: string;
@@ -28,7 +49,7 @@ type SIDE_MENU_TYPE = {
 
 const sideMenus: Array<SIDE_MENU_TYPE> = [
   {
-    path: '/home',
+    path: PAGE_URL.HOME,
     name: 'HOME',
     icon: 'vcard',
     id: 100,
@@ -37,7 +58,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
     addPath: [],
   },
   {
-    path: '/notice',
+    path: PAGE_URL.NOTICE,
     name: '공지사항',
     icon: 'vcard',
     id: 200,
@@ -46,7 +67,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
     addPath: [':bType', ':bType/:bId'],
   },
   {
-    path: '/board',
+    path: PAGE_URL.BOARD,
     name: '자료실',
     icon: 'vcard',
     id: 300,
@@ -55,14 +76,14 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
     addPath: [':bType', ':bType/:bId'],
   },
   {
-    path: '/calculate',
+    path: PAGE_URL.CALCULATE,
     name: '정산관리',
     icon: 'group',
     id: 400,
     component: null,
     child: [
       {
-        path: '/list',
+        path: PAGE_URL.CALCULATE_LIST,
         name: '정산내역 확인',
         icon: '',
         id: 410,
@@ -70,7 +91,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         addPath: [],
       },
       {
-        path: '/point',
+        path: PAGE_URL.CALCULATE_POINT,
         name: '유상포인트 결제내역',
         icon: '',
         id: 420,
@@ -78,7 +99,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         addPath: [],
       },
       {
-        path: '/coupon',
+        path: PAGE_URL.CALCULATE_COUPON,
         name: '본사 쿠폰 결제내역',
         icon: '',
         id: 430,
@@ -86,7 +107,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         addPath: [],
       },
       {
-        path: '/claim',
+        path: PAGE_URL.CALCULATE_CLAIM,
         name: '클레임 쿠폰 정산내역',
         icon: '',
         id: 440,
@@ -94,7 +115,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         addPath: [],
       },
       {
-        path: '/etc',
+        path: PAGE_URL.CALCULATE_ETC,
         name: '기타 정산 내역',
         icon: '',
         id: 450,
@@ -102,7 +123,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         addPath: [],
       },
       {
-        path: '/affiliate',
+        path: PAGE_URL.CALCULATE_AFFILIATE,
         name: '제휴사 쿠폰/포인트 결제내역',
         icon: '',
         id: 460,
@@ -113,7 +134,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
     addPath: [],
   },
   {
-    path: '/etc',
+    path: PAGE_URL.ETC,
     name: '기타내역',
     icon: 'question circle outline',
     id: 500,
@@ -122,14 +143,14 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
     addPath: [],
   },
   {
-    path: '/sales',
+    path: PAGE_URL.SALES,
     name: '매출관리',
     icon: 'clipboard outline',
     id: 600,
     component: null,
     child: [
       {
-        path: '/history',
+        path: PAGE_URL.SALES_HISTORY,
         name: '주문내역',
         icon: '',
         id: 610,
@@ -137,7 +158,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         addPath: [],
       },
       {
-        path: '/statistic',
+        path: PAGE_URL.MEMBERSHIP_MONTHRANK,
         name: '매출통계',
         icon: '',
         id: 620,
@@ -148,7 +169,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
     addPath: [],
   },
   {
-    path: '/membership',
+    path: PAGE_URL.MEMBERSHIP,
     name: '멤버십현황',
     icon: 'clipboard outline',
     id: 700,
@@ -156,7 +177,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
     addPath: [],
     child: [
       {
-        path: '/extra',
+        path: PAGE_URL.MEMBERSHIP_EXTRA,
         name: '스탬프/쿠폰/바나포인트',
         icon: '',
         id: 710,
@@ -164,7 +185,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         addPath: [],
       },
       {
-        path: '/monthRank',
+        path: PAGE_URL.MEMBERSHIP_MONTHRANK,
         name: '월간 랭킹 현황',
         icon: '',
         id: 720,
@@ -174,7 +195,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
     ],
   },
   {
-    path: '/event',
+    path: PAGE_URL.EVENT,
     name: '이벤트쿠폰현황',
     icon: 'clipboard outline',
     id: 300,

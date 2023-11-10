@@ -9,9 +9,9 @@ interface ITab<T> {
 }
 
 const Tab = <T extends Record<string | number, string>>({ tabTitleObj, render }: ITab<T>) => {
-  const [tabType, setTabType] = useState(
-    Utils.isNumber(Object.keys(tabTitleObj)[0]) ? Number(Object.keys(tabTitleObj)[0]) : Object.keys(tabTitleObj)[0],
-  );
+  const initial = Object.keys(tabTitleObj)[0];
+
+  const [tabType, setTabType] = useState(Utils.isNumber(initial) ? Number(initial) : initial);
 
   return (
     <>

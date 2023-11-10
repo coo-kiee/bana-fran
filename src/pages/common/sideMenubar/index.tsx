@@ -36,8 +36,7 @@ const SideMenu: React.FC<{
           </li>
         ));
 
-        const childLen = data.child?.length || 0;
-        return childLen > 0 ? (
+        return childMenu.length > 0 ? (
           <li
             key={`link_${key}`}
             className={`list-item depth ${activeMenu.index === data.id && activeMenu.show ? 'active' : ''}`}
