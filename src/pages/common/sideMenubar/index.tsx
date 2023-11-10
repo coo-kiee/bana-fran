@@ -77,13 +77,11 @@ const SideMenubar: React.FC = () => {
     if (window.location.pathname !== '/') {
       let menuData: { pId: number; id: number } = { pId: 0, id: 0 };
       sideMenus.forEach((data: SIDE_MENU_TYPE) => {
-        if (data.path === window.location.pathname) menuData = { ...data, pId: data.id };
-        else {
-          data.child?.forEach((cdata) => {
-            if (data.path + cdata.path === window.location.pathname)
-              menuData = { ...cdata, pId: data.id, id: cdata.id };
-          });
-        }
+        if (window.location.pathname.startsWith(data.path)) menuData = { ...data, pId: data.id };
+
+        data.child?.forEach((cdata) => {
+          if (data.path + cdata.path === window.location.pathname) menuData = { ...cdata, pId: data.id, id: cdata.id };
+        });
       });
       setActiveMenu({ index: menuData.pId, subIndex: menuData.id, show: menuData.id > 0 ? true : false });
     }
