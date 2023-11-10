@@ -198,7 +198,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
     path: PAGE_URL.EVENT,
     name: '이벤트쿠폰현황',
     icon: 'clipboard outline',
-    id: 300,
+    id: 800,
     component: EventContainer,
     child: [],
     addPath: [],

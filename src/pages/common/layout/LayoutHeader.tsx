@@ -10,7 +10,7 @@ const HEADER_CLASS_NAME = {
   [PAGE_URL.ETC]: 'etc',
   [PAGE_URL.SALES]: 'sales',
   [PAGE_URL.MEMBERSHIP]: 'membership',
-  [PAGE_URL.EVENT]: 'event',
+  [PAGE_URL.EVENT]: 'etc',
 } as Record<string, string>;
 
 const LayoutHeader = () => {
@@ -29,7 +29,7 @@ const LayoutHeader = () => {
 
   return (
     <header>
-      <div className={'page-title ' + HEADER_CLASS_NAME[parentMenuPath] || ''}>
+      <div className={`page-title ${HEADER_CLASS_NAME[parentMenuPath] || ''}`}>
         <p className="present">{headerInfo[pathname] || headerInfo[parentMenuPath] || ''}</p>
         {childMenuPath && <p className="spot">{headerInfo[pathname] || ''}</p>}
       </div>

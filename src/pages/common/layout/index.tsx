@@ -30,7 +30,7 @@ const Layout = ({ children }: PropsWithChildren) => {
   const parentMenuPath = '/' + pathname.split('/')[1];
 
   return (
-    <section className={'container ' + CONTAINER_CLASS_NAME[pathname] || CONTAINER_CLASS_NAME[parentMenuPath] || ''}>
+    <section className={`container ${CONTAINER_CLASS_NAME[pathname] || CONTAINER_CLASS_NAME[parentMenuPath] || ''}`}>
       <LayoutHeader />
       {children}
     </section>
