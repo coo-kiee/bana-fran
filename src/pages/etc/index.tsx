@@ -1,9 +1,10 @@
-import { useState } from 'react';
-
 // type
+import { ETC_TAB_TITLE } from 'constants/etc';
 import { ETC_TAB_TYPE } from 'types/etc/etcType';
 
 // component
+import Tab from 'pages/common/tab';
+import EtcInfo from './component/EtcInfo';
 import DeliveryCharge from './deliveryCharge';
 import GiftCard from './giftcard';
 import MusicCharge from './musicCharge';
@@ -12,35 +13,24 @@ import Royalty from './royalty';
 import VirtualAccount from './virtualAccount';
 
 const EtcContainer = () => {
-  const [currTab, setCurrTab] = useState(ETC_TAB_TYPE.DELIVERY); // 선택된 탭 메뉴 관련
-  const tabList = [
-    {
-      title: '바나 딜리버리 수수료',
-      subtitle: '바나 딜리버리 수수료 내역을 조회할 수 있습니다.',
-      id: 'tab1',
-      component: <DeliveryCharge />,
-    },
-    {
-      title: '음악 서비스 이용료',
-      subtitle: '매월 매장 음악 서비스 이용료를 조회할 수 있습니다.',
-      id: 'tab2',
-      component: <MusicCharge />,
-    },
-    {
-      title: '실물상품권 발주/판매',
-      subtitle: '실물 상품권 발주/위탁판매내역을 조회할 수 있습니다.',
-      id: 'tab3',
-      component: <GiftCard />,
-    },
-    { title: '발주내역', subtitle: '상세 발주 내역을 조회할 수 있습니다.', id: 'tab4', component: <OrderDetail /> },
-    { title: '로열티', subtitle: '매월 매장 로열티를 조회할 수 있습니다.', id: 'tab5', component: <Royalty /> },
-    {
-      title: '가상계좌 충전/차감',
-      subtitle: '가상계좌 충전/차감 내역을 조회할 수 있습니다.',
-      id: 'tab6',
-      component: <VirtualAccount />,
-    },
-  ];
+  const tab = (tabType: ETC_TAB_TYPE) => {
+    switch (tabType) {
+      case ETC_TAB_TYPE.DELIVERY:
+        return <DeliveryCharge tabType={tabType} />;
+      case ETC_TAB_TYPE.MUSIC:
+        return <MusicCharge tabType={tabType} />;
+      case ETC_TAB_TYPE.GIFTCARD:
+        return <GiftCard tabType={tabType} />;
+      case ETC_TAB_TYPE.ORDER:
+        return <OrderDetail tabType={tabType} />;
+      case ETC_TAB_TYPE.ROYALTY:
+        return <Royalty tabType={tabType} />;
+      case ETC_TAB_TYPE.ACCOUNT:
+        return <VirtualAccount tabType={tabType} />;
+      default:
+        return <div className="board-date-wrap">잘못된 접근입니다.</div>;
+    }
+  };
 
   return (
     <>
@@ -52,30 +42,15 @@ const EtcContainer = () => {
         </header>
         <section className="contents-wrap etc-wrap">
           <div className="contents">
-            <ul className="tab-wrap">
-              {tabList.map(({ title }, idx) => (
-                <li
-                  key={`etc_tab_${idx}`}
-                  className={`tab ${currTab === idx && 'active'}`}
-                  data-tab={`tab${idx}`}
-                  onClick={() => setCurrTab((prevTab) => idx)}
-                >
-                  {title}
-                </li>
-              ))}
-            </ul>
-
-            <div id={`${tabList[currTab].id}`} className="tab-content active">
-              <div className="info-wrap">
-                <p>
-                  ※ {tabList[currTab].subtitle}{' '}
-                  {currTab !== ETC_TAB_TYPE.ACCOUNT && (
-                    <strong>(가상계좌 자동 차감되므로 정산내역에는 반영되지 않습니다.)</strong>
-                  )}
-                </p>
-              </div>
-              {tabList[currTab].component}
-            </div>
+            <Tab
+              tabTitleObj={ETC_TAB_TITLE}
+              render={(tabType) => (
+                <div id={`tab${tabType + 1}`} className="tab-content active">
+                  <EtcInfo tabType={tabType} />
+                  {tab(tabType)}
+                </div>
+              )}
+            />
           </div>
         </section>
       </section>

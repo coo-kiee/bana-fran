@@ -1,11 +1,19 @@
-import React, { FC } from 'react';
-import { useLayoutEffect } from 'react';
+import { FC, useRef } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useQueryErrorResetBoundary } from 'react-query';
 import Utils from 'utils/Utils';
+import { deepClone } from 'utils/deepClone';
 
 // type, constants
 import { SearchDate } from 'constants/calculate/common';
-import { GiftCardDetailType } from 'types/etc/etcType';
-import { giftcardFilterOption } from 'constants/etc';
+import { ETC_TAB_TYPE, GiftCardDetailType } from 'types/etc/etcType';
+import {
+  ETC_COL_THEAD_LIST,
+  ETC_DETAIL_SUM_INFO,
+  EtcDetailSumInfo,
+  GIFTCARD_SUM_TYPE,
+  giftcardFilterOption,
+} from 'constants/etc';
 
 // hook
 import useGiftcardOption from 'hooks/etc/useGiftcardOption';
@@ -15,64 +23,125 @@ import useUserInfo from 'hooks/user/useUser';
 
 // component
 import Table from 'pages/common/table';
+import ExcelButton from 'pages/common/excel/ExcelButton';
+import Pages from 'pages/common/pagination/Pages';
+import Sticky from 'pages/common/sticky';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+import TableTotalInfo from 'pages/common/table/TableTotalInfo';
 
 // service
 import ETC_SERVICE from 'service/etcService';
 
 interface GiftCardDetailTableProps {
-  etcGiftcardListKey: string[];
   searchDate: SearchDate;
   filterCondition: Record<keyof giftcardFilterOption, string>;
-  setDetailTotalInfo: React.Dispatch<React.SetStateAction<GiftCardDetailType[]>>;
+  tabType: ETC_TAB_TYPE;
 }
 const GiftCardDetailTable: FC<GiftCardDetailTableProps> = ({
-  etcGiftcardListKey,
-  searchDate,
+  searchDate: { fromDate, toDate },
   filterCondition,
-  setDetailTotalInfo,
+  tabType,
 }) => {
-  const { user } = useUserInfo();
+  const { reset } = useQueryErrorResetBoundary();
+  const tableRef = useRef<HTMLTableElement>(null);
+  const thRef = useRef<HTMLTableRowElement>(null);
+  const {
+    user: { fCode, fCodeName },
+  } = useUserInfo();
   const { checkCurrentPageData } = usePageInfo();
   const { filterData } = useGiftcardOption();
-  const listData = ETC_SERVICE.useGiftCardList(etcGiftcardListKey, [
-    user.fCode,
-    searchDate.fromDate,
-    searchDate.toDate,
-  ]);
+  const listData = ETC_SERVICE.useGiftCardList(
+    ['etc_gift_card_list', JSON.stringify({ fCode, from: fromDate, to: toDate })],
+    [fCode, fromDate, toDate],
+  );
 
   useHandlePageDataCnt(listData, filterCondition, filterData);
-  useLayoutEffect(() => {
-    if (!listData?.data) return;
-
-    setDetailTotalInfo(listData.data);
-  }, [listData, setDetailTotalInfo]);
 
   return (
-    <Table.TableList
-      queryRes={listData}
-      render={(datas) =>
-        datas
-          ?.filter((couponDetail) => filterData(filterCondition, couponDetail))
-          .map(({ std_date, gubun, item_name, item_cnt, item_amt, rcp_type, account_amt }, index) => {
-            const display = checkCurrentPageData(index) ? '' : 'none';
+    <>
+      <TableTotalInfo
+        fromDate={fromDate}
+        toDate={toDate}
+        queryRes={listData}
+        initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
+        sumFn={(initial: EtcDetailSumInfo, datas: GiftCardDetailType[]) => {
+          const sumObj = datas.reduce((arr, { rcp_type, gubun, item_amt }) => {
+            if (
+              (rcp_type === '키오스크' || rcp_type === 'POS') &&
+              gubun === '판매' &&
+              GIFTCARD_SUM_TYPE.KIOSK_POS_TOTAL in arr
+            ) {
+              arr[GIFTCARD_SUM_TYPE.KIOSK_POS_TOTAL].sum += item_amt;
+            } else if (rcp_type === '어플' && gubun === '판매' && GIFTCARD_SUM_TYPE.APP_TOTAL in arr) {
+              arr[GIFTCARD_SUM_TYPE.APP_TOTAL].sum += item_amt;
+            } else if (gubun === '판매취소(폐기)' && GIFTCARD_SUM_TYPE.CANCELLATION_TOTAL in arr) {
+              arr[GIFTCARD_SUM_TYPE.CANCELLATION_TOTAL].sum += item_amt;
+            }
+            return arr;
+          }, deepClone(initial));
 
-            return (
-              <tr key={index} style={{ display }}>
-                <td className="align-center">{std_date}</td>
-                <td className={`align-center ${gubun.includes('임의') ? 'negative-value' : ''}`}>{gubun}</td>
-                <td className="align-center">{item_name}</td>
-                <td className="align-center">
-                  {Utils.numberComma(item_cnt)}장 ({Utils.numberComma(item_amt)})
-                </td>
-                <td className="align-center">{rcp_type}</td>
-                <td className={`align-center ${account_amt < 0 ? 'negative-value' : ''}`}>
-                  {Utils.numberComma(account_amt)}
-                </td>
-              </tr>
-            );
-          })
-      }
-    />
+          return sumObj;
+        }}
+        priceInfo={
+          <div className="price-info">
+            <p className="hyphen">키오스크/POS 판매금액은 가상계좌에서 자동 차감됩니다.</p>
+            <p className="hyphen">어플 판매금액은 가상계좌에서 차감되지 않습니다.</p>
+            <p className="hyphen">판매취소된 상품권은 폐기되므로 재고에 반영되지 않습니다.</p>
+          </div>
+        }
+      />
+
+      <Sticky reference={thRef.current} contentsRef={tableRef.current}>
+        <Table.ColGroup colGroupAttributes={ETC_COL_THEAD_LIST[tabType].colgroup} />
+        <Table.TableHead thData={ETC_COL_THEAD_LIST[tabType].thead} />
+      </Sticky>
+      <Table className="board-wrap" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
+        <Table.ColGroup colGroupAttributes={ETC_COL_THEAD_LIST[tabType].colgroup} />
+        <Table.TableHead thData={ETC_COL_THEAD_LIST[tabType].thead} trRef={thRef} />
+        <ErrorBoundary
+          onReset={reset}
+          fallbackRender={({ resetErrorBoundary }) => (
+            <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />
+          )}
+        >
+          <Table.TableList
+            queryRes={listData}
+            render={(datas) =>
+              datas
+                ?.filter((couponDetail) => filterData(filterCondition, couponDetail))
+                .map(({ std_date, gubun, item_name, item_cnt, item_amt, rcp_type, account_amt }, index) => (
+                  <tr key={index} style={{ display: checkCurrentPageData(index) ? '' : 'none' }}>
+                    <td className="align-center">{std_date}</td>
+                    <td className={`align-center ${gubun.includes('임의') ? 'negative-value' : ''}`}>{gubun}</td>
+                    <td className="align-center">{item_name}</td>
+                    <td className="align-center">
+                      {Utils.numberComma(item_cnt)}장 ({Utils.numberComma(item_amt)})
+                    </td>
+                    <td className="align-center">{rcp_type}</td>
+                    <td className={`align-center ${account_amt < 0 ? 'negative-value' : ''}`}>
+                      {Utils.numberComma(account_amt)}
+                    </td>
+                  </tr>
+                ))
+            }
+          />
+        </ErrorBoundary>
+      </Table>
+      <div className="result-function-wrap">
+        <ExcelButton
+          type={'table'}
+          target={tableRef}
+          tableRef={tableRef}
+          sheetOption={{ origin: 'B3' }}
+          colWidths={ETC_COL_THEAD_LIST[tabType].colgroup.map(({ width }) =>
+            width !== '*' ? { wpx: Number(width) } : { wpx: 400 },
+          )}
+          fileName={`${fromDate}~${toDate}_${fCodeName}_상품권내역`}
+          addRowColor={{ rowNums: [1], colors: ['d3d3d3'] }}
+        />
+        <Pages />
+      </div>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import loadable from '@loadable/component';
 
 // component
@@ -9,7 +9,7 @@ import EtcOverallTable from '../component/EtcOverallTable';
 // type
 import { ETC_TAB_TYPE } from 'types/etc/etcType';
 
-const OrderDetail = () => {
+const OrderDetail: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
   const EtcOrderModal = loadable(() => import('./OrderDetailModal'));
   const [showOrderDetail, setShowOrderDetail] = useState({
     show: false,
@@ -22,10 +22,10 @@ const OrderDetail = () => {
   return (
     <>
       <div className="board-date-wrap">
-        <EtcOverallTable currentTab={ETC_TAB_TYPE.ORDER}>
+        <EtcOverallTable tabType={tabType}>
           <OrderDetailSummary />
         </EtcOverallTable>
-        <OrderDetailDetail openOrderDetailModal={openOrderDetailModal} />
+        <OrderDetailDetail openOrderDetailModal={openOrderDetailModal} tabType={tabType} />
       </div>
       {showOrderDetail.show ? (
         <EtcOrderModal showOrderDetail={showOrderDetail} closeOrderDetailModal={closeOrderDetailModal} />

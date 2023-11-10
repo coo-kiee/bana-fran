@@ -1,7 +1,13 @@
-import useUserInfo from 'hooks/user/useUser';
-import ETC_SERVICE from 'service/etcService';
-import { SummaryDataType } from 'types/etc/etcType';
 import Utils from 'utils/Utils';
+
+// hook
+import useUserInfo from 'hooks/user/useUser';
+
+// service
+import ETC_SERVICE from 'service/etcService';
+
+// type
+import { SummaryDataType } from 'types/etc/etcType';
 
 const DeliveryChargeSummary = () => {
   const { user } = useUserInfo();

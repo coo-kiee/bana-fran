@@ -1,37 +1,20 @@
-import { useState } from 'react';
-import Utils from 'utils/Utils';
+import { FC } from 'react';
 
 // component
-import EtcDetailTable from '../component/EtcDetailTable';
-import EtcDetailSummary from '../component/EtcDetailSummary';
 import RoyaltyDetailTable from './RoyaltyDetailTable';
 import Calander from 'pages/common/calander';
 
 // type, constants
-import { RoyaltyDetailListType, ETC_TAB_TYPE } from 'types/etc/etcType';
-import { ETC_COL_THEAD_LIST } from 'constants/etc';
+import { ETC_TAB_TYPE } from 'types/etc/etcType';
 
 // hook
-import useUserInfo from 'hooks/user/useUser';
 import useSearchDate from 'hooks/common/useSearchDate';
+import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 
-const RoyaltyDetail = () => {
-  const {
-    user: { fCodeName },
-  } = useUserInfo();
+const RoyaltyDetail: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
   const { searchDate, handleSearchDate } = useSearchDate({
     dateFormat: 'yyyy-MM',
   });
-  const [detailTotalInfo, setDetailTotalInfo] = useState([] as RoyaltyDetailListType[]);
-
-  const summaryResult = [
-    {
-      title: '로열티 합계',
-      children: `${Utils.numberComma(
-        detailTotalInfo.reduce((acc: any, cur: any) => (acc += cur.total_amount), 0) || 0,
-      )}원`,
-    },
-  ];
 
   return (
     <>
@@ -50,7 +33,7 @@ const RoyaltyDetail = () => {
         />
       </div>
 
-      <EtcDetailSummary
+      {/* <EtcDetailSummary
         searchDate={`${searchDate.fromDate} ~ ${searchDate.toDate}`}
         summaryResult={summaryResult}
         currentTab={ETC_TAB_TYPE.ROYALTY}
@@ -64,7 +47,10 @@ const RoyaltyDetail = () => {
         }}
       >
         <RoyaltyDetailTable searchDate={searchDate} setDetailTotalInfo={setDetailTotalInfo} />
-      </EtcDetailTable>
+      </EtcDetailTable> */}
+      <PageInfoProvider>
+        <RoyaltyDetailTable searchDate={searchDate} tabType={tabType} />
+      </PageInfoProvider>
     </>
   );
 };

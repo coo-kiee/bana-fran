@@ -1,9 +1,13 @@
-import React, { FC, useLayoutEffect } from 'react';
+import { FC, useRef } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useQueryErrorResetBoundary } from 'react-query';
 import Utils from 'utils/Utils';
+import { deepClone } from 'utils/deepClone';
 
 // type, constants
 import { SearchDate } from 'constants/calculate/common';
-import { VirtualAccListType } from 'types/etc/etcType';
+import { ETC_TAB_TYPE, VirtualAccListType } from 'types/etc/etcType';
+import { ACCOUNT_SUM_TYPE, ETC_COL_THEAD_LIST, ETC_DETAIL_SUM_INFO, EtcDetailSumInfo } from 'constants/etc';
 
 // hook
 import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
@@ -12,21 +16,29 @@ import useUserInfo from 'hooks/user/useUser';
 
 // component
 import Table from 'pages/common/table';
+import ExcelButton from 'pages/common/excel/ExcelButton';
+import Pages from 'pages/common/pagination/Pages';
+import Sticky from 'pages/common/sticky';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+import TableTotalInfo from 'pages/common/table/TableTotalInfo';
 
 // service
 import ETC_SERVICE from 'service/etcService';
 
 interface VirtualAccountDetailTableProps {
   searchDate: SearchDate;
-  setDetailTotalInfo: React.Dispatch<React.SetStateAction<VirtualAccListType[]>>;
+  tabType: ETC_TAB_TYPE;
 }
 const VirtualAccountDetailTable: FC<VirtualAccountDetailTableProps> = ({
   searchDate: { fromDate, toDate },
-  setDetailTotalInfo,
+  tabType,
 }) => {
   const {
-    user: { fCode },
+    user: { fCode, fCodeName },
   } = useUserInfo();
+  const { reset } = useQueryErrorResetBoundary();
+  const tableRef = useRef<HTMLTableElement>(null);
+  const thRef = useRef<HTMLTableRowElement>(null);
   const { checkCurrentPageData } = usePageInfo();
   const listData = ETC_SERVICE.useEtcList<VirtualAccListType[]>(
     'CS4QOSEGOQGJ8QCALM7L',
@@ -35,34 +47,86 @@ const VirtualAccountDetailTable: FC<VirtualAccountDetailTableProps> = ({
   );
 
   useHandlePageDataCnt(listData);
-  useLayoutEffect(() => {
-    if (!listData?.data) return;
-
-    setDetailTotalInfo(listData.data);
-  }, [listData, setDetailTotalInfo]);
 
   return (
-    <Table.TableList
-      queryRes={listData}
-      render={(datas) =>
-        datas?.map(({ balance, deposit, division, log_date, etc, state }, index) => {
-          const display = checkCurrentPageData(index) ? '' : 'none';
+    <>
+      <TableTotalInfo
+        fromDate={fromDate}
+        toDate={toDate}
+        queryRes={listData}
+        initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
+        sumFn={(initial: EtcDetailSumInfo, datas: VirtualAccListType[]) => {
+          const sumObj = datas.reduce((arr, { division, deposit }) => {
+            if (division === '충전' && ACCOUNT_SUM_TYPE.CHARGE in arr) {
+              arr[ACCOUNT_SUM_TYPE.CHARGE].sum += deposit;
+            }
+            if (division === '차감' && ACCOUNT_SUM_TYPE.DEDUCT in arr) {
+              arr[ACCOUNT_SUM_TYPE.DEDUCT].sum += deposit;
+            }
 
-          return (
-            <tr key={index} style={{ display }}>
-              <td className="align-center">{log_date}</td>
-              <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{division}</td>
-              <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>
-                {Utils.numberComma(deposit)}
-              </td>
-              <td className="align-center">{state}</td>
-              <td className="balance">{Utils.numberComma(balance)}</td>
-              <td className="align-left">{etc}</td>
-            </tr>
-          );
-        })
-      }
-    />
+            return arr;
+          }, deepClone(initial));
+
+          return sumObj;
+        }}
+        priceInfo={
+          <div className="price-info">
+            <p className="hyphen">로열티는 일할 계산되지 않습니다. (월 단위 요금 청구)</p>
+          </div>
+        }
+      />
+
+      <Sticky reference={thRef.current} contentsRef={tableRef.current}>
+        <Table.ColGroup colGroupAttributes={ETC_COL_THEAD_LIST[tabType].colgroup} />
+        <Table.TableHead thData={ETC_COL_THEAD_LIST[tabType].thead} />
+      </Sticky>
+      <Table className="board-wrap" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
+        <Table.ColGroup colGroupAttributes={ETC_COL_THEAD_LIST[tabType].colgroup} />
+        <Table.TableHead thData={ETC_COL_THEAD_LIST[tabType].thead} trRef={thRef} />
+        <ErrorBoundary
+          onReset={reset}
+          fallbackRender={({ resetErrorBoundary }) => (
+            <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />
+          )}
+        >
+          <Table.TableList
+            queryRes={listData}
+            render={(datas) =>
+              datas?.map(({ balance, deposit, division, log_date, etc, state }, index) => {
+                const display = checkCurrentPageData(index) ? '' : 'none';
+
+                return (
+                  <tr key={index} style={{ display }}>
+                    <td className="align-center">{log_date}</td>
+                    <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{division}</td>
+                    <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>
+                      {Utils.numberComma(deposit)}
+                    </td>
+                    <td className="align-center">{state}</td>
+                    <td className="balance">{Utils.numberComma(balance)}</td>
+                    <td className="align-left">{etc}</td>
+                  </tr>
+                );
+              })
+            }
+          />
+        </ErrorBoundary>
+      </Table>
+      <div className="result-function-wrap">
+        <ExcelButton
+          type={'table'}
+          target={tableRef}
+          tableRef={tableRef}
+          sheetOption={{ origin: 'B3' }}
+          fileName={`${fromDate}~${toDate}_${fCodeName}_가상계좌내역`}
+          addRowColor={{ rowNums: [1], colors: ['d3d3d3'] }}
+          colWidths={ETC_COL_THEAD_LIST[tabType].colgroup.map(({ width }) => ({
+            wpx: width !== '*' ? Number(((Number(width.replace('%', '')) * 1540) / 100).toFixed(2)) : 400,
+          }))}
+        />
+        <Pages />
+      </div>
+    </>
   );
 };
 

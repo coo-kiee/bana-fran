@@ -1,4 +1,33 @@
+// export const ETC_TAB_TYPE = {
+//   DELIVERY: 'delivery',
+//   MUSIC: 'music',
+//   GIFTCARD: 'giftcard',
+//   ORDER: 'order',
+//   ROYALTY: 'royalty',
+//   ACCOUNT: 'account',
+// } as const;
+
 import { ETC_TAB_TYPE } from 'types/etc/etcType';
+
+export type EtcTabType = (typeof ETC_TAB_TYPE)[keyof typeof ETC_TAB_TYPE];
+
+export const ETC_TAB_TITLE = {
+  [ETC_TAB_TYPE.DELIVERY]: '바나 딜리버리 수수료',
+  [ETC_TAB_TYPE.MUSIC]: '음악 서비스 이용료',
+  [ETC_TAB_TYPE.GIFTCARD]: '실물상품권 발주/판매',
+  [ETC_TAB_TYPE.ORDER]: '발주내역',
+  [ETC_TAB_TYPE.ROYALTY]: '로열티',
+  [ETC_TAB_TYPE.ACCOUNT]: '가상계좌 충전/차감',
+} as const;
+
+export const ETC_TAB_SUBTITLE = {
+  [ETC_TAB_TYPE.DELIVERY]: '바나 딜리버리 수수료 내역을 조회할 수 있습니다.',
+  [ETC_TAB_TYPE.MUSIC]: '매월 매장 음악 서비스 이용료를 조회할 수 있습니다.',
+  [ETC_TAB_TYPE.GIFTCARD]: '실물 상품권 발주/위탁판매내역을 조회할 수 있습니다.',
+  [ETC_TAB_TYPE.ORDER]: '상세 발주 내역을 조회할 수 있습니다.',
+  [ETC_TAB_TYPE.ROYALTY]: '매월 매장 로열티를 조회할 수 있습니다.',
+  [ETC_TAB_TYPE.ACCOUNT]: '가상계좌 충전/차감 내역을 조회할 수 있습니다.',
+} as const;
 
 export const ETC_COL_THEAD_LIST = {
   [ETC_TAB_TYPE.DELIVERY]: {
@@ -283,3 +312,78 @@ export const ETC_ORDER_FILTER_OPTION = {
   ],
 } as const;
 export type orderFilterOption = typeof ETC_ORDER_FILTER_OPTION;
+
+/* 데이터 합계 관련 */
+/* 바나 딜리버리 수수료 */
+export const DELIVERY_SUM_TYPE = {
+  TOTAL: '합계',
+  SUPPLY_FEE_TAX_TOTAL: '수수료 공급가 합계',
+  SUPPLY_FEE_TOTAL: '수수료 합계',
+} as const;
+export const DELIVERY_SUM_TOTAL_INFO = {
+  [DELIVERY_SUM_TYPE.TOTAL]: { title: '바나 딜리버리 주문금액 합계', sum: 0 },
+  [DELIVERY_SUM_TYPE.SUPPLY_FEE_TAX_TOTAL]: { title: '바나 딜리버리 수수료 공급가(주문금액*2%) 합계', sum: 0 },
+  [DELIVERY_SUM_TYPE.SUPPLY_FEE_TOTAL]: { title: '바나 딜리버리 수수료(수수료 공급가+부가세) 합계', sum: 0 },
+};
+
+/* 음악 서비스 이용료 */
+export const MUSIC_SUM_TYPE = {
+  MUSIC_TOTAL: '음악 합계',
+  ROYALTY_TOTAL: '공연권료 합계',
+} as const;
+export const MUSIC_SUM_TOTAL_INFO = {
+  [MUSIC_SUM_TYPE.MUSIC_TOTAL]: { title: '음악 사용료 합계', sum: 0 },
+  [MUSIC_SUM_TYPE.ROYALTY_TOTAL]: { title: '공연권료 합계', sum: 0 },
+};
+
+/* 실물상품권 발주/판매 */
+export const GIFTCARD_SUM_TYPE = {
+  KIOSK_POS_TOTAL: '키오스크/POS 합계',
+  APP_TOTAL: '어플 합계',
+  CANCELLATION_TOTAL: '판매취소 합계',
+} as const;
+export const GIFTCARD_SUM_TOTAL_INFO = {
+  [GIFTCARD_SUM_TYPE.KIOSK_POS_TOTAL]: { title: '키오스크/POS 판매금액 합계', sum: 0 },
+  [GIFTCARD_SUM_TYPE.APP_TOTAL]: { title: '어플 판매금액 합계', sum: 0 },
+  [GIFTCARD_SUM_TYPE.CANCELLATION_TOTAL]: { title: '판매취소(폐기)금액 합계', sum: 0 },
+};
+
+/* 발주내역 */
+export const ORDER_SUM_TYPE = {
+  TOTAL: '합계',
+  SUPPLY_FEE_TAX_TOTAL: '공급가 합계',
+  SUPPLY_FEE_TOTAL: '부가세 합계',
+} as const;
+export const ORDER_SUM_TOTAL_INFO = {
+  [ORDER_SUM_TYPE.TOTAL]: { title: '총 발주금액 합계', sum: 0 },
+  [ORDER_SUM_TYPE.SUPPLY_FEE_TOTAL]: { title: '총 발주금액 합계', sum: 0 },
+  [ORDER_SUM_TYPE.SUPPLY_FEE_TAX_TOTAL]: { title: '총 발주금액 부가세', sum: 0 },
+};
+
+/* 로열티 */
+export const ROYALTY_SUM_TYPE = {
+  TOTAL: '합계',
+} as const;
+export const ROYALTY_SUM_TOTAL_INFO = {
+  [ROYALTY_SUM_TYPE.TOTAL]: { title: '로열티 합계', sum: 0 },
+};
+
+/* 가상계좌 충전/차감 */
+export const ACCOUNT_SUM_TYPE = {
+  CHARGE: '충전',
+  DEDUCT: '차감',
+} as const;
+export const ACCOUNT_SUM_TOTAL_INFO = {
+  [ACCOUNT_SUM_TYPE.CHARGE]: { title: '충전', sum: 0 },
+  [ACCOUNT_SUM_TYPE.DEDUCT]: { title: '차감', sum: 0 },
+};
+
+export const ETC_DETAIL_SUM_INFO = {
+  [ETC_TAB_TYPE.DELIVERY]: DELIVERY_SUM_TOTAL_INFO,
+  [ETC_TAB_TYPE.MUSIC]: MUSIC_SUM_TOTAL_INFO,
+  [ETC_TAB_TYPE.GIFTCARD]: GIFTCARD_SUM_TOTAL_INFO,
+  [ETC_TAB_TYPE.ORDER]: ORDER_SUM_TOTAL_INFO,
+  [ETC_TAB_TYPE.ROYALTY]: ROYALTY_SUM_TOTAL_INFO,
+  [ETC_TAB_TYPE.ACCOUNT]: ACCOUNT_SUM_TOTAL_INFO,
+} as const;
+export type EtcDetailSumInfo = (typeof ETC_DETAIL_SUM_INFO)[keyof typeof ETC_DETAIL_SUM_INFO];

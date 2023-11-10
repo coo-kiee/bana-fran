@@ -1,49 +1,18 @@
-import { useState } from 'react';
-import Utils from 'utils/Utils';
+import { FC } from 'react';
 
 // component
-import MusicChargeDetailTable from './MusicChargeDetailTable';
-import EtcDetailSummary from '../component/EtcDetailSummary';
-import EtcDetailTable from '../component/EtcDetailTable';
 import Calander from 'pages/common/calander';
+import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
+import MusicChargeDetailTable from './MusicChargeDetailTable';
 
 // hook
-import useUserInfo from 'hooks/user/useUser';
 import useSearchDate from 'hooks/common/useSearchDate';
 
 // type, constant
-import { ETC_TAB_TYPE, MusicChargeDetailType } from 'types/etc/etcType';
-import { ETC_COL_THEAD_LIST } from 'constants/etc';
+import { ETC_TAB_TYPE } from 'types/etc/etcType';
 
-const MusicChargeDetail = () => {
-  const {
-    user: { fCodeName },
-  } = useUserInfo();
+const MusicChargeDetail: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
   const { searchDate, handleSearchDate } = useSearchDate({ dateFormat: 'yyyy-MM' });
-  const [detailTotalInfo, setDetailTotalInfo] = useState([] as MusicChargeDetailType[]);
-
-  const summaryResult = [
-    {
-      title: '음악 사용료 합계',
-      children: `${Utils.numberComma(
-        detailTotalInfo.reduce(
-          (acc: number, { state, total_amount }: MusicChargeDetailType) =>
-            state.includes('음악') ? (acc += total_amount) : acc,
-          0,
-        ) || 0,
-      )}원`,
-    },
-    {
-      title: '공원권료 합계',
-      children: `${Utils.numberComma(
-        detailTotalInfo.reduce(
-          (acc: number, { state, total_amount }: MusicChargeDetailType) =>
-            state.includes('공연') ? (acc += total_amount) : acc,
-          0,
-        ) || 0,
-      )}원`,
-    },
-  ];
 
   return (
     <>
@@ -62,21 +31,9 @@ const MusicChargeDetail = () => {
         />
       </div>
 
-      <EtcDetailSummary
-        searchDate={`${searchDate.fromDate} ~ ${searchDate.toDate}`}
-        summaryResult={summaryResult}
-        currentTab={ETC_TAB_TYPE.MUSIC}
-      />
-      <EtcDetailTable
-        colgroup={ETC_COL_THEAD_LIST[ETC_TAB_TYPE.MUSIC].colgroup}
-        thead={ETC_COL_THEAD_LIST[ETC_TAB_TYPE.MUSIC].thead}
-        excelOption={{
-          fileName: `${searchDate.fromDate}~${searchDate.toDate}_${fCodeName}_음악서비스내역`,
-          addRowColor: { rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] },
-        }}
-      >
-        <MusicChargeDetailTable searchDate={searchDate} setDetailTotalInfo={setDetailTotalInfo} />
-      </EtcDetailTable>
+      <PageInfoProvider>
+        <MusicChargeDetailTable tabType={tabType} searchDate={searchDate} />
+      </PageInfoProvider>
     </>
   );
 };

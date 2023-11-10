@@ -9,6 +9,7 @@ interface ITableTotalInfo<T, Q> extends Partial<SearchDate> {
   queryRes: UseQueryResult<Q, unknown>;
   initialDetailTotalInfo: T;
   sumFn: (initial: T, datas: Q) => T;
+  priceInfo?: React.ReactNode;
 }
 
 const TableTotalInfo = <T extends Record<string | number, { title: string; sum: number }>, Q>({
@@ -17,6 +18,7 @@ const TableTotalInfo = <T extends Record<string | number, { title: string; sum: 
   sumFn,
   fromDate,
   toDate,
+  priceInfo,
 }: ITableTotalInfo<T, Q>) => {
   const detailTotalInfo = !queryRes?.data ? initialDetailTotalInfo : sumFn(initialDetailTotalInfo, queryRes.data);
 
@@ -33,6 +35,7 @@ const TableTotalInfo = <T extends Record<string | number, { title: string; sum: 
             </li>
           ))}
         </ul>
+        {priceInfo ? priceInfo : null}
       </div>
     </>
   );
