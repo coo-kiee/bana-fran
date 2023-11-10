@@ -19,7 +19,6 @@ const BoardContainer = () => {
         <div className="contents">
           <BoardTab
             baseUrl={`${PAGE_URL.BOARD}`}
-            urlParamKey="bType"
             tabTitleObj={BOARD_TAB_TITLE}
             render={(tabType) => (
               <PageInfoProvider>

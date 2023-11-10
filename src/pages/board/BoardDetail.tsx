@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { useEffect } from 'react';
 import { useIsFetching } from 'react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -13,6 +14,7 @@ import { fileDownload } from 'utils/fileDownload';
 
 // Component
 import Loading from 'pages/common/loading';
+import Utils from 'utils/Utils';
 
 interface IBoardDetail {
   baseUrl: string;
@@ -25,7 +27,7 @@ const BoardDetail = ({ baseUrl }: IBoardDetail) => {
 
   // Query
   const boardDetailRes = useBoardDetail({
-    board_id: Number(bId),
+    board_id: Utils.isNumber(bId) ? Number(bId) : 0,
     f_code: user.fCode,
     staff_no: user.staffNo,
   });
@@ -33,6 +35,10 @@ const BoardDetail = ({ baseUrl }: IBoardDetail) => {
   const boardAttachListRes = useBoardAttachList(Number(bId));
 
   const fetchingCnt = useIsFetching();
+
+  useEffect(() => {
+    if (!Utils.isNumber(bId)) navigate(`${baseUrl}/${bType}`);
+  }, [bId, bType, baseUrl, navigate]);
 
   if (!boardContentRes.data && fetchingCnt > 0) return <Loading marginTop={300} />;
 

@@ -19,7 +19,6 @@ const NoticeContainer = () => {
         <div className="contents">
           <BoardTab
             baseUrl={`${PAGE_URL.NOTICE}`}
-            urlParamKey="bType"
             tabTitleObj={NOTICE_TAB_TITLE}
             render={(tabType) => (
               <PageInfoProvider>

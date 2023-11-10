@@ -6,34 +6,36 @@ import Utils from 'utils/Utils';
 
 interface IBoardTab<T> {
   baseUrl: string;
-  urlParamKey: string;
   tabTitleObj: T;
   render: (tabType: keyof T) => JSX.Element;
 }
 
-const BoardTab = <T extends Record<string | number, string>>({
-  baseUrl,
-  urlParamKey,
-  tabTitleObj,
-  render,
-}: IBoardTab<T>) => {
+const BoardTab = <T extends Record<number, string>>({ baseUrl, tabTitleObj, render }: IBoardTab<T>) => {
   const navigate = useNavigate();
   const params = useParams();
-  const paramsVal = urlParamKey ? params[urlParamKey] : '';
 
   const [tabType, setTabType] = useState(() => {
     const tabs = Object.keys(tabTitleObj);
 
-    if (paramsVal && tabs.includes(paramsVal)) return Utils.isNumber(paramsVal) ? Number(paramsVal) : paramsVal;
+    if (params.bType && tabs.includes(params.bType)) return Number(params.bType);
 
     const initial = tabs[0];
-    return Utils.isNumber(initial) ? Number(initial) : initial;
+    return Number(initial);
   });
 
-  const handleTabType = (type: string) => {
-    setTabType(typeof tabType === 'number' ? Number(type) : type);
+  const [bIdInfo] = useState(() =>
+    Object.keys(tabTitleObj).reduce(
+      (arr, cur) => ({ ...arr, [cur]: Utils.isNumber(params.bId) ? Number(params.bId) : 0 }),
+      {} as Record<number, number>,
+    ),
+  );
+  bIdInfo[tabType] = Utils.isNumber(params.bId) ? Number(params.bId) : 0;
 
-    navigate(`${baseUrl}/${type}`, { replace: true });
+  const handleTabType = (type: string) => {
+    const nType = Number(type);
+    setTabType(nType);
+
+    navigate(`${baseUrl}/${nType}/${bIdInfo[nType] || ''}`, { replace: true });
   };
 
   return (
