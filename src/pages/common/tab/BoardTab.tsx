@@ -24,10 +24,7 @@ const BoardTab = <T extends Record<number, string>>({ baseUrl, tabTitleObj, rend
   });
 
   const [bIdInfo] = useState(() =>
-    Object.keys(tabTitleObj).reduce(
-      (arr, cur) => ({ ...arr, [cur]: Utils.isNumber(params.bId) ? Number(params.bId) : 0 }),
-      {} as Record<number, number>,
-    ),
+    Object.keys(tabTitleObj).reduce((arr, cur) => ({ ...arr, [cur]: 0 }), {} as Record<number, number>),
   );
   bIdInfo[tabType] = Utils.isNumber(params.bId) ? Number(params.bId) : 0;
 
