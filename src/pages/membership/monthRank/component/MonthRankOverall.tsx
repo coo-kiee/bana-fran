@@ -5,6 +5,7 @@ import { useRecoilValue } from 'recoil';
 
 // comopnent
 import Loading from 'pages/common/loading';
+import Table from 'pages/common/table';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 // state
@@ -20,21 +21,9 @@ const MonthRankOverall: FC<MonthRankOverallProps> = ({ setPopupRankReward }) => 
   const { reset } = useQueryErrorResetBoundary();
 
   return (
-    <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
-      <colgroup>
-        {EXTRA_MONTHRANK_OVERALL_LIST.colgroup.map((el, idx) => (
-          <col key={`month_rank_colgroup_item_${idx}`} {...el} />
-        ))}
-      </colgroup>
-      <thead>
-        {EXTRA_MONTHRANK_OVERALL_LIST.thead.map((el, idx1) => (
-          <tr key={idx1}>
-            {el.map(({ children }, idx2) => (
-              <th key={`month_rank_table_head_item_${idx2}`}>{children}</th>
-            ))}
-          </tr>
-        ))}
-      </thead>
+    <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
+      <Table.ColGroup colGroupAttributes={EXTRA_MONTHRANK_OVERALL_LIST.colgroup} />
+      <Table.TableHead thData={EXTRA_MONTHRANK_OVERALL_LIST.thead} />
       <tbody>
         <React.Suspense fallback={<Loading width={50} height={50} isTable={true} />}>
           <ErrorBoundary
@@ -47,7 +36,7 @@ const MonthRankOverall: FC<MonthRankOverallProps> = ({ setPopupRankReward }) => 
           </ErrorBoundary>
         </React.Suspense>
       </tbody>
-    </table>
+    </Table>
   );
 };
 

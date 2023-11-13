@@ -8,6 +8,7 @@ import Select from 'pages/common/select';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import Calander from 'pages/common/calander';
 import DeliveryChargeDetailTable from './DeliveryChargeDetailTable';
+import EtcDetailTableFallback from '../component/EtcDetailTableFallback';
 
 // hook
 import useDeliveryChargeOption from 'hooks/etc/useDeliveryChargeOption';
@@ -45,7 +46,7 @@ const DeliveryChargeDetail: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         />
       </div>
 
-      <PageInfoProvider>
+      <PageInfoProvider fallbackComponent={() => <EtcDetailTableFallback tabType={tabType} />}>
         <DeliveryChargeDetailTable tabType={tabType} searchDate={searchDate} filterCondition={filterCondition} />
       </PageInfoProvider>
     </>

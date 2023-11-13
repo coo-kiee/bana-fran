@@ -10,11 +10,11 @@ import { MEMBERSHIP_PAGE_TYPE } from 'types/membership/membershipType';
 const ExtraContainer = () => {
   return (
     <section className="container min-width-1600">
-      <MembershipHeader currentTab={MEMBERSHIP_PAGE_TYPE.EXTRA} />
+      <MembershipHeader pageType={MEMBERSHIP_PAGE_TYPE.EXTRA} />
       <section className="contents-wrap membership_current">
-        <MembershipSummary currentTab={MEMBERSHIP_PAGE_TYPE.EXTRA}>
+        <MembershipSummary pageType={MEMBERSHIP_PAGE_TYPE.EXTRA}>
           <ExtraOverall />
-          <ExtraDetail />
+          <ExtraDetail pageType={MEMBERSHIP_PAGE_TYPE.EXTRA} />
         </MembershipSummary>
       </section>
     </section>

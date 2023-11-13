@@ -2,18 +2,12 @@ import { FC, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 import Utils from 'utils/Utils';
-import { deepClone } from 'utils/deepClone';
+import { etcOrderTotalSumFn } from 'utils/etc/sumEtcDetailTotalInfo';
 
 // type, constants
 import { SearchDate } from 'constants/calculate/common';
-import {
-  ETC_COL_THEAD_LIST,
-  ETC_DETAIL_SUM_INFO,
-  EtcDetailSumInfo,
-  ORDER_SUM_TYPE,
-  orderFilterOption,
-} from 'constants/etc';
-import { ETC_TAB_TYPE, OrderDetailListType } from 'types/etc/etcType';
+import { ETC_COL_THEAD_LIST, ETC_DETAIL_SUM_INFO, orderFilterOption } from 'constants/etc';
+import { ETC_TAB_TYPE } from 'types/etc/etcType';
 
 // hook
 import useOrderOption from 'hooks/etc/useOrderOption';
@@ -65,22 +59,7 @@ const OrderDetailDetailTable: FC<OrderDetailDetailTableProps> = ({
         toDate={toDate}
         queryRes={listData}
         initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
-        sumFn={(initial: EtcDetailSumInfo, datas: OrderDetailListType[]) => {
-          const sumObj = datas.reduce((arr, { state, amount, supply_amt, vat_amt }) => {
-            if (state !== 50 && ORDER_SUM_TYPE.TOTAL in arr) {
-              arr[ORDER_SUM_TYPE.TOTAL].sum += amount;
-            }
-            if (state !== 50 && ORDER_SUM_TYPE.SUPPLY_FEE_TOTAL in arr) {
-              arr[ORDER_SUM_TYPE.SUPPLY_FEE_TOTAL].sum += supply_amt;
-            }
-            if (state !== 50 && ORDER_SUM_TYPE.SUPPLY_FEE_TAX_TOTAL in arr) {
-              arr[ORDER_SUM_TYPE.SUPPLY_FEE_TAX_TOTAL].sum += vat_amt;
-            }
-            return arr;
-          }, deepClone(initial));
-
-          return sumObj;
-        }}
+        sumFn={etcOrderTotalSumFn}
       />
 
       <Sticky reference={thRef.current} contentsRef={viewportTableRef.current}>

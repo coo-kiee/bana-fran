@@ -4,6 +4,7 @@ import { FC } from 'react';
 import Calander from 'pages/common/calander';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import MusicChargeDetailTable from './MusicChargeDetailTable';
+import EtcDetailTableFallback from '../component/EtcDetailTableFallback';
 
 // hook
 import useSearchDate from 'hooks/common/useSearchDate';
@@ -31,7 +32,7 @@ const MusicChargeDetail: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         />
       </div>
 
-      <PageInfoProvider>
+      <PageInfoProvider fallbackComponent={() => <EtcDetailTableFallback tabType={tabType} />}>
         <MusicChargeDetailTable tabType={tabType} searchDate={searchDate} />
       </PageInfoProvider>
     </>

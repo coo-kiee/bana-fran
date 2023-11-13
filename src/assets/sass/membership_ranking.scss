@@ -2,6 +2,7 @@
     .contents { position: relative; width: 100%; padding-top: 40px; 
         .board-wrap {
             td { height: 72px; }
+            .no-data { padding: 60px 0; } // custom
         }
         .result-function-wrap { 
             display: flex; 

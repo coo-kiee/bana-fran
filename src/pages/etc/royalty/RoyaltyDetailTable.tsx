@@ -2,12 +2,12 @@ import { FC, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 import Utils from 'utils/Utils';
-import { deepClone } from 'utils/deepClone';
+import { etcRoyaltyTotalSumFn } from 'utils/etc/sumEtcDetailTotalInfo';
 
 // type, constants
 import { SearchDate } from 'constants/calculate/common';
 import { ETC_TAB_TYPE, RoyaltyDetailListType } from 'types/etc/etcType';
-import { ETC_COL_THEAD_LIST, ETC_DETAIL_SUM_INFO, EtcDetailSumInfo, ROYALTY_SUM_TYPE } from 'constants/etc';
+import { ETC_COL_THEAD_LIST, ETC_DETAIL_SUM_INFO } from 'constants/etc';
 
 // hook
 import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
@@ -53,16 +53,7 @@ const RoyaltyDetailTable: FC<RoyaltyDetailTableProps> = ({ searchDate: { fromDat
         toDate={toDate}
         queryRes={listData}
         initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
-        sumFn={(initial: EtcDetailSumInfo, datas: RoyaltyDetailListType[]) => {
-          const sumObj = datas.reduce((arr, { total_amount }) => {
-            if (ROYALTY_SUM_TYPE.TOTAL in arr) {
-              arr[ROYALTY_SUM_TYPE.TOTAL].sum += total_amount;
-            }
-            return arr;
-          }, deepClone(initial));
-
-          return sumObj;
-        }}
+        sumFn={etcRoyaltyTotalSumFn}
         priceInfo={
           <div className="price-info">
             <p className="hyphen">로열티는 일할 계산되지 않습니다. (월 단위 요금 청구)</p>

@@ -3,6 +3,7 @@ import { subMonths } from 'date-fns';
 
 // component
 import VirtualAccountDetailTable from './VirtualAccountDetailTable';
+import EtcDetailTableFallback from '../component/EtcDetailTableFallback';
 
 // type
 import { ETC_TAB_TYPE } from 'types/etc/etcType';
@@ -36,7 +37,7 @@ const VirtualAccountDetail: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         />
       </div>
 
-      <PageInfoProvider>
+      <PageInfoProvider fallbackComponent={() => <EtcDetailTableFallback tabType={tabType} />}>
         <VirtualAccountDetailTable searchDate={searchDate} tabType={tabType} />
       </PageInfoProvider>
     </>

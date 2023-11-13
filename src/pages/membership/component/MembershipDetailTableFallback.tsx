@@ -11,15 +11,15 @@ import Table from 'pages/common/table';
 import { MEMBERSHIP_PAGE_TYPE } from 'types/membership/membershipType';
 
 interface MembershipDetailTableFallbackProps {
-  currentTab: MEMBERSHIP_PAGE_TYPE;
-  resetErrorBoundary: () => void;
+  pageType: MEMBERSHIP_PAGE_TYPE;
+  resetErrorBoundary?: () => void;
 }
 
-const MembershipDetailTableFallback: FC<MembershipDetailTableFallbackProps> = ({ currentTab, resetErrorBoundary }) => {
+const MembershipDetailTableFallback: FC<MembershipDetailTableFallbackProps> = ({ pageType, resetErrorBoundary }) => {
   return (
     <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
-      <Table.ColGroup colGroupAttributes={MEMBERSHIP_COL_THEAD_LIST[currentTab].colgroup} />
-      <Table.TableHead thData={MEMBERSHIP_COL_THEAD_LIST[currentTab].thead} />
+      <Table.ColGroup colGroupAttributes={MEMBERSHIP_COL_THEAD_LIST[pageType].colgroup} />
+      <Table.TableHead thData={MEMBERSHIP_COL_THEAD_LIST[pageType].thead} />
       <tbody>
         <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />
       </tbody>

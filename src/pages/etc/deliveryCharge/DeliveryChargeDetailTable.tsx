@@ -2,17 +2,11 @@ import { useRef } from 'react';
 import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import Utils from 'utils/Utils';
-import { deepClone } from 'utils/deepClone';
+import { etcDeliveryChargeTotalSumFn } from 'utils/etc/sumEtcDetailTotalInfo';
 
 // type, constants
 import { SearchDate } from 'constants/calculate/common';
-import {
-  DELIVERY_SUM_TYPE,
-  ETC_COL_THEAD_LIST,
-  ETC_DETAIL_SUM_INFO,
-  EtcDetailSumInfo,
-  deliveryChargeFilterOption,
-} from 'constants/etc';
+import { ETC_COL_THEAD_LIST, ETC_DETAIL_SUM_INFO, deliveryChargeFilterOption } from 'constants/etc';
 import { DeliveryDetailListType, ETC_TAB_TYPE } from 'types/etc/etcType';
 
 // hook
@@ -66,19 +60,7 @@ const DeliveryChargeDetailTable = ({
         toDate={toDate}
         queryRes={listData}
         initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
-        sumFn={(initial: EtcDetailSumInfo, datas: DeliveryDetailListType[]) => {
-          const sumObj = datas.reduce((arr, cur) => {
-            if (DELIVERY_SUM_TYPE.TOTAL in arr) arr[DELIVERY_SUM_TYPE.TOTAL].sum += cur.total_charge;
-            if (DELIVERY_SUM_TYPE.SUPPLY_FEE_TAX_TOTAL in arr)
-              arr[DELIVERY_SUM_TYPE.SUPPLY_FEE_TAX_TOTAL].sum += cur.suply_fee;
-            if (DELIVERY_SUM_TYPE.SUPPLY_FEE_TOTAL in arr)
-              arr[DELIVERY_SUM_TYPE.SUPPLY_FEE_TOTAL].sum += cur.suply_fee + cur.suply_fee_tax;
-
-            return arr;
-          }, deepClone(initial));
-
-          return sumObj;
-        }}
+        sumFn={etcDeliveryChargeTotalSumFn}
         priceInfo={
           <div className="price-info">
             <p className="hyphen">

@@ -5,11 +5,11 @@ import { format, subMonths } from 'date-fns';
 
 // component
 import Loading from 'pages/common/loading';
+import Table from 'pages/common/table';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 // type
 import { ETC_TAB_TYPE } from 'types/etc/etcType';
-import Table from 'pages/common/table';
 
 const EtcOverallTable = ({ tabType, children }: { tabType: ETC_TAB_TYPE; children: React.ReactNode }) => {
   const { reset } = useQueryErrorResetBoundary();
@@ -22,10 +22,9 @@ const EtcOverallTable = ({ tabType, children }: { tabType: ETC_TAB_TYPE; childre
         <Table.ColGroup colGroupAttributes={colgroup} />
         <Table.TableHead thData={thead} />
         <tbody>
-          <React.Suspense fallback={<Loading width={50} height={50} isTable={true} />}>
+          <React.Suspense fallback={<Loading width={80} height={80} marginTop={0} isTable={true} />}>
             <ErrorBoundary
               onReset={reset}
-              onError={(err) => console.log(err)}
               fallbackRender={({ resetErrorBoundary }) => (
                 <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />
               )}

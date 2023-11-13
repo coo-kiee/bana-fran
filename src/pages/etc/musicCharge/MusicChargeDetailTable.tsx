@@ -2,12 +2,12 @@ import { FC, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 import Utils from 'utils/Utils';
-import { deepClone } from 'utils/deepClone';
+import { etcMusicChargeTotalSumFn } from 'utils/etc/sumEtcDetailTotalInfo';
 
 // type, constants
 import { SearchDate } from 'constants/calculate/common';
 import { ETC_TAB_TYPE, MusicChargeDetailType } from 'types/etc/etcType';
-import { ETC_COL_THEAD_LIST, ETC_DETAIL_SUM_INFO, EtcDetailSumInfo, MUSIC_SUM_TYPE } from 'constants/etc';
+import { ETC_COL_THEAD_LIST, ETC_DETAIL_SUM_INFO } from 'constants/etc';
 
 // hook
 import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
@@ -52,19 +52,7 @@ const MusicChargeDetailTable: FC<MusicChargeDetailTableProps> = ({ searchDate: {
         toDate={toDate}
         queryRes={listData}
         initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
-        sumFn={(initial: EtcDetailSumInfo, datas: MusicChargeDetailType[]) => {
-          const sumObj = datas.reduce((arr, cur) => {
-            if (cur.state.includes('음악') && MUSIC_SUM_TYPE.MUSIC_TOTAL in arr) {
-              arr[MUSIC_SUM_TYPE.MUSIC_TOTAL].sum += cur.total_amount;
-            }
-            if (cur.state.includes('공연') && MUSIC_SUM_TYPE.ROYALTY_TOTAL in arr) {
-              arr[MUSIC_SUM_TYPE.ROYALTY_TOTAL].sum += cur.total_amount;
-            }
-            return arr;
-          }, deepClone(initial));
-
-          return sumObj;
-        }}
+        sumFn={etcMusicChargeTotalSumFn}
         priceInfo={
           <div className="price-info">
             <p className="hyphen">음악사용료/공연권료는 일할 계산되지 않습니다. (월 단위 요금 청구)</p>

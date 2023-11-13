@@ -6,6 +6,7 @@ import Calander from 'pages/common/calander';
 import Select from 'pages/common/select';
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 import GiftCardDetailTable from './GiftCardDetailTable';
+import EtcDetailTableFallback from '../component/EtcDetailTableFallback';
 
 // hook
 import useSearchDate from 'hooks/common/useSearchDate';
@@ -65,7 +66,7 @@ const GiftCardDetail: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         />
       </div>
 
-      <PageInfoProvider>
+      <PageInfoProvider fallbackComponent={() => <EtcDetailTableFallback tabType={tabType} />}>
         <GiftCardDetailTable filterCondition={filterCondition} searchDate={searchDate} tabType={tabType} />
       </PageInfoProvider>
     </>

@@ -10,6 +10,7 @@ import OrderDetailDetailTable from './OrderDetailDetailTable';
 import OrderDetailExcelTable from './OrderDetailExcelTable';
 import Select from 'pages/common/select';
 import Calander from 'pages/common/calander';
+import EtcDetailTableFallback from '../component/EtcDetailTableFallback';
 
 // hook
 import useSearchDate from 'hooks/common/useSearchDate';
@@ -53,7 +54,7 @@ const OrderDetailDetail: FC<{ openOrderDetailModal: (nOrderID: number) => void; 
         />
       </div>
 
-      <PageInfoProvider>
+      <PageInfoProvider fallbackComponent={() => <EtcDetailTableFallback tabType={tabType} />}>
         <OrderDetailDetailTable
           searchDate={searchDate}
           filterCondition={filterCondition}

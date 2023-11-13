@@ -2,12 +2,12 @@ import { FC, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 import Utils from 'utils/Utils';
-import { deepClone } from 'utils/deepClone';
+import { etcVirtualAccountTotalSumFn } from 'utils/etc/sumEtcDetailTotalInfo';
 
 // type, constants
 import { SearchDate } from 'constants/calculate/common';
 import { ETC_TAB_TYPE, VirtualAccListType } from 'types/etc/etcType';
-import { ACCOUNT_SUM_TYPE, ETC_COL_THEAD_LIST, ETC_DETAIL_SUM_INFO, EtcDetailSumInfo } from 'constants/etc';
+import { ETC_COL_THEAD_LIST, ETC_DETAIL_SUM_INFO } from 'constants/etc';
 
 // hook
 import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
@@ -55,20 +55,7 @@ const VirtualAccountDetailTable: FC<VirtualAccountDetailTableProps> = ({
         toDate={toDate}
         queryRes={listData}
         initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
-        sumFn={(initial: EtcDetailSumInfo, datas: VirtualAccListType[]) => {
-          const sumObj = datas.reduce((arr, { division, deposit }) => {
-            if (division === '충전' && ACCOUNT_SUM_TYPE.CHARGE in arr) {
-              arr[ACCOUNT_SUM_TYPE.CHARGE].sum += deposit;
-            }
-            if (division === '차감' && ACCOUNT_SUM_TYPE.DEDUCT in arr) {
-              arr[ACCOUNT_SUM_TYPE.DEDUCT].sum += deposit;
-            }
-
-            return arr;
-          }, deepClone(initial));
-
-          return sumObj;
-        }}
+        sumFn={etcVirtualAccountTotalSumFn}
         priceInfo={
           <div className="price-info">
             <p className="hyphen">로열티는 일할 계산되지 않습니다. (월 단위 요금 청구)</p>

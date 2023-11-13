@@ -3,6 +3,7 @@ import { FC } from 'react';
 // component
 import RoyaltyDetailTable from './RoyaltyDetailTable';
 import Calander from 'pages/common/calander';
+import EtcDetailTableFallback from '../component/EtcDetailTableFallback';
 
 // type, constants
 import { ETC_TAB_TYPE } from 'types/etc/etcType';
@@ -33,22 +34,7 @@ const RoyaltyDetail: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         />
       </div>
 
-      {/* <EtcDetailSummary
-        searchDate={`${searchDate.fromDate} ~ ${searchDate.toDate}`}
-        summaryResult={summaryResult}
-        currentTab={ETC_TAB_TYPE.ROYALTY}
-      />
-      <EtcDetailTable
-        colgroup={ETC_COL_THEAD_LIST[ETC_TAB_TYPE.ROYALTY].colgroup}
-        thead={ETC_COL_THEAD_LIST[ETC_TAB_TYPE.ROYALTY].thead}
-        excelOption={{
-          fileName: `${searchDate.fromDate}~${searchDate.toDate}_${fCodeName}_로열티내역`,
-          addRowColor: { rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] },
-        }}
-      >
-        <RoyaltyDetailTable searchDate={searchDate} setDetailTotalInfo={setDetailTotalInfo} />
-      </EtcDetailTable> */}
-      <PageInfoProvider>
+      <PageInfoProvider fallbackComponent={() => <EtcDetailTableFallback tabType={tabType} />}>
         <RoyaltyDetailTable searchDate={searchDate} tabType={tabType} />
       </PageInfoProvider>
     </>

@@ -16,11 +16,11 @@ const MonthRankContainer = () => {
   return (
     <>
       <section className="container min-width-1200">
-        <MembershipHeader currentTab={MEMBERSHIP_PAGE_TYPE.MONTHRANK} />
+        <MembershipHeader pageType={MEMBERSHIP_PAGE_TYPE.MONTHRANK} />
         <section className="contents-wrap membership_ranking">
-          <MembershipSummary currentTab={MEMBERSHIP_PAGE_TYPE.MONTHRANK}>
+          <MembershipSummary pageType={MEMBERSHIP_PAGE_TYPE.MONTHRANK}>
             <MonthRankOverall setPopupRankReward={setPopupRankReward} />
-            <MonthRankDetail />
+            <MonthRankDetail pageType={MEMBERSHIP_PAGE_TYPE.MONTHRANK} />
           </MembershipSummary>
         </section>
       </section>

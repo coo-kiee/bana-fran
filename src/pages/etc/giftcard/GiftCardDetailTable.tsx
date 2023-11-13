@@ -2,18 +2,12 @@ import { FC, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useQueryErrorResetBoundary } from 'react-query';
 import Utils from 'utils/Utils';
-import { deepClone } from 'utils/deepClone';
+import { etcGiftCardTotalSumFn } from 'utils/etc/sumEtcDetailTotalInfo';
 
 // type, constants
 import { SearchDate } from 'constants/calculate/common';
-import { ETC_TAB_TYPE, GiftCardDetailType } from 'types/etc/etcType';
-import {
-  ETC_COL_THEAD_LIST,
-  ETC_DETAIL_SUM_INFO,
-  EtcDetailSumInfo,
-  GIFTCARD_SUM_TYPE,
-  giftcardFilterOption,
-} from 'constants/etc';
+import { ETC_TAB_TYPE } from 'types/etc/etcType';
+import { ETC_COL_THEAD_LIST, ETC_DETAIL_SUM_INFO, giftcardFilterOption } from 'constants/etc';
 
 // hook
 import useGiftcardOption from 'hooks/etc/useGiftcardOption';
@@ -64,24 +58,7 @@ const GiftCardDetailTable: FC<GiftCardDetailTableProps> = ({
         toDate={toDate}
         queryRes={listData}
         initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
-        sumFn={(initial: EtcDetailSumInfo, datas: GiftCardDetailType[]) => {
-          const sumObj = datas.reduce((arr, { rcp_type, gubun, item_amt }) => {
-            if (
-              (rcp_type === '키오스크' || rcp_type === 'POS') &&
-              gubun === '판매' &&
-              GIFTCARD_SUM_TYPE.KIOSK_POS_TOTAL in arr
-            ) {
-              arr[GIFTCARD_SUM_TYPE.KIOSK_POS_TOTAL].sum += item_amt;
-            } else if (rcp_type === '어플' && gubun === '판매' && GIFTCARD_SUM_TYPE.APP_TOTAL in arr) {
-              arr[GIFTCARD_SUM_TYPE.APP_TOTAL].sum += item_amt;
-            } else if (gubun === '판매취소(폐기)' && GIFTCARD_SUM_TYPE.CANCELLATION_TOTAL in arr) {
-              arr[GIFTCARD_SUM_TYPE.CANCELLATION_TOTAL].sum += item_amt;
-            }
-            return arr;
-          }, deepClone(initial));
-
-          return sumObj;
-        }}
+        sumFn={etcGiftCardTotalSumFn}
         priceInfo={
           <div className="price-info">
             <p className="hyphen">키오스크/POS 판매금액은 가상계좌에서 자동 차감됩니다.</p>

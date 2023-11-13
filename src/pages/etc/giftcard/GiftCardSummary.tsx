@@ -1,4 +1,7 @@
+// hook
 import useUserInfo from 'hooks/user/useUser';
+
+// service
 import ETC_SERVICE from 'service/etcService';
 
 const GiftCardSummary = () => {
