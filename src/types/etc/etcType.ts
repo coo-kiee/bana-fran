@@ -76,6 +76,13 @@ interface VirtualAccountSummaryDataType {
   balance: number;
 }
 
+interface OrderDetailSummaryDataType {
+  date_monthly: string;
+  supply_amt: number;
+  vat_amt: number;
+  amount: number;
+}
+
 interface DeliveryDetailListType {
   delivery_pay_type: string;
   dtRcp: string;
@@ -243,6 +250,7 @@ export type {
   MusicChargeDetailType,
   GiftCardDetailType,
   OrderDetailListType,
+  OrderDetailSummaryDataType,
   OrderDetailListExcelTotalType,
   OrderDetailListExcelType,
   RoyaltyDetailListType,

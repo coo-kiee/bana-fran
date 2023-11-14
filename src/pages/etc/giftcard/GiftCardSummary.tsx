@@ -1,3 +1,5 @@
+import Utils from 'utils/Utils';
+
 // hook
 import useUserInfo from 'hooks/user/useUser';
 
@@ -9,7 +11,7 @@ const GiftCardSummary = () => {
     user: { fCode },
   } = useUserInfo();
 
-  let summaryData: { [key: string]: string } = {
+  let summaryData: Record<string, string> = {
     fran_stock_cnt1: '0',
     fran_stock_amt1: '0',
     fran_stock_cnt3: '0',
@@ -34,7 +36,34 @@ const GiftCardSummary = () => {
   const { data, isSuccess } = ETC_SERVICE.useChkGiftCardStock({ f_code: fCode });
 
   if (isSuccess) {
-    summaryData = data;
+    summaryData = {
+      fran_stock_cnt1: Utils.numberComma(data.fran_stock_cnt1),
+      fran_stock_amt1: Utils.numberComma(data.fran_stock_amt1),
+      fran_stock_cnt3: Utils.numberComma(data.fran_stock_cnt3),
+      fran_stock_amt3: Utils.numberComma(data.fran_stock_amt3),
+      fran_stock_cnt5: Utils.numberComma(data.fran_stock_cnt5),
+      fran_stock_amt5: Utils.numberComma(data.fran_stock_amt5),
+      hq_stock_cnt1: Utils.numberComma(data.hq_stock_cnt1),
+      hq_stock_amt1: Utils.numberComma(data.hq_stock_amt1),
+      hq_stock_cnt3: Utils.numberComma(data.hq_stock_cnt3),
+      hq_stock_amt3: Utils.numberComma(data.hq_stock_amt3),
+      hq_stock_cnt5: Utils.numberComma(data.hq_stock_cnt5),
+      hq_stock_amt5: Utils.numberComma(data.hq_stock_amt5),
+      fran_stock_cnt_total: Utils.numberComma(data.fran_stock_cnt1 + data.fran_stock_cnt3 + data.fran_stock_cnt5),
+      fran_stock_amt_total: Utils.numberComma(data.fran_stock_amt1 + data.fran_stock_amt3 + data.fran_stock_amt5),
+      hq_stock_cnt_total: Utils.numberComma(data.hq_stock_cnt1 + data.hq_stock_cnt3 + data.hq_stock_cnt5),
+      hq_stock_amt_total: Utils.numberComma(data.hq_stock_amt1 + data.hq_stock_amt3 + data.hq_stock_amt5),
+      cnt1_class: data.fran_stock_cnt1 !== data.hq_stock_cnt1 ? 'negative-value' : '',
+      cnt3_class: data.fran_stock_cnt3 !== data.hq_stock_cnt3 ? 'negative-value' : '',
+      cnt5_class: data.fran_stock_cnt5 !== data.hq_stock_cnt5 ? 'negative-value' : '',
+      total_class:
+        data.fran_stock_cnt1 + data.fran_stock_cnt3 + data.fran_stock_cnt5 !==
+          data.hq_stock_cnt1 + data.hq_stock_cnt3 + data.hq_stock_cnt5 || // 갯수가 다르거나
+        data.fran_stock_amt1 + data.fran_stock_amt3 + data.fran_stock_amt5 !==
+          data.hq_stock_amt1 + data.hq_stock_amt3 + data.hq_stock_amt5 // 가격이 다른경우
+          ? 'negative-value'
+          : '',
+    };
   }
 
   return (

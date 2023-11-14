@@ -1,4 +1,6 @@
+import { format, subMonths } from 'date-fns';
 import { useRecoilValue } from 'recoil';
+import Utils from 'utils/Utils';
 
 // service
 import ETC_SERVICE from 'service/etcService';
@@ -16,7 +18,18 @@ const OrderDetailSummary = () => {
   const { data, isSuccess: totalSuccess } = ETC_SERVICE.useOrderDetailStatistic(franCode);
 
   if (totalSuccess) {
-    tableBody = { amount: data.amount, supply_amt: data.supply_amt, vat_amt: data.vat_amt };
+    const previousMonths: { [key: string]: string }[] = Array.from({ length: 13 }, (_, idx1) => idx1).map((el) => ({
+      date_monthly: format(subMonths(new Date(), 12 - el), 'yyyy-MM'),
+      amount: Utils.numberComma(data[12 - el] ? data[12 - el].amount : 0),
+      supply_amt: Utils.numberComma(data[12 - el] ? data[12 - el].supply_amt : 0),
+      vat_amt: Utils.numberComma(data[12 - el] ? data[12 - el].vat_amt : 0),
+    }));
+
+    tableBody = {
+      amount: previousMonths.map((el) => el.amount),
+      supply_amt: previousMonths.map((el) => el.supply_amt),
+      vat_amt: previousMonths.map((el) => el.vat_amt),
+    };
   }
 
   return (

@@ -25,7 +25,7 @@ export const MEMBERSHIP_COL_THEAD_LIST = {
         { children: '지급 수', className: 'price-area height-63' },
         { children: '쿠폰전환 수', className: 'price-area height-63' },
         { children: '유효기간 소멸 수', className: 'price-area height-63' },
-        { children: '발급 수(금액)', className: 'height-63' },
+        { children: `발급 수\n(금액)`, className: 'height-63' },
         { children: '사용 수(금액)', className: 'height-63' },
         { children: '유효기간 소멸 수(금액)', className: 'height-63' },
         { children: '적립', className: 'price-area height-63' },

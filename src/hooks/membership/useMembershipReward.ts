@@ -1,7 +1,13 @@
-import useUserInfo from 'hooks/user/useUser';
 import { useState, useEffect, ChangeEventHandler } from 'react';
 import { useRecoilValue } from 'recoil';
+
+// hook
+import useUserInfo from 'hooks/user/useUser';
+
+// state
 import { loginState } from 'state';
+
+// type
 import { RewardEditItemType } from 'types/membership/monthRankType';
 
 const useMembershipReward = (data: any) => {
@@ -12,23 +18,6 @@ const useMembershipReward = (data: any) => {
     userInfo: { staff_name },
   } = useRecoilValue(loginState);
   const defaultValue = { none: 'checked', coupon: 0, point: 0 };
-  const handleRewardInfo = (reward: string) => {
-    let tempRewardInfo: RewardEditItemType = { none: 'notChecked', coupon: 0, point: 0 };
-    if (reward === '없음') {
-      // 보상이 없는 경우
-      tempRewardInfo = { ...tempRewardInfo, none: 'checked' };
-    } else {
-      // 보상이 있는 경우 텍스트에서 숫자만 뽑아내기
-      if (reward.includes('쿠폰')) {
-        // 보상이 음료무료쿠폰인 경우
-        tempRewardInfo = { ...tempRewardInfo, coupon: Number(reward.replace(/[^0-9]/g, '')) };
-      } else {
-        // 보상이 바나포인트인 경우
-        tempRewardInfo = { ...tempRewardInfo, point: Number(reward.replace(/[^0-9]/g, '')) };
-      }
-    }
-    return tempRewardInfo;
-  };
   const [rewardValue, setRewardValue] = useState<{ [key: string]: RewardEditItemType }>({
     reward1: { ...defaultValue },
     reward2: { ...defaultValue },
@@ -37,13 +26,19 @@ const useMembershipReward = (data: any) => {
     reward5: { ...defaultValue },
   });
 
-  const handlePayment = ({ coupon, point }: RewardEditItemType) => {
-    if (coupon > 0) return { type: 'C', amount: coupon };
-    else if (point > 0) return { type: 'P', amount: point };
-    else return { type: 'N', amount: 0 };
-  }; // 보상 타입 지정
-
   useEffect(() => {
+    const handleRewardInfo = (reward: string) => {
+      let tempRewardInfo: RewardEditItemType = { none: 'checked', coupon: 0, point: 0 };
+
+      if (reward.includes('쿠폰')) {
+        tempRewardInfo = { ...tempRewardInfo, none: 'notChecked', coupon: Number(reward.replace(/[^0-9]/g, '')) };
+      } else if (reward.includes('포인트')) {
+        tempRewardInfo = { ...tempRewardInfo, none: 'notChecked', point: Number(reward.replace(/[^0-9]/g, '')) };
+      }
+
+      return tempRewardInfo;
+    };
+
     setRewardValue({
       reward1: handleRewardInfo(data.rank_reward_1),
       reward2: handleRewardInfo(data.rank_reward_2),
@@ -53,8 +48,18 @@ const useMembershipReward = (data: any) => {
     });
   }, [data]);
 
-  const editList = Object.values(rewardValue).map((reward, idx) => {
-    const { type, amount } = handlePayment(reward);
+  const editList = Object.values(rewardValue).map(({ coupon, point }, idx) => {
+    let type = 'N';
+    let amount = 0;
+
+    if (coupon > 0) {
+      type = 'C';
+      amount = coupon;
+    } else if (point > 0) {
+      type = 'P';
+      amount = point;
+    } // 보상 타입 지정
+
     return { fran_store: fCode, rank_number: idx + 1, payment_type: type, payment: amount, user_name: staff_name }; // reqData 준비
   });
 

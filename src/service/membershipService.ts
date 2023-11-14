@@ -1,20 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 import { AxiosError } from 'axios';
-import { format, isBefore, isSameDay } from 'date-fns';
 
 // type
 import { RequestParams } from 'types/common';
 import { MembershipListType, MembershipTotalType } from 'types/membership/extraType';
 import { RankEditParams, RankInfoItemType, RankListItemType } from 'types/membership/monthRankType';
 
-// TODO: 직전월 스탬프/쿠폰/바나포인트 내역
+// 직전월 스탬프/쿠폰/바나포인트 내역
 const useMembershipTotal = (params: { fran_store: number }) => {
   const reqData: RequestParams<{ fran_store: number }> = {
     ws: 'fprocess',
     query: 'MASFCWHJIICQKQGQFWMM',
     params: params,
   }; // web_fran_s_membership_total
+
   return useQuery<MembershipTotalType, AxiosError>(
     ['membership_extra_total', params.fran_store],
     () => queryFn.getData(reqData),
@@ -28,42 +28,27 @@ const useMembershipTotal = (params: { fran_store: number }) => {
   );
 };
 
-// TODO: 스탬프/쿠폰/바나포인트 상세 내역
+// 스탬프/쿠폰/바나포인트 상세 내역
 const useMembershipList = (queryKey: string[], [franCode, from, to]: [number, string, string]) => {
   const reqData: RequestParams<{ fran_store: number; from_date: string; to_date: string }> = {
     ws: 'fprocess',
     query: 'KFVDLH7FKG9QKBVTK8TL',
     params: { fran_store: franCode, from_date: from + '-01', to_date: to + '-01' },
   };
+
   return useQuery<MembershipListType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: false,
+    // suspense: false,
     useErrorBoundary: true,
-    select: (data: MembershipListType[]) => {
-      const isSameOrBeforeToday = (targetDate: string) =>
-        isBefore(new Date(targetDate), new Date()) || isSameDay(new Date(targetDate), new Date());
-
-      const summary = {
-        ...data[0],
-        std_date: '합계',
-      };
-      const rest = data
-        .slice(1, data.length)
-        .filter(({ std_date }) => isSameOrBeforeToday(std_date))
-        .map((el) => {
-          return { ...el, std_date: format(new Date(el.std_date), 'yyyy/MM/dd') };
-        });
-
-      return [summary, ...rest];
-    },
   });
 }; // web_fran_s_membership_list
 
-// TODO: 현재 설정된 랭킹 보상 내역
+// 현재 설정된 랭킹 보상 내역
 const useRankInfo = (params: { fran_store: number }) => {
   const reqData: RequestParams<{ fran_store: number }> = { ws: 'fprocess', query: 'PEEMIRR3J2XENHVL2HAE', params };
+
   return useQuery<RankInfoItemType, AxiosError>(
     ['membership_rank_info', params.fran_store],
     () => queryFn.getData(reqData),

@@ -1,8 +1,6 @@
 import { useQuery, UseQueryResult } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 import { AxiosError } from 'axios';
-import { format, subMonths } from 'date-fns';
-import Utils from 'utils/Utils';
 
 // type
 import { RequestParams } from 'types/common';
@@ -14,6 +12,7 @@ import {
   VirtualAccListType,
   OrderDetailListExcelType,
   SummaryDataType,
+  OrderDetailSummaryDataType,
 } from 'types/etc/etcType';
 
 // 수수료 내역 (*_total 프로시저 공통 함수)
@@ -44,6 +43,7 @@ const useMusicTotal = (fran_store: number) => {
     refetchOnWindowFocus: false,
     retry: false,
     suspense: true,
+    useErrorBoundary: true,
   });
 };
 
@@ -57,36 +57,7 @@ const useChkGiftCardStock = (params: { f_code: number }) => {
       refetchOnWindowFocus: false,
       retry: false,
       suspense: true,
-      select: (data) => {
-        return {
-          fran_stock_cnt1: Utils.numberComma(data.fran_stock_cnt1),
-          fran_stock_amt1: Utils.numberComma(data.fran_stock_amt1),
-          fran_stock_cnt3: Utils.numberComma(data.fran_stock_cnt3),
-          fran_stock_amt3: Utils.numberComma(data.fran_stock_amt3),
-          fran_stock_cnt5: Utils.numberComma(data.fran_stock_cnt5),
-          fran_stock_amt5: Utils.numberComma(data.fran_stock_amt5),
-          hq_stock_cnt1: Utils.numberComma(data.hq_stock_cnt1),
-          hq_stock_amt1: Utils.numberComma(data.hq_stock_amt1),
-          hq_stock_cnt3: Utils.numberComma(data.hq_stock_cnt3),
-          hq_stock_amt3: Utils.numberComma(data.hq_stock_amt3),
-          hq_stock_cnt5: Utils.numberComma(data.hq_stock_cnt5),
-          hq_stock_amt5: Utils.numberComma(data.hq_stock_amt5),
-          fran_stock_cnt_total: Utils.numberComma(data.fran_stock_cnt1 + data.fran_stock_cnt3 + data.fran_stock_cnt5),
-          fran_stock_amt_total: Utils.numberComma(data.fran_stock_amt1 + data.fran_stock_amt3 + data.fran_stock_amt5),
-          hq_stock_cnt_total: Utils.numberComma(data.hq_stock_cnt1 + data.hq_stock_cnt3 + data.hq_stock_cnt5),
-          hq_stock_amt_total: Utils.numberComma(data.hq_stock_amt1 + data.hq_stock_amt3 + data.hq_stock_amt5),
-          cnt1_class: data.fran_stock_cnt1 !== data.hq_stock_cnt1 ? 'negative-value' : '',
-          cnt3_class: data.fran_stock_cnt3 !== data.hq_stock_cnt3 ? 'negative-value' : '',
-          cnt5_class: data.fran_stock_cnt5 !== data.hq_stock_cnt5 ? 'negative-value' : '',
-          total_class:
-            data.fran_stock_cnt1 + data.fran_stock_cnt3 + data.fran_stock_cnt5 !==
-              data.hq_stock_cnt1 + data.hq_stock_cnt3 + data.hq_stock_cnt5 || // 갯수가 다르거나
-            data.fran_stock_amt1 + data.fran_stock_amt3 + data.fran_stock_amt5 !==
-              data.hq_stock_amt1 + data.hq_stock_amt3 + data.hq_stock_amt5 // 가격이 다른경우
-              ? 'negative-value'
-              : '',
-        };
-      },
+      useErrorBoundary: true,
     },
   );
 }; // web_fran_s_etc_gift_cert_stock
@@ -98,26 +69,17 @@ const useOrderDetailStatistic = (fran_store: number, option: { [key: string]: an
     params: { fran_store },
   };
 
-  return useQuery(['etc_order_detail_statistic', fran_store], () => queryFn.getDataList(reqData), {
-    keepPreviousData: false,
-    refetchOnWindowFocus: false,
-    retry: false,
-    suspense: true,
-    select: (data: Array<{ date_monthly: string; supply_amt: number; vat_amt: number; amount: number }>) => {
-      const previousMonths: { [key: string]: string }[] = Array.from({ length: 13 }, (_, idx1) => idx1).map((el) => ({
-        date_monthly: format(subMonths(new Date(), 12 - el), 'yyyy-MM'),
-        amount: Utils.numberComma(data[12 - el] ? data[12 - el].amount : 0),
-        supply_amt: Utils.numberComma(data[12 - el] ? data[12 - el].supply_amt : 0),
-        vat_amt: Utils.numberComma(data[12 - el] ? data[12 - el].vat_amt : 0),
-      }));
-
-      return {
-        amount: previousMonths.map((el) => el.amount),
-        supply_amt: previousMonths.map((el) => el.supply_amt),
-        vat_amt: previousMonths.map((el) => el.vat_amt),
-      };
+  return useQuery<OrderDetailSummaryDataType[]>(
+    ['etc_order_detail_statistic', fran_store],
+    () => queryFn.getDataList(reqData),
+    {
+      keepPreviousData: false,
+      refetchOnWindowFocus: false,
+      retry: false,
+      suspense: true,
+      useErrorBoundary: true,
     },
-  });
+  );
 };
 
 // 상세 내역
