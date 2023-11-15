@@ -33,7 +33,7 @@ const RequestModifyModal: FC<IRequestModifyModal> = ({ calculateId }) => {
     popModal();
 
     openModal({
-      type: 'Alert',
+      type: 'ALERT',
       component: <>정산확인을 했습니다.</>,
     });
   };

@@ -86,7 +86,7 @@ export const useCalculateConfirm = () => {
   return useMutation({
     mutationFn: (params: IUseCalculateConfirm) => queryFn.axiosPost('/query', { ...data, params }),
     onError() {
-      openModal({ type: 'Alert', component: '정산확인 요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.' });
+      openModal({ type: 'ALERT', component: '정산확인 요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.' });
     },
   });
 };
@@ -108,7 +108,7 @@ export const useCalculateRequestFix = () => {
   return useMutation({
     mutationFn: (params: IUseCalculateRequestFix) => queryFn.axiosPost('/query', { ...data, params }),
     onError() {
-      openModal({ type: 'Alert', component: '수정요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.' });
+      openModal({ type: 'ALERT', component: '수정요청에 실패했습니다.\n 관리자에게 문의하시기 바랍니다.' });
     },
   });
 };

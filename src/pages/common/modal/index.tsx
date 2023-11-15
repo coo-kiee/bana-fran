@@ -20,7 +20,7 @@ const Modal = () => {
     let children = component;
 
     switch (type) {
-      case 'Alert':
+      case 'ALERT':
         children = (
           <div className="alert-layer modify-layer active">
             <div className="msg-wrap">

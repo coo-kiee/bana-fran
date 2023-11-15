@@ -26,11 +26,6 @@ import Table from 'pages/common/table';
 import CalculateLastMonthTableItem from './CalculateLastMonthTableItem';
 
 interface CalculateLastMonthTableProps {
-  userInfo?: {
-    f_code: number;
-    f_code_name: string;
-    staff_no: number;
-  };
   caculateType: CalculateType | AffiliateTabType;
 }
 const CalculateLastMonthTable: FC<CalculateLastMonthTableProps> = ({ caculateType }) => {

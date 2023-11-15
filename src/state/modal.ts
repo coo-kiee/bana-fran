@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { atom } from 'recoil';
 
-export type ModalType = 'Alert' | 'CONFIRM' | 'CUSTOM' | `CUSTOM${number}`;
+export type ModalType = 'ALERT' | 'CONFIRM' | 'CUSTOM' | `CUSTOM${number}`;
 export type ModalInfo = {
   component: JSX.Element | ReactNode;
   callback?: () => void;
