@@ -1,23 +1,27 @@
-import React, { FC, useCallback } from 'react';
+import React from 'react';
 import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useRecoilValue } from 'recoil';
+import Utils from 'utils/Utils';
 
-// comopnent
+// component
 import Loading from 'pages/common/loading';
 import Table from 'pages/common/table';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+import PrizeEdit from './PrizeEdit';
 
-// state
-import { franState } from 'state';
+// hook
+import useUserInfo from 'hooks/user/useUser';
+import useModal from 'hooks/common/useModal';
+import useMonthRank from 'hooks/membership/useMonthRank';
 
 // type
-import { RankInfoItemType, MonthRankOverallProps } from 'types/membership/monthRankType';
+import { IModalParams } from 'state/modal';
+import { RewardEditItemType } from 'types/membership/monthRankType';
 
 // service
 import MEMBERSHIP_SERVICE from 'service/membershipService';
 
-const MonthRankOverall: FC<MonthRankOverallProps> = ({ setPopupRankReward }) => {
+const MonthRankOverall = () => {
   const { reset } = useQueryErrorResetBoundary();
 
   return (
@@ -32,7 +36,7 @@ const MonthRankOverall: FC<MonthRankOverallProps> = ({ setPopupRankReward }) => 
               <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />
             )}
           >
-            <MonthRankOverallData setPopupRankReward={setPopupRankReward} />
+            <MonthRankOverallData />
           </ErrorBoundary>
         </React.Suspense>
       </tbody>
@@ -40,56 +44,65 @@ const MonthRankOverall: FC<MonthRankOverallProps> = ({ setPopupRankReward }) => 
   );
 };
 
-const MonthRankOverallData: FC<{ setPopupRankReward: React.Dispatch<React.SetStateAction<boolean>> }> = ({
-  setPopupRankReward,
-}) => {
-  const franCode = useRecoilValue(franState);
+const MonthRankOverallData = () => {
+  const {
+    user: { fCode },
+  } = useUserInfo();
+  const { openModal } = useModal();
 
-  let rewards: RankInfoItemType = {
-    fran_name: '',
-    rank_reward_1: '',
-    rank_reward_2: '',
-    rank_reward_3: '',
-    rank_reward_4: '',
-    rank_reward_5: '',
-  };
-  const rankInfoParams: { fran_store: number } = { fran_store: franCode };
-  const { data, isSuccess } = MEMBERSHIP_SERVICE.useRankInfo(rankInfoParams);
-  if (isSuccess) {
-    rewards = { ...rewards, ...data };
-  }
+  const { data } = MEMBERSHIP_SERVICE.useRankInfo({ fran_store: fCode });
+  const { monthRankList } = useMonthRank(data);
 
-  const handleRankInfoText = (rankInfo: string) => {
-    // rankInfo = '음료무료쿠폰 (1장)' | '없음' | '바나포인트 (20,000점)'
-    if (rankInfo === '없음') return rankInfo;
-    else {
-      const [reward, quantity] = rankInfo.split(' ');
-      return (
-        <>
-          {reward}
-          <p>{quantity}</p>
-        </>
-      );
+  const handleRankInfoText = ({ none, coupon, point }: RewardEditItemType) => {
+    switch (true) {
+      case none === 'checked':
+        return <>없음</>;
+      case coupon > 0:
+        return (
+          <>
+            음료무료쿠폰<p>({Utils.numberComma(coupon)}장)</p>
+          </>
+        );
+      case point > 0:
+        return (
+          <>
+            바나포인트<p>({Utils.numberComma(point)}점)</p>
+          </>
+        );
+      default:
+        return '';
     }
   };
 
-  const handlePopupRankReward = useCallback(() => {
-    if (data === undefined) {
-      alert('설정이 불가능합니다.');
-    } else {
-      setPopupRankReward((prev) => true);
+  const handleOpenModal = () => {
+    let modalParams = {} as IModalParams;
+
+    switch (true) {
+      case !!data:
+        modalParams = {
+          type: 'CUSTOM',
+          component: <PrizeEdit monthRankList={monthRankList} />,
+        };
+        break;
+      case !data:
+        modalParams = {
+          type: 'ALERT',
+          component: <>설정이 불가능합니다.</>,
+        };
+        break;
+      default:
+        return;
     }
-  }, [data, setPopupRankReward]);
+
+    openModal(modalParams);
+  };
 
   return (
     <tr>
-      <td>{rewards.fran_name}</td>
-      <td>{handleRankInfoText(rewards.rank_reward_1)}</td>
-      <td>{handleRankInfoText(rewards.rank_reward_2)}</td>
-      <td>{handleRankInfoText(rewards.rank_reward_3)}</td>
-      <td>{handleRankInfoText(rewards.rank_reward_4)}</td>
-      <td>{handleRankInfoText(rewards.rank_reward_5)}</td>
-      <td className="setting-view" onClick={() => handlePopupRankReward()}>
+      {Object.entries(monthRankList).map(([key, value], idx) => (
+        <td key={idx}>{key === 'fran_name' ? (value as string) : handleRankInfoText(value as RewardEditItemType)}</td>
+      ))}
+      <td className="setting-view" onClick={() => handleOpenModal()}>
         설정하기
       </td>
     </tr>

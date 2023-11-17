@@ -1,7 +1,6 @@
 import { FC, useRef } from 'react';
 import { useQueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
-import { format, isBefore, isSameDay } from 'date-fns';
 import Utils from 'utils/Utils';
 
 // type, constant
@@ -60,20 +59,8 @@ const ExtraDetailTable: FC<{ searchDate: SearchDate; pageType: MEMBERSHIP_PAGE_T
         >
           <Table.TableList
             queryRes={listData}
-            render={(datas) => {
-              const [total, ...rest] = [datas[0], ...datas.slice(1)];
-              const totalData = {
-                ...total,
-                std_date: '합계',
-              };
-              const restData = rest
-                .filter(
-                  ({ std_date }) =>
-                    isBefore(new Date(std_date), new Date()) || isSameDay(new Date(std_date), new Date()),
-                )
-                .map((el) => ({ ...el, std_date: format(new Date(el.std_date), 'yyyy/MM/dd') }));
-
-              return [totalData, ...restData].map(
+            render={(datas) =>
+              datas?.map(
                 (
                   {
                     std_date,
@@ -111,8 +98,8 @@ const ExtraDetailTable: FC<{ searchDate: SearchDate; pageType: MEMBERSHIP_PAGE_T
                     <td className={index === 0 ? 'total' : ''}>{Utils.numberComma(expired_point)}P</td>
                   </tr>
                 ),
-              );
-            }}
+              )
+            }
           />
         </ErrorBoundary>
       </Table>

@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEventHandler } from 'react';
+import { useState, ChangeEventHandler } from 'react';
 import { useRecoilValue } from 'recoil';
 
 // hook
@@ -8,45 +8,22 @@ import useUserInfo from 'hooks/user/useUser';
 import { loginState } from 'state';
 
 // type
-import { RewardEditItemType } from 'types/membership/monthRankType';
+import { RankListType, defaultRewardEditItem } from 'types/membership/monthRankType';
 
-const useMembershipReward = (data: any) => {
+const useMembershipReward = (monthRankList: Omit<RankListType, 'fran_name'>) => {
   const {
     user: { fCode },
   } = useUserInfo();
   const {
     userInfo: { staff_name },
   } = useRecoilValue(loginState);
-  const defaultValue = { none: 'checked', coupon: 0, point: 0 };
-  const [rewardValue, setRewardValue] = useState<{ [key: string]: RewardEditItemType }>({
-    reward1: { ...defaultValue },
-    reward2: { ...defaultValue },
-    reward3: { ...defaultValue },
-    reward4: { ...defaultValue },
-    reward5: { ...defaultValue },
+  const [rewardValue, setRewardValue] = useState<Omit<RankListType, 'fran_name'>>({
+    rank_reward_1: { ...defaultRewardEditItem, ...monthRankList.rank_reward_1 },
+    rank_reward_2: { ...defaultRewardEditItem, ...monthRankList.rank_reward_2 },
+    rank_reward_3: { ...defaultRewardEditItem, ...monthRankList.rank_reward_3 },
+    rank_reward_4: { ...defaultRewardEditItem, ...monthRankList.rank_reward_4 },
+    rank_reward_5: { ...defaultRewardEditItem, ...monthRankList.rank_reward_5 },
   });
-
-  useEffect(() => {
-    const handleRewardInfo = (reward: string) => {
-      let tempRewardInfo: RewardEditItemType = { none: 'checked', coupon: 0, point: 0 };
-
-      if (reward.includes('쿠폰')) {
-        tempRewardInfo = { ...tempRewardInfo, none: 'notChecked', coupon: Number(reward.replace(/[^0-9]/g, '')) };
-      } else if (reward.includes('포인트')) {
-        tempRewardInfo = { ...tempRewardInfo, none: 'notChecked', point: Number(reward.replace(/[^0-9]/g, '')) };
-      }
-
-      return tempRewardInfo;
-    };
-
-    setRewardValue({
-      reward1: handleRewardInfo(data.rank_reward_1),
-      reward2: handleRewardInfo(data.rank_reward_2),
-      reward3: handleRewardInfo(data.rank_reward_3),
-      reward4: handleRewardInfo(data.rank_reward_4),
-      reward5: handleRewardInfo(data.rank_reward_5),
-    });
-  }, [data]);
 
   const editList = Object.values(rewardValue).map(({ coupon, point }, idx) => {
     let type = 'N';
@@ -63,25 +40,28 @@ const useMembershipReward = (data: any) => {
     return { fran_store: fCode, rank_number: idx + 1, payment_type: type, payment: amount, user_name: staff_name }; // reqData 준비
   });
 
-  const handleRewardValue: ChangeEventHandler<HTMLInputElement> = ({ target: { name, value } }) => {
-    const [key1Name, key2Name] = name.split('_');
+  const handleRewardValue: ChangeEventHandler<HTMLInputElement> = ({ target: { name, id, value } }) => {
+    const idWithoutIdx = id.replace(/\d/g, '');
+    const nameWithoutDash = name.split('-')[0];
+    // console.log({ idWithoutIdx, nameWithoutDash, value });
 
     if (value === '' || value === '0') {
-      setRewardValue((prev) => ({ ...prev, [key1Name]: { none: 'checked', coupon: 0, point: 0 } }));
-    } else if ((key2Name === 'coupon' || key2Name === 'point') && isNaN(Number(value))) {
+      setRewardValue((prev) => ({ ...prev, [nameWithoutDash]: { none: 'checked', coupon: 0, point: 0 } }));
+    } else if ((idWithoutIdx === 'coupon' || idWithoutIdx === 'point') && isNaN(Number(value))) {
       alert('숫자만 입력해주세요.'); // 숫자가 아닌 문자 넣은 경우 alert
     } else {
       setRewardValue((prev) => ({
         ...prev,
-        [key1Name]: {
+        [nameWithoutDash]: {
           none: 'notChecked',
           coupon: 0,
           point: 0,
-          [key2Name]: key2Name !== 'none' ? Number(value) : value,
+          [idWithoutIdx]: idWithoutIdx !== 'none' ? Number(value) : value,
         },
       }));
     }
   };
+
   return { rewardValue, editList, handleRewardValue };
 };
 

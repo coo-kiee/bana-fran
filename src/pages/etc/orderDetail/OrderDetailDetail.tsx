@@ -19,10 +19,7 @@ import useOrderOption from 'hooks/etc/useOrderOption';
 // type, constants
 import { ETC_ORDER_FILTER_OPTION, ETC_ORDER_FILTER_TYPE } from 'constants/etc';
 
-const OrderDetailDetail: FC<{ openOrderDetailModal: (nOrderID: number) => void; tabType: ETC_TAB_TYPE }> = ({
-  openOrderDetailModal,
-  tabType,
-}) => {
+const OrderDetailDetail: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
   const { searchDate, handleSearchDate } = useSearchDate({
     fromDate: subMonths(new Date(), 1),
     toDate: new Date(),
@@ -55,13 +52,7 @@ const OrderDetailDetail: FC<{ openOrderDetailModal: (nOrderID: number) => void; 
       </div>
 
       <PageInfoProvider fallbackComponent={() => <EtcDetailTableFallback tabType={tabType} />}>
-        <OrderDetailDetailTable
-          searchDate={searchDate}
-          filterCondition={filterCondition}
-          openOrderDetailModal={openOrderDetailModal}
-          tabType={tabType}
-        />
-
+        <OrderDetailDetailTable searchDate={searchDate} filterCondition={filterCondition} tabType={tabType} />
         <OrderDetailExcelTable searchDate={searchDate} filterCondition={filterCondition} />
       </PageInfoProvider>
     </>

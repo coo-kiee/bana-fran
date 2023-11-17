@@ -1,65 +1,56 @@
-import React, { FC } from 'react';
-import { useRecoilValue } from 'recoil';
-import { useQueryClient } from 'react-query';
+import { FC } from 'react';
 
-// state
-import { franState } from 'state';
+// component
+import Table from 'pages/common/table';
 
 // type
-import { RewardEditDataProps } from 'types/membership/monthRankType';
+import { RewardEditDataProps, RankListType } from 'types/membership/monthRankType';
 
 // service
 import MEMBERSHIP_SERVICE from 'service/membershipService';
 
 // hook
+import useModal from 'hooks/common/useModal';
 import useMembershipReward from 'hooks/membership/useMembershipReward';
-import useBodyScrollFix from 'hooks/useBodyScrollFix';
 
-const PrizeEdit: FC<{ setPopupRankReward: React.Dispatch<React.SetStateAction<boolean>> }> = ({
-  setPopupRankReward,
-}) => {
-  const franCode = useRecoilValue(franState);
-  const queryClient = useQueryClient();
-  const colGroup = [{ width: '61' }, { width: '91' }, { width: '272' }, { width: '215' }];
-  const data: any = queryClient.getQueryData(['membership_rank_info', franCode]); // RankListItemType[] ... 현재 세팅되어 있는 보상등록정보 가져옴
-  const { rewardValue, editList, handleRewardValue } = useMembershipReward(data);
+const PrizeEdit: FC<{ monthRankList: RankListType }> = ({ monthRankList: { fran_name, ...restMonthRank } }) => {
+  const { openModal, popModal } = useModal();
+  const { rewardValue, editList, handleRewardValue } = useMembershipReward(restMonthRank);
   const mutate = MEMBERSHIP_SERVICE.useRankEditList(editList);
 
   // 저장버튼 클릭
   const handleEditSave = async () => {
-    await mutate();
-    setPopupRankReward(false);
+    try {
+      await mutate();
+
+      popModal();
+      openModal({
+        type: 'ALERT',
+        component: <>수정 완료되었습니다.</>,
+      });
+    } catch (err) {
+      popModal();
+      openModal({
+        type: 'ALERT',
+        component: <>문제가 발생했습니다.</>,
+      });
+    }
   };
-  useBodyScrollFix();
 
   return (
-    <div className="alert-layer setting-layer active" style={{ position: 'fixed' }}>
+    <div className="alert-layer setting-layer active">
       <div className="msg-wrap">
-        <p className="title">{data.fran_name} 보상등록</p>
-        <table className="board-wrap" cellPadding="0" cellSpacing="0">
-          <colgroup>
-            {colGroup.map((col, idx) => (
-              <col key={idx} {...col} />
-            ))}
-          </colgroup>
+        <p className="title">{fran_name} 보상등록</p>
+        <Table className="board-wrap" cellPadding="0" cellSpacing="0">
+          <Table.ColGroup colGroupAttributes={[{ width: '61' }, { width: '91' }, { width: '272' }, { width: '215' }]} />
           <tbody>
             {Object.values(rewardValue).map((el, idx) => (
-              <PrizeEditData
-                key={`month_rank_edit_row_${idx}`}
-                idx={idx}
-                value={el}
-                handleRewardValue={handleRewardValue}
-              />
+              <PrizeEditData key={idx} idx={idx} value={el} handleRewardValue={handleRewardValue} />
             ))}
           </tbody>
-        </table>
-        <button type="button" className="btn-close setting-close" onClick={() => setPopupRankReward((prev) => false)} />
-        <button
-          type="button"
-          className="close-btn"
-          style={{ marginRight: '5px' }}
-          onClick={() => setPopupRankReward((prev) => false)}
-        >
+        </Table>
+        <button type="button" className="btn-close setting-close" onClick={() => popModal()} />
+        <button type="button" className="close-btn" style={{ marginRight: '5px' }} onClick={() => popModal()}>
           닫기
         </button>
         <button type="button" className="cta-btn" onClick={handleEditSave}>
@@ -81,7 +72,7 @@ const PrizeEditData: FC<RewardEditDataProps> = ({ idx, value: { none, point, cou
           <input
             className="radio"
             type="radio"
-            name={`reward${idx + 1}_none`}
+            name={`rank_reward_${idx + 1}-none`}
             value={none ? 'checked' : 'notChecked'}
             id={`none${idx}`}
             checked={none === 'checked' ? true : false}
@@ -96,7 +87,7 @@ const PrizeEditData: FC<RewardEditDataProps> = ({ idx, value: { none, point, cou
             <input
               className="radio"
               type="radio"
-              name={`reward${idx + 1}_point`}
+              name={`rank_reward_${idx + 1}-point`}
               value={1}
               id={`point${idx}`}
               checked={!!point}
@@ -106,7 +97,13 @@ const PrizeEditData: FC<RewardEditDataProps> = ({ idx, value: { none, point, cou
             <label htmlFor={`point${idx}`}>바나포인트</label>
           </div>
           <div>
-            <input type="text" value={point} name={`reward${idx + 1}_point`} onChange={(e) => handleRewardValue(e)} />
+            <input
+              type="text"
+              value={point}
+              name={`rank_reward_${idx + 1}-point`}
+              id={`point0${idx}`}
+              onChange={(e) => handleRewardValue(e)}
+            />
             <span>점</span>
           </div>
         </div>
@@ -117,7 +114,7 @@ const PrizeEditData: FC<RewardEditDataProps> = ({ idx, value: { none, point, cou
             <input
               className="radio"
               type="radio"
-              name={`reward${idx + 1}_coupon`}
+              name={`rank_reward_${idx + 1}-coupon`}
               value={1}
               id={`coupon${idx}`}
               checked={!!coupon}
@@ -127,7 +124,13 @@ const PrizeEditData: FC<RewardEditDataProps> = ({ idx, value: { none, point, cou
             <label htmlFor={`coupon${idx}`}>음료무료쿠폰</label>
           </div>
           <div>
-            <input type="text" value={coupon} name={`reward${idx + 1}_coupon`} onChange={(e) => handleRewardValue(e)} />
+            <input
+              type="text"
+              value={coupon}
+              id={`coupon0${idx}`}
+              name={`rank_reward_${idx + 1}-coupon`}
+              onChange={(e) => handleRewardValue(e)}
+            />
             <span>장</span>
           </div>
         </div>

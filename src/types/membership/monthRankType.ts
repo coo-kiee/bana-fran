@@ -19,6 +19,9 @@ interface RankListItemType {
   sPhone: string;
 } // useRankList 결과 값 타입
 
+type RankListType = Record<keyof Omit<RankInfoItemType, 'fran_name'>, RewardEditItemType> & { fran_name: string };
+
+export const defaultRewardEditItem = { none: 'checked', coupon: 0, point: 0 };
 interface RewardEditItemType {
   none: string;
   coupon: number;
@@ -46,6 +49,7 @@ interface RewardEditDataProps {
 }
 
 export type {
+  RankListType,
   RewardEditItemType,
   RankInfoItemType,
   RankListItemType,

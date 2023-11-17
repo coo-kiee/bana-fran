@@ -14,12 +14,14 @@ import useOrderOption from 'hooks/etc/useOrderOption';
 import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
 import usePageInfo from 'hooks/pagination/usePageInfo';
 import useUserInfo from 'hooks/user/useUser';
+import useModal from 'hooks/common/useModal';
 
 // component
 import Table from 'pages/common/table';
 import Sticky from 'pages/common/sticky';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import TableTotalInfo from 'pages/common/table/TableTotalInfo';
+import OrderDetailModal from './OrderDetailModal';
 
 // service
 import ETC_SERVICE from 'service/etcService';
@@ -27,30 +29,32 @@ import ETC_SERVICE from 'service/etcService';
 interface OrderDetailDetailTableProps {
   searchDate: SearchDate;
   filterCondition: Record<keyof orderFilterOption, string>;
-  openOrderDetailModal: (nOrderId: number) => void;
   tabType: ETC_TAB_TYPE;
 }
-const OrderDetailDetailTable: FC<OrderDetailDetailTableProps> = ({
-  searchDate,
-  filterCondition,
-  openOrderDetailModal,
-  tabType,
-}) => {
-  const { fromDate, toDate } = searchDate;
+const OrderDetailDetailTable: FC<OrderDetailDetailTableProps> = ({ searchDate, filterCondition, tabType }) => {
   const {
     user: { fCode },
   } = useUserInfo();
   const { reset } = useQueryErrorResetBoundary();
+  const { openModal } = useModal();
+  const { filterData } = useOrderOption();
   const { checkCurrentPageData } = usePageInfo();
   const thRef = useRef<HTMLTableRowElement>(null);
   const viewportTableRef = useRef<HTMLTableElement>(null);
-  const { filterData } = useOrderOption();
+
+  const { fromDate, toDate } = searchDate;
   const listData = ETC_SERVICE.useDetailList(
     ['etc_order_detail_list', JSON.stringify({ fCode, from: fromDate, to: toDate })],
     [fCode, fromDate, toDate],
   );
-
   useHandlePageDataCnt(listData, filterCondition, filterData);
+
+  const openOrderDetailModal = (nOrderId: number) => {
+    openModal({
+      type: 'CUSTOM',
+      component: <OrderDetailModal order_code={nOrderId} />,
+    });
+  };
 
   return (
     <>
@@ -98,28 +102,24 @@ const OrderDetailDetailTable: FC<OrderDetailDetailTableProps> = ({
                       amount,
                     },
                     index,
-                  ) => {
-                    const display = checkCurrentPageData(index) ? '' : 'none';
-
-                    return (
-                      <tr key={index} style={{ display }}>
-                        <td className="align-center">{insert_date}</td>
-                        <td className="align-center">{last_modify_date}</td>
-                        <td className="align-center">{cancel_date}</td>
-                        <td className="align-center">{staff_name}</td>
-                        <td className="align-center">{last_modify_staff}</td>
-                        <td className="align-center">{cancel_staff}</td>
-                        <td className="align-center">{state_name}</td>
-                        <td className="align-right">{Utils.numberComma(order_count)}</td>
-                        <td className="align-left order-view" onClick={() => openOrderDetailModal(nOrderID)}>
-                          {order_count > 1 ? `${first_item} 외 ${order_count - 1}건` : first_item}
-                        </td>
-                        <td className="align-right">{Utils.numberComma(supply_amt)}원</td>
-                        <td className="align-right">{Utils.numberComma(vat_amt)}원</td>
-                        <td className="align-right">{`${Utils.numberComma(amount)}원`}</td>
-                      </tr>
-                    );
-                  },
+                  ) => (
+                    <tr key={index} style={{ display: checkCurrentPageData(index) ? '' : 'none' }}>
+                      <td className="align-center">{insert_date}</td>
+                      <td className="align-center">{last_modify_date}</td>
+                      <td className="align-center">{cancel_date}</td>
+                      <td className="align-center">{staff_name}</td>
+                      <td className="align-center">{last_modify_staff}</td>
+                      <td className="align-center">{cancel_staff}</td>
+                      <td className="align-center">{state_name}</td>
+                      <td className="align-right">{Utils.numberComma(order_count)}</td>
+                      <td className="align-left order-view" onClick={() => openOrderDetailModal(nOrderID)}>
+                        {order_count > 1 ? `${first_item} 외 ${order_count - 1}건` : first_item}
+                      </td>
+                      <td className="align-right">{Utils.numberComma(supply_amt)}원</td>
+                      <td className="align-right">{Utils.numberComma(vat_amt)}원</td>
+                      <td className="align-right">{`${Utils.numberComma(amount)}원`}</td>
+                    </tr>
+                  ),
                 )
             }
           />

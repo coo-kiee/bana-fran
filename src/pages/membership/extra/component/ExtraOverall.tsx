@@ -34,7 +34,7 @@ const ExtraOverall = () => {
         ))}
       </thead>
       <tbody>
-        <React.Suspense fallback={<Loading width={50} height={50} isTable={true} />}>
+        <React.Suspense fallback={<Loading width={50} height={50} marginTop={0} isTable={true} />}>
           <ErrorBoundary
             onReset={reset}
             fallbackRender={({ resetErrorBoundary }) => (
@@ -113,7 +113,7 @@ const EXTRA_OVERALL_TH_LIST = [
   [
     { children: '스탬프', className: 'boder-th-a', colSpan: 4 },
     { children: '무료음료쿠폰 (스탬프적립&월간랭킹보상)', className: 'price-area boder-th-b', colSpan: 4 },
-    { children: '바나포인트 (적립&월간랭킹보상)', colSpan: 4 },
+    { children: '바나포인트 (적립&월간랭킹보상)', className: 'boder-th-b', colSpan: 4 },
   ],
   [
     { children: '총 지급 수', className: 'height-63' },

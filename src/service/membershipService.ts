@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 import { AxiosError } from 'axios';
+import { format, isBefore, isSameDay } from 'date-fns';
 
 // type
 import { RequestParams } from 'types/common';
@@ -42,6 +43,17 @@ const useMembershipList = (queryKey: string[], [franCode, from, to]: [number, st
     retry: false,
     // suspense: false,
     useErrorBoundary: true,
+    select: ([total, ...rest]) => {
+      const totalData = {
+        ...total,
+        std_date: '합계',
+      };
+      const restData = rest
+        .filter(({ std_date }) => isBefore(new Date(std_date), new Date()) || isSameDay(new Date(std_date), new Date()))
+        .map((el) => ({ ...el, std_date: format(new Date(el.std_date), 'yyyy/MM/dd') }));
+
+      return [totalData, ...restData];
+    },
   });
 }; // web_fran_s_membership_list
 
@@ -80,19 +92,14 @@ const useRankEditList = (data: RankEditParams[]) => {
   const { mutateAsync: mutateRank5 } = useRankEdit(data[4]);
 
   const useRankEditMutate = async () => {
-    try {
-      // mutate
-      await mutateRank1();
-      await mutateRank2();
-      await mutateRank3();
-      await mutateRank4();
-      await mutateRank5();
+    // mutate
+    await mutateRank1();
+    await mutateRank2();
+    await mutateRank3();
+    await mutateRank4();
+    await mutateRank5();
 
-      await queryClient.invalidateQueries(['membership_rank_info', data[0].fran_store]);
-      alert('등록이 완료되었습니다.');
-    } catch (err) {
-      alert(`문제가 생겼습니다.\n관리자에게 문의하세요.`);
-    }
+    await queryClient.invalidateQueries(['membership_rank_info', data[0].fran_store]);
   };
 
   return useRankEditMutate;
