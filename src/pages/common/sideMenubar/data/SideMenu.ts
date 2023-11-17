@@ -13,7 +13,7 @@ const Etc = loadable(() => import('pages/etc'));
 const Extra = loadable(() => import('pages/membership/extra'));
 const MonthRank = loadable(() => import('pages/membership/monthRank'));
 const SalesContainer = loadable(() => import('pages/sales'));
-const EventContainer = loadable(() => import('pages/event'));
+// const EventContainer = loadable(() => import('pages/event'));
 
 export const PAGE_URL = {
   HOME: '/home',
@@ -33,7 +33,7 @@ export const PAGE_URL = {
   MEMBERSHIP: '/membership',
   MEMBERSHIP_EXTRA: '/extra',
   MEMBERSHIP_MONTHRANK: '/monthRank',
-  EVENT: '/event',
+  // EVENT: '/event', // 이벤트쿠폰현황 hide
 } as const;
 
 // 사이드 메뉴
@@ -194,15 +194,15 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
       },
     ],
   },
-  {
-    path: PAGE_URL.EVENT,
-    name: '이벤트쿠폰현황',
-    icon: 'clipboard outline',
-    id: 800,
-    component: EventContainer,
-    child: [],
-    addPath: [],
-  },
+  // {
+  //   path: PAGE_URL.EVENT,
+  //   name: '이벤트쿠폰현황',
+  //   icon: 'clipboard outline',
+  //   id: 800,
+  //   component: EventContainer,
+  //   child: [],
+  //   addPath: [],
+  // }, // 이벤트쿠폰현황 hide
 ];
 
 export { sideMenus };

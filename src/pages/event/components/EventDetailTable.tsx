@@ -24,14 +24,20 @@ interface EventDetailTableProps {
   searchDate: SearchDate;
 }
 
-const EventDetailTable: FC<EventDetailTableProps> = ({ tabType, filterCondition, searchDate }) => {
-  const { user } = useUserInfo();
+const EventDetailTable: FC<EventDetailTableProps> = ({
+  tabType,
+  filterCondition,
+  searchDate: { fromDate, toDate },
+}) => {
+  const {
+    user: { fCode },
+  } = useUserInfo();
   const { checkCurrentPageData } = usePageInfo();
   const { filterData } = useEventSearchText();
   const params = {
-    f_code: user.fCode,
-    from_date: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? `${searchDate.fromDate}-01` : searchDate.fromDate,
-    to_date: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? `${searchDate.toDate}-01` : searchDate.toDate,
+    f_code: fCode,
+    from_date: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? `${fromDate}-01` : fromDate,
+    to_date: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? `${toDate}-01` : toDate,
   };
 
   // Query
@@ -47,8 +53,9 @@ const EventDetailTable: FC<EventDetailTableProps> = ({ tabType, filterCondition,
     <TableList
       queryRes={couponListRes}
       render={(datas) => {
-        return tabType === EVENT_TAB_TYPE.COUPON_STATUS
-          ? (datas as EventCouponStatusListItemType[])?.map(
+        switch (true) {
+          case tabType === EVENT_TAB_TYPE.COUPON_STATUS: // 쿠폰 현황
+            return (datas as EventCouponStatusListItemType[])?.map(
               (
                 {
                   insert_date,
@@ -68,7 +75,7 @@ const EventDetailTable: FC<EventDetailTableProps> = ({ tabType, filterCondition,
                 <tr key={idx} style={{ display: checkCurrentPageData(idx) ? '' : 'none' }}>
                   <td>{insert_date}</td>
                   <td>{title}</td>
-                  <td>{expiration_day}일</td>
+                  <td className={expiration_day < 0 ? 'negative-value' : ''}>{expiration_day}일</td>
                   <td>{Utils.numberComma(insert_count)}개</td>
                   <td>{Utils.numberComma(not_print_cnt)}개</td>
                   <td>{Utils.numberComma(print_cnt)}개</td>
@@ -82,8 +89,9 @@ const EventDetailTable: FC<EventDetailTableProps> = ({ tabType, filterCondition,
                   </td>
                 </tr>
               ),
-            )
-          : (datas as EventCouponUsageListItemType[])
+            );
+          case tabType === EVENT_TAB_TYPE.COUPON_USAGE: // 사용 내역
+            return (datas as EventCouponUsageListItemType[])
               ?.filter((detail) => filterData(filterCondition!, detail))
               .map(({ use_date, coupon_name, use_amt, print_date, coupon_code, expiration_date, phone }, idx) => (
                 <tr key={idx} style={{ display: checkCurrentPageData(idx) ? '' : 'none' }}>
@@ -96,6 +104,9 @@ const EventDetailTable: FC<EventDetailTableProps> = ({ tabType, filterCondition,
                   <td>{phone}</td>
                 </tr>
               ));
+          default:
+            return null;
+        }
       }}
     />
   );

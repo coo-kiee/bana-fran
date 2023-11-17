@@ -3,6 +3,7 @@ import { subMonths } from 'date-fns';
 
 // component
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
+import Sticky from 'pages/common/sticky';
 import Table from 'pages/common/table';
 import Calander from 'pages/common/calander';
 import EventDetailTable from './EventDetailTable';
@@ -20,6 +21,7 @@ import { EVENT_COUPON_USAGE_FILTER_TYPE, EVENT_TAB_TYPE, EventTabType } from 'co
 
 const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
   const tableRef = useRef<HTMLTableElement>(null);
+  const thRef = useRef<HTMLTableRowElement>(null);
   const {
     user: { fCodeName },
   } = useUserInfo();
@@ -68,6 +70,10 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
         />
       </div>
 
+      <Sticky reference={thRef.current} contentsRef={tableRef.current}>
+        <Table.ColGroup colGroupAttributes={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].colgroup} />
+        <Table.TableHead thData={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].thead} />
+      </Sticky>
       <PageInfoProvider
         fallbackComponent={() => (
           <Table className="board-wrap" cellPadding="0" cellSpacing="0">
@@ -79,7 +85,7 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
       >
         <Table className="board-wrap" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
           <Table.ColGroup colGroupAttributes={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].colgroup} />
-          <Table.TableHead thData={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].thead} />
+          <Table.TableHead thData={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].thead} trRef={thRef} />
           <EventDetailTable searchDate={searchDate} filterCondition={debouncedFilterCondition} tabType={tabType} />
         </Table>
         <div className="result-function-wrap">
@@ -119,7 +125,7 @@ const EVENT_DETAIL_THEAD_COLGROUP_LIST = {
         },
         { children: '총 생성', rowSpan: 2 },
         { children: '미출력', rowSpan: 2 },
-        { children: '출력', colSpan: 4, className: 'price-area' },
+        { children: '출력', colSpan: 4, className: 'price-area boder-th-b' },
         {
           children: (
             <>

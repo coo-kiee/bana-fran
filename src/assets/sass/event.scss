@@ -21,9 +21,8 @@
             }
             .board-wrap{ 
                 // custom
-                .no-data {
-                    padding: 80px 0;
-                }
+                th { height: 55px; }
+                .no-data { padding: 80px 0;}
             }
             .result-function-wrap { align-items: center; 
                 .paging-wrap { margin-top: 0px; }

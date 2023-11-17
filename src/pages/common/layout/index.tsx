@@ -22,7 +22,7 @@ const CONTAINER_CLASS_NAME = {
   [PAGE_URL.SALES + PAGE_URL.SALES_STATISTIC]: 'min-width-2200',
   [PAGE_URL.MEMBERSHIP + PAGE_URL.MEMBERSHIP_EXTRA]: 'min-width-1600',
   [PAGE_URL.MEMBERSHIP + PAGE_URL.MEMBERSHIP_MONTHRANK]: 'min-width-1200',
-  [PAGE_URL.EVENT]: 'min-width-1600',
+  // [PAGE_URL.EVENT]: 'min-width-1600', // 이벤트쿠폰현황 hide
 } as Record<string, string>;
 
 const Layout = ({ children }: PropsWithChildren) => {

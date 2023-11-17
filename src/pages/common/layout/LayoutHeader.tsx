@@ -10,7 +10,7 @@ const HEADER_CLASS_NAME = {
   [PAGE_URL.ETC]: 'etc',
   [PAGE_URL.SALES]: 'sales',
   [PAGE_URL.MEMBERSHIP]: 'membership',
-  [PAGE_URL.EVENT]: 'etc',
+  // [PAGE_URL.EVENT]: 'etc',// 이벤트쿠폰현황 hide
 } as Record<string, string>;
 
 const LayoutHeader = () => {
