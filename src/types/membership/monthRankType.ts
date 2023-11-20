@@ -38,10 +38,6 @@ interface RankEditParams {
 }
 
 // props
-interface MonthRankOverallProps {
-  setPopupRankReward: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
 interface RewardEditDataProps {
   idx: number;
   value: RewardEditItemType;
@@ -54,6 +50,5 @@ export type {
   RankInfoItemType,
   RankListItemType,
   RankEditParams,
-  MonthRankOverallProps,
   RewardEditDataProps,
 };

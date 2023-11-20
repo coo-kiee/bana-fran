@@ -11,11 +11,11 @@ import MEMBERSHIP_SERVICE from 'service/membershipService';
 
 // hook
 import useModal from 'hooks/common/useModal';
-import useMembershipReward from 'hooks/membership/useMembershipReward';
+import useReward from 'hooks/membership/useReward';
 
 const PrizeEdit: FC<{ monthRankList: RankListType }> = ({ monthRankList: { fran_name, ...restMonthRank } }) => {
   const { openModal, popModal } = useModal();
-  const { rewardValue, editList, handleRewardValue } = useMembershipReward(restMonthRank);
+  const { rewardValue, editList, handleRewardValue } = useReward(restMonthRank);
   const mutate = MEMBERSHIP_SERVICE.useRankEditList(editList);
 
   // 저장버튼 클릭

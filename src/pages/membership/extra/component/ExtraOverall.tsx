@@ -1,109 +1,71 @@
-import React from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-import { useQueryErrorResetBoundary } from 'react-query';
-import { useRecoilValue } from 'recoil';
 import Utils from 'utils/Utils';
 
 // component
-import Loading from 'pages/common/loading';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
-
-// type
-import { MembershipTotalType } from 'types/membership/extraType';
-
-// state
-import { franState } from 'state';
+import TableList from 'pages/common/table/TableList';
+import Table from 'pages/common/table';
 
 // Service
 import MEMBERSHIP_SERVICE from 'service/membershipService';
 
+// hook
+import useUserInfo from 'hooks/user/useUser';
+
 const ExtraOverall = () => {
-  const { reset } = useQueryErrorResetBoundary();
+  const {
+    user: { fCode },
+  } = useUserInfo();
+  const membershipTotalParams: { fran_store: number } = { fran_store: fCode };
+  const listData = MEMBERSHIP_SERVICE.useMembershipTotal(membershipTotalParams);
 
   return (
-    <table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
-      <thead>
-        {EXTRA_OVERALL_TH_LIST.map((tr, idx1) => (
-          <tr key={idx1}>
-            {tr.map(({ children, ...thAttributes }, idx2) => (
-              <th key={`${children}_${idx2}`} {...thAttributes}>
-                {children}
-              </th>
-            ))}
+    <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
+      <Table.TableHead thData={EXTRA_OVERALL_TH_LIST} />
+      <TableList
+        queryRes={listData}
+        isPagination={false}
+        render={({
+          convert_coupon_stamp_cnt,
+          expired_coupon_amount,
+          expired_coupon_cnt,
+          expired_point,
+          expired_stamp_cnt,
+          not_used_coupon_amount,
+          not_used_coupon_cnt,
+          not_used_point,
+          notyet_coupon_stamp_cnt,
+          total_coupon_amount,
+          total_coupon_cnt,
+          total_point,
+          total_stamp_cnt,
+          used_coupon_amount,
+          used_coupon_cnt,
+          used_point,
+        }) => (
+          <tr>
+            <td>{Utils.numberComma(total_stamp_cnt)}</td>
+            <td>{Utils.numberComma(convert_coupon_stamp_cnt)}개</td>
+            <td>{Utils.numberComma(expired_stamp_cnt)}개</td>
+            <td className="point">{Utils.numberComma(notyet_coupon_stamp_cnt)}개</td>
+            <td>
+              {Utils.numberComma(total_coupon_cnt)}개<p>({Utils.numberComma(total_coupon_amount)}원)</p>
+            </td>
+            <td>
+              {Utils.numberComma(used_coupon_cnt)}개<p>({Utils.numberComma(used_coupon_amount)}원)</p>
+            </td>
+            <td>
+              {Utils.numberComma(expired_coupon_cnt)}개<p>({Utils.numberComma(expired_coupon_amount)}원)</p>
+            </td>
+            <td className="point">
+              {Utils.numberComma(not_used_coupon_cnt)}개<p>({Utils.numberComma(not_used_coupon_amount)}원)</p>
+            </td>
+            <td>{Utils.numberComma(total_point)}P</td>
+            <td>{Utils.numberComma(used_point)}P</td>
+            <td>{Utils.numberComma(expired_point)}P</td>
+            <td className="point">{Utils.numberComma(not_used_point)}P</td>
           </tr>
-        ))}
-      </thead>
-      <tbody>
-        <React.Suspense fallback={<Loading width={50} height={50} marginTop={0} isTable={true} />}>
-          <ErrorBoundary
-            onReset={reset}
-            fallbackRender={({ resetErrorBoundary }) => (
-              <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />
-            )}
-          >
-            <ExtraOverallData />
-          </ErrorBoundary>
-        </React.Suspense>
-      </tbody>
-    </table>
-  );
-};
-
-const ExtraOverallData = () => {
-  const franCode = useRecoilValue(franState);
-
-  let extraOverallTotal: MembershipTotalType = {
-    convert_coupon_stamp_cnt: 0,
-    expired_coupon_amount: 0,
-    expired_coupon_cnt: 0,
-    expired_point: 0,
-    expired_stamp_cnt: 0,
-    not_used_coupon_amount: '',
-    not_used_coupon_cnt: 0,
-    not_used_point: 0,
-    notyet_coupon_stamp_cnt: 0,
-    total_coupon_amount: '',
-    total_coupon_cnt: 0,
-    total_point: 0,
-    total_stamp_cnt: 0,
-    used_coupon_amount: '',
-    used_coupon_cnt: 0,
-    used_point: 0,
-  };
-  const membershipTotalParams: { fran_store: number } = { fran_store: franCode };
-  const { data, isSuccess } = MEMBERSHIP_SERVICE.useMembershipTotal(membershipTotalParams);
-
-  if (isSuccess) {
-    extraOverallTotal = data;
-  }
-
-  return (
-    <tr>
-      <td>{Utils.numberComma(extraOverallTotal.total_stamp_cnt)}</td>
-      <td>{Utils.numberComma(extraOverallTotal.convert_coupon_stamp_cnt)}개</td>
-      <td>{Utils.numberComma(extraOverallTotal.expired_stamp_cnt)}개</td>
-      <td className="point">{Utils.numberComma(extraOverallTotal.notyet_coupon_stamp_cnt)}개</td>
-      <td>
-        {Utils.numberComma(extraOverallTotal.total_coupon_cnt)}개
-        <p>({Utils.numberComma(extraOverallTotal.total_coupon_amount)}원)</p>
-      </td>
-      <td>
-        {Utils.numberComma(extraOverallTotal.used_coupon_cnt)}개
-        <p>({Utils.numberComma(extraOverallTotal.used_coupon_amount)}원)</p>
-      </td>
-      <td>
-        {Utils.numberComma(extraOverallTotal.expired_coupon_cnt)}개
-        <p>({Utils.numberComma(extraOverallTotal.expired_coupon_amount)}원)</p>
-      </td>
-      <td className="point">
-        {Utils.numberComma(extraOverallTotal.not_used_coupon_cnt)}개
-        <p>({Utils.numberComma(extraOverallTotal.not_used_coupon_amount)}원)</p>
-      </td>
-      <td>{Utils.numberComma(extraOverallTotal.total_point)}P</td>
-      <td>{Utils.numberComma(extraOverallTotal.used_point)}P</td>
-      <td>{Utils.numberComma(extraOverallTotal.expired_point)}P</td>
-      <td className="point">{Utils.numberComma(extraOverallTotal.not_used_point)}P</td>
-    </tr>
+        )}
+      />
+    </Table>
   );
 };
 

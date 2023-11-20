@@ -1,15 +1,15 @@
 // Type
 import { SearchDate } from 'constants/calculate/common';
+import { PropsWithChildren } from 'react';
 import { UseQueryResult } from 'react-query';
 
 // Util
 import Utils from 'utils/Utils';
 
-interface ITableTotalInfo<T, Q> extends Partial<SearchDate> {
+interface ITableTotalInfo<T, Q> extends Partial<SearchDate>, PropsWithChildren {
   queryRes: UseQueryResult<Q, unknown>;
   initialDetailTotalInfo: T;
   sumFn: (initial: T, datas: Q) => T;
-  priceInfo?: React.ReactNode;
 }
 
 const TableTotalInfo = <T extends Record<string | number, { title: string; sum: number }>, Q>({
@@ -18,7 +18,7 @@ const TableTotalInfo = <T extends Record<string | number, { title: string; sum: 
   sumFn,
   fromDate,
   toDate,
-  priceInfo,
+  children,
 }: ITableTotalInfo<T, Q>) => {
   const detailTotalInfo = !queryRes?.data ? initialDetailTotalInfo : sumFn(initialDetailTotalInfo, queryRes.data);
 
@@ -35,7 +35,7 @@ const TableTotalInfo = <T extends Record<string | number, { title: string; sum: 
             </li>
           ))}
         </ul>
-        {priceInfo ? priceInfo : null}
+        {children}
       </div>
     </>
   );

@@ -25,11 +25,7 @@ import TableTotalInfo from 'pages/common/table/TableTotalInfo';
 // service
 import ETC_SERVICE from 'service/etcService';
 
-interface VirtualAccountDetailTableProps {
-  searchDate: SearchDate;
-  tabType: ETC_TAB_TYPE;
-}
-const VirtualAccountDetailTable: FC<VirtualAccountDetailTableProps> = ({
+const VirtualAccountDetailTable: FC<{ searchDate: SearchDate; tabType: ETC_TAB_TYPE }> = ({
   searchDate: { fromDate, toDate },
   tabType,
 }) => {
@@ -56,12 +52,11 @@ const VirtualAccountDetailTable: FC<VirtualAccountDetailTableProps> = ({
         queryRes={listData}
         initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
         sumFn={etcVirtualAccountTotalSumFn}
-        priceInfo={
-          <div className="price-info">
-            <p className="hyphen">로열티는 일할 계산되지 않습니다. (월 단위 요금 청구)</p>
-          </div>
-        }
-      />
+      >
+        <div className="price-info">
+          <p className="hyphen">로열티는 일할 계산되지 않습니다. (월 단위 요금 청구)</p>
+        </div>
+      </TableTotalInfo>
 
       <Sticky reference={thRef.current} contentsRef={tableRef.current}>
         <Table.ColGroup colGroupAttributes={ETC_COL_THEAD_LIST[tabType].colgroup} />

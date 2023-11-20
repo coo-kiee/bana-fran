@@ -31,7 +31,11 @@ interface OrderDetailDetailTableProps {
   filterCondition: Record<keyof orderFilterOption, string>;
   tabType: ETC_TAB_TYPE;
 }
-const OrderDetailDetailTable: FC<OrderDetailDetailTableProps> = ({ searchDate, filterCondition, tabType }) => {
+const OrderDetailDetailTable: FC<OrderDetailDetailTableProps> = ({
+  searchDate: { fromDate, toDate },
+  filterCondition,
+  tabType,
+}) => {
   const {
     user: { fCode },
   } = useUserInfo();
@@ -42,7 +46,6 @@ const OrderDetailDetailTable: FC<OrderDetailDetailTableProps> = ({ searchDate, f
   const thRef = useRef<HTMLTableRowElement>(null);
   const viewportTableRef = useRef<HTMLTableElement>(null);
 
-  const { fromDate, toDate } = searchDate;
   const listData = ETC_SERVICE.useDetailList(
     ['etc_order_detail_list', JSON.stringify({ fCode, from: fromDate, to: toDate })],
     [fCode, fromDate, toDate],

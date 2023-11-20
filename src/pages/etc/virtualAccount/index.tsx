@@ -1,7 +1,6 @@
 import { FC } from 'react';
 
 // component
-import EtcOverallTable from '../component/EtcOverallTable';
 import VirtualAccountDetail from './VirtualAccountDetail';
 import VirtualAccountSummary from './VirtualAccountSummary';
 
@@ -12,9 +11,7 @@ const VirtualAccount: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
   return (
     <>
       <div className="board-date-wrap">
-        <EtcOverallTable tabType={tabType}>
-          <VirtualAccountSummary />
-        </EtcOverallTable>
+        <VirtualAccountSummary tabType={tabType} />
         <VirtualAccountDetail tabType={tabType} />
       </div>
     </>

@@ -13,6 +13,7 @@ import {
   OrderDetailListExcelType,
   SummaryDataType,
   OrderDetailSummaryDataType,
+  OrderDetailListExcelTotalType,
 } from 'types/etc/etcType';
 
 // 수수료 내역 (*_total 프로시저 공통 함수)
@@ -28,7 +29,7 @@ const useEtcTotal = <T extends { fran_store: number }, U>(
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: true,
+    // suspense: true,
   });
 };
 
@@ -42,7 +43,7 @@ const useMusicTotal = (fran_store: number) => {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    suspense: true,
+    // suspense: true,
     useErrorBoundary: true,
   });
 };
@@ -56,7 +57,7 @@ const useChkGiftCardStock = (params: { f_code: number }) => {
       keepPreviousData: false,
       refetchOnWindowFocus: false,
       retry: false,
-      suspense: true,
+      // suspense: true,
       useErrorBoundary: true,
     },
   );
@@ -76,7 +77,7 @@ const useOrderDetailStatistic = (fran_store: number, option: { [key: string]: an
       keepPreviousData: false,
       refetchOnWindowFocus: false,
       retry: false,
-      suspense: true,
+      // suspense: true,
       useErrorBoundary: true,
     },
   );
@@ -155,13 +156,27 @@ const useDetailListExcel = (queryKey: string[], params: [number, string, string]
     params: { f_code: franCode, from_date: from, to_date: to },
   };
 
-  return useQuery<OrderDetailListExcelType[], AxiosError>(queryKey, () => queryFn.getDataList(reqData), {
-    keepPreviousData: false,
-    refetchOnWindowFocus: false,
-    retry: false,
-    // suspense: false,
-    // useErrorBoundary: true,
-  });
+  return useQuery<OrderDetailListExcelType[], AxiosError, OrderDetailListExcelType[][]>(
+    queryKey,
+    () => queryFn.getDataList(reqData),
+    {
+      keepPreviousData: false,
+      refetchOnWindowFocus: false,
+      retry: false,
+      // suspense: false,
+      // useErrorBoundary: true,
+      select: (data) => {
+        const processedData = data.reduce((acc, cur) => {
+          if (Object.keys(acc).includes(String(cur.nOrderID)))
+            acc[`${cur.nOrderID}`] = [...acc[cur.nOrderID], cur]; // nOrderID가 이미 존재 -> 추가
+          else acc[`${cur.nOrderID}`] = [cur]; // nOrderID 존재 X -> 새로 추가
+          return acc;
+        }, {} as OrderDetailListExcelTotalType); // [1245: [{ ... }, { ... }, ...]]
+
+        return Object.values(processedData);
+      },
+    },
+  );
 }; // 발주내역 (suspense 때문에 따로 분리 + 테스트)
 
 const useVirtualAccList = (queryKey: string[], params: [number, string, string]) => {
@@ -193,7 +208,7 @@ const useOrderDetailModal = (params: { order_code: number }) => {
       refetchOnWindowFocus: false,
       enabled: params.order_code !== 0,
       retry: false,
-      suspense: true,
+      // suspense: true,
       useErrorBoundary: true,
     },
   );

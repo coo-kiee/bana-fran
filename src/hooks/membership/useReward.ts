@@ -10,7 +10,7 @@ import { loginState } from 'state';
 // type
 import { RankListType, defaultRewardEditItem } from 'types/membership/monthRankType';
 
-const useMembershipReward = (monthRankList: Omit<RankListType, 'fran_name'>) => {
+const useReward = (monthRankList: Omit<RankListType, 'fran_name'>) => {
   const {
     user: { fCode },
   } = useUserInfo();
@@ -65,4 +65,4 @@ const useMembershipReward = (monthRankList: Omit<RankListType, 'fran_name'>) => 
   return { rewardValue, editList, handleRewardValue };
 };
 
-export default useMembershipReward;
+export default useReward;

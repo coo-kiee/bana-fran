@@ -53,12 +53,11 @@ const MusicChargeDetailTable: FC<MusicChargeDetailTableProps> = ({ searchDate: {
         queryRes={listData}
         initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
         sumFn={etcMusicChargeTotalSumFn}
-        priceInfo={
-          <div className="price-info">
-            <p className="hyphen">음악사용료/공연권료는 일할 계산되지 않습니다. (월 단위 요금 청구)</p>
-          </div>
-        }
-      />
+      >
+        <div className="price-info">
+          <p className="hyphen">음악사용료/공연권료는 일할 계산되지 않습니다. (월 단위 요금 청구)</p>
+        </div>
+      </TableTotalInfo>
 
       <Sticky reference={thRef.current} contentsRef={tableRef.current}>
         <Table.ColGroup colGroupAttributes={ETC_COL_THEAD_LIST[tabType].colgroup} />

@@ -7,6 +7,7 @@
 //   ACCOUNT: 'account',
 // } as const;
 
+import { format, subMonths } from 'date-fns';
 import { ETC_TAB_TYPE } from 'types/etc/etcType';
 
 export type EtcTabType = (typeof ETC_TAB_TYPE)[keyof typeof ETC_TAB_TYPE];
@@ -19,6 +20,88 @@ export const ETC_TAB_TITLE = {
   [ETC_TAB_TYPE.ROYALTY]: '로열티',
   [ETC_TAB_TYPE.ACCOUNT]: '가상계좌 충전/차감',
 } as const;
+
+export const ETC_OVERALL_TABLE_INFO = {
+  [ETC_TAB_TYPE.DELIVERY]: {
+    colgroup: [{ width: '188' }, { width: '*' }, { width: '150' }, { width: '150' }, { width: '150' }],
+    thead: [
+      [
+        { children: '기간' },
+        { children: '품목' },
+        { children: '수수료 공급가 (2%)' },
+        { children: '부가세 (0.2%)' },
+        { children: '수수료 합계 (2.2%)' },
+      ],
+    ],
+  },
+  [ETC_TAB_TYPE.MUSIC]: {
+    colgroup: [{ width: '188' }, { width: '*' }, { width: '150' }, { width: '150' }, { width: '150' }],
+    thead: [
+      [
+        { children: '기간' },
+        { children: '품목' },
+        { children: '수수료 공급가 (2%)' },
+        { children: '부가세 (0.2%)' },
+        { children: '수수료 합계 (2.2%)' },
+      ],
+    ],
+  },
+  [ETC_TAB_TYPE.GIFTCARD]: {
+    colgroup: [{ width: '20%' }, { width: '20%' }, { width: '20%' }, { width: '20%' }, { width: '20%' }],
+    thead: [
+      [
+        { children: '재고 구분' },
+        { children: '1만원권' },
+        { children: '3만원권' },
+        { children: '5만원권' },
+        { children: '합계' },
+      ],
+    ],
+  },
+  [ETC_TAB_TYPE.ORDER]: {
+    colgroup: Array.from({ length: 14 }, (_) => ({ width: '147' })),
+    thead: [
+      [
+        { children: '구분' },
+        ...Array.from({ length: 13 }, (_, idx1) => idx1).map((el) => ({
+          children: format(subMonths(new Date(), 12 - el), 'yyyy-MM'),
+        })),
+      ],
+    ],
+  },
+  [ETC_TAB_TYPE.ROYALTY]: {
+    colgroup: [{ width: '256' }, { width: '*' }, { width: '170' }, { width: '170' }, { width: '170' }],
+    thead: [
+      [
+        { children: '기간' },
+        { children: '품목' },
+        { children: '공급가' },
+        { children: '부가세' },
+        { children: '합계' },
+      ],
+    ],
+  },
+  [ETC_TAB_TYPE.ACCOUNT]: {
+    colgroup: [
+      { width: '300' },
+      { width: '270' },
+      { width: '270' },
+      { width: '*' },
+      { width: '270' },
+      { width: '270' },
+    ],
+    thead: [
+      [
+        { children: '매장' },
+        { children: '은행' },
+        { children: '계좌번호' },
+        { children: '총 충전금액' },
+        { children: '총 차감금액' },
+        { children: '잔액' },
+      ],
+    ],
+  },
+};
 
 export const ETC_COL_THEAD_LIST = {
   [ETC_TAB_TYPE.DELIVERY]: {

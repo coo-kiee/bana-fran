@@ -69,6 +69,7 @@ const useRankInfo = (params: { fran_store: number }) => {
       refetchOnWindowFocus: false,
       retry: false,
       suspense: true,
+      useErrorBoundary: true,
     },
   );
 }; // web_fran_s_membership_rank_info

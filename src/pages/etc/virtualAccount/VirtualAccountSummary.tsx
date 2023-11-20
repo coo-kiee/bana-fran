@@ -1,3 +1,4 @@
+import { FC } from 'react';
 import Utils from 'utils/Utils';
 
 // hook
@@ -6,44 +7,49 @@ import useUserInfo from 'hooks/user/useUser';
 // service
 import ETC_SERVICE from 'service/etcService';
 
-// type
-import { VirtualAccountSummaryDataType } from 'types/etc/etcType';
+// type, constants
+import { ETC_TAB_TYPE, VirtualAccountSummaryDataType } from 'types/etc/etcType';
+import { ETC_OVERALL_TABLE_INFO } from 'constants/etc';
 
-const VirtualAccountSummary = () => {
+// components
+import Table from 'pages/common/table';
+import TableList from 'pages/common/table/TableList';
+
+const VirtualAccountSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
   const {
     user: { fCode },
   } = useUserInfo();
 
-  let summaryData = {
-    fran_name: '-',
-    bank_code: '-',
-    account: '0',
-    total_charge: '0',
-    used_amount: '0',
-    balance: 0,
-  };
-
-  const { data, isSuccess } = ETC_SERVICE.useEtcTotal<{ fran_store: number }, VirtualAccountSummaryDataType>(
+  const listData = ETC_SERVICE.useEtcTotal<{ fran_store: number }, VirtualAccountSummaryDataType>(
     'FXFBHJ5WT2GYEO9EFZ46',
     { fran_store: fCode },
     'etc_virtual_acc_balance_total',
   );
 
-  if (isSuccess) {
-    summaryData = data;
-  }
-
   return (
-    <tr>
-      <td className="align-center">{summaryData.fran_name}</td>
-      <td className="align-left">{summaryData.bank_code}</td>
-      <td className="align-center">{summaryData.account}</td>
-      <td className="align-right">{Utils.numberComma(summaryData.total_charge)}원</td>
-      <td className="align-right">{Utils.numberComma(summaryData.used_amount)}원</td>
-      <td className="align-right">
-        <strong>{Utils.numberComma(summaryData.balance)}원</strong>
-      </td>
-    </tr>
+    <>
+      <p className="title bullet">가상 계좌 잔액</p>
+      <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
+        <Table.ColGroup colGroupAttributes={ETC_OVERALL_TABLE_INFO[tabType].colgroup} />
+        <Table.TableHead thData={ETC_OVERALL_TABLE_INFO[tabType].thead} />
+        <TableList
+          queryRes={listData}
+          isPagination={false}
+          render={({ fran_name, bank_code, account, total_charge, used_amount, balance }) => (
+            <tr>
+              <td className="align-center">{fran_name}</td>
+              <td className="align-left">{bank_code}</td>
+              <td className="align-center">{account}</td>
+              <td className="align-right">{Utils.numberComma(total_charge)}원</td>
+              <td className="align-right">{Utils.numberComma(used_amount)}원</td>
+              <td className="align-right">
+                <strong>{Utils.numberComma(balance)}원</strong>
+              </td>
+            </tr>
+          )}
+        />
+      </Table>
+    </>
   );
 };
 

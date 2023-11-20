@@ -12,11 +12,10 @@ import PrizeEdit from './PrizeEdit';
 // hook
 import useUserInfo from 'hooks/user/useUser';
 import useModal from 'hooks/common/useModal';
-import useMonthRank from 'hooks/membership/useMonthRank';
+import useRewardProps from 'hooks/membership/useRewardProps';
 
 // type
 import { IModalParams } from 'state/modal';
-import { RewardEditItemType } from 'types/membership/monthRankType';
 
 // service
 import MEMBERSHIP_SERVICE from 'service/membershipService';
@@ -51,30 +50,25 @@ const MonthRankOverallData = () => {
   const { openModal } = useModal();
 
   const { data } = MEMBERSHIP_SERVICE.useRankInfo({ fran_store: fCode });
-  const { monthRankList } = useMonthRank(data);
+  const { monthRankList } = useRewardProps(data);
 
-  const handleRankInfoText = ({ none, coupon, point }: RewardEditItemType) => {
-    switch (true) {
-      case none === 'checked':
-        return <>없음</>;
-      case coupon > 0:
-        return (
-          <>
-            음료무료쿠폰<p>({Utils.numberComma(coupon)}장)</p>
-          </>
-        );
-      case point > 0:
-        return (
-          <>
-            바나포인트<p>({Utils.numberComma(point)}점)</p>
-          </>
-        );
-      default:
-        return '';
-    }
+  const handleRankInfoText = (value: string) => {
+    if (value.includes('포인트')) {
+      return (
+        <>
+          바나포인트<p>({Utils.numberComma(Number(value.replace(/[^0-9]/g, '')))}점)</p>
+        </>
+      );
+    } else if (value.includes('쿠폰')) {
+      return (
+        <>
+          음료무료쿠폰<p>({Utils.numberComma(Number(value.replace(/[^0-9]/g, '')))}점)</p>
+        </>
+      );
+    } else return <>없음</>;
   };
 
-  const handleOpenModal = () => {
+  const handleOpenPrizeModal = () => {
     let modalParams = {} as IModalParams;
 
     switch (true) {
@@ -99,10 +93,13 @@ const MonthRankOverallData = () => {
 
   return (
     <tr>
-      {Object.entries(monthRankList).map(([key, value], idx) => (
-        <td key={idx}>{key === 'fran_name' ? (value as string) : handleRankInfoText(value as RewardEditItemType)}</td>
-      ))}
-      <td className="setting-view" onClick={() => handleOpenModal()}>
+      <td>{data?.fran_name ? data.fran_name : '-'}</td>
+      <td>{data && data.rank_reward_1 ? handleRankInfoText(data.rank_reward_1) : ' '}</td>
+      <td>{data && data.rank_reward_2 ? handleRankInfoText(data.rank_reward_2) : ' '}</td>
+      <td>{data && data.rank_reward_3 ? handleRankInfoText(data.rank_reward_3) : ' '}</td>
+      <td>{data && data.rank_reward_4 ? handleRankInfoText(data.rank_reward_4) : ' '}</td>
+      <td>{data && data.rank_reward_5 ? handleRankInfoText(data.rank_reward_5) : ' '}</td>
+      <td className="setting-view" onClick={() => handleOpenPrizeModal()}>
         설정하기
       </td>
     </tr>

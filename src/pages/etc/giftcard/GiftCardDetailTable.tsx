@@ -59,14 +59,13 @@ const GiftCardDetailTable: FC<GiftCardDetailTableProps> = ({
         queryRes={listData}
         initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
         sumFn={etcGiftCardTotalSumFn}
-        priceInfo={
-          <div className="price-info">
-            <p className="hyphen">키오스크/POS 판매금액은 가상계좌에서 자동 차감됩니다.</p>
-            <p className="hyphen">어플 판매금액은 가상계좌에서 차감되지 않습니다.</p>
-            <p className="hyphen">판매취소된 상품권은 폐기되므로 재고에 반영되지 않습니다.</p>
-          </div>
-        }
-      />
+      >
+        <div className="price-info">
+          <p className="hyphen">키오스크/POS 판매금액은 가상계좌에서 자동 차감됩니다.</p>
+          <p className="hyphen">어플 판매금액은 가상계좌에서 차감되지 않습니다.</p>
+          <p className="hyphen">판매취소된 상품권은 폐기되므로 재고에 반영되지 않습니다.</p>
+        </div>
+      </TableTotalInfo>
 
       <Sticky reference={thRef.current} contentsRef={tableRef.current}>
         <Table.ColGroup colGroupAttributes={ETC_COL_THEAD_LIST[tabType].colgroup} />

@@ -61,21 +61,20 @@ const DeliveryChargeDetailTable = ({
         queryRes={listData}
         initialDetailTotalInfo={ETC_DETAIL_SUM_INFO[tabType]}
         sumFn={etcDeliveryChargeTotalSumFn}
-        priceInfo={
-          <div className="price-info">
-            <p className="hyphen">
-              <span>주문금액</span>
-              <span className="colon" />
-              배달비를 제외한 카드/현금/포인트/쿠폰 결제금액의 합계.
-            </p>
-            <p className="hyphen">
-              <span>수수료 공급가</span>
-              <span className="colon" />
-              주문금액의 2% (부가세 별도.)
-            </p>
-          </div>
-        }
-      />
+      >
+        <div className="price-info">
+          <p className="hyphen">
+            <span>주문금액</span>
+            <span className="colon" />
+            배달비를 제외한 카드/현금/포인트/쿠폰 결제금액의 합계.
+          </p>
+          <p className="hyphen">
+            <span>수수료 공급가</span>
+            <span className="colon" />
+            주문금액의 2% (부가세 별도.)
+          </p>
+        </div>
+      </TableTotalInfo>
       <Sticky reference={thRef.current} contentsRef={tableRef.current}>
         <Table.ColGroup colGroupAttributes={ETC_COL_THEAD_LIST[tabType].colgroup} />
         <Table.TableHead thData={ETC_COL_THEAD_LIST[tabType].thead} />

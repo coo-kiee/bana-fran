@@ -1,7 +1,6 @@
 import { FC } from 'react';
 
 // component
-import EtcOverallTable from '../component/EtcOverallTable';
 import MusicChargeDetail from './MusicChargeDetail';
 import MusicChargeSummary from './MusicChargeSummary';
 
@@ -11,9 +10,7 @@ import { ETC_TAB_TYPE } from 'types/etc/etcType';
 const MusicCharge: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
   return (
     <div className="board-date-wrap">
-      <EtcOverallTable tabType={tabType}>
-        <MusicChargeSummary />
-      </EtcOverallTable>
+      <MusicChargeSummary tabType={tabType} />
       <MusicChargeDetail tabType={tabType} />
     </div>
   );
