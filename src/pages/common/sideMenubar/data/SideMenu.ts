@@ -13,7 +13,7 @@ const Etc = loadable(() => import('pages/etc'));
 const Extra = loadable(() => import('pages/membership/extra'));
 const MonthRank = loadable(() => import('pages/membership/monthRank'));
 const SalesContainer = loadable(() => import('pages/sales'));
-// const EventContainer = loadable(() => import('pages/event'));
+// const EventContainer = loadable(() => import('pages/event')); // 이벤트쿠폰현황 hide
 
 export const PAGE_URL = {
   HOME: '/home',
