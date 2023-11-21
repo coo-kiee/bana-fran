@@ -5,13 +5,13 @@ import { subMonths } from 'date-fns';
 import MonthRankDetailTable from './MonthRankDetailTable';
 import Calander from 'pages/common/calander';
 import MembershipDetailTableFallback from 'pages/membership/component/MembershipDetailTableFallback';
+import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 
 // type, constants
 import { MEMBERSHIP_PAGE_TYPE } from 'types/membership/membershipType';
 
 // hook
 import useSearchDate from 'hooks/common/useSearchDate';
-import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
 
 const MonthRankDetail: FC<{ pageType: MEMBERSHIP_PAGE_TYPE }> = ({ pageType }) => {
   const { searchDate, handleSearchDate } = useSearchDate({

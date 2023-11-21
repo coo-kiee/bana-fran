@@ -1,3 +1,6 @@
+import { SearchDate } from 'constants/calculate/common';
+import { MEMBERSHIP_PAGE_TYPE } from 'types/membership/membershipType';
+
 interface EventCouponListParams {
   f_code: number;
   from_date: string;
@@ -28,4 +31,9 @@ interface EventCouponUsageListItemType {
   phone: string;
 }
 
-export type { EventCouponListParams, EventCouponStatusListItemType, EventCouponUsageListItemType };
+interface DetailTableProps {
+  searchDate: SearchDate;
+  pageType: MEMBERSHIP_PAGE_TYPE;
+}
+
+export type { EventCouponListParams, EventCouponStatusListItemType, EventCouponUsageListItemType, DetailTableProps };

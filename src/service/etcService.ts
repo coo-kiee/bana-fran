@@ -2,6 +2,9 @@ import { useQuery, UseQueryResult } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 import { AxiosError } from 'axios';
 
+// hook
+import useUserInfo from 'hooks/user/useUser';
+
 // type
 import { RequestParams } from 'types/common';
 import {
@@ -23,17 +26,22 @@ const useEtcTotal = <T extends { fran_store: number }, U>(
   queryKey: string,
   option: { [key: string]: any } = {},
 ): UseQueryResult<U, AxiosError<unknown, any>> => {
+  const { user } = useUserInfo();
   // paramType, resultType, query, params, queryKey
   const reqData: RequestParams<T> = { ws: 'fprocess', query, params };
+
   return useQuery<U, AxiosError>([queryKey, params.fran_store], () => queryFn.getData(reqData), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
     // suspense: true,
+    enabled: user.staffNo > 0,
   });
 };
 
 const useMusicTotal = (fran_store: number) => {
+  const { user } = useUserInfo();
+
   const reqData: RequestParams<{ fran_store: number }> = {
     ws: 'fprocess',
     query: '8WDCFLDHSNA7WRN9JCBS',
@@ -44,11 +52,14 @@ const useMusicTotal = (fran_store: number) => {
     refetchOnWindowFocus: false,
     retry: false,
     // suspense: true,
-    useErrorBoundary: true,
+    // useErrorBoundary: true,
+    enabled: user.staffNo > 0,
   });
 };
 
 const useChkGiftCardStock = (params: { f_code: number }) => {
+  const { user } = useUserInfo();
+
   const reqData: RequestParams<{ f_code: number }> = { ws: 'fprocess', query: 'U1UQFUQ3JVHCLULFASVU', params };
   return useQuery<{ [key: string]: string }, AxiosError>(
     ['etc_gift_card_stock', params.f_code],
@@ -58,12 +69,14 @@ const useChkGiftCardStock = (params: { f_code: number }) => {
       refetchOnWindowFocus: false,
       retry: false,
       // suspense: true,
-      useErrorBoundary: true,
+      // useErrorBoundary: true,
+      enabled: user.staffNo > 0,
     },
   );
 }; // web_fran_s_etc_gift_cert_stock
 
 const useOrderDetailStatistic = (fran_store: number, option: { [key: string]: any } = {}) => {
+  const { user } = useUserInfo();
   const reqData: RequestParams<{ fran_store: number }> = {
     ws: 'fprocess',
     query: '2Q65LKD2JBSZ3OWKWTWY',
@@ -78,7 +91,8 @@ const useOrderDetailStatistic = (fran_store: number, option: { [key: string]: an
       refetchOnWindowFocus: false,
       retry: false,
       // suspense: true,
-      useErrorBoundary: true,
+      // useErrorBoundary: true,
+      enabled: user.staffNo > 0,
     },
   );
 };

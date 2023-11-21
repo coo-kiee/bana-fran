@@ -1,12 +1,9 @@
 import { FC, useRef } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
-import { useQueryErrorResetBoundary } from 'react-query';
 import Utils from 'utils/Utils';
 import { etcVirtualAccountTotalSumFn } from 'utils/etc/sumEtcDetailTotalInfo';
 
 // type, constants
-import { SearchDate } from 'constants/calculate/common';
-import { ETC_TAB_TYPE, VirtualAccListType } from 'types/etc/etcType';
+import { DetailTableProps, VirtualAccListType } from 'types/etc/etcType';
 import { ETC_COL_THEAD_LIST, ETC_DETAIL_SUM_INFO } from 'constants/etc';
 
 // hook
@@ -19,20 +16,15 @@ import Table from 'pages/common/table';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import Pages from 'pages/common/pagination/Pages';
 import Sticky from 'pages/common/sticky';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import TableTotalInfo from 'pages/common/table/TableTotalInfo';
 
 // service
 import ETC_SERVICE from 'service/etcService';
 
-const VirtualAccountDetailTable: FC<{ searchDate: SearchDate; tabType: ETC_TAB_TYPE }> = ({
-  searchDate: { fromDate, toDate },
-  tabType,
-}) => {
+const VirtualAccountDetailTable: FC<DetailTableProps> = ({ searchDate: { fromDate, toDate }, tabType }) => {
   const {
     user: { fCode, fCodeName },
   } = useUserInfo();
-  const { reset } = useQueryErrorResetBoundary();
   const tableRef = useRef<HTMLTableElement>(null);
   const thRef = useRef<HTMLTableRowElement>(null);
   const { checkCurrentPageData } = usePageInfo();
@@ -65,34 +57,23 @@ const VirtualAccountDetailTable: FC<{ searchDate: SearchDate; tabType: ETC_TAB_T
       <Table className="board-wrap" cellPadding="0" cellSpacing="0" tableRef={tableRef}>
         <Table.ColGroup colGroupAttributes={ETC_COL_THEAD_LIST[tabType].colgroup} />
         <Table.TableHead thData={ETC_COL_THEAD_LIST[tabType].thead} trRef={thRef} />
-        <ErrorBoundary
-          onReset={reset}
-          fallbackRender={({ resetErrorBoundary }) => (
-            <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} isTable={true} />
-          )}
-        >
-          <Table.TableList
-            queryRes={listData}
-            render={(datas) =>
-              datas?.map(({ balance, deposit, division, log_date, etc, state }, index) => {
-                const display = checkCurrentPageData(index) ? '' : 'none';
-
-                return (
-                  <tr key={index} style={{ display }}>
-                    <td className="align-center">{log_date}</td>
-                    <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{division}</td>
-                    <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>
-                      {Utils.numberComma(deposit)}
-                    </td>
-                    <td className="align-center">{state}</td>
-                    <td className="balance">{Utils.numberComma(balance)}</td>
-                    <td className="align-left">{etc}</td>
-                  </tr>
-                );
-              })
-            }
-          />
-        </ErrorBoundary>
+        <Table.TableList
+          queryRes={listData}
+          render={(datas) =>
+            datas?.map(({ balance, deposit, division, log_date, etc, state }, index) => (
+              <tr key={index} style={{ display: checkCurrentPageData(index) ? '' : 'none' }}>
+                <td className="align-center">{log_date}</td>
+                <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>{division}</td>
+                <td className={`align-center ${division === '차감' ? `negative-value` : ''}`}>
+                  {Utils.numberComma(deposit)}
+                </td>
+                <td className="align-center">{state}</td>
+                <td className="balance">{Utils.numberComma(balance)}</td>
+                <td className="align-left">{etc}</td>
+              </tr>
+            ))
+          }
+        />
       </Table>
       <div className="result-function-wrap">
         <ExcelButton

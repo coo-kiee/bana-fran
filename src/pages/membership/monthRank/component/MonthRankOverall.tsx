@@ -28,7 +28,7 @@ const MonthRankOverall = () => {
       <Table.ColGroup colGroupAttributes={EXTRA_MONTHRANK_OVERALL_LIST.colgroup} />
       <Table.TableHead thData={EXTRA_MONTHRANK_OVERALL_LIST.thead} />
       <tbody>
-        <React.Suspense fallback={<Loading width={50} height={50} isTable={true} />}>
+        <React.Suspense fallback={<Loading width={50} height={50} marginTop={0} isTable={true} />}>
           <ErrorBoundary
             onReset={reset}
             fallbackRender={({ resetErrorBoundary }) => (

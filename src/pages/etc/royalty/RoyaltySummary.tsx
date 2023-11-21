@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import { format, subMonths } from 'date-fns';
 import Utils from 'utils/Utils';
 
 // hook
@@ -7,10 +8,11 @@ import useUserInfo from 'hooks/user/useUser';
 // service
 import ETC_SERVICE from 'service/etcService';
 
-// type
+// type, constants
 import { ETC_TAB_TYPE, SummaryDataType } from 'types/etc/etcType';
 import { ETC_TAB_TITLE, ETC_OVERALL_TABLE_INFO } from 'constants/etc';
-import { format, subMonths } from 'date-fns';
+
+// component
 import Table from 'pages/common/table';
 import TableList from 'pages/common/table/TableList';
 

@@ -3,6 +3,9 @@ import { queryFn } from 'hooks/useQuery';
 import { AxiosError } from 'axios';
 import { format, isBefore, isSameDay } from 'date-fns';
 
+// hook
+import useUserInfo from 'hooks/user/useUser';
+
 // type
 import { RequestParams } from 'types/common';
 import { MembershipListType, MembershipTotalType } from 'types/membership/extraType';
@@ -10,6 +13,7 @@ import { RankEditParams, RankInfoItemType, RankListItemType } from 'types/member
 
 // 직전월 스탬프/쿠폰/바나포인트 내역
 const useMembershipTotal = (params: { fran_store: number }) => {
+  const { user } = useUserInfo();
   const reqData: RequestParams<{ fran_store: number }> = {
     ws: 'fprocess',
     query: 'MASFCWHJIICQKQGQFWMM',
@@ -23,8 +27,9 @@ const useMembershipTotal = (params: { fran_store: number }) => {
       keepPreviousData: false,
       refetchOnWindowFocus: false,
       retry: false,
-      suspense: true,
-      useErrorBoundary: true,
+      // suspense: true,
+      // useErrorBoundary: true,
+      enabled: user.staffNo > 0,
     },
   );
 };

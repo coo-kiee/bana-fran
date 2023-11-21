@@ -1,3 +1,5 @@
+import { SearchDate } from 'constants/calculate/common';
+
 /**
  * 옵션 유형을 나타내는 열거형입니다.
  * @enum {string}
@@ -239,6 +241,13 @@ enum ETC_TAB_TYPE {
   ACCOUNT,
 }
 
+// props
+interface DetailTableProps<T = Record<string, unknown>> {
+  searchDate: SearchDate;
+  tabType: ETC_TAB_TYPE;
+  filterCondition?: Record<keyof T, string>;
+}
+
 export type {
   SearchInfoType,
   SearchInfoSelectType,
@@ -256,5 +265,6 @@ export type {
   RoyaltyDetailListType,
   VirtualAccListType,
   OrderDetailModalItemType,
+  DetailTableProps,
 };
 export { OPTION_TYPE, ETC_TAB_TYPE, isSelect, isRadio };

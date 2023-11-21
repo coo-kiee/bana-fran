@@ -14,8 +14,7 @@ const ExtraOverall = () => {
   const {
     user: { fCode },
   } = useUserInfo();
-  const membershipTotalParams: { fran_store: number } = { fran_store: fCode };
-  const listData = MEMBERSHIP_SERVICE.useMembershipTotal(membershipTotalParams);
+  const listData = MEMBERSHIP_SERVICE.useMembershipTotal({ fran_store: fCode });
 
   return (
     <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0">

@@ -4,10 +4,7 @@ import { FC } from 'react';
 import { MEMBERSHIP_HEADER_LIST } from 'constants/membership';
 import { MEMBERSHIP_PAGE_TYPE } from 'types/membership/membershipType';
 
-interface MembershipHeaderProps {
-  pageType: MEMBERSHIP_PAGE_TYPE;
-}
-const MembershipHeader: FC<MembershipHeaderProps> = ({ pageType }) => {
+const MembershipHeader: FC<{ pageType: MEMBERSHIP_PAGE_TYPE }> = ({ pageType }) => {
   return (
     <header>
       <div className="page-title membership">

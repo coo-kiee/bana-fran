@@ -2,7 +2,7 @@ import { FC, useRef } from 'react';
 import Utils from 'utils/Utils';
 
 // type, constants
-import { SearchDate } from 'constants/calculate/common';
+import { DetailTableProps } from 'types/etc/etcType';
 import { ETC_ORDER_EXCEL_COL_THEAD_LIST, orderFilterOption } from 'constants/etc';
 
 // hook
@@ -18,12 +18,7 @@ import Pages from 'pages/common/pagination/Pages';
 // service
 import ETC_SERVICE from 'service/etcService';
 
-interface OrderDetailExcelTableProps {
-  searchDate: SearchDate;
-  filterCondition: Record<keyof orderFilterOption, string>;
-}
-
-const OrderDetailExcelTable: FC<OrderDetailExcelTableProps> = ({
+const OrderDetailExcelTable: FC<Omit<DetailTableProps<orderFilterOption>, 'tabType'>> = ({
   searchDate: { fromDate, toDate },
   filterCondition,
 }) => {
@@ -62,7 +57,7 @@ const OrderDetailExcelTable: FC<OrderDetailExcelTableProps> = ({
           render={(datas) =>
             datas.map((el) =>
               el
-                .filter((detail) => filterData(filterCondition, detail))
+                .filter((detail) => filterData(filterCondition!, detail))
                 .map(
                   (
                     {
