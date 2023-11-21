@@ -22,7 +22,6 @@ const ExtraOverall = () => {
       <Table.TableHead thData={EXTRA_OVERALL_TH_LIST} />
       <TableList
         queryRes={listData}
-        isPagination={false}
         render={({
           convert_coupon_stamp_cnt,
           expired_coupon_amount,

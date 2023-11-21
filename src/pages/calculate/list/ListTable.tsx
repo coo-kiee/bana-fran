@@ -52,11 +52,7 @@ const ListTable = ({ selectDate }: IListTable) => {
           <Table className="board-wrap board-top" cellPadding="0" cellSpacing="0">
             <Table.ColGroup colGroupAttributes={LIST_TABLE_COLUMN_INFO} />
             <Table.TableHead style={{ whiteSpace: 'pre-line' }} thData={LIST_THEAD_INFO} />
-            <Table.TableList
-              queryRes={lastMonthTotalRes}
-              isPagination={false}
-              render={(data) => <ListTableItem data={data} />}
-            />
+            <Table.TableList queryRes={lastMonthTotalRes} render={(data) => <ListTableItem data={data} />} />
           </Table>
           <div className="result-function-wrap">
             <div></div>
@@ -82,11 +78,7 @@ const ListTable = ({ selectDate }: IListTable) => {
       <Table tableRef={tableRef} className="board-wrap board-top" cellPadding="0" cellSpacing="0">
         <Table.ColGroup colGroupAttributes={LIST_TABLE_COLUMN_INFO} />
         <Table.TableHead style={{ whiteSpace: 'pre-line' }} thData={LIST_THEAD_INFO} />
-        <Table.TableList
-          queryRes={lastMonthTotalRes}
-          isPagination={false}
-          render={(data) => <ListTableItem data={data} />}
-        />
+        <Table.TableList queryRes={lastMonthTotalRes} render={(data) => <ListTableItem data={data} />} />
       </Table>
       {!!lastMonthTotalRes.data?.list.length && (
         <div className="result-function-wrap">

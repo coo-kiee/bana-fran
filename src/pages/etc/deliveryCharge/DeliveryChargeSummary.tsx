@@ -33,7 +33,6 @@ const DeliveryChargeSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         <Table.TableHead thData={ETC_OVERALL_TABLE_INFO[tabType].thead} />
         <TableList
           queryRes={listData}
-          isPagination={false}
           render={({ std_date, item, supply_amt, vat_amt, total_amt }) => (
             <tr>
               <td className="align-center">{std_date}</td>

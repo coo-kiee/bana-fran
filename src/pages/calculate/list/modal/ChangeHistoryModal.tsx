@@ -40,7 +40,6 @@ const ChangeHistoryModal: FC<ChangeHistoryModalProps> = ({ calculateId }) => {
             <Table.TableHead style={{ whiteSpace: 'pre-line' }} thData={LIST_HISTORY_THEAD_INFO} />
             <Table.TableList
               queryRes={fixListRes}
-              isPagination={false}
               render={(datas) =>
                 datas.map((data, index) => {
                   const [date, time] = data.log_date.split(' ');

@@ -2,7 +2,7 @@ import { createContext, Dispatch, FC, PropsWithChildren, SetStateAction, useStat
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import SuspenseErrorPage from '../suspenseErrorPage';
 
-const initialPageInfo = { currentPage: 1, dataCnt: 0, row: 20 };
+const initialPageInfo = { currentPage: 1, dataCnt: -1, row: 20 };
 export type IPageInfo = typeof initialPageInfo;
 
 export const PageInfoContext = createContext<IPageInfo>(initialPageInfo);

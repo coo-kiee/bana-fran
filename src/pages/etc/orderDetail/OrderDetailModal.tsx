@@ -40,7 +40,6 @@ const OrderDetailModal: FC<{ order_code: number }> = ({ order_code }) => {
             <Table.TableHead thData={ETC_ORDER_MODAL_COL_THEAD_LIST.thead} trRef={stickyRef} />
             <TableList
               queryRes={listData}
-              isPagination={false}
               render={(datas) =>
                 datas?.map((el, idx) => (
                   <tr key={`etc_order_detail_item_${idx}`}>

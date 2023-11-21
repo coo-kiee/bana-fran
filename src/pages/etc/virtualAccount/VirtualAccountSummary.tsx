@@ -34,7 +34,6 @@ const VirtualAccountSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         <Table.TableHead thData={ETC_OVERALL_TABLE_INFO[tabType].thead} />
         <TableList
           queryRes={listData}
-          isPagination={false}
           render={({ fran_name, bank_code, account, total_charge, used_amount, balance }) => (
             <tr>
               <td className="align-center">{fran_name}</td>

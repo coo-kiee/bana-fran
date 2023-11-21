@@ -65,7 +65,6 @@ const CalculateLastMonthTable: FC<CalculateLastMonthTableProps> = ({ caculateTyp
         <Table.TableHead thData={LAST_MONTH_TABLE_THEAD_INFO[caculateType]} />
         <Table.TableList
           queryRes={lastMonthRes}
-          isPagination={false}
           render={(datas) => (
             <>
               {datas.map((data, index) => (

@@ -30,7 +30,6 @@ const GiftCardSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         <Table.TableHead thData={ETC_OVERALL_TABLE_INFO[tabType].thead} />
         <TableList
           queryRes={listData}
-          isPagination={false}
           render={({
             fran_stock_cnt1,
             fran_stock_amt1,
