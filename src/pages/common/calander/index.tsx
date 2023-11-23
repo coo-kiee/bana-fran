@@ -9,10 +9,20 @@ import DefaultDatePicker from '../date-picker';
 interface ICalander extends Partial<SearchDate> {
   dateFormat?: string;
   showMonthYearPicker?: boolean;
+  fromMinDate?: Date;
+  toMinDate?: Date;
   render: (params: SearchDate) => JSX.Element;
 }
 
-const Calander = ({ fromDate, toDate, dateFormat = 'yyyy-MM-dd', showMonthYearPicker, render }: ICalander) => {
+const Calander = ({
+  fromDate,
+  toDate,
+  dateFormat = 'yyyy-MM-dd',
+  showMonthYearPicker,
+  fromMinDate,
+  toMinDate,
+  render,
+}: ICalander) => {
   const { date: calanderFromDate, handleDate: handleCalanderFromDate } = useDatePicker({
     initial: fromDate,
     dateFormat,
@@ -30,6 +40,7 @@ const Calander = ({ fromDate, toDate, dateFormat = 'yyyy-MM-dd', showMonthYearPi
           selected={new Date(calanderFromDate)}
           showMonthYearPicker={showMonthYearPicker}
           dateFormat={dateFormat}
+          minDate={fromMinDate}
           onChange={(date) => validateSearchDate(date, calanderToDate) && handleCalanderFromDate(date)}
         />
         {toDate && (
@@ -39,6 +50,7 @@ const Calander = ({ fromDate, toDate, dateFormat = 'yyyy-MM-dd', showMonthYearPi
               selected={new Date(calanderToDate)}
               showMonthYearPicker={showMonthYearPicker}
               dateFormat={dateFormat}
+              minDate={toMinDate}
               onChange={(date) => validateSearchDate(calanderFromDate, date) && handleCalanderToDate(date)}
             />
           </>

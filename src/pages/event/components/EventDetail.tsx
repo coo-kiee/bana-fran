@@ -1,5 +1,5 @@
 import { FC, useRef } from 'react';
-import { subMonths } from 'date-fns';
+import { subMonths, subYears } from 'date-fns';
 
 // component
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
@@ -27,7 +27,7 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
   } = useUserInfo();
 
   const { searchDate, handleSearchDate } = useSearchDate({
-    fromDate: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? subMonths(new Date(), 11) : subMonths(new Date(), 3),
+    fromDate: subMonths(new Date(), 1),
     toDate: new Date(),
     dateFormat: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? 'yyyy-MM' : 'yyyy-MM-dd',
   });
@@ -39,7 +39,17 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
       <div className="search-wrap">
         <Calander
           fromDate={searchDate.fromDate}
+          fromMinDate={
+            tabType === EVENT_TAB_TYPE.COUPON_STATUS // ex) 2023/11/23
+              ? subYears(new Date(subMonths(new Date(), 1)), 1) // 쿠폰 현황: 2023-11까지 보임
+              : subYears(new Date(), 1) // 사용 내역: 2022-11-23까지 보임
+          }
           toDate={searchDate.toDate}
+          toMinDate={
+            tabType === EVENT_TAB_TYPE.COUPON_STATUS
+              ? subYears(new Date(subMonths(new Date(), 1)), 1)
+              : subYears(new Date(), 1)
+          }
           render={({ fromDate, toDate }) => (
             <>
               {tabType === EVENT_TAB_TYPE.COUPON_USAGE && (
