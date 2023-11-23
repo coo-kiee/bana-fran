@@ -34,14 +34,16 @@ const EventDetailTable: FC<EventDetailTableProps> = ({
   } = useUserInfo();
   const { checkCurrentPageData } = usePageInfo();
   const { filterData } = useEventSearchText();
-  const params = {
-    f_code: fCode,
-    from_date: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? `${fromDate}-01` : fromDate,
-    to_date: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? `${toDate}-01` : toDate,
-  };
 
   // Query
-  const couponListRes = EVENT_SERVICE.useEventCouponList({ params, tabType });
+  const couponListRes = EVENT_SERVICE.useEventCouponList({
+    params: {
+      f_code: fCode,
+      from_date: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? `${fromDate}-01` : fromDate,
+      to_date: tabType === EVENT_TAB_TYPE.COUPON_STATUS ? `${toDate}-01` : toDate,
+    },
+    tabType,
+  });
 
   useHandlePageDataCnt(
     couponListRes,

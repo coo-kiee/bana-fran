@@ -13,14 +13,7 @@ const useRewardProps = (data: RankInfoItemType | undefined) => {
       } else return defaultRewardEditItem;
     };
 
-    return data && {
-      fran_name: data.fran_name,
-      rank_reward_1: handleRewardValue(data.rank_reward_1),
-      rank_reward_2: handleRewardValue(data.rank_reward_2),
-      rank_reward_3: handleRewardValue(data.rank_reward_3),
-      rank_reward_4: handleRewardValue(data.rank_reward_4),
-      rank_reward_5: handleRewardValue(data.rank_reward_5),
-    }
+    return data
       ? {
           fran_name: data.fran_name,
           rank_reward_1: handleRewardValue(data.rank_reward_1),

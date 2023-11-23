@@ -1,4 +1,5 @@
 // components
+import Layout from 'pages/common/layout';
 import Tab from 'pages/common/tab';
 import EventDetail from './components/EventDetail';
 
@@ -7,12 +8,7 @@ import { EVENT_TAB_TITLE } from 'constants/event';
 
 const index = () => {
   return (
-    <section className="container min-with-1600">
-      <header>
-        <div className="page-title etc">
-          <p className="present">이벤트쿠폰현황</p>
-        </div>
-      </header>
+    <Layout>
       <section className="contents-wrap event_current">
         <div className="contents">
           <div className="info-wrap">
@@ -21,7 +17,7 @@ const index = () => {
           <Tab tabTitleObj={EVENT_TAB_TITLE} render={(tabType) => <EventDetail key={tabType} tabType={tabType} />} />
         </div>
       </section>
-    </section>
+    </Layout>
   );
 };
 

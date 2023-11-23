@@ -10,14 +10,14 @@ const HEADER_CLASS_NAME = {
   [PAGE_URL.ETC]: 'etc',
   [PAGE_URL.SALES]: 'sales',
   [PAGE_URL.MEMBERSHIP]: 'membership',
-  // [PAGE_URL.EVENT]: 'etc',// 이벤트쿠폰현황 hide
+  [PAGE_URL.EVENT]: 'event',
 } as Record<string, string>;
+const HIDE_CHILD_MENU_LIST = [PAGE_URL.EVENT_COUPON] as string[];
 
 const LayoutHeader = () => {
   const { pathname } = useLocation();
   const parentMenuPath = '/' + pathname.split('/')[1];
   const childMenuPath = pathname.split('/')[2];
-
   const headerInfo: Record<string, string> = sideMenus.reduce(
     (arr1, cur1) => ({
       ...arr1,
@@ -31,7 +31,9 @@ const LayoutHeader = () => {
     <header>
       <div className={`page-title ${HEADER_CLASS_NAME[parentMenuPath] || ''}`}>
         <p className="present">{headerInfo[pathname] || headerInfo[parentMenuPath] || ''}</p>
-        {childMenuPath && <p className="spot">{headerInfo[pathname] || ''}</p>}
+        {!HIDE_CHILD_MENU_LIST.includes(pathname) && childMenuPath && (
+          <p className="spot">{headerInfo[pathname] || ''}</p>
+        )}
       </div>
     </header>
   );
