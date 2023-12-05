@@ -40,23 +40,22 @@ const useReward = (monthRankList: Omit<RankListType, 'fran_name'>) => {
     return { fran_store: fCode, rank_number: idx + 1, payment_type: type, payment: amount, user_name: staff_name }; // reqData 준비
   });
 
-  const handleRewardValue: ChangeEventHandler<HTMLInputElement> = ({ target: { name, id, value } }) => {
+  const handleRewardValue: ChangeEventHandler<HTMLInputElement> = ({ target: { name, id, value, checked } }) => {
     const idWithoutIdx = id.replace(/\d/g, '');
     const nameWithoutDash = name.split('-')[0];
-    // console.log({ idWithoutIdx, nameWithoutDash, value });
+    // console.log({ idWithoutIdx, nameWithoutDash, value, checked });
 
     if (value === '' || value === '0') {
-      setRewardValue((prev) => ({ ...prev, [nameWithoutDash]: { none: 'checked', coupon: 0, point: 0 } }));
+      setRewardValue((prev) => ({ ...prev, [nameWithoutDash]: { none: true, coupon: 0, point: 0 } }));
     } else if ((idWithoutIdx === 'coupon' || idWithoutIdx === 'point') && isNaN(Number(value))) {
       alert('숫자만 입력해주세요.'); // 숫자가 아닌 문자 넣은 경우 alert
     } else {
       setRewardValue((prev) => ({
         ...prev,
         [nameWithoutDash]: {
-          none: 'notChecked',
-          coupon: 0,
-          point: 0,
-          [idWithoutIdx]: idWithoutIdx !== 'none' ? Number(value) : value,
+          ...defaultRewardEditItem,
+          none: idWithoutIdx !== 'none' ? false : true,
+          [idWithoutIdx]: idWithoutIdx !== 'none' ? Number(value) : checked,
         },
       }));
     }

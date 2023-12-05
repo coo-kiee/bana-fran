@@ -2,6 +2,7 @@ import { FC } from 'react';
 
 // component
 import Table from 'pages/common/table';
+import Input from 'pages/common/input';
 
 // type
 import { RewardEditDataProps, RankListType } from 'types/membership/monthRankType';
@@ -50,7 +51,7 @@ const PrizeEdit: FC<{ monthRankList: RankListType }> = ({ monthRankList: { fran_
           </tbody>
         </Table>
         <button type="button" className="btn-close setting-close" onClick={() => popModal()} />
-        <button type="button" className="close-btn" style={{ marginRight: '5px' }} onClick={() => popModal()}>
+        <button type="button" className="close-btn" onClick={() => popModal()}>
           닫기
         </button>
         <button type="button" className="cta-btn" onClick={handleEditSave}>
@@ -69,22 +70,21 @@ const PrizeEditData: FC<RewardEditDataProps> = ({ idx, value: { none, point, cou
       <td className="rank">{idx + 1}위</td>
       <td>
         <div className="contents none">
-          <input
+          <Input
             className="radio"
             type="radio"
             name={`rank_reward_${idx + 1}-none`}
-            value={none ? 'checked' : 'notChecked'}
             id={`none${idx}`}
-            checked={none === 'checked' ? true : false}
+            checked={none}
             onChange={(e) => handleRewardValue(e)}
+            label="없음"
           />
-          <label htmlFor={`none${idx}`}>없음</label>
         </div>
       </td>
       <td>
         <div className="contents point">
           <div>
-            <input
+            <Input
               className="radio"
               type="radio"
               name={`rank_reward_${idx + 1}-point`}
@@ -93,11 +93,11 @@ const PrizeEditData: FC<RewardEditDataProps> = ({ idx, value: { none, point, cou
               checked={!!point}
               onChange={(e) => handleRewardValue(e)}
               readOnly
+              label="바나포인트"
             />
-            <label htmlFor={`point${idx}`}>바나포인트</label>
           </div>
           <div>
-            <input
+            <Input
               type="text"
               value={point}
               name={`rank_reward_${idx + 1}-point`}
@@ -111,7 +111,7 @@ const PrizeEditData: FC<RewardEditDataProps> = ({ idx, value: { none, point, cou
       <td>
         <div className="contents coupon">
           <div>
-            <input
+            <Input
               className="radio"
               type="radio"
               name={`rank_reward_${idx + 1}-coupon`}
@@ -120,11 +120,11 @@ const PrizeEditData: FC<RewardEditDataProps> = ({ idx, value: { none, point, cou
               checked={!!coupon}
               onChange={(e) => handleRewardValue(e)}
               readOnly
+              label="음료무료쿠폰"
             />
-            <label htmlFor={`coupon${idx}`}>음료무료쿠폰</label>
           </div>
           <div>
-            <input
+            <Input
               type="text"
               value={coupon}
               id={`coupon0${idx}`}

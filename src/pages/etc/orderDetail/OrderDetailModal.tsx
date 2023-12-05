@@ -1,14 +1,12 @@
-import { FC, useRef } from 'react';
+import { FC } from 'react';
 import Utils from 'utils/Utils';
 
 // component
-import Sticky from 'pages/common/sticky';
 import Table from 'pages/common/table';
 import TableList from 'pages/common/table/TableList';
 
 // hook
 import useModal from 'hooks/common/useModal';
-import useCallbackRef from 'hooks/common/useCallbackRef';
 
 // service
 import ETC_SERVICE from 'service/etcService';
@@ -16,28 +14,18 @@ import ETC_SERVICE from 'service/etcService';
 // type, constants
 import { ETC_ORDER_MODAL_COL_THEAD_LIST } from 'constants/etc';
 
-const OrderDetailModal: FC<{ order_code: number }> = ({ order_code }) => {
+const OrderDetailModal: FC<{ orderCode: number }> = ({ orderCode }) => {
   const { popModal } = useModal();
-
-  const stickyRootRef = useRef<HTMLDivElement>(null); // sticky wrapper, viewport 역할 ref
-  const stickyRef = useRef<HTMLTableRowElement>(null); // sticky 기준 ref
-  // const contentsRefRef = useRef<HTMLTableElement>(null); // 안잡힘
-  const { element: contentsRef, ref: contentsRefRef } = useCallbackRef<HTMLTableElement>(null); // 실제 data table ref (sticky 작동용)
-
-  const listData = ETC_SERVICE.useOrderDetailModal({ order_code });
+  const listData = ETC_SERVICE.useOrderDetailModal({ orderCode });
 
   return (
     <div className="alert-layer order-layer active" style={{ position: 'fixed' }}>
       <div className="msg-wrap">
         <p className="title">발주 품목 상세</p>
-        <div style={{ overflowY: 'auto', maxHeight: 500, position: 'relative', marginTop: '30px' }} ref={stickyRootRef}>
-          <Sticky reference={stickyRef.current} root={stickyRootRef.current} contentsRef={contentsRef}>
+        <div style={{ overflowY: 'auto', maxHeight: 500, position: 'relative', marginTop: '30px' }}>
+          <Table className="board-wrap" cellPadding="0" cellSpacing="0" style={{ marginTop: 0 }}>
             <Table.ColGroup colGroupAttributes={ETC_ORDER_MODAL_COL_THEAD_LIST.colgroup} />
             <Table.TableHead thData={ETC_ORDER_MODAL_COL_THEAD_LIST.thead} />
-          </Sticky>
-          <table className="board-wrap" cellPadding="0" cellSpacing="0" style={{ marginTop: 0 }} ref={contentsRefRef}>
-            <Table.ColGroup colGroupAttributes={ETC_ORDER_MODAL_COL_THEAD_LIST.colgroup} />
-            <Table.TableHead thData={ETC_ORDER_MODAL_COL_THEAD_LIST.thead} trRef={stickyRef} />
             <TableList
               queryRes={listData}
               render={(datas) =>
@@ -79,7 +67,7 @@ const OrderDetailModal: FC<{ order_code: number }> = ({ order_code }) => {
                 ))
               }
             />
-          </table>
+          </Table>
         </div>
         <button className="btn-close order-close" onClick={() => popModal()} />
         <button className="cta-btn" onClick={() => popModal()}>

@@ -7,9 +7,9 @@ const useRewardProps = (data: RankInfoItemType | undefined) => {
   const monthRankList = useMemo(() => {
     const handleRewardValue = (value: string) => {
       if (value.includes('포인트')) {
-        return { ...defaultRewardEditItem, none: 'notChecked', point: Number(value.replace(/[^0-9]/g, '')) };
+        return { ...defaultRewardEditItem, none: false, point: Number(value.replace(/[^0-9]/g, '')) };
       } else if (value.includes('쿠폰')) {
-        return { ...defaultRewardEditItem, none: 'notChecked', coupon: Number(value.replace(/[^0-9]/g, '')) };
+        return { ...defaultRewardEditItem, none: false, coupon: Number(value.replace(/[^0-9]/g, '')) };
       } else return defaultRewardEditItem;
     };
 

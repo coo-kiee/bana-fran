@@ -3,13 +3,13 @@ import { subMonths, subYears } from 'date-fns';
 
 // component
 import PageInfoProvider from 'pages/common/pagination/PageInfoProvider';
-import Sticky from 'pages/common/sticky';
 import Table from 'pages/common/table';
 import Calander from 'pages/common/calander';
 import EventDetailTable from './EventDetailTable';
 import Pages from 'pages/common/pagination/Pages';
 import ExcelButton from 'pages/common/excel/ExcelButton';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+import Input from 'pages/common/input';
 
 // hook
 import useSearchDate from 'hooks/common/useSearchDate';
@@ -39,30 +39,26 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
       <div className="search-wrap">
         <Calander
           fromDate={searchDate.fromDate}
-          fromMinDate={
-            tabType === EVENT_TAB_TYPE.COUPON_STATUS // ex) 2023/11/23
-              ? subYears(new Date(subMonths(new Date(), 1)), 1) // 쿠폰 현황: 2023-11까지 보임
-              : subYears(new Date(), 1) // 사용 내역: 2022-11-23까지 보임
-          }
+          fromMinDate={subYears(
+            tabType === EVENT_TAB_TYPE.COUPON_STATUS ? new Date(subMonths(new Date(), 1)) : new Date(),
+            1,
+          )}
           toDate={searchDate.toDate}
-          toMinDate={
-            tabType === EVENT_TAB_TYPE.COUPON_STATUS
-              ? subYears(new Date(subMonths(new Date(), 1)), 1)
-              : subYears(new Date(), 1)
-          }
-          render={({ fromDate, toDate }) => (
+          toMinDate={subYears(
+            tabType === EVENT_TAB_TYPE.COUPON_STATUS ? new Date(subMonths(new Date(), 1)) : new Date(),
+            1,
+          )}
+          render={(date) => (
             <>
               {tabType === EVENT_TAB_TYPE.COUPON_USAGE && (
                 <div className="search-text">
-                  <input
-                    type="text"
+                  <Input
                     placeholder="쿠폰명"
                     name={EVENT_COUPON_USAGE_FILTER_TYPE.COUPON_NAME}
                     value={filterCondition[EVENT_COUPON_USAGE_FILTER_TYPE.COUPON_NAME]}
                     onChange={(e) => handleFilterCondition(e)}
                   />
-                  <input
-                    type="text"
+                  <Input
                     placeholder="쿠폰번호"
                     name={EVENT_COUPON_USAGE_FILTER_TYPE.COUPON_CODE}
                     value={filterCondition[EVENT_COUPON_USAGE_FILTER_TYPE.COUPON_CODE]}
@@ -70,7 +66,7 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
                   />
                 </div>
               )}
-              <button className="btn-search" onClick={() => handleSearchDate({ fromDate, toDate })}>
+              <button className="btn-search" onClick={() => handleSearchDate(date)}>
                 조회
               </button>
             </>
@@ -80,10 +76,6 @@ const EventDetail: FC<{ tabType: EventTabType }> = ({ tabType }) => {
         />
       </div>
 
-      <Sticky reference={thRef.current} contentsRef={tableRef.current}>
-        <Table.ColGroup colGroupAttributes={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].colgroup} />
-        <Table.TableHead thData={EVENT_DETAIL_THEAD_COLGROUP_LIST[tabType].thead} />
-      </Sticky>
       <PageInfoProvider
         fallbackComponent={() => (
           <Table className="board-wrap" cellPadding="0" cellSpacing="0">

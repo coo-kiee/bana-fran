@@ -35,7 +35,6 @@ const OrderDetailDetailTable: FC<DetailTableProps<orderFilterOption>> = ({
   const { checkCurrentPageData } = usePageInfo();
   const thRef = useRef<HTMLTableRowElement>(null);
   const viewportTableRef = useRef<HTMLTableElement>(null);
-
   const listData = ETC_SERVICE.useDetailList(
     ['etc_order_detail_list', JSON.stringify({ fCode, from: fromDate, to: toDate })],
     [fCode, fromDate, toDate],
@@ -45,7 +44,7 @@ const OrderDetailDetailTable: FC<DetailTableProps<orderFilterOption>> = ({
   const openOrderDetailModal = (nOrderId: number) => {
     openModal({
       type: 'CUSTOM',
-      component: <OrderDetailModal order_code={nOrderId} />,
+      component: <OrderDetailModal orderCode={nOrderId} />,
     });
   };
 

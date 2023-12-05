@@ -21,9 +21,9 @@ interface RankListItemType {
 
 type RankListType = Record<keyof Omit<RankInfoItemType, 'fran_name'>, RewardEditItemType> & { fran_name: string };
 
-export const defaultRewardEditItem = { none: 'checked', coupon: 0, point: 0 };
+export const defaultRewardEditItem = { none: true, coupon: 0, point: 0 };
 interface RewardEditItemType {
-  none: string;
+  none: boolean;
   coupon: number;
   point: number;
 }

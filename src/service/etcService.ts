@@ -211,16 +211,20 @@ const useVirtualAccList = (queryKey: string[], params: [number, string, string])
 }; // 가상계좌 (suspense 때문에 따로 분리 + 테스트)
 
 // 발주 상세내역 관련
-const useOrderDetailModal = (params: { order_code: number }) => {
-  const reqData: RequestParams<{ order_code: number }> = { ws: 'fprocess', query: 'R7UCMHCQJ7DPFZXTVPRP', params };
+const useOrderDetailModal = (params: { orderCode: number }) => {
+  const reqData: RequestParams<{ order_code: number }> = {
+    ws: 'fprocess',
+    query: 'R7UCMHCQJ7DPFZXTVPRP',
+    params: { order_code: params.orderCode },
+  };
 
   return useQuery<Array<OrderDetailModalItemType>, AxiosError>(
-    ['etc_order_detail_modal', params.order_code],
+    ['etc_order_detail_modal', params.orderCode],
     () => queryFn.getDataList(reqData),
     {
       keepPreviousData: false,
       refetchOnWindowFocus: false,
-      enabled: params.order_code !== 0,
+      enabled: params.orderCode !== 0,
       retry: false,
       // suspense: true,
       useErrorBoundary: true,
