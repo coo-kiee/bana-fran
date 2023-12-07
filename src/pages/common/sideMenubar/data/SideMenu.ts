@@ -159,7 +159,7 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         addPath: [],
       },
       {
-        path: PAGE_URL.MEMBERSHIP_MONTHRANK,
+        path: PAGE_URL.SALES_STATISTIC,
         name: '매출통계',
         icon: '',
         id: 620,
