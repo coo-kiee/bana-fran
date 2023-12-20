@@ -19,11 +19,8 @@ const LineChartTooltip = ({ point, searchType }: SalesLineChartTooltipProps) => 
 	return (
 		<CustomTooltip className='custom-tooltip'>
 			<p>
-                {	// 일별 통계는 날짜까지, 월별 통계는 월만 표시
-                    searchType === 'D' ? 
-                    format(new Date(xFormatted), 'MM.dd') : 
-                    format(new Date(xFormatted), 'M월')
-                }
+				{/* 일별 통계는 날짜까지, 월별 통계는 월만 표시 */}
+                {format(new Date(xFormatted), searchType === 'D' ? 'MM.dd' : 'M월')}
                 {searchType === 'D' ? `(${Utils.getDayName(xFormatted)})` : ''}
             </p>
 			<TooltipContents className='tooltip-contents' color={serieColor}>

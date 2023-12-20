@@ -21,6 +21,12 @@ import {
   SalesHistorySearch,
 } from 'types/sales/salesType';
 import { OPTION_TYPE } from 'types/etc/etcType';
+
+// Hooks
+import usePageInfo from 'hooks/pagination/usePageInfo';
+import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
+import { useSalesHistoryFilterData } from 'hooks/sales';
+
 // Utils
 import Utils from 'utils/Utils';
 
@@ -31,16 +37,13 @@ import Loading from 'pages/common/loading';
 import Wrapper from 'pages/common/loading/Wrapper';
 import Sticky from 'pages/common/sticky';
 import DataLoader from 'pages/common/dataLoader';
-import PrefixSum from 'pages/sales/history/PrefixSum';
+import NoData from 'pages/common/noData';
+import Pages from 'pages/common/pagination/Pages';
 import TableColGroup from 'pages/sales/components/TableColGroup';
+import PrefixSum from 'pages/sales/history/PrefixSum';
 import TableHead from './table/TableHead';
 import TableRow from './table/TableRow';
 import CouponDetail from './couponDetail';
-import NoData from 'pages/common/noData';
-import { useSalesHistoryFilterData } from 'hooks/sales';
-import usePageInfo from 'hooks/pagination/usePageInfo';
-import Pages from 'pages/common/pagination/Pages';
-import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
 
 const SalesHistoryContainer = () => {
   // global state
@@ -147,16 +150,14 @@ const SalesHistoryContainer = () => {
 
   // table colgroup 배열
   const tableColGroup = [
-    '105',
-    '105',
+    '102',
+    '102',
     '70',
     '70',
     '110',
     '70',
     '110',
-    '42',
-    '65',
-    '65',
+    '40',
     '62',
     '62',
     '62',
@@ -176,7 +177,11 @@ const SalesHistoryContainer = () => {
     '62',
     '62',
     '62',
-  ]; // 총합 1990
+    '62',
+    '62',
+    '62',
+    '62',
+  ]; // 총합 2100
 
   /* sticky 기준 ref */
   const stickyRef = useRef<HTMLTableRowElement>(null);
@@ -200,8 +205,10 @@ const SalesHistoryContainer = () => {
           { wch: 13 },
           { wch: 13 },
           { wch: 28 },
-          { wch: 6 },
+          { wch: 5 },
           { wch: 15 },
+          { wch: 11 },
+          { wch: 11 },
           { wch: 11 },
           { wch: 11 },
           { wch: 11 },
@@ -295,8 +302,8 @@ const SalesHistoryContainer = () => {
                 실물 상품권 주문금액은 어플 주문 건인 경우 본사계정으로 결제되며, 키오스크 주문건인 경우 가상계좌에서
                 자동으로 출금됩니다.
               </p>
-              <p className="notification">
-                - 본사쿠폰(미보전): 본사 발행 이벤트/프로모션 쿠폰 중 가맹점 부담 쿠폰. (23/5/1일부터{' '}
+              <p className="hyphen notification">
+                본사쿠폰(미보전): 본사 발행 이벤트/프로모션 쿠폰 중 가맹점 부담 쿠폰. (23/5/1일부터{' '}
                 <span style={{ color: '#f1658a' }}>1,500원 앱전용 쿠폰</span> 가맹점 부담)
               </p>
             </div>
@@ -343,9 +350,9 @@ const SalesHistoryContainer = () => {
               isData={salesHistoryResult.data && salesHistoryResult.data.length > 0}
               isFetching={salesHistoryResult.isFetching}
               loader={<Loading width={100} height={100} marginTop={16} isTable={true} />}
-              noData={<NoData isTable={true} rowSpan={1} colSpan={29} paddingTop={20} paddingBottom={20} />}
+              noData={<NoData isTable={true} rowSpan={1} colSpan={31} paddingTop={20} paddingBottom={20} />}
             >
-              {salesHistoryResult.isError ? <SuspenseErrorPage /> : null}
+              {salesHistoryResult.isError ? <SuspenseErrorPage isTable /> : null}
               {filteredData.map((data, idx) => {
                 return checkCurrentPageData(idx) ? <TableRow data={data} key={`history_row_${idx}`} /> : null;
               })}

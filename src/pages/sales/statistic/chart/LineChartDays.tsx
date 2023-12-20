@@ -13,7 +13,7 @@ const LineChartDays = ({ points }: CustomLayerProps) => {
 			const date = format(new Date(x), 'dd'); // day date
 
 			// 요일명
-			let dayName = Utils.getDayName(x);
+			const dayName = Utils.getDayName(x);
 			
 			// 주말 css color hexcode
 			const dayColor = (dayName: string) => {

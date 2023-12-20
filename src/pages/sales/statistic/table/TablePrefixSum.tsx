@@ -38,11 +38,13 @@ const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
 		pos_cash_amt: data?.reduce((acc, cur) => { return acc + cur.pos_cash_amt; }, 0),                // 현금매출
 		paid_point: data?.reduce((acc, cur) => { return acc + cur.paid_point; }, 0),                    // 유상포인트
 		e_coupon_charge: data?.reduce((acc, cur) => { return acc + cur.e_coupon_charge; }, 0),          // 제휴사 쿠폰 매출
+                                                                                                        // 바나포인트(보전)
+                                                                                                        // 스탬프쿠폰(보전)
 		hd_coupon_charge: data?.reduce((acc, cur) => { return acc + cur.hd_coupon_charge; }, 0),        // 본사쿠폰(보전)
-		hd_coupon_charge_2: data?.reduce((acc, cur) => { return acc + cur.hd_coupon_charge_2; }, 0),    // 본사쿠폰(미보전)
 		free_sales_amt: data?.reduce((acc, cur) => { return acc + cur.free_sales_amt; }, 0),            // 무상서비스
-		bana_point: data?.reduce((acc, cur) => { return acc + cur.bana_point; }, 0),                    // 바나포인트
-		fran_coupon_charge: data?.reduce((acc, cur) => { return acc + cur.fran_coupon_charge; }, 0)     // 가맹점 쿠폰
+		bana_point: data?.reduce((acc, cur) => { return acc + cur.bana_point; }, 0),                    // 가맹점 바나포인트
+		fran_coupon_charge: data?.reduce((acc, cur) => { return acc + cur.fran_coupon_charge; }, 0),    // 가맹점 쿠폰
+		hd_coupon_charge_2: data?.reduce((acc, cur) => { return acc + cur.hd_coupon_charge_2; }, 0)     // 본사쿠폰(미보전)
 	};
     
     return (
@@ -115,6 +117,20 @@ const TablePrefixSum = ({ data }: DataArrayProps<SalesStatisticData>) => {
                 {Utils.numberComma(e_coupon_charge)}<br />
                 <span>
                     ({(100 * e_coupon_charge / total_sales_amt || 0).toFixed(1)}%)
+                </span>
+            </td>
+            <td className='total'>
+                {/* 바나포인트(보전) */}
+                {Utils.numberComma('-')}<br />
+                <span>
+                    ({(100 * 0 / total_sales_amt || 0).toFixed(1)}%)
+                </span>
+            </td>
+            <td className='total'>
+                {/* 스탬프쿠폰(보전) */}
+                {Utils.numberComma('-')}<br />
+                <span>
+                    ({(100 * 0 / total_sales_amt || 0).toFixed(1)}%)
                 </span>
             </td>
             <td className='total'>

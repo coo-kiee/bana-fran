@@ -44,6 +44,8 @@ const TableRow = ({ data }: DataProps<SalesStatisticData>) => {
             <td>{Utils.numberComma(etc_delivery_charge)}</td>
             <td>{Utils.numberComma(paid_point)}</td>
             <td>{Utils.numberComma(e_coupon_charge)}</td>
+            <td>{Utils.numberComma(0)}</td> {/* 바나포인트(보전) */}
+            <td>{Utils.numberComma(0)}</td> {/* 스탬프쿠폰(보전) */}
             <td>{Utils.numberComma(hd_coupon_charge)}</td>
             <td>{Utils.numberComma(free_sales_amt)}</td>
             <td>{Utils.numberComma(bana_point)}</td>

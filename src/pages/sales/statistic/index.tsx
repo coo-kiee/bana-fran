@@ -11,6 +11,11 @@ import SALES_SERVICE from 'service/salesService';
 // Types
 import { SalesStatisticSearch, ChartFilter, STATISTIC_SEARCH_LIST, STATISTIC_SEARCH_TYPE } from 'types/sales/salesType';
 import { OPTION_TYPE } from 'types/etc/etcType';
+
+// Hooks
+import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
+import usePageInfo from 'hooks/pagination/usePageInfo';
+
 // Utils
 import Utils from 'utils/Utils';
 // Components
@@ -22,13 +27,11 @@ import Sticky from 'pages/common/sticky';
 import Wrapper from 'pages/common/loading/Wrapper';
 import DataLoader from 'pages/common/dataLoader';
 import TableColGroup from 'pages/sales/components/TableColGroup';
+import Pages from 'pages/common/pagination/Pages';
+import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import TableHead from './table/TableHead';
 import TablePrefixSum from './table/TablePrefixSum';
 import TableRow from './table/TableRow';
-import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
-import usePageInfo from 'hooks/pagination/usePageInfo';
-import Pages from 'pages/common/pagination/Pages';
-import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const SalesStatistic = () => {
   // global state
@@ -103,6 +106,8 @@ const SalesStatistic = () => {
     '122',
     '122',
     '122',
+    '122',
+    '122',
   ];
 
   /* sticky 기준 ref */
@@ -133,6 +138,8 @@ const SalesStatistic = () => {
           { wch: 16 },
           { wch: 16 },
           { wch: 22 },
+          { wch: 16 },
+          { wch: 16 },
           { wch: 16 },
           { wch: 16 },
           { wch: 16 },
@@ -313,7 +320,7 @@ const SalesStatistic = () => {
               isFetching={salesStatisticResult.isFetching}
               isData={salesStatisticResult.data && salesStatisticResult.data.length > 0}
               loader={<Loading width={100} height={100} marginTop={16} isTable={true} />}
-              noData={<NoData isTable={true} rowSpan={1} colSpan={19} paddingTop={20} paddingBottom={20} />}
+              noData={<NoData isTable={true} rowSpan={1} colSpan={21} paddingTop={20} paddingBottom={20} />}
             >
               <TablePrefixSum data={salesStatisticResult.data || []} />
               {salesStatisticResult.isError ? <SuspenseErrorPage isTable /> : null}
@@ -348,7 +355,7 @@ const SalesStatistic = () => {
           <button
             className="goast-btn"
             onClick={() => setIsLoadingExcel(true)}
-            disabled={salesStatisticResult.isFetching || isDownloadExcel}
+            disabled={sortedData.length === 0 || isDownloadExcel}
           >
             엑셀다운
           </button>

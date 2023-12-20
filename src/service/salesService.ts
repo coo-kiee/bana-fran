@@ -22,9 +22,9 @@ const useSalesHistory = (params: SalesHistoryParams) => {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    // suspense: true,
     cacheTime: 1000 * 60 * 10,
     staleTime: 1000 * 10,
+    // suspense: true,
   });
 };
 

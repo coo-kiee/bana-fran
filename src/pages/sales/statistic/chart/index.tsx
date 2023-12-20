@@ -16,10 +16,10 @@ const LineChart = ({ chartFilter, searchType, data }: SalesLineChartProps) => {
         const { total, paid, app, free } = chartFilter;
 
         // chart data 가공
-        const totalData = data.map((sales) => {return { x: sales.std_date, y: sales.total_sales_amt }});
-        const appData = data.map((sales) => {return { x: sales.std_date, y: sales.app_delivery_amt }});
-        const paidData = data.map((sales) => {return { x: sales.std_date, y: sales.paid_sales_amt }});
-        const freeData = data.map((sales) => {return { x: sales.std_date, y: sales.free_sales_amt }});
+        const totalData = data.map(({std_date, total_sales_amt}) => ({ x: std_date, y: total_sales_amt }));
+        const appData = data.map(({std_date, app_delivery_amt}) => ({ x: std_date, y: app_delivery_amt }));
+        const paidData = data.map(({std_date, paid_sales_amt}) => ({ x: std_date, y: paid_sales_amt }));
+        const freeData = data.map(({std_date, free_sales_amt}) => ({ x: std_date, y: free_sales_amt }));
 
         const chartData = [
             { id: 'total', data: totalData, color: '#f1658a' },
@@ -53,12 +53,12 @@ const LineChart = ({ chartFilter, searchType, data }: SalesLineChartProps) => {
                 tickSize: 0,
                 tickPadding: 15,
                 tickRotation: 0,
-                format: (y) => {return (Utils.numberComma(y))}
+                format: (y) => (Utils.numberComma(y))
             }}
             axisBottom={null}
             lineWidth={4}
             curve='linear'
-            colors={props => {return props.color}}
+            colors={props => props.color}
             useMesh={true}
             enableGridX={true}
             enableGridY={true}
@@ -66,13 +66,13 @@ const LineChart = ({ chartFilter, searchType, data }: SalesLineChartProps) => {
             pointSize={10}
             pointColor='#ffffff'
             pointBorderWidth={4}
-            pointBorderColor={(props: Point) => {return props.serieColor}}
+            pointBorderColor={(props: Point) => props.serieColor}
             role='graphics-doc'
-            tooltip={({point}) => {return <LineChartTooltip point={point} searchType={searchType} />}}
+            tooltip={({point}) => <LineChartTooltip point={point} searchType={searchType} />}
             layers={[
                 'grid', 
                 'axes', 
-                (props) => {return searchType === 'D' ? <LineChartDays {...props} /> : <LineChartMonths {...props} />},
+                (props) => (searchType === 'D' ? <LineChartDays {...props} /> : <LineChartMonths {...props} />),
                 'crosshair', 
                 'lines', 
                 'points',
