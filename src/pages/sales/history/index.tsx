@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { format, subDays, subYears } from 'date-fns';
 
@@ -23,22 +23,17 @@ import {
 import { OPTION_TYPE } from 'types/etc/etcType';
 
 // Hooks
-import usePageInfo from 'hooks/pagination/usePageInfo';
-import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
 import { useSalesHistoryFilterData } from 'hooks/sales';
-
-// Utils
-import Utils from 'utils/Utils';
 
 // Components
 import CalanderSearch from 'pages/common/calanderSearch';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import Loading from 'pages/common/loading';
-import Wrapper from 'pages/common/loading/Wrapper';
 import Sticky from 'pages/common/sticky';
 import DataLoader from 'pages/common/dataLoader';
 import NoData from 'pages/common/noData';
-import Pages from 'pages/common/pagination/Pages';
+import ExcelDownloader from 'pages/common/excel/ExcelDownloader';
+import Pagination from 'pages/common/pagination';
 import TableColGroup from 'pages/sales/components/TableColGroup';
 import PrefixSum from 'pages/sales/history/PrefixSum';
 import TableHead from './table/TableHead';
@@ -76,9 +71,9 @@ const SalesHistoryContainer = () => {
   // 쿠팡/배민 주문 제외 여부 0: 쿠팡/배민표시 1:쿠팡/배민제외
   const [isExcludeCouBae, setIsExcludeCouBae] = useState<Bit>(0);
 
-  // 엑셀 컴포넌트 생성용
-  const [isLoadingExcel, setIsLoadingExcel] = useState(false);
-  const [isDownloadExcel, setIsDownloadExcel] = useState(false);
+  // pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowPerPage, setRowPerPage] = useState(20);
 
   // query
   const salesHistoryResult = SALES_SERVICE.useSalesHistory({
@@ -86,10 +81,6 @@ const SalesHistoryContainer = () => {
     to_date: searchConfig.to,
     f_code: fCode,
   });
-
-  // pagination
-  const { pageInfo, handleCurrentPage, checkCurrentPageData } = usePageInfo();
-  useHandlePageDataCnt(salesHistoryResult);
 
   // filter data custom hook
   const { filteredData } = useSalesHistoryFilterData({
@@ -187,85 +178,21 @@ const SalesHistoryContainer = () => {
   const stickyRef = useRef<HTMLTableRowElement>(null);
   const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
 
-  /* excel download */
-  const excelRef = useRef<HTMLTableElement>(null); // excel 출력용 table
-
-  const excelDownload = useCallback(() => {
-    const { from, to } = searchConfig;
-    if (excelRef.current) {
-      // Excel - sheet options: 셀 시작 위치, 셀 크기
-      const options = {
-        type: 'table', // 필수 O
-        sheetOption: { origin: 'A1' }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-        colspan: [
-          { wch: 13 },
-          { wch: 13 },
-          { wch: 13 },
-          { wch: 13 },
-          { wch: 13 },
-          { wch: 13 },
-          { wch: 28 },
-          { wch: 5 },
-          { wch: 15 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-          { wch: 11 },
-        ], // 셀 너비 설정, 필수 X
-        addRowColor: { row: [1, 2], color: ['d3d3d3', 'd3d3d3'] },
-        sheetName: '주문내역', // 시트이름, 필수 X
-      };
-      try {
-        Utils.excelDownload(excelRef.current, options, `${fCodeName}_주문내역(${from}~${to})`);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    setIsDownloadExcel(false);
-    setIsLoadingExcel(false);
-  }, [fCodeName, searchConfig]);
-
   // search(refetch)
   const handleSearch = () => {
+    setCurrentPage(1);
     salesHistoryResult.refetch();
   };
 
-  // loading띄우고 excelDownload 진행
-  useEffect(() => {
-    isLoadingExcel && setIsDownloadExcel(true);
-  }, [isLoadingExcel]);
-
-  useEffect(() => {
-    if (isDownloadExcel) excelDownload();
-  }, [excelDownload, isDownloadExcel]);
-
   // 검색/필터 조건 변경시 현재 페이지 번호 초기화
   useEffect(() => {
-    handleCurrentPage(1);
-  }, [handleCurrentPage, searchConfig.searchOption]);
+    setCurrentPage(1);
+  }, [searchConfig.searchOption]);
 
   // 페이지, row 바뀌면 쿠폰 상세 모달 제거
   useEffect(() => {
     setCouponModal((prev) => ({ ...prev, isOpen: false }));
-  }, [pageInfo, setCouponModal]);
+  }, [currentPage, rowPerPage, setCouponModal]);
 
   return (
     <>
@@ -354,44 +281,73 @@ const SalesHistoryContainer = () => {
             >
               {salesHistoryResult.isError ? <SuspenseErrorPage isTable /> : null}
               {filteredData.map((data, idx) => {
-                return checkCurrentPageData(idx) ? <TableRow data={data} key={`history_row_${idx}`} /> : null;
+                const isDisplay = (currentPage - 1) * rowPerPage <= idx && currentPage * rowPerPage > idx;
+                return isDisplay ? <TableRow data={data} key={`history_row_${idx}`} /> : null;
               })}
             </DataLoader>
           </tbody>
         </table>
         {/* 쿠폰 상세 내역 모달 */}
         {couponModal.isOpen && <CouponDetail />}
-
-        {/* Excel Table */}
-        <DataLoader isData={isDownloadExcel} noData={null}>
-          {/* Excel Loading */}
-          {/* isFetching, loader 옵션 미사용, 별도 처리 */}
-          <Wrapper isRender={isLoadingExcel} isFixed={true} width="100%" height="100%">
-            <Loading marginTop={0} />
-          </Wrapper>
-          <table className="board-wrap board-top excel-table" cellPadding="0" cellSpacing="0" ref={excelRef}>
-            <TableColGroup tableColGroup={tableColGroup} />
-            <TableHead />
-            <tbody>
-              {filteredData.map((data) => (
-                <TableRow data={data} key={`history_excel_${data.nOrderID}`} />
-              ))}
-            </tbody>
-          </table>
-        </DataLoader>
       </div>
       {/* <!-- 엑셀다운, 페이징, 정렬 --> */}
       <div className="result-function-wrap">
-        <div className="function">
-          <button
-            className="goast-btn"
-            onClick={() => setIsLoadingExcel(true)}
-            disabled={filteredData.length === 0 || isDownloadExcel}
-          >
-            엑셀다운
-          </button>
-        </div>
-        <Pages />
+        <ExcelDownloader
+          dataCnt={filteredData.length}
+          type={'table'}
+          sheetOption={{ origin: 'A1' }}
+          colWidths={[
+            { wpx: 80 },
+            { wpx: 80 },
+            { wpx: 80 },
+            { wpx: 80 },
+            { wpx: 80 },
+            { wpx: 80 },
+            { wpx: 170 },
+            { wpx: 30 },
+            { wpx: 92 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+            { wpx: 68.25 },
+          ]}
+          fileName={`${fCodeName}_주문내역(${searchConfig.from}~${searchConfig.to})`}
+          addRowColor={{ rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] }}
+          sheetName="주문내역"
+        >
+          {/* excel content */}
+          <TableColGroup tableColGroup={tableColGroup} />
+          <TableHead />
+          <tbody>
+            {filteredData.map((data) => (
+              <TableRow data={data} key={`history_excel_${data.nOrderID}`} />
+            ))}
+          </tbody>
+        </ExcelDownloader>
+        <Pagination
+          dataCnt={filteredData.length}
+          pageInfo={{ row: rowPerPage, currentPage }}
+          handlePageChange={setCurrentPage}
+          handlePageRow={setRowPerPage}
+        />
       </div>
     </>
   );

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { format, isAfter, subDays, subMonths } from 'date-fns';
 
@@ -16,16 +16,14 @@ import { OPTION_TYPE } from 'types/etc/etcType';
 import useHandlePageDataCnt from 'hooks/pagination/useHandlePageDataCnt';
 import usePageInfo from 'hooks/pagination/usePageInfo';
 
-// Utils
-import Utils from 'utils/Utils';
 // Components
 import Loading from 'pages/common/loading';
 import CalanderSearch from 'pages/common/calanderSearch';
 import LineChart from 'pages/sales/statistic/chart';
 import NoData from 'pages/common/noData';
 import Sticky from 'pages/common/sticky';
-import Wrapper from 'pages/common/loading/Wrapper';
 import DataLoader from 'pages/common/dataLoader';
+import ExcelButton from 'pages/common/excel/ExcelButton';
 import TableColGroup from 'pages/sales/components/TableColGroup';
 import Pages from 'pages/common/pagination/Pages';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
@@ -48,10 +46,6 @@ const SalesStatistic = () => {
     to: format(today, 'yyyy-MM-dd'),
   });
   const [chartFilter, setChartFilter] = useState<ChartFilter>({ total: 1, paid: 0, app: 0, free: 0 });
-
-  // 엑셀 컴포넌트 생성용
-  const [isLoadingExcel, setIsLoadingExcel] = useState(false);
-  const [isDownloadExcel, setIsDownloadExcel] = useState(false);
 
   // query
   // 월별 검색(M)이면 from/to에 -01 string 추가 M: yy-MM, D: yy-MM-dd 포멧
@@ -86,83 +80,12 @@ const SalesStatistic = () => {
   ];
 
   // table colgroup 배열
-  const tableColGroup = [
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-    '122',
-  ];
+  const tableLength = Object.keys(salesStatisticResult.data ? salesStatisticResult.data[0] : []).length;
+  const tableColGroup = new Array(tableLength).fill('122');
 
   /* sticky 기준 ref */
   const stickyRef = useRef<HTMLTableRowElement>(null);
   const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
-
-  /* excel download */
-  const excelRef = useRef<HTMLTableElement>(null); // excel 출력용 table
-
-  const excelDownload = useCallback(() => {
-    const { searchType, from, to } = searchConfig;
-    if (excelRef.current) {
-      // Excel - sheet options: 셀 시작 위치, 셀 크기
-      const options = {
-        type: 'table', // 필수 O
-        sheetOption: { origin: 'A1' }, // 해당 셀부터 데이터 표시, default - A1, 필수 X
-        colspan: [
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 22 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-          { wch: 16 },
-        ], // 셀 너비 설정, 필수 X
-        addRowColor: { row: [1, 2, 3], color: ['d3d3d3', 'd3d3d3', 'ffc89f'] },
-        sheetName: '매출통계', // 시트이름, 필수 X
-      };
-      try {
-        Utils.excelDownload(
-          excelRef.current,
-          options,
-          `${fCodeName}_${searchType === 'D' ? '일별' : '월별'}_매출통계(${from}~${to})`,
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    setIsDownloadExcel(false);
-    setIsLoadingExcel(false);
-  }, [fCodeName, searchConfig]);
 
   // 제한 조건(90일)을 넘어가면 refecth를 막고 날짜 바꿔주는 함수
   const handleSearch = useCallback(() => {
@@ -186,15 +109,6 @@ const SalesStatistic = () => {
 
     salesStatisticResult.refetch();
   }, [searchConfig, salesStatisticResult.refetch]);
-
-  // loading띄우고 excelDownload 진행
-  useEffect(() => {
-    isLoadingExcel && setIsDownloadExcel(true);
-  }, [isLoadingExcel]);
-
-  useEffect(() => {
-    if (isDownloadExcel) excelDownload();
-  }, [excelDownload, isDownloadExcel]);
 
   return (
     <>
@@ -299,7 +213,7 @@ const SalesStatistic = () => {
         </div>
         <div className="search-result-wrap">
           <div className="detail-info-wrap">
-            <div className="price-info" style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div className="price-info">
               <p className="hyphen">총 매출(자체 앱주문 배달비 포함): 유상매출+무상서비스</p>
               <p className="notification">
                 ※ 본사 쿠폰 매출(미보전): 본사 발행 이벤트/프로모션 쿠폰 중 가맹점 부담 쿠폰 매출
@@ -323,43 +237,31 @@ const SalesStatistic = () => {
               noData={<NoData isTable={true} rowSpan={1} colSpan={21} paddingTop={20} paddingBottom={20} />}
             >
               <TablePrefixSum data={salesStatisticResult.data || []} />
+              {/* Error handling */}
               {salesStatisticResult.isError ? <SuspenseErrorPage isTable /> : null}
               {sortedData.map((sData, idx) => {
-                return checkCurrentPageData(idx) ? <TableRow data={sData} key={`statistic_table_row_${idx}`} /> : null;
+                return (
+                  <TableRow data={sData} key={`statistic_table_row_${idx}`} isDisplay={checkCurrentPageData(idx)} />
+                );
               })}
             </DataLoader>
           </tbody>
         </table>
-        {/* Excel Table */}
-        <DataLoader isData={isDownloadExcel}>
-          {/* Excel Loading */}
-          {/* isFetching, loader 옵션 미사용, 별도 처리 */}
-          <Wrapper isRender={isLoadingExcel} isFixed={true} width="100%" height="100%">
-            <Loading marginTop={0} />
-          </Wrapper>
-          <table className="board-wrap board-top excel-table" cellPadding="0" cellSpacing="0" ref={excelRef}>
-            <TableColGroup tableColGroup={tableColGroup} />
-            <TableHead />
-            <tbody>
-              <TablePrefixSum data={salesStatisticResult.data || []} />
-              {sortedData?.map((statisticData, idx) => {
-                return <TableRow data={statisticData} key={`statistic_excel_row_${idx}`} />;
-              })}
-            </tbody>
-          </table>
-        </DataLoader>
       </div>
       {/* <!-- 엑셀다운, 페이징, 정렬 --> */}
       <div className="result-function-wrap">
-        <div className="function">
-          <button
-            className="goast-btn"
-            onClick={() => setIsLoadingExcel(true)}
-            disabled={sortedData.length === 0 || isDownloadExcel}
-          >
-            엑셀다운
-          </button>
-        </div>
+        <ExcelButton
+          type={'table'}
+          target={tableRef}
+          tableRef={tableRef}
+          sheetOption={{ origin: 'A1' }}
+          colWidths={tableColGroup.map(() => ({ wpx: 100 }))}
+          fileName={`${fCodeName}_${searchConfig.searchType === 'D' ? '일별' : '월별'}_매출통계(${searchConfig.from}~${
+            searchConfig.to
+          })`}
+          addRowColor={{ rowNums: [1, 2, 3], colors: ['d3d3d3', 'd3d3d3', 'ffc89f'] }}
+          sheetName="매출통계"
+        />
         <Pages />
       </div>
     </>

@@ -50,4 +50,9 @@
         .bg-bottom { border-bottom: 1px solid #5d5d75; }
         .total { height: 73px; color: #000; }
     }
+
+    .price-info {
+        display: flex;
+        justify-content: space-between;
+    }
 }

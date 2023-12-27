@@ -11,6 +11,10 @@ interface DataProps<T> {
 interface DataArrayProps<T> {
   data: T[];
 }
+interface SalesTableRowProps<T> {
+  data: T;
+  isDisplay?: boolean;
+}
 
 // API params type
 interface SalesHistoryParams extends CommonParams {
@@ -246,6 +250,7 @@ export type {
   CouponType,
   DataProps,
   DataArrayProps,
+  SalesTableRowProps,
   SalesHistoryParams,
   SalesStatisticParams,
   SalesCouponDetailParams,
