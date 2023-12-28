@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
+
+// Constants
+import { HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE, HISTORY_RCP_TYPE } from 'constants/sales';
+
+// Types
 import { Bit } from 'types/common';
-import {
-  HISTORY_ORDER_STATE,
-  HISTORY_ORDER_TYPE,
-  HISTORY_RCP_TYPE,
-  SalesHistoryData,
-  SalesHistorySearchOption,
-} from 'types/sales/salesType';
+import { SalesHistoryData, SalesHistorySearchOption } from 'types/sales/salesType';
 
 interface UseSalesHistoryDataProps {
   data: SalesHistoryData[] | undefined;

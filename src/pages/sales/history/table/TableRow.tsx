@@ -3,8 +3,10 @@ import { useSetRecoilState } from 'recoil';
 // global state
 import { couponInfoState, couponModalState } from 'state';
 
+// Constants
+import { HISTORY_ORDER_STATE, HISTORY_GIFT_CERT } from 'constants/sales';
 // Types
-import { CouponType, DataProps, HISTORY_GIFT_CERT, HISTORY_ORDER_STATE, SalesHistoryData } from 'types/sales/salesType';
+import { CouponType, DataProps, SalesHistoryData } from 'types/sales/salesType';
 
 // Utils
 import Utils from 'utils/Utils';
@@ -57,8 +59,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
     const text = dateText.split(/\s/);
     return (
       <>
-        {text[0]}
-        <br />
+        {text[0]} <br />
         {text[1]}
       </>
     );
@@ -90,8 +91,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
       <td className="align-center">
         {e_pay_type && (
           <>
-            {`${Utils.numberComma(e_pay_charge)}`}
-            <br />
+            {`${Utils.numberComma(e_pay_charge)}`} <br />
             {`(${e_pay_type})`}
           </>
         )}

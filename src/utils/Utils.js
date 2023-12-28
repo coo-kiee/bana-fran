@@ -498,12 +498,16 @@ export default class Utils {
 
     // 특정 문자 뒤의 공백에 줄바꿈 태그 추가
     static addLineBreak = (orig, delimiter = '.') => {
-        const breakPoint = new RegExp(`(?<=\\${delimiter})\\s`, 'g'); // 구분자 뒤의 공백을 찾는 정규표현식
-        const result = orig.replace(breakPoint, '<br/>').split('<br/>').map((txt, idx) => {
-            return <Fragment key={idx}>{txt}<br/></Fragment> // 줄 바꿀 부분에 <br/> 문자열을 추가한 후, <br/>을 기준으로 문자를 나누고 br태그를 추가해 렌더링
-        })
+        const splitedText = orig.replaceAll(delimiter, '<br/>').split('<br/>');
+        const result = splitedText.map((txt, idx) => {
+            return (
+                <Fragment key={idx}>
+                    {txt}{idx + 1 !== splitedText.length ? <br /> : null}
+                </Fragment>
+            ); // 줄 바꿀 부분에 br태그를 추가해 렌더링
+        });
         return result;
-    }
+    };
 
     // 특정 단어에 span+클래스(색상) 부여
     static addWrapTextClass = (orig, target, className, mark) => {
