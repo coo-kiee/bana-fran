@@ -151,12 +151,18 @@
             &:last-child { color: #99a8ff; }
         }
         &--today { color: #f1658a !important; }
-        &--selected,
-        &--keyboard-selected,
-        &--keyboard-selected:hover {
+        &--selected {
             background-color: #f1658a !important;
             color: #fff !important;
             font-weight: bold;
+        }
+        &--keyboard-selected {
+            background-color: unset !important;
+            color: unset !important;
+        }
+        &--keyboard-selected:hover {
+            background-color: #f0f0f0 !important;
+            color: inherit !important;
         }
     }
     &__week {
