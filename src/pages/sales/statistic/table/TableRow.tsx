@@ -28,6 +28,7 @@ const TableRow = ({ data, isDisplay = true }: SalesTableRowProps<SalesStatisticD
 
   // std_date 형태 가공 (T~Z 문자열 제거)
   const salesDate = std_date.replace(/T.*Z/, '');
+
   return (
     <tr style={!isDisplay ? { display: 'none' } : {}}>
       <td>{salesDate}</td>
@@ -44,8 +45,12 @@ const TableRow = ({ data, isDisplay = true }: SalesTableRowProps<SalesStatisticD
       <td>{Utils.numberComma(etc_delivery_charge)}</td>
       <td>{Utils.numberComma(paid_point)}</td>
       <td>{Utils.numberComma(e_coupon_charge)}</td>
-      <td>{Utils.numberComma(0)}</td> {/* 바나포인트(보전) */}
-      <td>{Utils.numberComma(0)}</td> {/* 스탬프쿠폰(보전) */}
+      <td>
+        {Utils.numberComma(0)} {/* 바나포인트(보전) */}
+      </td>
+      <td>
+        {Utils.numberComma(0)} {/* 스탬프쿠폰(보전) */}
+      </td>
       <td>{Utils.numberComma(hd_coupon_charge)}</td>
       <td>{Utils.numberComma(free_sales_amt)}</td>
       <td>{Utils.numberComma(bana_point)}</td>

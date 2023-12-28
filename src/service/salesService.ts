@@ -23,7 +23,6 @@ const useSalesHistory = (params: SalesHistoryParams) => {
     refetchOnWindowFocus: false,
     retry: false,
     cacheTime: 1000 * 60 * 10,
-    staleTime: 1000 * 10,
     // suspense: true,
   });
 };
@@ -40,7 +39,6 @@ const useSalesStatistic = (params: SalesStatisticParams) => {
     refetchOnWindowFocus: false,
     retry: false,
     cacheTime: 1000 * 60 * 10,
-    staleTime: 1000 * 60 * 5,
   });
 };
 

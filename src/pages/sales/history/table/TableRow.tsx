@@ -32,7 +32,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
     nDeliveryCharge, // 배달비(앱주문)
     nOrderID, // 주문번호
     card_charge, // 카드
-    e_coupon_charge, // 간편결제금액
+    e_coupon_charge, // 제휴사쿠폰금액
     e_pay_charge, // 간편결제금액
     e_pay_type, // 간편결제수단
     cash_charge, // 현금
@@ -135,7 +135,6 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
       <td className="align-center">{nEtcDeliveryCharge !== 0 ? Utils.numberComma(nEtcDeliveryCharge) : ''}</td>
       <td className="align-center">{nStampCount !== 0 ? nStampCount : '-'}</td>
       <td className="align-center">{Utils.numberComma(nSavingPoint) || '-'}</td>
-      <td className="align-center">-</td>
     </tr>
   );
 };

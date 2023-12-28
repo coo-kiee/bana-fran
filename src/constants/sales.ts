@@ -171,7 +171,7 @@ export const SALES_HISTORY_TABLE_THEAD_INFO = [
     { children: '배달비\n(앱주문)', rowSpan: 2 },
     { children: '결제상세(앱주문 배달비 포함)', colSpan: 16, className: 'price-area boder-th-b' },
     { children: '적립', colSpan: 2, className: 'price-area boder-th-b boder-th-l' },
-    { children: '현금영수증', rowSpan: 2 },
+    // { children: '현금영수증', rowSpan: 2 },
   ],
   [
     { children: '합계', className: 'price-area boder-th-b' },
@@ -227,8 +227,8 @@ export const SALES_HISTORY_TABLE_COLGROUP_INFO = [
   { width: '62' },
   { width: '62' },
   { width: '62' },
-  { width: '62' },
-]; // 총합 2110
+  // { width: '62' },
+]; // 총합 2048
 
 // excel width px
 export const SALES_HISTORY_EXCEL_COLWIDTH_INFO = [
@@ -262,7 +262,7 @@ export const SALES_HISTORY_EXCEL_COLWIDTH_INFO = [
   { wpx: 68.25 },
   { wpx: 68.25 },
   { wpx: 68.25 },
-  { wpx: 68.25 },
+  // { wpx: 68.25 },
 ];
 
 /* statistic */
