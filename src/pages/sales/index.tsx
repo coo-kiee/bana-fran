@@ -18,7 +18,13 @@ const SalesContainer = () => {
       </header>
       <section className={`contents-wrap sales_${path === 'history' ? 'order' : 'statistic'}`}>
         <div className="contents">
-          <PageInfoProvider>{path === 'history' ? <SalesHistory /> : <SalesStatistic />}</PageInfoProvider>
+          {path === 'history' ? (
+            <SalesHistory />
+          ) : (
+            <PageInfoProvider>
+              <SalesStatistic />
+            </PageInfoProvider>
+          )}
         </div>
       </section>
     </section>

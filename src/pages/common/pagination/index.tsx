@@ -38,9 +38,7 @@ const Pagination: FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, 
   const handlePage: MouseEventHandler<HTMLElement> = (e) => {
     const changePage = Number(e.currentTarget.innerText);
     // const tables = document.getElementsByTagName('table');
-    // console.log(tables);
     // if(tables) console.log(tables[0].getBoundingClientRect().top, tables[1].getBoundingClientRect().top, window.pageYOffset + tables[1].getBoundingClientRect().top)
-    window.scrollTo({ top: 0 }); // 페이지 최상단으로 스크롤 이동
     handlePageChange(changePage);
   };
 
@@ -71,7 +69,7 @@ const Pagination: FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, 
     <>
       <div className="paging-wrap">
         <button className="btn-prev" onClick={handleArrowButton} disabled={currentPage === 1}></button>{' '}
-        {/* <!-- disabled : 비활성화 --> */}
+        {/* disabled : 비활성화 */}
         <ul className="paging">
           {pageArr.map((pageNum) => {
             if (pageNum >= startPage && pageNum <= endPage)
@@ -89,7 +87,7 @@ const Pagination: FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, 
           onClick={handleArrowButton}
           disabled={maxPage === 0 || currentPage === maxPage}
         ></button>{' '}
-        {/* <!-- disabled : 비활성화 --> */}
+        {/* disabled : 비활성화 */}
       </div>
       <select className="filter-number" name="" id="" onChange={handleListRow} value={row}>
         {rows.map((item) => (

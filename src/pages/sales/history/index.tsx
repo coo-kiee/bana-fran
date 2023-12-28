@@ -8,18 +8,18 @@ import { couponModalState, franState, loginState } from 'state';
 // API
 import SALES_SERVICE from 'service/salesService';
 
+// Constants
+import {
+  SALES_HISTORY_TABLE_COLGROUP_INFO,
+  SALES_HISTORY_EXCEL_COLWIDTH_INFO,
+  SALES_HISTORY_TABLE_THEAD_INFO,
+  SALES_HISTORY_SEARCH_OPTION,
+  HISTORY_SEARCH_TYPE_LIST,
+} from 'constants/sales';
+
 // Types
 import { Bit } from 'types/common';
-import {
-  HISTORY_GIFT_CERT,
-  HISTORY_ORDER_STATE,
-  HISTORY_ORDER_TYPE,
-  HISTORY_PAY_TYPE,
-  HISTORY_PAY_WITH,
-  HISTORY_RCP_TYPE,
-  HISTORY_SEARCH_TYPE_LIST,
-  SalesHistorySearch,
-} from 'types/sales/salesType';
+import { SalesHistorySearch } from 'types/sales/salesType';
 import { OPTION_TYPE } from 'types/etc/etcType';
 
 // Hooks
@@ -34,13 +34,12 @@ import DataLoader from 'pages/common/dataLoader';
 import NoData from 'pages/common/noData';
 import ExcelDownloader from 'pages/common/excel/ExcelDownloader';
 import Pagination from 'pages/common/pagination';
-import TableColGroup from 'pages/sales/components/TableColGroup';
+import Table from 'pages/common/table';
 import PrefixSum from 'pages/sales/history/PrefixSum';
-import TableHead from './table/TableHead';
 import TableRow from './table/TableRow';
 import CouponDetail from './couponDetail';
 
-const SalesHistoryContainer = () => {
+const SalesHistory = () => {
   // global state
   const { userInfo } = useRecoilValue(loginState);
   const fCode = useRecoilValue(franState);
@@ -56,14 +55,7 @@ const SalesHistoryContainer = () => {
   const [searchConfig, setSearchConfig] = useState<SalesHistorySearch>({
     from: format(new Date(subDays(today, 6)), 'yyyy-MM-dd'),
     to: format(new Date(today), 'yyyy-MM-dd'),
-    searchOption: [
-      { title: '주문유형 전체', value: 'total' },
-      { title: '주문상태 전체', value: 'total' },
-      { title: '접수타입 전체', value: 'total' },
-      { title: '결제방식 전체', value: 'total' },
-      { title: '결제수단 전체', value: 'total' },
-      { title: '상품종류 전체', value: 'total' },
-    ],
+    searchOption: SALES_HISTORY_SEARCH_OPTION.map(({ total }) => total),
   });
 
   // 취소 주문 표시 여부 0: 취소주문감추기 1: 취소주문표시
@@ -89,90 +81,6 @@ const SalesHistoryContainer = () => {
     isCancelShow,
     isExcludeCouBae,
   });
-
-  // select options 내용
-  const searchOptionList = [
-    {
-      [HISTORY_ORDER_TYPE.TOTAL]: { title: '주문유형 전체', value: 'total' },
-      [HISTORY_ORDER_TYPE.CAFE]: { title: '매장주문', value: '0' },
-      [HISTORY_ORDER_TYPE.APP]: { title: '앱배달주문', value: '1' },
-      [HISTORY_ORDER_TYPE.COUBAE]: { title: '쿠팡/배민주문', value: '쿠팡배민' },
-    },
-    {
-      [HISTORY_ORDER_STATE.TOTAL]: { title: '주문상태 전체', value: 'total' },
-      [HISTORY_ORDER_STATE.AWAIT]: { title: '대기', value: '0' },
-      [HISTORY_ORDER_STATE.MAKING]: { title: '제조중', value: '10' },
-      [HISTORY_ORDER_STATE.MAKING_FINISH]: { title: '제조완료', value: '30' },
-      [HISTORY_ORDER_STATE.DELIVERY]: { title: '배달중', value: '35' },
-      [HISTORY_ORDER_STATE.COMPLETE]: { title: '완료', value: '40' },
-      // [HISTORY_ORDER_STATE.CANCEL]: { title: '취소', value: '50' },
-    },
-    {
-      [HISTORY_RCP_TYPE.TOTAL]: { title: '접수타입 전체', value: 'total' },
-      [HISTORY_RCP_TYPE.APP]: { title: '앱', value: '앱' },
-      [HISTORY_RCP_TYPE.KIOSK]: { title: '키오스크', value: '키오스크' },
-      [HISTORY_RCP_TYPE.POS]: { title: '직접결제POS', value: '직접결제POS' },
-      [HISTORY_RCP_TYPE.FPROCESS]: { title: '매장앱', value: '매장앱' },
-      [HISTORY_RCP_TYPE.NA]: { title: 'N/A', value: 'N/A' },
-    },
-    {
-      [HISTORY_PAY_TYPE.TOTAL]: { title: '결제방식 전체', value: 'total' },
-      [HISTORY_PAY_TYPE.COMPLETE]: { title: '결제완료', value: '결제완료' },
-      [HISTORY_PAY_TYPE.CARD]: { title: '현장카드결제', value: '현장카드' },
-      [HISTORY_PAY_TYPE.CASH]: { title: '현장현금결제', value: '현장현금' },
-      // [HISTORY_PAY_TYPE.CANCEL]: { title: '결제취소', value: '결제취소' },
-    },
-    {
-      [HISTORY_PAY_WITH.TOTAL]: { title: '결제수단 전체', value: 'total' },
-      [HISTORY_PAY_WITH.CARD]: { title: '카드', value: '카드' },
-      [HISTORY_PAY_WITH.KAKAO]: { title: '카카오페이', value: '카카오페이' },
-      [HISTORY_PAY_WITH.NAVER]: { title: '네이버페이', value: '네이버페이' },
-      [HISTORY_PAY_WITH.APPLE]: { title: '애플페이', value: '애플페이' },
-      [HISTORY_PAY_WITH.CASH]: { title: '현금', value: '현금' },
-      [HISTORY_PAY_WITH.COUPON]: { title: '쿠폰(전체)', value: '쿠폰(전체)' },
-      [HISTORY_PAY_WITH.POINT]: { title: '포인트(전체)', value: '포인트(전체)' },
-    },
-    {
-      [HISTORY_GIFT_CERT.TOTAL]: { title: '상품종류 전체', value: 'total' },
-      [HISTORY_GIFT_CERT.PRODUCT]: { title: '일반제품', value: '0' },
-      [HISTORY_GIFT_CERT.GIFT_CERT]: { title: '실물상품권', value: '1' },
-    },
-  ];
-
-  // table colgroup 배열
-  const tableColGroup = [
-    '102',
-    '102',
-    '70',
-    '70',
-    '110',
-    '70',
-    '110',
-    '40',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-    '62',
-  ]; // 총합 2100
 
   /* sticky 기준 ref */
   const stickyRef = useRef<HTMLTableRowElement>(null);
@@ -200,13 +108,13 @@ const SalesHistoryContainer = () => {
         <p>※ 주문내역을 조회할 수 있습니다. (최대 12개월 이내)</p>
       </div>
       <div className="fixed-paid-point-wrap">
-        {/* <!-- 공통 검색 Calendar with select --> */}
+        {/* 공통 검색 Calendar with select */}
         <CalanderSearch
           dateType="yyyy-MM-dd"
           searchInfo={searchConfig}
           setSearchInfo={setSearchConfig}
           optionType={OPTION_TYPE.SELECT} // 'SELECT'
-          selectOption={searchOptionList}
+          selectOption={SALES_HISTORY_SEARCH_OPTION}
           optionList={HISTORY_SEARCH_TYPE_LIST} // option 맵핑할 때 사용
           handleSearch={handleSearch} // 실제 검색하는 함수 (ex. refetch)
           minDate={subYears(today, 1)} // 검색가능한 기간(시작일) 설정
@@ -264,20 +172,20 @@ const SalesHistoryContainer = () => {
             </div>
           </div>
         </div>
-        {/* <!-- 주문내역 Table --> */}
+        {/* 주문내역 Table */}
         <Sticky reference={stickyRef.current} contentsRef={tableRef.current}>
-          <TableColGroup tableColGroup={tableColGroup} />
-          <TableHead />
+          <Table.ColGroup colGroupAttributes={SALES_HISTORY_TABLE_COLGROUP_INFO} />
+          <Table.TableHead thData={SALES_HISTORY_TABLE_THEAD_INFO} multiLine />
         </Sticky>
         <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
-          <TableColGroup tableColGroup={tableColGroup} />
-          <TableHead ref={stickyRef} />
+          <Table.ColGroup colGroupAttributes={SALES_HISTORY_TABLE_COLGROUP_INFO} />
+          <Table.TableHead thData={SALES_HISTORY_TABLE_THEAD_INFO} trRef={stickyRef} multiLine />
           <tbody>
             <DataLoader
               isData={salesHistoryResult.data && salesHistoryResult.data.length > 0}
               isFetching={salesHistoryResult.isFetching}
-              loader={<Loading width={100} height={100} marginTop={16} isTable={true} />}
-              noData={<NoData isTable={true} rowSpan={1} colSpan={31} paddingTop={20} paddingBottom={20} />}
+              loader={<Loading width={100} height={100} marginTop={16} isTable />}
+              noData={<NoData isTable rowSpan={1} colSpan={31} paddingTop={20} paddingBottom={20} />}
             >
               {salesHistoryResult.isError ? <SuspenseErrorPage isTable /> : null}
               {filteredData.map((data, idx) => {
@@ -290,52 +198,19 @@ const SalesHistoryContainer = () => {
         {/* 쿠폰 상세 내역 모달 */}
         {couponModal.isOpen && <CouponDetail />}
       </div>
-      {/* <!-- 엑셀다운, 페이징, 정렬 --> */}
+      {/* 엑셀다운, 페이징, 정렬 */}
       <div className="result-function-wrap">
         <ExcelDownloader
           dataCnt={filteredData.length}
           type={'table'}
           sheetOption={{ origin: 'A1' }}
-          colWidths={[
-            { wpx: 80 },
-            { wpx: 80 },
-            { wpx: 80 },
-            { wpx: 80 },
-            { wpx: 80 },
-            { wpx: 80 },
-            { wpx: 170 },
-            { wpx: 30 },
-            { wpx: 92 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-            { wpx: 68.25 },
-          ]}
+          colWidths={SALES_HISTORY_EXCEL_COLWIDTH_INFO}
           fileName={`${fCodeName}_주문내역(${searchConfig.from}~${searchConfig.to})`}
           addRowColor={{ rowNums: [1, 2], colors: ['d3d3d3', 'd3d3d3'] }}
           sheetName="주문내역"
         >
           {/* excel content */}
-          <TableColGroup tableColGroup={tableColGroup} />
-          <TableHead />
+          <Table.TableHead thData={SALES_HISTORY_TABLE_THEAD_INFO} multiLine />
           <tbody>
             {filteredData.map((data) => (
               <TableRow data={data} key={`history_excel_${data.nOrderID}`} />
@@ -353,4 +228,4 @@ const SalesHistoryContainer = () => {
   );
 };
 
-export default SalesHistoryContainer;
+export default SalesHistory;

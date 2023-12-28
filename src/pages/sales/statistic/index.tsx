@@ -8,8 +8,17 @@ import { franState, loginState } from 'state';
 
 // API
 import SALES_SERVICE from 'service/salesService';
+
+// Constants
+import {
+  SALES_STATISTIC_SEARCH_OPTION,
+  SALES_STATISTIC_TABLE_COLGROUP_INFO,
+  SALES_STATISTIC_TABLE_THEAD_INFO,
+  STATISTIC_SEARCH_LIST,
+} from 'constants/sales';
+
 // Types
-import { SalesStatisticSearch, ChartFilter, STATISTIC_SEARCH_LIST, STATISTIC_SEARCH_TYPE } from 'types/sales/salesType';
+import { SalesStatisticSearch, ChartFilter } from 'types/sales/salesType';
 import { OPTION_TYPE } from 'types/etc/etcType';
 
 // Hooks
@@ -24,10 +33,9 @@ import NoData from 'pages/common/noData';
 import Sticky from 'pages/common/sticky';
 import DataLoader from 'pages/common/dataLoader';
 import ExcelButton from 'pages/common/excel/ExcelButton';
-import TableColGroup from 'pages/sales/components/TableColGroup';
 import Pages from 'pages/common/pagination/Pages';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
-import TableHead from './table/TableHead';
+import Table from 'pages/common/table';
 import TablePrefixSum from './table/TablePrefixSum';
 import TableRow from './table/TableRow';
 
@@ -39,6 +47,7 @@ const SalesStatistic = () => {
   const fCodeName = selectedFran[0]?.f_code_name || ''; // 가맹점명
 
   const today = new Date();
+
   // filter options
   const [searchConfig, setSearchConfig] = useState<SalesStatisticSearch>({
     searchType: 'D',
@@ -52,8 +61,8 @@ const SalesStatistic = () => {
   const salesStatisticResult = SALES_SERVICE.useSalesStatistic({
     f_code: fCode,
     search_type: searchConfig.searchType,
-    from_date: searchConfig.searchType === 'M' ? searchConfig.from + '-01' : searchConfig.from,
-    to_date: searchConfig.searchType === 'M' ? searchConfig.to + '-01' : searchConfig.to,
+    from_date: `${searchConfig.from}${searchConfig.searchType === 'M' ? '-01' : ''}`,
+    to_date: `${searchConfig.to}${searchConfig.searchType === 'M' ? '-01' : ''}`,
   });
 
   // pagination
@@ -61,7 +70,7 @@ const SalesStatistic = () => {
   useHandlePageDataCnt(salesStatisticResult);
 
   // data 역순 정렬 (table용)
-  const sortedData = useMemo(() => {
+  const reversedData = useMemo(() => {
     return salesStatisticResult.data ? [...salesStatisticResult.data].reverse() : [];
   }, [salesStatisticResult.data]);
 
@@ -70,31 +79,18 @@ const SalesStatistic = () => {
     return searchConfig.searchType;
   }, [salesStatisticResult.data]);
 
-  /* 검색 기간 필터링 (onChange) */
-  // select options list
-  const searchOptionList = [
-    {
-      [STATISTIC_SEARCH_TYPE.DAY]: { title: '일별', id: 'day', value: 'D' },
-      [STATISTIC_SEARCH_TYPE.MONTH]: { title: '월별', id: 'month', value: 'M' },
-    },
-  ];
-
-  // table colgroup 배열
-  const tableLength = Object.keys(salesStatisticResult.data ? salesStatisticResult.data[0] : []).length;
-  const tableColGroup = new Array(tableLength).fill('122');
-
   /* sticky 기준 ref */
   const stickyRef = useRef<HTMLTableRowElement>(null);
   const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
 
-  // 제한 조건(90일)을 넘어가면 refecth를 막고 날짜 바꿔주는 함수
+  // 제한 조건(90일)을 넘어가면 refecth 막고 날짜 바꿔주는 함수
   const handleSearch = useCallback(() => {
     const today = new Date();
     const limitDate = subDays(today, 90);
     const { searchType, from, to } = searchConfig;
     // 90일 이내의 날짜인지
-    const isFromWithinRange = isAfter(new Date(from + ' 23:59:59'), limitDate);
-    const isToWithinRange = isAfter(new Date(to + ' 23:59:59'), limitDate);
+    const isFromWithinRange = isAfter(new Date(`${from} 23:59:59`), limitDate);
+    const isToWithinRange = isAfter(new Date(`${to} 23:59:59`), limitDate);
     const isPeriodWithinRange = isFromWithinRange && isToWithinRange;
 
     if (searchType === 'D' && !isPeriodWithinRange) {
@@ -117,13 +113,13 @@ const SalesStatistic = () => {
       </div>
       <div className="fixed-paid-point-wrap">
         <div className="chart-filter-wrap">
-          {/* <!-- 공통 검색 Calendar with select --> */}
+          {/* 공통 검색 Calendar with select */}
           <CalanderSearch
             dateType={searchConfig.searchType === 'M' ? 'yyyy-MM' : 'yyyy-MM-dd'}
             searchInfo={searchConfig}
             setSearchInfo={setSearchConfig}
             optionType={OPTION_TYPE.RADIO}
-            radioOption={searchOptionList}
+            radioOption={SALES_STATISTIC_SEARCH_OPTION}
             optionList={STATISTIC_SEARCH_LIST}
             handleSearch={handleSearch}
             minDate={
@@ -134,7 +130,7 @@ const SalesStatistic = () => {
             showMonthYearPicker={searchConfig.searchType === 'M' ? true : false}
             showFullMonthYearPicker={searchConfig.searchType === 'M' ? true : false}
           />
-          {/* <!-- checkbox filter --> */}
+          {/* checkbox filter */}
           <div className="chart-filter">
             <div className="checkbox-wrap">
               <input
@@ -190,7 +186,7 @@ const SalesStatistic = () => {
             </div>
           </div>
         </div>
-        {/* <!-- 차트 --> */}
+        {/* 차트 */}
         <div className="chart-wrap">
           <div className="line-chart chart">
             <DataLoader
@@ -221,41 +217,41 @@ const SalesStatistic = () => {
             </div>
           </div>
         </div>
-        {/* <!-- 매출통계 Table --> */}
+        {/* 매출통계 Table */}
         <Sticky reference={stickyRef.current} contentsRef={tableRef.current}>
-          <TableColGroup tableColGroup={tableColGroup} />
-          <TableHead />
+          <Table.ColGroup colGroupAttributes={SALES_STATISTIC_TABLE_COLGROUP_INFO} />
+          <Table.TableHead thData={SALES_STATISTIC_TABLE_THEAD_INFO} multiLine />
         </Sticky>
         <table className="board-wrap board-top" cellPadding="0" cellSpacing="0" ref={tableRef}>
-          <TableColGroup tableColGroup={tableColGroup} />
-          <TableHead ref={stickyRef} />
+          <Table.ColGroup colGroupAttributes={SALES_STATISTIC_TABLE_COLGROUP_INFO} />
+          <Table.TableHead thData={SALES_STATISTIC_TABLE_THEAD_INFO} trRef={stickyRef} multiLine />
           <tbody>
             <DataLoader
               isFetching={salesStatisticResult.isFetching}
               isData={salesStatisticResult.data && salesStatisticResult.data.length > 0}
-              loader={<Loading width={100} height={100} marginTop={16} isTable={true} />}
-              noData={<NoData isTable={true} rowSpan={1} colSpan={21} paddingTop={20} paddingBottom={20} />}
+              loader={<Loading width={100} height={100} marginTop={16} isTable />}
+              noData={<NoData isTable rowSpan={1} colSpan={21} paddingTop={20} paddingBottom={20} />}
             >
               <TablePrefixSum data={salesStatisticResult.data || []} />
               {/* Error handling */}
               {salesStatisticResult.isError ? <SuspenseErrorPage isTable /> : null}
-              {sortedData.map((sData, idx) => {
+              {reversedData.map((rData, idx) => {
                 return (
-                  <TableRow data={sData} key={`statistic_table_row_${idx}`} isDisplay={checkCurrentPageData(idx)} />
+                  <TableRow data={rData} key={`statistic_table_row_${idx}`} isDisplay={checkCurrentPageData(idx)} />
                 );
               })}
             </DataLoader>
           </tbody>
         </table>
       </div>
-      {/* <!-- 엑셀다운, 페이징, 정렬 --> */}
+      {/* 엑셀다운, 페이징, 정렬 */}
       <div className="result-function-wrap">
         <ExcelButton
           type={'table'}
           target={tableRef}
           tableRef={tableRef}
           sheetOption={{ origin: 'A1' }}
-          colWidths={tableColGroup.map(() => ({ wpx: 100 }))}
+          colWidths={SALES_STATISTIC_TABLE_COLGROUP_INFO.map(() => ({ wpx: 100 }))}
           fileName={`${fCodeName}_${searchConfig.searchType === 'D' ? '일별' : '월별'}_매출통계(${searchConfig.from}~${
             searchConfig.to
           })`}
