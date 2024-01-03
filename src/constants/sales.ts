@@ -100,11 +100,16 @@ export const HISTORY_SEARCH_TYPE_LIST = [
 
 // statistic option types
 export const STATISTIC_SEARCH_TYPE = {
-  DAY: 'D',
-  MONTH: 'M',
+  DAILY: 'D',
+  MONTHLY: 'M',
+  HOURLY: 'H',
 };
 // select안에서 사용할 option의 타입 LIST
-export const STATISTIC_SEARCH_LIST = [STATISTIC_SEARCH_TYPE.DAY, STATISTIC_SEARCH_TYPE.MONTH];
+export const STATISTIC_SEARCH_LIST = [
+  STATISTIC_SEARCH_TYPE.DAILY,
+  STATISTIC_SEARCH_TYPE.MONTHLY,
+  STATISTIC_SEARCH_TYPE.HOURLY,
+];
 
 export const SALES_HISTORY_SEARCH_OPTION = [
   {
@@ -269,8 +274,9 @@ export const SALES_HISTORY_EXCEL_COLWIDTH_INFO = [
 // search options
 export const SALES_STATISTIC_SEARCH_OPTION = [
   {
-    [STATISTIC_SEARCH_TYPE.DAY]: { title: '일별', id: 'day', value: 'D' },
-    [STATISTIC_SEARCH_TYPE.MONTH]: { title: '월별', id: 'month', value: 'M' },
+    [STATISTIC_SEARCH_TYPE.DAILY]: { title: '일별', id: 'daily', value: STATISTIC_SEARCH_TYPE.DAILY },
+    [STATISTIC_SEARCH_TYPE.MONTHLY]: { title: '월별', id: 'monthly', value: STATISTIC_SEARCH_TYPE.MONTHLY },
+    [STATISTIC_SEARCH_TYPE.HOURLY]: { title: '시간대별', id: 'hourly', value: STATISTIC_SEARCH_TYPE.HOURLY },
   },
 ];
 

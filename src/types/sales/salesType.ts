@@ -2,7 +2,7 @@ import { Point } from '@nivo/line';
 import { Bit, CommonParams } from 'types/common';
 
 // common
-type SearchType = 'D' | 'M';
+type SearchType = 'D' | 'M' | 'H'; // 일별 / 월별 / 시간대별
 type CouponType = '가맹점쿠폰' | '본사쿠폰' | '본사쿠폰미보전' | '제휴사쿠폰';
 
 interface DataProps<T> {
@@ -21,13 +21,16 @@ interface SalesHistoryParams extends CommonParams {
   from_date: string;
   to_date: string;
 }
-interface SalesStatisticParams extends SalesHistoryParams {
-  search_type: SearchType;
-}
 interface SalesCouponDetailParams {
   f_code: number;
   order_id: number;
   coupon_type: CouponType;
+}
+interface SalesStatisticParams extends SalesHistoryParams {
+  search_type: SearchType;
+}
+interface SalesStatisticHourlyParams extends CommonParams {
+  from_date: string;
 }
 
 // API Output
@@ -71,6 +74,12 @@ interface SalesHistoryData {
   sCouponID: string;
   small_point: number;
 }
+interface SalesCouponDetailData {
+  sTitle: string;
+  sEtc: string;
+  nApply: number;
+  nUseCouponAmt: number;
+}
 interface SalesStatisticData {
   [key: string]: number | string;
   app_card_amt: number;
@@ -90,16 +99,10 @@ interface SalesStatisticData {
   paid_point: number;
   paid_sales_amt: number;
   pos_cash_amt: number;
-  std_date: string;
   total_sales_amt: number;
+  std_date: string; // 날짜
+  str_hour: string; // 시간대
 }
-interface SalesCouponDetailData {
-  sTitle: string;
-  sEtc: string;
-  nApply: number;
-  nUseCouponAmt: number;
-}
-
 // history type
 interface SalesHistorySearchOption {
   title: string; // select box option name
@@ -146,8 +149,9 @@ export type {
   DataArrayProps,
   SalesTableRowProps,
   SalesHistoryParams,
-  SalesStatisticParams,
   SalesCouponDetailParams,
+  SalesStatisticParams,
+  SalesStatisticHourlyParams,
   SalesHistorySearch,
   SalesHistorySearchOption,
   SalesHistoryData,

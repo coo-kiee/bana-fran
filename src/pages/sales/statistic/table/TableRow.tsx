@@ -6,6 +6,7 @@ import Utils from 'utils/Utils';
 const TableRow = ({ data, isDisplay = true }: SalesTableRowProps<SalesStatisticData>) => {
   const {
     std_date,
+    str_hour,
     total_sales_amt,
     app_delivery_amt,
     etc_delivery_amt,
@@ -27,11 +28,12 @@ const TableRow = ({ data, isDisplay = true }: SalesTableRowProps<SalesStatisticD
   } = data;
 
   // std_date 형태 가공 (T~Z 문자열 제거)
-  const salesDate = std_date.replace(/T.*Z/, '');
+  const salesDate = std_date?.replace(/T.*Z/, '');
+  const salesHour = `${str_hour} ~ ${Number(str_hour) < 9 ? `0${Number(str_hour) + 1}` : Number(str_hour) + 1}시`;
 
   return (
     <tr style={!isDisplay ? { display: 'none' } : {}}>
-      <td>{salesDate}</td>
+      <td>{salesDate || salesHour}</td>
       <td>{Utils.numberComma(total_sales_amt)}</td>
       <td>{Utils.numberComma(app_delivery_amt)}</td>
       <td>{Utils.numberComma(app_delivery_charge)}</td>

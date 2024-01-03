@@ -15,6 +15,7 @@ import {
   SALES_STATISTIC_TABLE_COLGROUP_INFO,
   SALES_STATISTIC_TABLE_THEAD_INFO,
   STATISTIC_SEARCH_LIST,
+  STATISTIC_SEARCH_TYPE,
 } from 'constants/sales';
 
 // Types
@@ -61,8 +62,8 @@ const SalesStatistic = () => {
   const salesStatisticResult = SALES_SERVICE.useSalesStatistic({
     f_code: fCode,
     search_type: searchConfig.searchType,
-    from_date: `${searchConfig.from}${searchConfig.searchType === 'M' ? '-01' : ''}`,
-    to_date: `${searchConfig.to}${searchConfig.searchType === 'M' ? '-01' : ''}`,
+    from_date: `${searchConfig.from}${searchConfig.searchType === STATISTIC_SEARCH_TYPE.MONTHLY ? '-01' : ''}`,
+    to_date: `${searchConfig.to}${searchConfig.searchType === STATISTIC_SEARCH_TYPE.MONTHLY ? '-01' : ''}`,
   });
 
   // pagination
@@ -76,7 +77,29 @@ const SalesStatistic = () => {
 
   // 데이터 조회 후 검색 조건 저장 (조건 비교용. refetch 전까지 기존 값이 유지되도록)
   const searchTypeMemo = useMemo(() => {
-    return searchConfig.searchType;
+    const { searchType } = searchConfig;
+    switch (searchType) {
+      case STATISTIC_SEARCH_TYPE.DAILY:
+        return {
+          type: searchType,
+          text: '일별',
+        };
+      case STATISTIC_SEARCH_TYPE.MONTHLY:
+        return {
+          type: searchType,
+          text: '월별',
+        };
+      case STATISTIC_SEARCH_TYPE.HOURLY:
+        return {
+          type: searchType,
+          text: '시간대별',
+        };
+      default:
+        return {
+          type: searchType,
+          text: '일별',
+        };
+    }
   }, [salesStatisticResult.data]);
 
   /* sticky 기준 ref */
@@ -93,14 +116,14 @@ const SalesStatistic = () => {
     const isToWithinRange = isAfter(new Date(`${to} 23:59:59`), limitDate);
     const isPeriodWithinRange = isFromWithinRange && isToWithinRange;
 
-    if (searchType === 'D' && !isPeriodWithinRange) {
+    if (searchType !== STATISTIC_SEARCH_TYPE.MONTHLY && !isPeriodWithinRange) {
       // 범위에 맞는 날짜로 변경
       setSearchConfig((prev) => ({
         ...prev,
         from: isFromWithinRange ? from : format(limitDate, 'yyyy-MM-dd'),
         to: isToWithinRange ? to : format(today, 'yyyy-MM-dd'),
       }));
-      return alert('일별 매출 통계는 오늘부터 90일 전까지만 조회할 수 있습니다.');
+      return alert('매출 통계는 오늘부터 90일 전까지만 조회할 수 있습니다.');
     }
 
     salesStatisticResult.refetch();
@@ -109,13 +132,16 @@ const SalesStatistic = () => {
   return (
     <>
       <div className="info-wrap">
-        <p>※ 매출통계를 조회할 수 있습니다. (최대 {searchConfig.searchType === 'M' ? '12개월' : '90일'} 이내)</p>
+        <p>
+          ※ 매출통계를 조회할 수 있습니다. (최대{' '}
+          {searchConfig.searchType === STATISTIC_SEARCH_TYPE.MONTHLY ? '12개월' : '90일'} 이내)
+        </p>
       </div>
       <div className="fixed-paid-point-wrap">
         <div className="chart-filter-wrap">
           {/* 공통 검색 Calendar with select */}
           <CalanderSearch
-            dateType={searchConfig.searchType === 'M' ? 'yyyy-MM' : 'yyyy-MM-dd'}
+            dateType={searchConfig.searchType === STATISTIC_SEARCH_TYPE.MONTHLY ? 'yyyy-MM' : 'yyyy-MM-dd'}
             searchInfo={searchConfig}
             setSearchInfo={setSearchConfig}
             optionType={OPTION_TYPE.RADIO}
@@ -123,12 +149,12 @@ const SalesStatistic = () => {
             optionList={STATISTIC_SEARCH_LIST}
             handleSearch={handleSearch}
             minDate={
-              searchConfig.searchType === 'M'
+              searchConfig.searchType === STATISTIC_SEARCH_TYPE.MONTHLY
                 ? new Date(today.getFullYear() - 1, today.getMonth(), 1)
                 : subDays(today, 90)
             }
-            showMonthYearPicker={searchConfig.searchType === 'M' ? true : false}
-            showFullMonthYearPicker={searchConfig.searchType === 'M' ? true : false}
+            showMonthYearPicker={searchConfig.searchType === STATISTIC_SEARCH_TYPE.MONTHLY ? true : false}
+            showFullMonthYearPicker={searchConfig.searchType === STATISTIC_SEARCH_TYPE.MONTHLY ? true : false}
           />
           {/* checkbox filter */}
           <div className="chart-filter">
@@ -203,7 +229,11 @@ const SalesStatistic = () => {
                 </div>
               }
             >
-              <LineChart chartFilter={chartFilter} data={salesStatisticResult.data || []} searchType={searchTypeMemo} />
+              <LineChart
+                chartFilter={chartFilter}
+                data={salesStatisticResult.data || []}
+                searchType={searchTypeMemo.type}
+              />
             </DataLoader>
           </div>
         </div>
@@ -252,8 +282,10 @@ const SalesStatistic = () => {
           tableRef={tableRef}
           sheetOption={{ origin: 'A1' }}
           colWidths={SALES_STATISTIC_TABLE_COLGROUP_INFO.map(() => ({ wpx: 100 }))}
-          fileName={`${fCodeName}_${searchConfig.searchType === 'D' ? '일별' : '월별'}_매출통계(${searchConfig.from}~${
-            searchConfig.to
+          fileName={`${fCodeName}_${searchTypeMemo.text}_매출통계(${
+            searchTypeMemo.type === STATISTIC_SEARCH_TYPE.HOURLY
+              ? `${searchConfig.from}`
+              : `${searchConfig.from}~${searchConfig.to}`
           })`}
           addRowColor={{ rowNums: [1, 2, 3], colors: ['d3d3d3', 'd3d3d3', 'ffc89f'] }}
           sheetName="매출통계"

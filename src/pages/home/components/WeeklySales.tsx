@@ -31,7 +31,6 @@ const WeeklySales = () => {
       groupMode="grouped"
       valueScale={{ type: 'linear' }}
       indexScale={{ type: 'band', round: true }}
-      colors={{ scheme: 'nivo' }}
       animate={true}
       enableGridY={false}
       axisTop={null}
