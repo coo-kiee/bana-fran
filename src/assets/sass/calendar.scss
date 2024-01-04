@@ -117,19 +117,23 @@
 }
 
 // 공통 달력 (common datepicker search)
-.react-datepicker {
+div.react-datepicker {
     // common
-    border: 0 !important;
+    border: 0;
     box-shadow: 0px 0px 0.5px 0.5px #585872;
     
-    &__triangle::before,
-    &__triangle::after {
-        border-bottom-color: #3a3a4d !important;
+    &-popper[data-placement^=top] &__triangle::before {
+        border-top-color: #3a3a4d;
+    }
+
+    &-popper[data-placement^=bottom] &__triangle::before,
+    &-popper[data-placement^=bottom] &__triangle::after {
+        border-bottom-color: #3a3a4d;
     }
     &__month-container {
         .react-datepicker__header {
             background-color: #3a3a4d;
-            border: 0 !important;
+            border: 0;
         }
         .react-datepicker__current-month {
             color: #fff;
@@ -144,42 +148,49 @@
 
     // 일별 datepicker
     &__day {
-        &--outside-month { color: #ccc !important; }
+        &--keyboard-selected[aria-selected=false] {
+            background-color: unset;
+            color: inherit;
+        }
+        &--keyboard-selected:hover[aria-selected=false] {
+            background-color: #f0f0f0;
+        }
+        &--outside-month[aria-disabled=false][aria-selected=false] { color: #7c7c7c; }
         &-name {
             &:nth-child(n) { color: #fff; }
             &:first-child { color: #ff7b7b; }
             &:last-child { color: #99a8ff; }
         }
-        &--today { color: #f1658a !important; }
-        &--selected {
-            background-color: #f1658a !important;
-            color: #fff !important;
+        &--today[aria-current=date][aria-selected=false] { color: #f1658a; }
+        &--selected[aria-selected=true],
+        &--selected[aria-selected=true]:hover {
+            background-color: #f1658a;
+            color: #fff;
             font-weight: bold;
         }
-        &--keyboard-selected {
-            background-color: unset !important;
-            color: unset !important;
-        }
-        &--keyboard-selected:hover {
-            background-color: #f0f0f0 !important;
-            color: inherit !important;
-        }
     }
-    &__week {
-        & > .react-datepicker__day--weekend:nth-child(7n+1):not(.react-datepicker__day--disabled) { color: #ff0000; }
-        & > .react-datepicker__day--weekend:nth-child(7n):not(.react-datepicker__day--disabled) { color: #0000ff; }
-        & > .react-datepicker__day--weekend > .react-datepicker__day--disabled { color: #ccc; }
+    .react-datepicker__day--weekend {
+        &:nth-child(7n+1):not(.react-datepicker__day--outside-month)[aria-disabled=false][aria-selected=false] { color: #ff0000; }
+        &:nth-child(7n):not(.react-datepicker__day--outside-month)[aria-disabled=false][aria-selected=false] { color: #0000ff; }
+        .react-datepicker__day--disabled { color: #ccc; }
     }
+    
 
     // 월별 datepicker
-    &-year-header {
-        padding: 11px 0 !important;
-        color: #fff !important;
+    &-year-header.react-datepicker__header {
+        padding: 11px 0;
+        color: #fff;
     }
     &__month-text.react-datepicker__month {
-        &-text--today { color: #f1658a; }
-        &--selected,
-        &--selected:hover,
-        &-text--keyboard-selected { background-color: #f1658a !important; color: #fff; }
+        &-text--today[aria-current=date] { color: #f1658a; }
+        &--selected[aria-selected=true],
+        &--selected:hover[aria-selected=true] { background-color: #f1658a; color: #fff; }
+        &-text--keyboard-selected {
+            background-color: inherit;
+            color: inherit;
+            &.react-datepicker__month--disabled {
+                color: #ccc;
+            }
+        }
     }
 }
