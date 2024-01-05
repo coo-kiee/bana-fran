@@ -46,9 +46,6 @@ const CalanderSearch: React.FC<CalendarSearchProps> = ({
     ...datePickerProps,
   };
 
-  // searchType (datepicker 1개만 필요한 경우 판별용. 추후 확장성 고려해 수정 가능)
-  const { searchType: selectSearchType } = searchInfo as SearchInfoRadioType;
-
   const handleDateUpdate = (key: keyof Omit<SearchInfoType, 'searchTrigger'>, value: Date) => {
     const newValue = format(value, dateType);
     setSearchInfo((prev: SearchInfoSelectType) => ({ ...prev, [key]: newValue }));
@@ -98,20 +95,16 @@ const CalanderSearch: React.FC<CalendarSearchProps> = ({
             maxDate={new Date()}
             {...searchCalendarOptionProps}
           />
-          {selectSearchType !== STATISTIC_SEARCH_TYPE.HOURLY ? (
-            <>
-              <i>~</i>
-              <DatePicker
-                selected={new Date(searchInfo.to)}
-                value={searchInfo.to}
-                locale={ko}
-                dateFormat={dateType}
-                onChange={(date) => date !== null && handleDateUpdate('to', date)}
-                maxDate={new Date()}
-                {...searchCalendarOptionProps}
-              />
-            </>
-          ) : null}
+          <i>~</i>
+          <DatePicker
+            selected={new Date(searchInfo.to)}
+            value={searchInfo.to}
+            locale={ko}
+            dateFormat={dateType}
+            onChange={(date) => date !== null && handleDateUpdate('to', date)}
+            maxDate={new Date()}
+            {...searchCalendarOptionProps}
+          />
         </div>
 
         {selectOption && optionList && isSelect(searchInfo) && optionType === OPTION_TYPE.SELECT && (

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { format, isAfter, subDays, subMonths } from 'date-fns';
 
@@ -128,6 +128,28 @@ const SalesStatistic = () => {
 
     salesStatisticResult.refetch();
   }, [searchConfig, salesStatisticResult.refetch]);
+
+  // 매출통계 조회 타입(일/월/시간대별) 변경시 from/to 기본값 설정
+  useEffect(() => {
+    if (searchConfig.searchType === STATISTIC_SEARCH_TYPE.DAILY) {
+      // 일별 기본값: 1달
+      setSearchConfig((prev) => ({
+        ...prev,
+        from: format(subMonths(today, 1), 'yyyy-MM-dd'),
+        to: format(today, 'yyyy-MM-dd'),
+      }));
+    } else if (searchConfig.searchType === STATISTIC_SEARCH_TYPE.MONTHLY) {
+      // 월별 기본값: 1달
+      setSearchConfig((prev) => ({
+        ...prev,
+        from: format(subMonths(today, 1), 'yyyy-MM'),
+        to: format(today, 'yyyy-MM'),
+      }));
+    } else {
+      // 시간대별 기본값: 당일
+      setSearchConfig((prev) => ({ ...prev, from: format(today, 'yyyy-MM-dd'), to: format(today, 'yyyy-MM-dd') }));
+    }
+  }, [searchConfig.searchType]);
 
   return (
     <>

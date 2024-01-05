@@ -1,5 +1,5 @@
 import { Point } from '@nivo/line';
-import { Bit, CommonParams } from 'types/common';
+import { Bit, CommonQueryParams } from 'types/common';
 
 // common
 type SearchType = 'D' | 'M' | 'H'; // 일별 / 월별 / 시간대별
@@ -17,7 +17,7 @@ interface SalesTableRowProps<T> {
 }
 
 // API params type
-interface SalesHistoryParams extends CommonParams {
+interface SalesCommonParams extends CommonQueryParams {
   from_date: string;
   to_date: string;
 }
@@ -26,11 +26,8 @@ interface SalesCouponDetailParams {
   order_id: number;
   coupon_type: CouponType;
 }
-interface SalesStatisticParams extends SalesHistoryParams {
+interface SalesStatisticParams extends SalesCommonParams {
   search_type: SearchType;
-}
-interface SalesStatisticHourlyParams extends CommonParams {
-  from_date: string;
 }
 
 // API Output
@@ -148,10 +145,9 @@ export type {
   DataProps,
   DataArrayProps,
   SalesTableRowProps,
-  SalesHistoryParams,
+  SalesCommonParams,
   SalesCouponDetailParams,
   SalesStatisticParams,
-  SalesStatisticHourlyParams,
   SalesHistorySearch,
   SalesHistorySearchOption,
   SalesHistoryData,

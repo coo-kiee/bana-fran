@@ -7,18 +7,17 @@ import { STATISTIC_SEARCH_TYPE } from 'constants/sales';
 // Types
 import { RequestParams } from 'types/common';
 import {
-  SalesHistoryParams,
+  SalesCommonParams,
   SalesHistoryData,
   SalesStatisticParams,
   SalesStatisticData,
   SalesCouponDetailParams,
   SalesCouponDetailData,
-  SalesStatisticHourlyParams,
 } from 'types/sales/salesType';
 
 // 주문 내역 조회
-const useSalesHistory = (params: SalesHistoryParams) => {
-  const reqData: RequestParams<SalesHistoryParams> = {
+const useSalesHistory = (params: SalesCommonParams) => {
+  const reqData: RequestParams<SalesCommonParams> = {
     ws: 'fprocess',
     query: 'KTBKHHVNSBCJHXUADDII',
     params: params,
@@ -61,12 +60,13 @@ const useSalesStatistic = (params: SalesStatisticParams) => {
   }; // web_fran_s_sales_stat_list
 
   // 시간대별 query
-  const reqHourlyData: RequestParams<SalesStatisticHourlyParams> = {
+  const reqHourlyData: RequestParams<SalesCommonParams> = {
     ws: 'fprocess',
     query: 'AF5F9E6E52B6D8E08B2932CD7B80A99C',
     params: {
       f_code: params.f_code,
       from_date: params.from_date,
+      to_date: params.to_date,
     },
   }; // web_fran_s_sales_stat_hourly_list
 

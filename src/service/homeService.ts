@@ -3,7 +3,7 @@ import { useQuery } from 'react-query';
 import { queryFn } from 'hooks/useQuery';
 
 // Types
-import { CommonParams, RequestParams } from 'types/common';
+import { CommonQueryParams, RequestParams } from 'types/common';
 import {
   BoardListParams,
   SalesTermsParams,
@@ -36,8 +36,8 @@ const useBoardList = (params: BoardListParams) => {
 };
 
 // 멤버십 적립현황
-const useMembershipInfo = (params: CommonParams) => {
-  const reqData: RequestParams<CommonParams> = {
+const useMembershipInfo = (params: CommonQueryParams) => {
+  const reqData: RequestParams<CommonQueryParams> = {
     ws: 'fprocess',
     query: '1VK2GY5MTPAMXZB4TJFP',
     params: params,
@@ -52,8 +52,8 @@ const useMembershipInfo = (params: CommonParams) => {
 };
 
 // Today - 총매출 조회
-const useSalesToday = (params: CommonParams) => {
-  const reqData: RequestParams<CommonParams> = {
+const useSalesToday = (params: CommonQueryParams) => {
+  const reqData: RequestParams<CommonQueryParams> = {
     ws: 'fprocess',
     query: 'ONDK5LDEKOVLAVRJKBKS',
     params: params,
@@ -88,8 +88,8 @@ const useSalesTerms = (params: SalesTermsParams) => {
 };
 
 // 월별 발주금액
-const useMonthlyOrderList = (params: CommonParams) => {
-  const reqData: RequestParams<CommonParams> = {
+const useMonthlyOrderList = (params: CommonQueryParams) => {
+  const reqData: RequestParams<CommonQueryParams> = {
     ws: 'fprocess',
     query: 'KSJX8NCX45QKXPKOYE9U',
     params: params,
@@ -104,8 +104,8 @@ const useMonthlyOrderList = (params: CommonParams) => {
 };
 
 // 최근 정산 현황
-const useHomeCalculateList = (params: CommonParams) => {
-  const reqData: RequestParams<CommonParams> = {
+const useHomeCalculateList = (params: CommonQueryParams) => {
+  const reqData: RequestParams<CommonQueryParams> = {
     ws: 'fprocess',
     query: 'AU5I5YJNORRJDSYHCRXW',
     params: params,
