@@ -2,17 +2,17 @@
 import 'react-app-polyfill/ie11';
 import 'react-app-polyfill/stable';
 
+import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
+import { QueryClient, QueryClientConfig, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
+import { RecoilRoot } from 'recoil';
+
+import { AxiosError } from 'axios';
+import Modal from 'pages/common/modal';
+
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-
-import { RecoilRoot } from 'recoil';
-import { QueryClient, QueryClientConfig, QueryClientProvider } from 'react-query';
-
-import { ReactQueryDevtools } from 'react-query/devtools';
-import { AxiosError } from 'axios';
-import React, { StrictMode } from 'react';
-import Modal from 'pages/common/modal';
 
 const defalutQueryOption: QueryClientConfig = {
   defaultOptions: {
