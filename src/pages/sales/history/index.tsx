@@ -43,8 +43,8 @@ const SalesHistory = () => {
   // global state
   const { userInfo } = useRecoilValue(loginState);
   const fCode = useRecoilValue(franState);
-  const selectedFran = userInfo?.f_list.filter((info) => info.f_code === fCode);
-  const fCodeName = selectedFran[0]?.f_code_name; // 가맹점명
+  const selectedFran = userInfo.f_list.filter((info) => info.f_code === fCode);
+  const fCodeName = selectedFran[0].f_code_name; // 가맹점명
 
   // 쿠폰 상세 내역 모달 열기
   const [couponModal, setCouponModal] = useRecoilState(couponModalState);
