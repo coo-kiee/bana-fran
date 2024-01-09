@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { format, subDays, subYears } from 'date-fns';
 
@@ -82,6 +83,11 @@ const SalesHistory = () => {
     isExcludeCouBae,
   });
 
+  // 주문내역 조회 시 검색 조건 저장
+  const searchConfigMemo = useMemo(() => {
+    return { from: searchConfig.from, to: searchConfig.to };
+  }, [salesHistoryResult.isFetching]);
+
   /* sticky 기준 ref */
   const stickyRef = useRef<HTMLTableRowElement>(null);
   const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
@@ -121,9 +127,7 @@ const SalesHistory = () => {
         />
         <div className="search-result-wrap">
           <div className="search-date">
-            <p>
-              조회기간: {searchConfig.from} ~ {searchConfig.to}
-            </p>
+            <p>조회기간: {`${searchConfigMemo.from} ~ ${searchConfigMemo.to}`}</p>
           </div>
           {/* 누적 합계 */}
           <PrefixSum data={salesHistoryResult.data || []} />

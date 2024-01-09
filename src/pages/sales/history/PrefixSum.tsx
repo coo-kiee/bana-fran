@@ -1,3 +1,9 @@
+import { useIsFetching } from 'react-query';
+import { useRecoilValue } from 'recoil';
+
+// global state
+import { franState } from 'state';
+
 // Constants
 import { HISTORY_GIFT_CERT, HISTORY_ORDER_STATE, HISTORY_ORDER_TYPE } from 'constants/sales';
 // Types
@@ -11,6 +17,9 @@ const { COUPANG, BAEMIN } = HISTORY_ORDER_TYPE;
 const { GIFT_CERT } = HISTORY_GIFT_CERT;
 
 const PrefixSum = ({ data }: DataArrayProps<SalesHistoryData>) => {
+  const fCode = useRecoilValue(franState);
+  const fetchingCount = useIsFetching({ queryKey: ['sales_history_list', fCode] });
+
   // 기간별 상세내역 누적 합계
   const {
     chargeTotal,
@@ -100,7 +109,7 @@ const PrefixSum = ({ data }: DataArrayProps<SalesHistoryData>) => {
           <li key={idx}>
             {title}
             <span className="colon"></span>
-            <span className="value">{Utils.numberComma(charge || 0)}원</span>
+            <span className="value">{fetchingCount === 0 ? `${Utils.numberComma(charge || 0)}` : 0}원</span>
           </li>
         );
       })}
