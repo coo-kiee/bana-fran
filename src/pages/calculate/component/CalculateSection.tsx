@@ -39,6 +39,8 @@ const HEADER_SUBTITLE = {
   [CALCULATE_TYPE.CLAIM]: '클레임 쿠폰 정산내역',
   [CALCULATE_TYPE.ETC]: '기타 정산 내역',
   [CALCULATE_TYPE.AFFILIATE]: '제휴사 쿠폰/포인트 결제내역',
+  [CALCULATE_TYPE.BANA_POINT]: '바나포인트 정산내역',
+  [CALCULATE_TYPE.STAMP_COUPON]: '스탬프 쿠폰 정산내역',
 } as const;
 
 const SECTION_CLASSNAME = {
@@ -48,4 +50,6 @@ const SECTION_CLASSNAME = {
   [CALCULATE_TYPE.CLAIM]: 'claim-wrap',
   [CALCULATE_TYPE.ETC]: 'cal-etc-wrap',
   [CALCULATE_TYPE.AFFILIATE]: 'affiliate-wrap',
+  [CALCULATE_TYPE.BANA_POINT]: 'affiliate-wrap',
+  [CALCULATE_TYPE.STAMP_COUPON]: 'affiliate-wrap',
 } as const;

@@ -16,6 +16,8 @@ import {
   CalculateClaimDetailListQueryResult,
   CalculateAffiliateDetailListQueryResult,
   CalculateCouponListQueryResult,
+  CalculateStampCouponDetailListQueryResult,
+  CalculateBanaPointDetailListQueryResult,
 } from 'types/calculate/calculateType';
 
 // Const
@@ -312,6 +314,56 @@ export const useCalculateAffiliateDetailList = ({ params, tabType }: IUseCalcula
   });
 };
 
+// 바나포인트 정산 내역 상세
+interface IUseCalculateBanaPointDetailList {
+  f_code: number;
+  from_date: string;
+  to_date: string;
+}
+export const useCalculateBanaPointDetailList = (params: IUseCalculateBanaPointDetailList) => {
+  const { user } = useUserInfo();
+
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_ETC_DETAIL_LIST, params, user];
+  const data = {
+    ws: 'fprocess',
+    query: 'CD3D765F742819976F49061A79CFA826', // web_fran_s_calculate_bana_point_list
+    params,
+  };
+
+  return useQuery<CalculateBanaPointDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
+    keepPreviousData: false,
+    refetchOnWindowFocus: false,
+    retry: false,
+    suspense: false,
+    enabled: user.staffNo > 0,
+  });
+};
+
+// 스탬프쿠폰 정산 내역 상세
+interface IUseCalculateStampCouponDetailList {
+  f_code: number;
+  from_date: string;
+  to_date: string;
+}
+export const useCalculateStampCouponDetailList = (params: IUseCalculateStampCouponDetailList) => {
+  const { user } = useUserInfo();
+
+  const queryKey = [CALCULATE_QUERY_KEY.CALCULATE_ETC_DETAIL_LIST, params, user];
+  const data = {
+    ws: 'fprocess',
+    query: 'B8CBB6BB9D419E912AF1E1E1D332C87E', // web_fran_s_calculate_stamp_coupon_list
+    params,
+  };
+
+  return useQuery<CalculateStampCouponDetailListQueryResult[]>(queryKey, () => queryFn.getDataList(data), {
+    keepPreviousData: false,
+    refetchOnWindowFocus: false,
+    retry: false,
+    suspense: false,
+    enabled: user.staffNo > 0,
+  });
+};
+
 export const CALCULATE_QUERY_KEY = {
   CALCULATE_MONTH_LIST: 'calculateMonthList',
   CALCULATE_LAST_MONTH_TOTAL: 'calculateLastMonthTotal',
@@ -323,4 +375,6 @@ export const CALCULATE_QUERY_KEY = {
   CALCULATE_CLAIM_DETAIL_LIST: 'calculateClaimDetailList',
   CALCULATE_ETC_DETAIL_LIST: 'calculateEtcDetailList',
   CALCULATE_AFFILIATE_DETAIL_LIST: 'calculateAffiliateDetailList',
+  CALCULATE_BANA_POINT_DETAIL_LIST: 'calculateBanaPointDetailList',
+  CALCULATE_STAMP_COUPON_DETAIL_LIST: 'calculateStampCouponDetailList',
 } as const;

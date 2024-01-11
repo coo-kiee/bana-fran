@@ -127,6 +127,35 @@ type CalculateEtcDetailListQueryResult = {
   total_amt: number; // 기타 정산 금액 합계
 };
 
+// 바나포인트 정산 내역 상세
+type CalculateBanaPointDetailListQueryResult = {
+  use_date: string; // --일시
+  calc_type: string; // --구분
+  use_point: number; // --사용금액
+  use_fcode: number; // --사용매장코드
+  use_fcode_name: string; // --사용매장명
+  supply_amt: number; // --공급가액
+  vat_amt: number; // --부가세
+  total_amt: number; // --합계
+};
+
+// // 스탬프쿠폰 정산 내역 상세
+type CalculateStampCouponDetailListQueryResult = {
+  use_date: string; // --일시
+  calc_type: string; // --구분
+  sTitle: string; // --사용된쿠폰명
+  coupon_use_charge: number; // --실사용금액
+  use_fcode: number; // --사용매장코드
+  use_fcode_name: string; // --사용매장명
+  stamp_count: number; // -- 청구 스탬프 수
+  one_charge: number; // -- 스탬프 단가
+  stamp_charge: number; // -- 스탬프청구액
+  hd_charge: number; // -- 본사부담(50%)
+  supply_amt: number; // --공급가액
+  vat_amt: number; // --부가세
+  total_amt: number; // --실 청구액 / 합계
+};
+
 export type {
   CalculateLastMonthTotalQueryResult,
   CalculateLastMonthTotalDetail,
@@ -139,4 +168,6 @@ export type {
   CalculateEtcDetailListQueryResult,
   CalculateAffiliateDetailListQueryResult,
   CalculateCouponListQueryResult,
+  CalculateBanaPointDetailListQueryResult,
+  CalculateStampCouponDetailListQueryResult,
 };

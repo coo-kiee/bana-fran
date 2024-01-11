@@ -9,6 +9,8 @@ const CalculateCoupon = loadable(() => import('pages/calculate/coupon'));
 const CalculateClaim = loadable(() => import('pages/calculate/claim'));
 const CalculateEtc = loadable(() => import('pages/calculate/etc'));
 const CalculateAffiliate = loadable(() => import('pages/calculate/affiliate'));
+const CalculateBanaPoint = loadable(() => import('pages/calculate/bana-point'));
+const CalculateStampCoupon = loadable(() => import('pages/calculate/stamp-coupon'));
 const Etc = loadable(() => import('pages/etc'));
 const Extra = loadable(() => import('pages/membership/extra'));
 const MonthRank = loadable(() => import('pages/membership/monthRank'));
@@ -26,6 +28,8 @@ export const PAGE_URL = {
   CALCULATE_CLAIM: '/claim',
   CALCULATE_ETC: '/etc',
   CALCULATE_AFFILIATE: '/affiliate',
+  CALCULATE_BANA_POINT: '/banaPoint',
+  CALCULATE_STAMP_COUPON: '/stampCoupon',
   ETC: '/etc',
   SALES: '/sales',
   SALES_HISTORY: '/history',
@@ -129,6 +133,22 @@ const sideMenus: Array<SIDE_MENU_TYPE> = [
         icon: '',
         id: 460,
         component: CalculateAffiliate,
+        addPath: [],
+      },
+      {
+        path: PAGE_URL.CALCULATE_BANA_POINT,
+        name: '바나포인트 정산내역',
+        icon: '',
+        id: 470,
+        component: CalculateBanaPoint,
+        addPath: [],
+      },
+      {
+        path: PAGE_URL.CALCULATE_STAMP_COUPON,
+        name: '스탬프 쿠폰 정산내역',
+        icon: '',
+        id: 480,
+        component: CalculateStampCoupon,
         addPath: [],
       },
     ],

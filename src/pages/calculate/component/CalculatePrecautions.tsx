@@ -33,4 +33,6 @@ const PRECAUTIONS_INFO = {
   ],
   [CALCULATE_TYPE.ETC]: ['※ 기타 발생한 가맹점에 대한 비용 청구 및 보전 등의 정산내역을 조회할 수 있습니다.'],
   [AFFILIATE_TAB_TYPE.COUPON]: ['※ 제휴사 쿠폰 결제금액은 제휴사에서 직접 정산(수수료 차감 후)하여 지급합니다.'],
+  [CALCULATE_TYPE.BANA_POINT]: [''],
+  [CALCULATE_TYPE.STAMP_COUPON]: [''],
 } as const;
