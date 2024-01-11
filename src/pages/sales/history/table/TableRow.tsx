@@ -6,7 +6,7 @@ import { couponInfoState, couponModalState } from 'state';
 // Constants
 import { HISTORY_ORDER_STATE, HISTORY_GIFT_CERT } from 'constants/sales';
 // Types
-import { CouponType, DataProps, SalesHistoryData } from 'types/sales/salesType';
+import { SalesCouponType, DataProps, SalesHistoryData } from 'types/sales/salesType';
 
 // Utils
 import Utils from 'utils/Utils';
@@ -41,8 +41,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
     bonus_point, // 보너스 충전포인트
     small_point, // 잔돈포인트
     fran_coupon_charge, // 가맹점쿠폰
-    // 추가예정 바나포인트(보전)
-    // 추가예정 스탬프쿠폰(보전)
+    stamp_coupon_charge, // 스탬프쿠폰(보전)
     hd_coupon_charge, // 본사쿠폰(보전)
     hd_coupon_charge_2, // 본사쿠폰(미보전)
     etc_delivery_charge, // 쿠팡/배민 매출(배달비제외)
@@ -65,7 +64,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
     );
   };
 
-  const handleClickPoint = (e: React.MouseEvent, type: CouponType) => {
+  const handleClickPoint = (e: React.MouseEvent, type: SalesCouponType) => {
     // modal 열기
     setOpenCouponModal({ isOpen: true, posX: e.pageX, posY: e.pageY, clientY: e.clientY });
     // coupon api params
@@ -115,8 +114,13 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
           </span>
         )}
       </td>
-      <td className="align-center">{/* 바나포인트(보전) */}</td>
-      <td className="align-center">{/* 스탬프쿠폰(보전) */}</td>
+      <td className="align-center">
+        {stamp_coupon_charge !== 0 && (
+          <span className="underline pointer" onClick={(e) => handleClickPoint(e, '스탬프쿠폰')}>
+            {Utils.numberComma(stamp_coupon_charge)}
+          </span>
+        )}
+      </td>
       <td className="align-center">
         {hd_coupon_charge !== 0 && (
           <span className="underline pointer" onClick={(e) => handleClickPoint(e, '본사쿠폰')}>

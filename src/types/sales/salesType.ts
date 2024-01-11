@@ -2,8 +2,9 @@ import { Point } from '@nivo/line';
 import { Bit, CommonQueryParams } from 'types/common';
 
 // common
-type SearchType = 'D' | 'M' | 'H'; // 일별 / 월별 / 시간대별
-type CouponType = '가맹점쿠폰' | '본사쿠폰' | '본사쿠폰미보전' | '제휴사쿠폰';
+type SalesSearchType = 'D' | 'M' | 'H'; // 일별 / 월별 / 시간대별
+type SalesCouponType = '가맹점쿠폰' | '본사쿠폰' | '본사쿠폰미보전' | '제휴사쿠폰' | '스탬프쿠폰';
+type SalesPayType = '결제완료' | '현장카드' | '현장현금';
 
 interface DataProps<T> {
   data: T;
@@ -24,10 +25,10 @@ interface SalesCommonParams extends CommonQueryParams {
 interface SalesCouponDetailParams {
   f_code: number;
   order_id: number;
-  coupon_type: CouponType;
+  coupon_type: SalesCouponType;
 }
 interface SalesStatisticParams extends SalesCommonParams {
-  search_type: SearchType;
+  search_type: SalesSearchType;
 }
 
 // API Output
@@ -46,8 +47,8 @@ interface SalesHistoryData {
   e_pay_type: string; // 간편결제 종류
   filter_pay_type: string; // 결제 수단
   fran_coupon_charge: number;
-  hd_coupon_charge: number;
-  hd_coupon_charge_2: number;
+  hd_coupon_charge: number; // 본사쿠폰(보전)
+  hd_coupon_charge_2: number; // 본사쿠폰(미보전)
   item_name: string;
   nChargeTotal: number;
   nCount: number;
@@ -62,7 +63,7 @@ interface SalesHistoryData {
   order_type: number;
   order_type_name: string;
   paid_point: number;
-  pay_type: '결제완료' | '현장카드' | '현장현금';
+  pay_type: SalesPayType;
   phone: string;
   rcp_date: string;
   rcp_type: string;
@@ -70,6 +71,7 @@ interface SalesHistoryData {
   sChargeDisReason: string;
   sCouponID: string;
   small_point: number;
+  stamp_coupon_charge: number;
 }
 interface SalesCouponDetailData {
   sTitle: string;
@@ -84,19 +86,21 @@ interface SalesStatisticData {
   app_delivery_charge: number;
   app_e_pay_amt: number;
   bana_point: number;
-  e_coupon_charge: number;
+  e_coupon_charge: number; // 제휴사 쿠폰 금액
   etc_delivery_amt: number;
   etc_delivery_charge: number;
   fran_coupon_charge: number;
   free_sales_amt: number;
-  hd_coupon_charge: number;
-  hd_coupon_charge_2: number;
+  hd_bana_point: number;
+  hd_coupon_charge: number; // 본사쿠폰(보전)
+  hd_coupon_charge_2: number; // 본사쿠폰(미보전)
   kiosk_card_amt: number;
   kiosk_e_pay_amt: number;
   paid_point: number;
   paid_sales_amt: number;
   pos_cash_amt: number;
   total_sales_amt: number;
+  stamp_coupon_charge: number;
   std_date: string; // 날짜
   str_hour: string; // 시간대
 }
@@ -120,7 +124,7 @@ interface CouponUsageDetailContainerProps {
 
 // statistic type
 interface SalesStatisticSearch {
-  searchType: SearchType;
+  searchType: SalesSearchType;
   from: string;
   to: string;
 }
@@ -132,16 +136,16 @@ interface ChartFilter {
 }
 interface SalesLineChartProps {
   chartFilter: ChartFilter;
-  searchType: SearchType;
+  searchType: SalesSearchType;
   data: SalesStatisticData[];
 }
 interface SalesLineChartTooltipProps {
   point: Point;
-  searchType: SearchType;
+  searchType: SalesSearchType;
 }
 
 export type {
-  CouponType,
+  SalesCouponType,
   DataProps,
   DataArrayProps,
   SalesTableRowProps,

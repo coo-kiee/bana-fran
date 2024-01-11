@@ -104,6 +104,7 @@ export const STATISTIC_SEARCH_TYPE = {
   MONTHLY: 'M',
   HOURLY: 'H',
 };
+
 // select안에서 사용할 option의 타입 LIST
 export const STATISTIC_SEARCH_LIST = [
   STATISTIC_SEARCH_TYPE.DAILY,
@@ -174,7 +175,7 @@ export const SALES_HISTORY_TABLE_THEAD_INFO = [
     { children: '결제\n방식', rowSpan: 2 },
     { children: '주문금액\n(메뉴)', rowSpan: 2 },
     { children: '배달비\n(앱주문)', rowSpan: 2 },
-    { children: '결제상세(앱주문 배달비 포함)', colSpan: 16, className: 'price-area boder-th-b' },
+    { children: '결제상세(앱주문 배달비 포함)', colSpan: 15, className: 'price-area boder-th-b' },
     { children: '적립', colSpan: 2, className: 'price-area boder-th-b boder-th-l' },
     // { children: '현금영수증', rowSpan: 2 },
   ],
@@ -183,13 +184,12 @@ export const SALES_HISTORY_TABLE_THEAD_INFO = [
     { children: '카드', className: 'price-area' },
     { children: '간편결제', className: 'price-area' },
     { children: '현금', className: 'price-area' },
-    { children: '가맹점\n바나포인트', className: 'price-area' },
+    { children: '바나포인트', className: 'price-area' },
     { children: '충전포인트', className: 'price-area' },
     { children: '보너스\n충전포인트', className: 'price-area' },
     { children: '잔돈포인트', className: 'price-area' },
     { children: '제휴사쿠폰', className: 'price-area' },
     { children: '가맹점쿠폰', className: 'price-area' },
-    { children: '바나포인트\n(보전)', className: 'price-area' },
     { children: '스탬프쿠폰\n(보전)', className: 'price-area' },
     { children: '본사쿠폰\n(보전)', className: 'price-area' },
     { children: '본사쿠폰\n(미보전)', className: 'price-area' },
@@ -231,9 +231,8 @@ export const SALES_HISTORY_TABLE_COLGROUP_INFO = [
   { width: '62' },
   { width: '62' },
   { width: '62' },
-  { width: '62' },
   // { width: '62' },
-]; // 총합 2048
+]; // 총합 1986
 
 // excel width px
 export const SALES_HISTORY_EXCEL_COLWIDTH_INFO = [
@@ -246,7 +245,6 @@ export const SALES_HISTORY_EXCEL_COLWIDTH_INFO = [
   { wpx: 170 },
   { wpx: 30 },
   { wpx: 92 },
-  { wpx: 68.25 },
   { wpx: 68.25 },
   { wpx: 68.25 },
   { wpx: 68.25 },

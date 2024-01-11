@@ -21,6 +21,8 @@ const TableRow = ({ data, isDisplay = true }: SalesTableRowProps<SalesStatisticD
     pos_cash_amt,
     paid_point,
     hd_coupon_charge,
+    hd_bana_point,
+    stamp_coupon_charge,
     hd_coupon_charge_2,
     free_sales_amt,
     bana_point,
@@ -47,12 +49,8 @@ const TableRow = ({ data, isDisplay = true }: SalesTableRowProps<SalesStatisticD
       <td>{Utils.numberComma(etc_delivery_charge)}</td>
       <td>{Utils.numberComma(paid_point)}</td>
       <td>{Utils.numberComma(e_coupon_charge)}</td>
-      <td>
-        {Utils.numberComma(0)} {/* 바나포인트(보전) */}
-      </td>
-      <td>
-        {Utils.numberComma(0)} {/* 스탬프쿠폰(보전) */}
-      </td>
+      <td>{Utils.numberComma(hd_bana_point)}</td>
+      <td>{Utils.numberComma(stamp_coupon_charge)}</td>
       <td>{Utils.numberComma(hd_coupon_charge)}</td>
       <td>{Utils.numberComma(free_sales_amt)}</td>
       <td>{Utils.numberComma(bana_point)}</td>

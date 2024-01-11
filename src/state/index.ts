@@ -1,5 +1,5 @@
 import { atom } from 'recoil';
-import { CouponType } from 'types/sales/salesType';
+import { SalesCouponType } from 'types/sales/salesType';
 
 type UserInfoType = {
   staff_no: number;
@@ -15,7 +15,7 @@ type LoginAuthType = {
 
 type CouponInfoType = {
   nOrderID: number;
-  type: CouponType;
+  type: SalesCouponType;
 };
 
 type CouponModalType = {
