@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { format, isAfter, subDays, subMonths } from 'date-fns';
+import { format, subDays, subMonths } from 'date-fns';
 
 // global state
 import { franState, loginState } from 'state';
@@ -67,7 +67,7 @@ const SalesStatistic = () => {
   });
 
   // pagination
-  const { checkCurrentPageData } = usePageInfo();
+  const { checkCurrentPageData, handleDataCnt } = usePageInfo();
   useHandlePageDataCnt(salesStatisticResult);
 
   // data 역순 정렬 (table용)
@@ -106,31 +106,15 @@ const SalesStatistic = () => {
   const stickyRef = useRef<HTMLTableRowElement>(null);
   const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
 
-  // 제한 조건(90일)을 넘어가면 refecth 막고 날짜 바꿔주는 함수
+  // 매출통계 자료 조회
   const handleSearch = useCallback(() => {
-    const today = new Date();
-    const limitDate = subDays(today, 90);
-    const { searchType, from, to } = searchConfig;
-    // 90일 이내의 날짜인지
-    const isFromWithinRange = isAfter(new Date(`${from} 23:59:59`), limitDate);
-    const isToWithinRange = isAfter(new Date(`${to} 23:59:59`), limitDate);
-    const isPeriodWithinRange = isFromWithinRange && isToWithinRange;
-
-    if (searchType !== STATISTIC_SEARCH_TYPE.MONTHLY && !isPeriodWithinRange) {
-      // 범위에 맞는 날짜로 변경
-      setSearchConfig((prev) => ({
-        ...prev,
-        from: isFromWithinRange ? from : format(limitDate, 'yyyy-MM-dd'),
-        to: isToWithinRange ? to : format(today, 'yyyy-MM-dd'),
-      }));
-      return alert('매출 통계는 오늘부터 90일 전까지만 조회할 수 있습니다.');
-    }
-
+    salesStatisticResult.remove(); // 이전 query 제거
     salesStatisticResult.refetch();
-  }, [searchConfig, salesStatisticResult.refetch]);
+  }, [salesStatisticResult]);
 
   // 매출통계 조회 타입(일/월/시간대별) 변경시 from/to 기본값 설정
   useEffect(() => {
+    const today = new Date();
     if (searchConfig.searchType === STATISTIC_SEARCH_TYPE.DAILY) {
       // 일별 기본값: 1달
       setSearchConfig((prev) => ({
@@ -150,6 +134,11 @@ const SalesStatistic = () => {
       setSearchConfig((prev) => ({ ...prev, from: format(today, 'yyyy-MM-dd'), to: format(today, 'yyyy-MM-dd') }));
     }
   }, [searchConfig.searchType]);
+
+  // error 발생 시 pageInfo dataCnt 초기화
+  useEffect(() => {
+    if (salesStatisticResult.isError) handleDataCnt(-1);
+  }, [handleDataCnt, salesStatisticResult.isError]);
 
   return (
     <>
