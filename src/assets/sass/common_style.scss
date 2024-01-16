@@ -17,3 +17,12 @@
 .pointer {
     cursor: pointer;
 }
+
+// 제목 말줄임표 처리
+.ellipsis {
+    max-width: 71%;
+    display: block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
