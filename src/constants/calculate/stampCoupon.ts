@@ -3,15 +3,15 @@ export const STAMP_COUPON_DETAIL_COLGROUP_INFO = [
   { width: '68' },
   { width: '*' },
   { width: '200' },
-  { width: '130' },
+  { width: '100' },
   { width: '90' },
-  { width: '130' },
-  { width: '130' },
-  { width: '130' },
-  { width: '130' },
-  { width: '130' },
-  { width: '130' },
-  { width: '130' },
+  { width: '100' },
+  { width: '100' },
+  { width: '100' },
+  { width: '100' },
+  { width: '100' },
+  { width: '100' },
+  { width: '100' },
 ];
 
 export const STAMP_COUPON_DETAIL_THEAD_INFO = [
