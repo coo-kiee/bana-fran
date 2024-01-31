@@ -134,7 +134,7 @@ const SideMenubar: React.FC = () => {
         <p>안녕하세요.</p>
       </div>
       <div className="select-spot">
-        <select name="spot" onChange={handleChargeFranCode}>
+        <select name="spot" onChange={handleChargeFranCode} aria-label="지점명">
           {loginInfo.userInfo.f_list.map((data: any, key: number) => (
             <option key={key} value={data.f_code}>
               {data.f_code_name}

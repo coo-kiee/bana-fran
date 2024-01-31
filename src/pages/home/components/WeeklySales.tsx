@@ -48,7 +48,7 @@ const WeeklySales = () => {
         },
       }}
       enableLabel={false}
-      role="graphics-doc"
+      role="img"
       ariaLabel="Weekly Sales"
       layers={[
         'grid',

@@ -94,7 +94,7 @@ const LineChart = ({ chartFilter, searchType, data }: SalesLineChartProps) => {
       pointColor="#ffffff"
       pointBorderWidth={4}
       pointBorderColor={(props: Point) => props.serieColor}
-      role="graphics-doc"
+      role="img"
       tooltip={({ point }) => <LineChartTooltip point={point} searchType={searchType} />}
       layers={['grid', 'axes', (props) => lineChart(props), 'crosshair', 'lines', 'points', 'slices', 'mesh']}
     />

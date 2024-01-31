@@ -11,6 +11,7 @@ const CalendarHeader = ({ selectedDate, prevMonth, nextMonth }: CalendarHeaderPr
       <div className="navigation">
         <button
           className="prev navigation-button"
+          aria-label="이전 달 매출 조회"
           onClick={prevMonth}
           disabled={differenceInMonths(today, selectedDate) >= 12}
         ></button>
@@ -19,7 +20,8 @@ const CalendarHeader = ({ selectedDate, prevMonth, nextMonth }: CalendarHeaderPr
           {format(selectedDate, 'MM')}월
         </span>
         <button
-          className={`next navigation-button`}
+          className="next navigation-button"
+          aria-label="다음 달 매출 조회"
           onClick={nextMonth}
           disabled={isSameMonth(today, selectedDate)}
         ></button>

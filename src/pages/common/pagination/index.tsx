@@ -68,7 +68,12 @@ const Pagination: FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, 
   return !!dataCnt ? (
     <>
       <div className="paging-wrap">
-        <button className="btn-prev" onClick={handleArrowButton} disabled={currentPage === 1}></button>{' '}
+        <button
+          className="btn-prev"
+          aria-label="이전 페이지로 이동"
+          onClick={handleArrowButton}
+          disabled={currentPage === 1}
+        ></button>{' '}
         {/* disabled : 비활성화 */}
         <ul className="paging">
           {pageArr.map((pageNum) => {
@@ -84,12 +89,20 @@ const Pagination: FC<PaginationProps> = ({ dataCnt, pageInfo, handlePageChange, 
         </ul>
         <button
           className="btn-next"
+          aria-label="다음 페이지로 이동"
           onClick={handleArrowButton}
           disabled={maxPage === 0 || currentPage === maxPage}
         ></button>{' '}
         {/* disabled : 비활성화 */}
       </div>
-      <select className="filter-number" name="" id="" onChange={handleListRow} value={row}>
+      <select
+        className="filter-number"
+        aria-label="페이지당 게시물 수 선택"
+        name=""
+        id=""
+        onChange={handleListRow}
+        value={row}
+      >
         {rows.map((item) => (
           <option key={item} value={item}>
             {item}개

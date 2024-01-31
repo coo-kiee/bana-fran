@@ -11,6 +11,7 @@ const SelectListRow = () => {
   return (
     <select
       className="filter-number"
+      aria-label="페이지당 게시물 수 선택"
       name="row"
       id=""
       onChange={(e) => handleRow(Number(e.currentTarget.value))}

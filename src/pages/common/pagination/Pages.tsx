@@ -28,7 +28,12 @@ const Pages: FC = () => {
   return (
     <>
       <div className="paging-wrap">
-        <button className="btn-prev" onClick={handlePrev} disabled={pageInfo.currentPage === 1}></button>
+        <button
+          className="btn-prev"
+          aria-label="이전 페이지로 이동"
+          onClick={handlePrev}
+          disabled={pageInfo.currentPage === 1}
+        ></button>
         <ul className="paging">
           {pages.map(
             (page, index) =>
@@ -43,7 +48,12 @@ const Pages: FC = () => {
               ),
           )}
         </ul>
-        <button className="btn-next" onClick={handleNext} disabled={pageInfo.currentPage === maxPage}></button>
+        <button
+          className="btn-next"
+          aria-label="다음 페이지로 이동"
+          onClick={handleNext}
+          disabled={pageInfo.currentPage === maxPage}
+        ></button>
       </div>
       <SelectListRow />
     </>

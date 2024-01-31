@@ -42,6 +42,7 @@ const SelectOption: React.FC<SelectOptionProps> = ({ selectOption, optionList, s
           <select
             name=""
             id=""
+            aria-label={searchInfo.searchOption[selectIdx].title.replace(' 전체', '')}
             data-selectindex={selectIdx}
             value={searchInfo.searchOption[selectIdx].value}
             onChange={handleSearchSelect}

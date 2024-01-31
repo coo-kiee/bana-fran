@@ -128,9 +128,6 @@ article { display: flex; position: relative;
             flex: 1;
 
             .user-function {
-                // position: absolute;
-                // bottom: 30px;
-                // left: 20px;
                 width: 100%;
                 padding: 30px 0;
                 border-top: 1px solid #575767;
@@ -382,8 +379,7 @@ article { display: flex; position: relative;
 
                             td {
                                 height: auto;
-                                // padding: 25px 20px; // 기본
-                                padding: 15.75px 20px; // 라벨 QR 이벤트 칸 추가시 사용
+                                padding: 15.75px 20px;
                                 border-right: 1px solid #ddd;
                                 border-bottom: 1px solid #ddd;
 
