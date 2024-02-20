@@ -14,87 +14,27 @@ import {
   GiftCardDetailType,
   VirtualAccListType,
   OrderDetailListExcelType,
-  SummaryDataType,
-  OrderDetailSummaryDataType,
   OrderDetailListExcelTotalType,
 } from 'types/etc/etcType';
 
 // 수수료 내역 (*_total 프로시저 공통 함수)
-const useEtcTotal = <T extends { fran_store: number }, U>(
+const useEtcTotal = <T extends {}, U>(
   query: string,
   params: T,
   queryKey: string,
   option: { [key: string]: any } = {},
-): UseQueryResult<U, AxiosError<unknown, any>> => {
+): UseQueryResult<U[], AxiosError<unknown, any>> => {
   const { user } = useUserInfo();
   // paramType, resultType, query, params, queryKey
   const reqData: RequestParams<T> = { ws: 'fprocess', query, params };
 
-  return useQuery<U, AxiosError>([queryKey, params.fran_store], () => queryFn.getData(reqData), {
+  return useQuery<U[], AxiosError>([queryKey, ...Object.values(params)], () => queryFn.getDataList(reqData), {
     keepPreviousData: false,
     refetchOnWindowFocus: false,
     retry: false,
-    // suspense: true,
     enabled: user.staffNo > 0,
+    ...option,
   });
-};
-
-const useMusicTotal = (fran_store: number) => {
-  const { user } = useUserInfo();
-
-  const reqData: RequestParams<{ fran_store: number }> = {
-    ws: 'fprocess',
-    query: '8WDCFLDHSNA7WRN9JCBS',
-    params: { fran_store },
-  };
-  return useQuery<SummaryDataType[], AxiosError>(['etc_music_fee', fran_store], () => queryFn.getDataList(reqData), {
-    keepPreviousData: false,
-    refetchOnWindowFocus: false,
-    retry: false,
-    // suspense: true,
-    // useErrorBoundary: true,
-    enabled: user.staffNo > 0,
-  });
-};
-
-const useChkGiftCardStock = (params: { f_code: number }) => {
-  const { user } = useUserInfo();
-
-  const reqData: RequestParams<{ f_code: number }> = { ws: 'fprocess', query: 'U1UQFUQ3JVHCLULFASVU', params };
-  return useQuery<{ [key: string]: string }, AxiosError>(
-    ['etc_gift_card_stock', params.f_code],
-    () => queryFn.getData(reqData),
-    {
-      keepPreviousData: false,
-      refetchOnWindowFocus: false,
-      retry: false,
-      // suspense: true,
-      // useErrorBoundary: true,
-      enabled: user.staffNo > 0,
-    },
-  );
-}; // web_fran_s_etc_gift_cert_stock
-
-const useOrderDetailStatistic = (fran_store: number, option: { [key: string]: any } = {}) => {
-  const { user } = useUserInfo();
-  const reqData: RequestParams<{ fran_store: number }> = {
-    ws: 'fprocess',
-    query: '2Q65LKD2JBSZ3OWKWTWY',
-    params: { fran_store },
-  };
-
-  return useQuery<OrderDetailSummaryDataType[]>(
-    ['etc_order_detail_statistic', fran_store],
-    () => queryFn.getDataList(reqData),
-    {
-      keepPreviousData: false,
-      refetchOnWindowFocus: false,
-      retry: false,
-      // suspense: true,
-      // useErrorBoundary: true,
-      enabled: user.staffNo > 0,
-    },
-  );
 };
 
 // 상세 내역
@@ -235,10 +175,7 @@ const useOrderDetailModal = (params: { orderCode: number }) => {
 const ETC_SERVICE = {
   useEtcTotal,
   useEtcList,
-  useMusicTotal,
-  useChkGiftCardStock,
   useGiftCardList,
-  useOrderDetailStatistic,
   useDetailList,
   useDetailListExcel,
   useVirtualAccList,

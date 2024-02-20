@@ -14,14 +14,18 @@ import TableList from 'pages/common/table/TableList';
 
 // type, constants
 import { ETC_TAB_TITLE, ETC_OVERALL_TABLE_INFO } from 'constants/etc';
-import { ETC_TAB_TYPE } from 'types/etc/etcType';
+import { ETC_TAB_TYPE, SummaryDataType } from 'types/etc/etcType';
 
 const MusicChargeSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
   const {
     user: { fCode },
   } = useUserInfo();
 
-  const listData = ETC_SERVICE.useMusicTotal(fCode);
+  const listData = ETC_SERVICE.useEtcTotal<{ fran_store: number }, SummaryDataType>(
+    '8WDCFLDHSNA7WRN9JCBS',
+    { fran_store: fCode },
+    'etc_music_fee',
+  );
 
   return (
     <>
@@ -33,7 +37,7 @@ const MusicChargeSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
           queryRes={listData}
           render={(datas) =>
             datas?.map(({ std_date, item, supply_amt, vat_amt, total_amt }, idx) => (
-              <tr key={idx}>
+              <tr key={`music_charge_summary_item_${idx}`}>
                 <td className="align-center">{std_date}</td>
                 <td className="align-left">{item}</td>
                 <td className="align-center">{Utils.numberComma(supply_amt)}</td>

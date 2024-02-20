@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, Fragment } from 'react';
 import Utils from 'utils/Utils';
 
 // hook
@@ -20,7 +20,11 @@ const GiftCardSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
     user: { fCode },
   } = useUserInfo();
 
-  const listData = ETC_SERVICE.useChkGiftCardStock({ f_code: fCode });
+  const listData = ETC_SERVICE.useEtcTotal<{ f_code: number }, Record<string, string>>(
+    'U1UQFUQ3JVHCLULFASVU',
+    { f_code: fCode },
+    'etc_gift_card_stock',
+  );
 
   return (
     <>
@@ -30,65 +34,73 @@ const GiftCardSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         <Table.TableHead thData={ETC_OVERALL_TABLE_INFO[tabType].thead} />
         <TableList
           queryRes={listData}
-          render={({
-            fran_stock_cnt1,
-            fran_stock_amt1,
-            fran_stock_cnt3,
-            fran_stock_amt3,
-            fran_stock_cnt5,
-            fran_stock_amt5,
-            hq_stock_cnt1,
-            hq_stock_amt1,
-            hq_stock_cnt3,
-            hq_stock_amt3,
-            hq_stock_cnt5,
-            hq_stock_amt5,
-          }) => {
-            const cnt1_class = fran_stock_cnt1 !== hq_stock_cnt1 ? 'negative-value' : '';
-            const cnt3_class = fran_stock_cnt3 !== hq_stock_cnt3 ? 'negative-value' : '';
-            const cnt5_class = fran_stock_cnt5 !== hq_stock_cnt5 ? 'negative-value' : '';
-            const total_class =
-              fran_stock_cnt1 + fran_stock_cnt3 + fran_stock_cnt5 !== hq_stock_cnt1 + hq_stock_cnt3 + hq_stock_cnt5 ||
-              fran_stock_amt1 + fran_stock_amt3 + fran_stock_amt5 !== hq_stock_amt1 + hq_stock_amt3 + hq_stock_amt5
-                ? 'negative-value'
-                : '';
-            return (
-              <>
-                <tr>
-                  <td>매장 보유 재고</td>
-                  <td className={`align-center ${cnt1_class}`}>
-                    {Utils.numberComma(fran_stock_cnt1)}장 ({Utils.numberComma(fran_stock_amt1)})
-                  </td>
-                  <td className={`align-center ${cnt3_class}`}>
-                    {Utils.numberComma(fran_stock_cnt3)}장 ({Utils.numberComma(fran_stock_amt3)})
-                  </td>
-                  <td className={`align-center ${cnt5_class}`}>
-                    {Utils.numberComma(fran_stock_cnt5)}장 ({Utils.numberComma(fran_stock_amt5)})
-                  </td>
-                  <td className={`align-center ${total_class}`}>
-                    {Utils.numberComma(fran_stock_cnt1 + fran_stock_cnt3 + fran_stock_cnt5)}장 (
-                    {Utils.numberComma(fran_stock_amt1 + fran_stock_amt3 + fran_stock_amt5)})
-                  </td>
-                </tr>
-                <tr>
-                  <td>본사DB 재고</td>
-                  <td className={`align-center ${cnt1_class}`}>
-                    {Utils.numberComma(hq_stock_cnt1)}장 ({Utils.numberComma(hq_stock_amt1)})
-                  </td>
-                  <td className={`align-center ${cnt3_class}`}>
-                    {Utils.numberComma(hq_stock_cnt3)}장 ({Utils.numberComma(hq_stock_amt3)})
-                  </td>
-                  <td className={`align-center ${cnt5_class}`}>
-                    {Utils.numberComma(hq_stock_cnt5)}장 ({Utils.numberComma(hq_stock_amt5)})
-                  </td>
-                  <td className={`align-center ${total_class}`}>
-                    {Utils.numberComma(hq_stock_cnt1 + hq_stock_cnt3 + hq_stock_cnt5)}장 (
-                    {Utils.numberComma(hq_stock_amt1 + hq_stock_amt3 + hq_stock_amt5)})
-                  </td>
-                </tr>
-              </>
-            );
-          }}
+          render={(datas) =>
+            datas?.map(
+              (
+                {
+                  fran_stock_cnt1,
+                  fran_stock_amt1,
+                  fran_stock_cnt3,
+                  fran_stock_amt3,
+                  fran_stock_cnt5,
+                  fran_stock_amt5,
+                  hq_stock_cnt1,
+                  hq_stock_amt1,
+                  hq_stock_cnt3,
+                  hq_stock_amt3,
+                  hq_stock_cnt5,
+                  hq_stock_amt5,
+                },
+                idx,
+              ) => {
+                const cnt1_class = fran_stock_cnt1 !== hq_stock_cnt1 ? 'negative-value' : '';
+                const cnt3_class = fran_stock_cnt3 !== hq_stock_cnt3 ? 'negative-value' : '';
+                const cnt5_class = fran_stock_cnt5 !== hq_stock_cnt5 ? 'negative-value' : '';
+                const total_class =
+                  fran_stock_cnt1 + fran_stock_cnt3 + fran_stock_cnt5 !==
+                    hq_stock_cnt1 + hq_stock_cnt3 + hq_stock_cnt5 ||
+                  fran_stock_amt1 + fran_stock_amt3 + fran_stock_amt5 !== hq_stock_amt1 + hq_stock_amt3 + hq_stock_amt5
+                    ? 'negative-value'
+                    : '';
+                return (
+                  <Fragment key={`giftcard_summary_item_${idx}`}>
+                    <tr>
+                      <td>매장 보유 재고</td>
+                      <td className={`align-center ${cnt1_class}`}>
+                        {Utils.numberComma(fran_stock_cnt1)}장 ({Utils.numberComma(fran_stock_amt1)})
+                      </td>
+                      <td className={`align-center ${cnt3_class}`}>
+                        {Utils.numberComma(fran_stock_cnt3)}장 ({Utils.numberComma(fran_stock_amt3)})
+                      </td>
+                      <td className={`align-center ${cnt5_class}`}>
+                        {Utils.numberComma(fran_stock_cnt5)}장 ({Utils.numberComma(fran_stock_amt5)})
+                      </td>
+                      <td className={`align-center ${total_class}`}>
+                        {Utils.numberComma(fran_stock_cnt1 + fran_stock_cnt3 + fran_stock_cnt5)}장 (
+                        {Utils.numberComma(fran_stock_amt1 + fran_stock_amt3 + fran_stock_amt5)})
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>본사DB 재고</td>
+                      <td className={`align-center ${cnt1_class}`}>
+                        {Utils.numberComma(hq_stock_cnt1)}장 ({Utils.numberComma(hq_stock_amt1)})
+                      </td>
+                      <td className={`align-center ${cnt3_class}`}>
+                        {Utils.numberComma(hq_stock_cnt3)}장 ({Utils.numberComma(hq_stock_amt3)})
+                      </td>
+                      <td className={`align-center ${cnt5_class}`}>
+                        {Utils.numberComma(hq_stock_cnt5)}장 ({Utils.numberComma(hq_stock_amt5)})
+                      </td>
+                      <td className={`align-center ${total_class}`}>
+                        {Utils.numberComma(hq_stock_cnt1 + hq_stock_cnt3 + hq_stock_cnt5)}장 (
+                        {Utils.numberComma(hq_stock_amt1 + hq_stock_amt3 + hq_stock_amt5)})
+                      </td>
+                    </tr>
+                  </Fragment>
+                );
+              },
+            )
+          }
         />
       </Table>
     </>

@@ -17,11 +17,13 @@ import Table from 'pages/common/table';
 import TableList from 'pages/common/table/TableList';
 
 const DeliveryChargeSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
-  const { user } = useUserInfo();
+  const {
+    user: { fCode },
+  } = useUserInfo();
 
   const listData = ETC_SERVICE.useEtcTotal<{ fran_store: number }, SummaryDataType>(
     'YDKG75HJE31EPGS47MXQ',
-    { fran_store: user.fCode },
+    { fran_store: fCode },
     'etc_delivery_total',
   );
 
@@ -33,15 +35,17 @@ const DeliveryChargeSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         <Table.TableHead thData={ETC_OVERALL_TABLE_INFO[tabType].thead} />
         <TableList
           queryRes={listData}
-          render={({ std_date, item, supply_amt, vat_amt, total_amt }) => (
-            <tr>
-              <td className="align-center">{std_date}</td>
-              <td className="align-left">{item}</td>
-              <td className="align-right">{Utils.numberComma(supply_amt)}</td>
-              <td className="align-right">{Utils.numberComma(vat_amt)}</td>
-              <td className="align-right">{Utils.numberComma(total_amt)}</td>
-            </tr>
-          )}
+          render={(datas) =>
+            datas?.map(({ std_date, item, supply_amt, vat_amt, total_amt }, idx) => (
+              <tr key={`delivery_charge_summary_item_${idx}`}>
+                <td className="align-center">{std_date}</td>
+                <td className="align-left">{item || '바나 딜리버리 수수료 내역'}</td>
+                <td className="align-right">{Utils.numberComma(supply_amt)}</td>
+                <td className="align-right">{Utils.numberComma(vat_amt)}</td>
+                <td className="align-right">{Utils.numberComma(total_amt)}</td>
+              </tr>
+            ))
+          }
         />
       </Table>
     </>

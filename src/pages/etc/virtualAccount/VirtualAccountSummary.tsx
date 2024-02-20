@@ -34,18 +34,20 @@ const VirtualAccountSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         <Table.TableHead thData={ETC_OVERALL_TABLE_INFO[tabType].thead} />
         <TableList
           queryRes={listData}
-          render={({ fran_name, bank_code, account, total_charge, used_amount, balance }) => (
-            <tr>
-              <td className="align-center">{fran_name}</td>
-              <td className="align-left">{bank_code}</td>
-              <td className="align-center">{account}</td>
-              <td className="align-right">{Utils.numberComma(total_charge)}원</td>
-              <td className="align-right">{Utils.numberComma(used_amount)}원</td>
-              <td className="align-right">
-                <strong>{Utils.numberComma(balance)}원</strong>
-              </td>
-            </tr>
-          )}
+          render={(datas) =>
+            datas?.map(({ fran_name, bank_code, account, total_charge, used_amount, balance }, idx) => (
+              <tr key={`virtual_account_summary_item_${idx}`}>
+                <td className="align-center">{fran_name}</td>
+                <td className="align-left">{bank_code}</td>
+                <td className="align-center">{account}</td>
+                <td className="align-right">{Utils.numberComma(total_charge)}원</td>
+                <td className="align-right">{Utils.numberComma(used_amount)}원</td>
+                <td className="align-right">
+                  <strong>{Utils.numberComma(balance)}원</strong>
+                </td>
+              </tr>
+            ))
+          }
         />
       </Table>
     </>

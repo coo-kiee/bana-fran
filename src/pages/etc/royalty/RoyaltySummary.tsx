@@ -35,15 +35,17 @@ const RoyaltySummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
         <Table.TableHead thData={ETC_OVERALL_TABLE_INFO[tabType].thead} />
         <TableList
           queryRes={listData}
-          render={({ std_date, item, supply_amt, vat_amt, total_amt }) => (
-            <tr>
-              <td className="align-center">{std_date}</td>
-              <td className="align-left">{item}</td>
-              <td className="align-right">{Utils.numberComma(supply_amt)}</td>
-              <td className="align-right">{Utils.numberComma(vat_amt)}</td>
-              <td className="align-right">{Utils.numberComma(total_amt)}</td>
-            </tr>
-          )}
+          render={(datas) =>
+            datas?.map(({ std_date, item, supply_amt, vat_amt, total_amt }, idx) => (
+              <tr key={`royalty_summary_item_${idx}`}>
+                <td className="align-center">{std_date}</td>
+                <td className="align-left">{item}</td>
+                <td className="align-right">{Utils.numberComma(supply_amt)}</td>
+                <td className="align-right">{Utils.numberComma(vat_amt)}</td>
+                <td className="align-right">{Utils.numberComma(total_amt)}</td>
+              </tr>
+            ))
+          }
         />
       </Table>
     </>

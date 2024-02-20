@@ -9,7 +9,7 @@ import ETC_SERVICE from 'service/etcService';
 import useUserInfo from 'hooks/user/useUser';
 
 // type, constant
-import { ETC_TAB_TYPE } from 'types/etc/etcType';
+import { ETC_TAB_TYPE, OrderDetailSummaryDataType } from 'types/etc/etcType';
 import { ETC_OVERALL_TABLE_INFO } from 'constants/etc';
 
 // components
@@ -20,7 +20,12 @@ const OrderDetailSummary: FC<{ tabType: ETC_TAB_TYPE }> = ({ tabType }) => {
   const {
     user: { fCode },
   } = useUserInfo();
-  const listData = ETC_SERVICE.useOrderDetailStatistic(fCode);
+
+  const listData = ETC_SERVICE.useEtcTotal<{ fran_store: number }, OrderDetailSummaryDataType>(
+    '2Q65LKD2JBSZ3OWKWTWY',
+    { fran_store: fCode },
+    'etc_order_detail_statistic',
+  );
 
   return (
     <>
