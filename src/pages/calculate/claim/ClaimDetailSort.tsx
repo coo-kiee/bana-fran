@@ -23,6 +23,7 @@ const ClaimDetailSort: FC<IClaimDetailSort> = ({ tabType, filterCondition, handl
       ) : (
         <Select
           name={CLAIM_DETAIL_FILTER_TYPE.SORT}
+          label="구분"
           value={filterCondition[CLAIM_DETAIL_FILTER_TYPE.SORT]}
           options={CLAIM_DETAIL_FILTER_OPTION[tabType][CLAIM_DETAIL_FILTER_TYPE.SORT]}
           handleOnChange={handleFilterCondition}

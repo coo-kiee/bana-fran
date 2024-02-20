@@ -41,6 +41,7 @@ const Calander = ({
           showMonthYearPicker={showMonthYearPicker}
           dateFormat={dateFormat}
           minDate={fromMinDate}
+          customInput={<input value={calanderFromDate} aria-label="시작 날짜" />}
           onChange={(date) => validateSearchDate(date, calanderToDate) && handleCalanderFromDate(date)}
         />
         {toDate && (
@@ -51,6 +52,7 @@ const Calander = ({
               showMonthYearPicker={showMonthYearPicker}
               dateFormat={dateFormat}
               minDate={toMinDate}
+              customInput={<input value={calanderToDate} aria-label="종료 날짜" />}
               onChange={(date) => validateSearchDate(calanderFromDate, date) && handleCalanderToDate(date)}
             />
           </>
