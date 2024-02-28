@@ -1,4 +1,9 @@
 .fixed-paid-point-wrap.coupon {
+    .select-wrap {
+        select:nth-of-type(1) {
+            width: 360px;
+        }
+    }
     .search-result-wrap {
         .search-result {
             // max-height: 220px;
