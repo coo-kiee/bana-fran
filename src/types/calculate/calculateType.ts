@@ -80,7 +80,8 @@ type CalculateCouponDetailListQueryResult = {
   item_type_code: number;
   sItem: string; // 사용메뉴
   phone: string; // 주문자
-  total_amt: number; // 쿠폰 사용금액 / 본사발행 쿠폰 결제내역 합계
+  real_total_amt: number; // 쿠폰 사용금액
+  total_amt: number; // 쿠폰 정산금액 / 본사발행 쿠폰 결제내역 합계
   rcp_type: string; // 거래기기
   supply_amt: number; // 본사발행 쿠폰 결제내역 공급가
   vat_amt: number; // 본사발행 쿠폰 결제내역 부가세

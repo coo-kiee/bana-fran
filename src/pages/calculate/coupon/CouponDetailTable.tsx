@@ -77,6 +77,7 @@ const CouponDetailTable = ({ searchDate, filterCondition }: ICouponDetailTable) 
                     <td className="align-center">{couponDetail.rcp_date.split(' ')[0]}</td>
                     <td className="align-left">{couponDetail.item_type}</td>
                     <td className="align-center">{couponDetail.sItem}</td>
+                    <td className="align-right">{Utils.numberComma(couponDetail.real_total_amt)}</td>
                     <td className="align-right">{Utils.numberComma(couponDetail.total_amt)}</td>
                     <td className="align-center">{couponDetail.rcp_type}</td>
                     <td className="align-center">{couponDetail.phone}</td>
