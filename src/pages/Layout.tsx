@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { useLogin } from 'hooks/useLogin';

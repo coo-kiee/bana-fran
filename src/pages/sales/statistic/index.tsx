@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { format, subDays, subMonths } from 'date-fns';
 
@@ -107,10 +107,10 @@ const SalesStatistic = () => {
   const tableRef = useRef<HTMLTableElement>(null); // 실제 data가 들어간 table
 
   // 매출통계 자료 조회
-  const handleSearch = useCallback(() => {
+  const handleSearch = () => {
     salesStatisticResult.remove(); // 이전 query 제거
     salesStatisticResult.refetch();
-  }, [salesStatisticResult]);
+  };
 
   // 매출통계 조회 타입(일/월/시간대별) 변경시 from/to 기본값 설정
   useEffect(() => {

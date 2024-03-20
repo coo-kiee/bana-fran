@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useRecoilValue } from 'recoil';
 import { addMonths, subMonths, differenceInMonths, isSameMonth, format } from 'date-fns';
@@ -17,7 +17,7 @@ import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const MonthlySales = ({ selectedDate }: { selectedDate: Date }) => {
   const fCode = useRecoilValue(franState);
-  const searchMonth = useMemo(() => format(selectedDate, 'yyyy-MM-01'), [selectedDate]); // 선택한 달 (params)
+  const searchMonth = format(selectedDate, 'yyyy-MM-01'); // 선택한 달 (params)
   const { data } = HOME_SERVICE.useSalesTerms({ f_code: fCode, search_type: 'M', search_month: searchMonth });
 
   return <CalendarBody selectedDate={selectedDate} data={data || []} />;
