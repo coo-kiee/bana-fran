@@ -15,45 +15,49 @@ import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const Notice = () => {
-	const fCode = useRecoilValue(franState);
-	const { userInfo: { staff_no } } = useRecoilValue(loginState);
+  const fCode = useRecoilValue(franState);
+  const {
+    userInfo: { staff_no },
+  } = useRecoilValue(loginState);
 
-	// search_type 1 - 공지 / 2 - 자료실
-	const { data } = HOME_SERVICE.useBoardList({ f_code: fCode, staff_no, search_type: 1 });
+  // search_type 1 - 공지 / 2 - 자료실
+  const { data } = HOME_SERVICE.useBoardList({ f_code: fCode, staff_no, search_type: 1 });
 
-	return (
-		<>
-			{data?.map((board, idx) => {
-				const { board_id, board_type, category_name, important, title, insert_date } = board;
-				return (
-					<BoardItem
-						url='/notice'
-						boardType={board_type}
-						boardId={board_id}
-						important={important}
-						name={category_name}
-						title={title}
-						date={Utils.converDateFormat(insert_date, '-')}
-						key={title + idx}
-					/>
-				);
-			})}
-		</>
-	);
+  return (
+    <>
+      {data?.map((board, idx) => {
+        const { board_id, board_type, category_name, important, title, insert_date } = board;
+        return (
+          <BoardItem
+            url="/notice"
+            boardType={board_type}
+            boardId={board_id}
+            important={important}
+            name={category_name}
+            title={title}
+            date={Utils.converDateFormat(insert_date, '-')}
+            key={title + idx}
+          />
+        );
+      })}
+    </>
+  );
 };
 
-
 const NoticeContainer = () => {
-	return (
-		<Board title='공지사항' boardClass='notice' url='/notice'>
-			<ul className='contents-list' style={{ height: '210px' }}>
-				<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Notice(공지사항): ', e)}>
-					<Suspense fallback={<Loading width={50} height={50} marginTop={80} />}>
-						<Notice />
-					</Suspense>
-				</ErrorBoundary>
-			</ul>
-		</Board>
-	)
-}
+  return (
+    <Board title="공지사항" boardClass="notice" url="/notice">
+      <ul className="contents-list">
+        <ErrorBoundary
+          fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />}
+          onError={(e) => console.log('error on Notice(공지사항): ', e)}
+        >
+          <Suspense fallback={<Loading width={50} height={50} marginTop={80} />}>
+            <Notice />
+          </Suspense>
+        </ErrorBoundary>
+      </ul>
+    </Board>
+  );
+};
 export default NoticeContainer;

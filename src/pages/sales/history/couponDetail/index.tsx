@@ -75,7 +75,7 @@ const ModalContainer = styled.div<CouponUsageDetailContainerProps>`
 `;
 
 const Table = styled.table`
-  min-width: 400px;
+  min-width: 360px;
   margin: 0 auto;
   border-radius: 0;
   th {

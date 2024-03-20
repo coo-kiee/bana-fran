@@ -34,7 +34,7 @@ const TableRow = ({ data, isDisplay = true }: SalesTableRowProps<SalesStatisticD
   const salesHour = `${str_hour} ~ ${Number(str_hour) < 9 ? `0${Number(str_hour) + 1}` : Number(str_hour) + 1}시`;
 
   return (
-    <tr style={!isDisplay ? { display: 'none' } : {}}>
+    <tr className={!isDisplay ? 'undisplay' : ''}>
       <td>{salesDate || salesHour}</td>
       <td>{Utils.numberComma(total_sales_amt)}</td>
       <td>{Utils.numberComma(app_delivery_amt)}</td>

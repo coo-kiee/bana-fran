@@ -16,44 +16,49 @@ import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 
 const Archive = () => {
-	const fCode = useRecoilValue(franState);
-	const { userInfo: { staff_no } } = useRecoilValue(loginState);
-	// search_type 1 - 공지 / 2 - 자료실
-	const { data } = HOME_SERVICE.useBoardList({ f_code: fCode, staff_no, search_type: 2 });
+  const fCode = useRecoilValue(franState);
+  const {
+    userInfo: { staff_no },
+  } = useRecoilValue(loginState);
+  // search_type 1 - 공지 / 2 - 자료실
+  const { data } = HOME_SERVICE.useBoardList({ f_code: fCode, staff_no, search_type: 2 });
 
-	return (
-		<>
-			{data?.map((board, idx) => {
-				const { board_id, board_type, important, category_name, title, insert_date } = board;
-				return (
-					<BoardItem
-						url='/board'
-						boardType={board_type}
-						boardId={board_id}
-						important={important}
-						name={category_name}
-						title={title}
-						date={Utils.converDateFormat(insert_date, '-')}
-						key={title + idx}
-					/>
-				);
-			})}
-		</>
-	);
+  return (
+    <>
+      {data?.map((board, idx) => {
+        const { board_id, board_type, important, category_name, title, insert_date } = board;
+        return (
+          <BoardItem
+            url="/board"
+            boardType={board_type}
+            boardId={board_id}
+            important={important}
+            name={category_name}
+            title={title}
+            date={Utils.converDateFormat(insert_date, '-')}
+            key={title + idx}
+          />
+        );
+      })}
+    </>
+  );
 };
 
 const ArchiveContainer = () => {
-	return (		
-		<Board title='자료실' boardClass='dataroom' url='/board'>
-			<ul className='contents-list' style={{ height: '210px' }}>
-				<ErrorBoundary fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />} onError={(e) => console.log('error on Archive(자료실): ', e)}>
-					<Suspense fallback={<Loading width={50} height={50} marginTop={80} />}>		
-						<Archive />
-					</Suspense>
-				</ErrorBoundary>
-			</ul>
-		</Board>
-	)
-}
+  return (
+    <Board title="자료실" boardClass="dataroom" url="/board">
+      <ul className="contents-list">
+        <ErrorBoundary
+          fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />}
+          onError={(e) => console.log('error on Archive(자료실): ', e)}
+        >
+          <Suspense fallback={<Loading width={50} height={50} marginTop={80} />}>
+            <Archive />
+          </Suspense>
+        </ErrorBoundary>
+      </ul>
+    </Board>
+  );
+};
 
 export default ArchiveContainer;

@@ -35,7 +35,7 @@ const useBoardList = (params: BoardListParams) => {
   );
 };
 
-// 멤버십 적립현황
+// 멤버십 적립 현황
 const useMembershipInfo = (params: CommonQueryParams) => {
   const reqData: RequestParams<CommonQueryParams> = {
     ws: 'fprocess',
@@ -51,7 +51,7 @@ const useMembershipInfo = (params: CommonQueryParams) => {
   });
 };
 
-// Today - 총매출 조회
+// Today - 총 매출 조회
 const useSalesToday = (params: CommonQueryParams) => {
   const reqData: RequestParams<CommonQueryParams> = {
     ws: 'fprocess',
@@ -67,7 +67,7 @@ const useSalesToday = (params: CommonQueryParams) => {
   });
 };
 
-// 기간별 - 총매출 조회
+// 기간별 - 총 매출 조회
 const useSalesTerms = (params: SalesTermsParams) => {
   const reqData: RequestParams<SalesTermsParams> = {
     ws: 'fprocess',
@@ -87,7 +87,7 @@ const useSalesTerms = (params: SalesTermsParams) => {
   );
 };
 
-// 월별 발주금액
+// 월별 발주 금액
 const useMonthlyOrderList = (params: CommonQueryParams) => {
   const reqData: RequestParams<CommonQueryParams> = {
     ws: 'fprocess',
