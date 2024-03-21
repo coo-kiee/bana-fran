@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, useCallback, useEffect, useRef } from 'react';
 import { useRecoilState } from 'recoil';
 import { ErrorBoundary } from 'react-error-boundary';
 import styled from 'styled-components';
@@ -16,16 +16,28 @@ import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
 import CouponUsage from './CouponUsage';
 
 const CouponDetail = () => {
+  const couponDetailRef = useRef<HTMLTableElement>(null);
   const [couponModal, setCouponModal] = useRecoilState(couponModalState);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setCouponModal((prev) => ({ ...prev, isOpen: false }));
-  };
+  }, [setCouponModal]);
+
+  // 쿠폰 상세 모달 바깥 영역 클릭시 닫기
+  useEffect(() => {
+    const handleOuterClick = (e: MouseEvent) => {
+      e.stopPropagation();
+      const target = e.target as HTMLElement;
+      if (target.childNodes[0]?.parentElement?.offsetParent !== couponDetailRef.current) handleClose();
+    };
+    document.body.addEventListener('click', handleOuterClick);
+    return () => document.body.removeEventListener('click', handleOuterClick);
+  }, [handleClose]);
 
   return (
     <Portal containerId="root">
       <ModalContainer posX={couponModal.posX} posY={couponModal.posY} clientY={couponModal.clientY}>
-        <Table className="board-wrap" cellPadding={0} cellSpacing={0}>
+        <Table className="board-wrap" cellPadding={0} cellSpacing={0} ref={couponDetailRef}>
           <colgroup>
             <col width="auto" />
             <col width="35%" />
@@ -50,7 +62,7 @@ const CouponDetail = () => {
           <tfoot>
             <tr>
               <td className="button-cell" colSpan={2}>
-                <button type="button" onClick={handleClose}>
+                <button className="button-close" type="button" onClick={handleClose}>
                   확인
                 </button>
               </td>

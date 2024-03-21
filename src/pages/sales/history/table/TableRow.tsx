@@ -65,6 +65,7 @@ const TableRow = ({ data }: DataProps<SalesHistoryData>) => {
   };
 
   const handleClickPoint = (e: React.MouseEvent, type: SalesCouponType) => {
+    e.stopPropagation();
     // modal 열기
     setOpenCouponModal({ isOpen: true, posX: e.pageX, posY: e.pageY, clientY: e.clientY });
     // coupon api params
