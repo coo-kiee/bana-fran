@@ -66,7 +66,7 @@ const MembershipContainer = () => {
             )}
             onError={(e) => console.log('error on Membership(멤버십 적립 현황): ', e)}
           >
-            <Suspense fallback={<Loading width={50} height={50} marginTop={15} isTable />}>
+            <Suspense fallback={<Loading width={50} height={50} marginTop={16} isTable />}>
               <Membership />
             </Suspense>
           </ErrorBoundary>

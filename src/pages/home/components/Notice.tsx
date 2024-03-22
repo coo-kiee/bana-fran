@@ -11,8 +11,8 @@ import Utils from 'utils/Utils';
 // Components
 import Board from 'pages/home/components/board/Board';
 import BoardItem from 'pages/home/components/board/BoardItem';
-import Loading from 'pages/common/loading';
 import SuspenseErrorPage from 'pages/common/suspenseErrorPage';
+import CustomLoading from './CustomLoading';
 
 const Notice = () => {
   const fCode = useRecoilValue(franState);
@@ -52,7 +52,7 @@ const NoticeContainer = () => {
           fallbackRender={({ resetErrorBoundary }) => <SuspenseErrorPage resetErrorBoundary={resetErrorBoundary} />}
           onError={(e) => console.log('error on Notice(공지사항): ', e)}
         >
-          <Suspense fallback={<Loading width={50} height={50} marginTop={80} />}>
+          <Suspense fallback={<CustomLoading padding="62px 0" />}>
             <Notice />
           </Suspense>
         </ErrorBoundary>
