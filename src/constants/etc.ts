@@ -430,7 +430,7 @@ export const ORDER_SUM_TYPE = {
 } as const;
 export const ORDER_SUM_TOTAL_INFO = {
   [ORDER_SUM_TYPE.TOTAL]: { title: '총 발주금액 합계', sum: 0 },
-  [ORDER_SUM_TYPE.SUPPLY_FEE_TOTAL]: { title: '총 발주금액 합계', sum: 0 },
+  [ORDER_SUM_TYPE.SUPPLY_FEE_TOTAL]: { title: '총 발주금액 공급가', sum: 0 },
   [ORDER_SUM_TYPE.SUPPLY_FEE_TAX_TOTAL]: { title: '총 발주금액 부가세', sum: 0 },
 };
 
