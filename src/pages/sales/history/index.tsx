@@ -143,7 +143,7 @@ const SalesHistory = () => {
               </p>
               <p className="hyphen notification">
                 본사쿠폰(미보전): 본사 발행 이벤트/프로모션 쿠폰 중 가맹점 부담 쿠폰. (23/5/1일부터{' '}
-                <span className="emphasis">1,500원 앱전용 쿠폰</span> 가맹점 부담)
+                <em className="emphasis">1,500원 앱전용 쿠폰</em> 가맹점 부담)
               </p>
             </div>
             <div className="board-filter">
